@@ -6,6 +6,6 @@ Inbuffer: prefix: pb!~pb@cloaked.nc.rr.com params: #jism trailing:"Even as far b
             at goat.core.Message.<init>(Message.java:160)
             at goat.core.ServerConnection$InputHandler.run(ServerConnection.java:82)
 
-
+^This is a probable problem with recieving a null string from the server. FIXED, hopefully. Was resp. for many a weird disconnection.
 
 
