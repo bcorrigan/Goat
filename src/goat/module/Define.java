@@ -54,6 +54,7 @@ public class Define extends Module {
 	}
 
 	public static void main(String[] arg) {
+		new Define() ;
 		DatabaseList dbList = dict.listDatabases() ;
 		Database db ;
 		while (dbList.hasNext()) {
