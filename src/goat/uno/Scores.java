@@ -18,7 +18,7 @@ import java.beans.XMLDecoder;
  */
 public class Scores implements Comparator {
 
-	ArrayList records = new ArrayList();
+	ArrayList records; 
 
 	public Scores() {
 		try {
