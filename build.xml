@@ -26,7 +26,7 @@
 		<mkdir dir="${jars}/bin"/>
 		<!--Need to narrow this to specific OSs via "os" property-->
 		<exec executable="/bin/sh" output="${build}/goatRevision" os="Linux, FreeBSD">
-			<arg line="version.sh"/>
+			<arg line="tools/version.sh"/>
 		</exec>
 		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}">
 			<manifest>
