@@ -53,7 +53,18 @@ public class Horoscope extends Module {
                 }
             }
             m.createReply("I don't know what sign you are, " + m.sender + ", perhaps you should tell me.").send();
-        } else {
+        } else if (m.modTrailing.trim().toLowerCase().matches("aries") ||
+                m.modTrailing.trim().toLowerCase().matches("taurus") ||
+                m.modTrailing.trim().toLowerCase().matches("gemini") ||
+                m.modTrailing.trim().toLowerCase().matches("cancer") ||
+                m.modTrailing.trim().toLowerCase().matches("leo") ||
+                m.modTrailing.trim().toLowerCase().matches("virgo") ||
+                m.modTrailing.trim().toLowerCase().matches("libra") ||
+                m.modTrailing.trim().toLowerCase().matches("scorpio") ||
+                m.modTrailing.trim().toLowerCase().matches("sagittarius") ||
+                m.modTrailing.trim().toLowerCase().matches("capricorn") ||
+                m.modTrailing.trim().toLowerCase().matches("aquarius") ||
+                m.modTrailing.trim().toLowerCase().matches("pisces")) {
             Iterator it = users.iterator();
             while (it.hasNext()) {
                 HoroscopeUser user = (HoroscopeUser) it.next();
