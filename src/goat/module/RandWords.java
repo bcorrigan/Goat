@@ -13,9 +13,9 @@ import java.util.Random ;
 /**
  * Title:    
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
- * 
- *	Author: encontrado
- * 
+ * <p/>
+ * @author encontrado
+ *
  * @version 1.0
  */
 
