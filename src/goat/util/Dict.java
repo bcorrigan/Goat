@@ -171,7 +171,7 @@ public class Dict {
 	/**
 	 * You probably want to use numWords instead of this; it's faster.
 	 * 
-	 * @param File File to be line-counted
+	 * @param file File to be line-counted
 	 * @return number of lines in File
 	 */
 	private int lineCount(File file) {
