@@ -36,10 +36,13 @@
 					<attribute name="Specification-Title" value="Goatyness"/>
 					<attribute name="Specification-Version" value="Goaty Goat"/>
 					<attribute name="Goat-Title" value="Goat"/>
-					<attribute name="Goat-Version" value="2.0"/>
+					<attribute name="Goat-Version" value="2.0 ${DSTAMP} "/>
 				</section>
 			</manifest>
 		</jar>
+		<!-- delete the jar in top dir, and replace with updated copy -->
+		<delete file="goat.jar"/>
+		<copy file="${jars}/bin/Goat-${DSTAMP}.jar" tofile="goat.jar"/>
 	</target>
 
 	<target name="clean"
