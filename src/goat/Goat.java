@@ -4,10 +4,7 @@ import goat.core.*;
 import goat.module.ModuleCommands;
 import goat.module.CTCP;
 
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 public class Goat {
 	private static boolean showhelp;
@@ -15,7 +12,6 @@ public class Goat {
 	public static MessageQueue outqueue = new MessageQueue();
 
 	public static void main(String[] args) {
-		setDefaultStats();
 		parseArgs(args);
 		if (showhelp)
 			showHelp();
@@ -25,6 +21,7 @@ public class Goat {
 	}
 
 	public Goat() {
+		setDefaultStats();
 		ServerConnection sc = new ServerConnection(BotStats.servername); //lets init the connection..
 		ModuleController modController = new ModuleController();
 		loadDefaultModules(modController);
@@ -109,7 +106,22 @@ public class Goat {
 		}
 	}
 
-	private static void setDefaultStats() {
+	private void setDefaultStats() {
+		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF")));
+		String line;
+		try {
+			while ((line = br.readLine()) != null)
+				if (line.startsWith("Goat-Version")) {
+					BotStats.version = line.replaceFirst("Goat-Version: ", "r");
+					break;
+				}
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if(BotStats.version==null)
+				BotStats.version = "unknown";
+		}
 		BotStats.botname = "goat";
 		BotStats.addChannel("#gayness");
 		BotStats.clientName = "goat";
