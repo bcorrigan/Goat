@@ -71,7 +71,7 @@ public class Threat extends Module implements Runnable {
 		while (true) {
 			commitThreat(getLatestThreatLevel());
 			try {
-				Thread.sleep(600);		//update the threat level every ten minutes
+				Thread.sleep(600000);		//update the threat level every ten minutes
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
