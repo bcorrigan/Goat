@@ -11,18 +11,21 @@ public class Goat {
 	public static MessageQueue inqueue = new MessageQueue();
 	public static MessageQueue outqueue = new MessageQueue();
 	public static ModuleController modController = new ModuleController() ;
+    public static String[] argv = {""};
 
 	public static void main(String[] args) {
-		parseArgs(args);
-		if (showhelp)
-			showHelp();
-		else {
-			Goat goat = new Goat();
-		}
+        argv=args;
+		Goat goat = new Goat();
 	}
 
 	public Goat() {
-		setDefaultStats();
+        setDefaultStats();
+		parseArgs(argv);
+        if (showhelp) {
+			showHelp();
+            System.exit(0);
+        }
+
 		ServerConnection sc = new ServerConnection(BotStats.servername); //lets init the connection..
 		loadDefaultModules(modController);
 		try {
@@ -130,6 +133,6 @@ public class Goat {
 		BotStats.addChannel("#gayness");
 		BotStats.clientName = "goat";
 		BotStats.owner = "bc";
-		BotStats.servername = "coruscant.slashnet.org";
+		BotStats.servername = "moo.slashnet.org";
 	}
 }
