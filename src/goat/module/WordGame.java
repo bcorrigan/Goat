@@ -32,7 +32,7 @@ public class WordGame extends Module implements Runnable {
 	private long matchscorestime;					//how long since someone asked for the match score table <-----\__These two to stop users from being able to make the bot flood
 	private Scores scores = new Scores();			//scores related stuff
 
-	private static HashMap lastAnswers;				//HashMap of last answers across many channels
+	private static HashMap lastAnswers = new HashMap();				//HashMap of last answers across many channels
 
 	private final static int NAME = 0;              //Various statics
 	private final static int ANSWER = 1;
