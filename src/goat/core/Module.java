@@ -57,6 +57,10 @@ public abstract class Module {
 	public final ArrayList getChannels() {
 		return channels;
 	}
+	
+	public final boolean inChannel(String channelname) {
+		return channels.contains(channelname) ;
+	}
 
     /**
      * <p>Returns an array of commands that the module is interested in. </p>

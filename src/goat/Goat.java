@@ -10,6 +10,7 @@ public class Goat {
 	private static boolean showhelp;
 	public static MessageQueue inqueue = new MessageQueue();
 	public static MessageQueue outqueue = new MessageQueue();
+	public static ModuleController modController = new ModuleController() ;
 
 	public static void main(String[] args) {
 		parseArgs(args);
@@ -23,7 +24,6 @@ public class Goat {
 	public Goat() {
 		setDefaultStats();
 		ServerConnection sc = new ServerConnection(BotStats.servername); //lets init the connection..
-		ModuleController modController = new ModuleController();
 		loadDefaultModules(modController);
 		try {
 			Thread.sleep(100);   //lets give the logon a chance to progress before adding messages to queues
