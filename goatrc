@@ -14,5 +14,8 @@ insmod TODO all
 insmod Adventure all
 insmod Calc all
 insmod GoatSay all
-#join #jism
+insmod Horoscope all
+insmod Remind all
+insmod CurrencyConverter all
+join #jism
 join #wordgame
