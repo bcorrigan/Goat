@@ -68,7 +68,7 @@ public class Calc extends Module {
 					target.createPagedReply(answer).send();
 			} catch (CalculatorException e) {
 				error = true;
-				e.printStackTrace(); //just ignore balls ups
+				target.createReply(e.getLocalizedMessage()).send();
 			}
 		}
 	}
