@@ -1,9 +1,9 @@
 my core is a module-, auth- and channel-manager.
 #auth <password># - auths with me. Sets you +o. Registers you as my owner.
-@#insmod <Module># - installs a module
-@#lsmod# - lists installed modules
+@#insmod <Module> <channel># - installs a module to listen to specified channel. Say "all" for channel if you want it to listen to all channels.. 
+#lsmod# - lists installed modules
 @#rmmod <Module># - unplugs a module
-@#shutdown# - cleanly disconnect me
+@#quit <QuitMessage># - cleanly disconnect me
 @#nick <new nick># - changes my default name
-@#chan <new channel># - hops me to another channel
+@#join <new channel># - joins me to another channel
 @#passwd <new password># - changes my authentication password
