@@ -72,7 +72,7 @@
 
     <target name="run" description="Start up goat">
         <java jar="goat.jar" fork="true" classpathref="project.class.path">
-            <jvmarg value="-server"/>
+            <jvmarg value="-server -Xbootclasspath/a:lib/ant.jar:lib/jaxen-core.jar:lib/jaxen-jdom.jar:lib/jdom.jar:lib/saxpath.jar:lib/xalan.jar:lib/xerces.jar:lib/xml-apis.jar"/>
             <!--<classpath refid="project.class.path"/>-->
         </java>
     </target>
