@@ -1,6 +1,5 @@
 package goat.core;
 
-import goat.Goat;
 
 import java.util.ArrayList;
 

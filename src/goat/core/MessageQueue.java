@@ -4,8 +4,7 @@ import java.util.LinkedList;
 
 /**
  * <p>A threadsafe queue of Messages.
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
- * 
+ * @author <p><b>(C) Barry Corrigan</b> All Rights Reserved.</p>
  * @version 1.0
  */
 
