@@ -71,7 +71,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
                             }
                         }
 
-                        if (stringArg.matches("^[a-zA-Z]*$")) {
+                        if (!stringArg.matches("^[a-zA-Z]*$")) {
                             m.createReply("Comment must match ^[a-zA-Z]*$").send();
                             return;
                         }
@@ -384,7 +384,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
             String[] parts = files[i].getName().split("\\."); //parts of the file name
             if (parts[0].equals(gameName))
                 if (parts[1].equals(target.channame))
-                    if (parts[3].equals(Integer.toString(loadSlot))) {
+                    if (parts[3].equals(Integer.toString(saveSlot))) {
                         file = files[i];                             //slot is taken! delete old occupant of slot
                         file.delete();
                     }
