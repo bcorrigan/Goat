@@ -106,13 +106,27 @@
     <option name="HIDE_WARNINGS" value="false" />
   </component>
   <component name="FileEditorManager" split-orientation="horizontal" split-proportion="0.5">
-    <first-group selected-file="file://$PROJECT_DIR$/src/goat/module/WordGame.java">
+    <first-group selected-file="file://$PROJECT_DIR$/src/goat/core/ServerConnection.java">
       <entry file="file://$PROJECT_DIR$/src/goat/module/WordGame.java" pinned="false">
         <provider selected="true" editor-type-id="text-editor">
-          <state line="393" column="28" selection-start="11754" selection-end="11754" vertical-scroll-proportion="0.33893353">
+          <state line="61" column="4" selection-start="1708" selection-end="1708" vertical-scroll-proportion="0.49379107">
             <folding>
               <element signature="imports" expanded="true" />
             </folding>
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/src/goat/core/Message.java" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="520" column="33" selection-start="13710" selection-end="13710" vertical-scroll-proportion="0.9956172">
+            <folding />
+          </state>
+        </provider>
+      </entry>
+      <entry file="file://$PROJECT_DIR$/src/goat/core/ServerConnection.java" pinned="false">
+        <provider selected="true" editor-type-id="text-editor">
+          <state line="84" column="140" selection-start="2916" selection-end="2916" vertical-scroll-proportion="0.38203067">
+            <folding />
           </state>
         </provider>
       </entry>
@@ -122,20 +136,6 @@
             <folding>
               <element signature="imports" expanded="true" />
             </folding>
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/goat/core/Message.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="181" column="37" selection-start="6199" selection-end="6199" vertical-scroll-proportion="0.9335281">
-            <folding />
-          </state>
-        </provider>
-      </entry>
-      <entry file="file://$PROJECT_DIR$/src/goat/core/ServerConnection.java" pinned="false">
-        <provider selected="true" editor-type-id="text-editor">
-          <state line="73" column="24" selection-start="2452" selection-end="2452" vertical-scroll-proportion="0.43535426">
-            <folding />
           </state>
         </provider>
       </entry>
@@ -168,17 +168,15 @@
   </component>
   <component name="J2EEProjectPane" />
   <component name="PackagesPane">
-    <expanded_node url="" module="Goat" type="module" />
-    <expanded_node url="goat" module="Goat" type="package" />
     <expanded_node url="goat.core" module="Goat" type="package" />
-    <expanded_node url="goat.module" module="Goat" type="package" />
+    <expanded_node url="goat" module="Goat" type="package" />
+    <expanded_node url="" module="Goat" type="module" />
   </component>
   <component name="ProjectPane">
-    <expanded_node url="file://$PROJECT_DIR$/src/goat/core" module="Goat" type="directory" />
-    <expanded_node url="file://$PROJECT_DIR$/src/goat" module="Goat" type="directory" />
     <expanded_node url="file://$PROJECT_DIR$" module="Goat" type="directory" />
-    <expanded_node url="" module="Goat" type="module" />
     <expanded_node url="file://$PROJECT_DIR$/src" module="Goat" type="directory" />
+    <expanded_node url="" module="Goat" type="module" />
+    <expanded_node url="file://$PROJECT_DIR$/src/goat" module="Goat" type="directory" />
   </component>
   <component name="ProjectView">
     <navigator currentView="PackagesPane" splitterProportion="0.5">
@@ -306,7 +304,7 @@
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="8" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33097094" order="2" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25" order="2" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33072406" order="7" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33097094" order="7" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="sliding" type="sliding" visible="false" weight="0.27094105" order="0" />
       <window_info id="Project" active="false" anchor="left" auto_hide="true" internal_type="docked" type="docked" visible="false" weight="0.1446541" order="0" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.37774628" order="4" />
@@ -420,30 +418,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/goat/core/Module.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="102" column="25" selection-start="3407" selection-end="3407" vertical-scroll-proportion="0.61617196">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/goat/core/ModuleController.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="18" selection-start="332" selection-end="332" vertical-scroll-proportion="0.11061452">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/goat/module/CompareScores.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="18" column="28" selection-start="534" selection-end="534" vertical-scroll-proportion="0.22122905">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/goat/core/BotStats.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="32" column="0" selection-start="728" selection-end="728" vertical-scroll-proportion="0.3932961">
           <folding />
         </state>
       </provider>
@@ -464,10 +441,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/goat/module/WordGame.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="393" column="28" selection-start="11754" selection-end="11754" vertical-scroll-proportion="0.33893353">
+        <state line="61" column="4" selection-start="1708" selection-end="1708" vertical-scroll-proportion="0.49379107">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/goat/core/Message.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="520" column="33" selection-start="13710" selection-end="13710" vertical-scroll-proportion="0.9956172">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/goat/core/ServerConnection.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="84" column="140" selection-start="2916" selection-end="2916" vertical-scroll-proportion="0.38203067">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -477,20 +468,6 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/goat/core/Message.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="181" column="37" selection-start="6199" selection-end="6199" vertical-scroll-proportion="0.9335281">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/goat/core/ServerConnection.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="24" selection-start="2452" selection-end="2452" vertical-scroll-proportion="0.43535426">
-          <folding />
         </state>
       </provider>
     </entry>

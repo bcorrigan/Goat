@@ -84,6 +84,11 @@
     <option enabled="false" />
   </component>
   <component name="WebRootContainer" />
+  <component name="copyright">
+    <option name="body" value="/*&#10; * CopyrightPlugin (c) 2004 Your Corporation. All Rights Reserved.&#10; */&#10;" />
+    <option name="location" value="1" />
+    <option name="remove" value="true" />
+  </component>
   <component name="libraryTable" />
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="false" />
