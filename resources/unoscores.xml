@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.5.0-beta2" class="java.beans.XMLDecoder"> 
+ <object class="java.util.ArrayList"> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>18</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>52</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>1300</int> 
+    </void> 
+    <void property="name"> 
+     <string>bc</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>195</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>16</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>35</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>1113</int> 
+    </void> 
+    <void property="name"> 
+     <string>pb</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>144</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>14</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>33</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>891</int> 
+    </void> 
+    <void property="name"> 
+     <string>anamexis</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>116</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>15</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>34</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>671</int> 
+    </void> 
+    <void property="name"> 
+     <string>encontrado</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>86</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>8</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>29</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>660</int> 
+    </void> 
+    <void property="name"> 
+     <string>wrath</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>149</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>5</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>30</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>400</int> 
+    </void> 
+    <void property="name"> 
+     <string>pc</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>113</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>5</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>19</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>320</int> 
+    </void> 
+    <void property="name"> 
+     <string>Godzilla</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>140</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>2</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>4</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>132</int> 
+    </void> 
+    <void property="name"> 
+     <string>shoeboy</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>72</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesWon"> 
+     <int>1</int> 
+    </void> 
+    <void property="gamesEntered"> 
+     <int>3</int> 
+    </void> 
+    <void property="totalScore"> 
+     <int>29</int> 
+    </void> 
+    <void property="name"> 
+     <string>dantes</string> 
+    </void> 
+    <void property="hiScore"> 
+     <int>29</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>1</int> 
+    </void> 
+    <void property="name"> 
+     <string>qpt</string> 
+    </void> 
+   </object> 
+  </void> 
+ </object> 
+</java> 
