@@ -219,7 +219,7 @@ public class Dict {
 		System.out.println("Word #666: " + dict.getWord(666));
 		System.out.println("indexed words: " + dict.numWords);
 		System.out.println("last word : " + dict.getWord(dict.numWords));
-		System.out.println("trying to produce an error by requesting word #" + (int) (dict.numWords + 1) + " : ");
+		System.out.println("trying to produce an error by requesting word #" + (dict.numWords + 1) + " : ");
 		System.out.println(dict.getWord(dict.numWords + 1));
 		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :");
 		System.out.println(dict.getWord(0));
