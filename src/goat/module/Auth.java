@@ -62,11 +62,11 @@ public class Auth extends Module {
     private void loadPassword() {
         BufferedReader r;
         try {
-            r = new BufferedReader(new FileReader("password.txt"));
+            r = new BufferedReader(new FileReader("resources/password.txt"));
             passwordhash = r.readLine();
             r.close();
         } catch (IOException e) {
-            System.err.println("Could not open password file \"password.txt\".");
+            System.err.println("Could not open password file \"resources/password.txt\".");
             passwordhash = "";
             return;
         }
