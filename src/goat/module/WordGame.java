@@ -97,7 +97,7 @@ public class WordGame extends Module implements Runnable {
 	}
 
 	private void finaliseGame(Message m) {
-		String reply = "";
+		String reply;
 		boolean shortest = false;
 		if (currentWinning != null) {
 			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + (int) score + " points!";
@@ -152,7 +152,7 @@ public class WordGame extends Module implements Runnable {
 							currentWinning[ANSWER] = words[i].toLowerCase();
 							score();
 							m.createReply(m.sender + " steals the lead with " + words[i].toLowerCase()
-									+ ". score: " + (int) score).send();
+									+ ". score: " + score).send();
 						}
 					} else {
 						currentWinning = new String[3];
@@ -160,7 +160,7 @@ public class WordGame extends Module implements Runnable {
 						currentWinning[ANSWER] = words[i].toLowerCase();
 						score();
 						m.createReply(m.sender + " sets the pace with " + words[i].toLowerCase()
-								+ ". score:" + (int) score).send();
+								+ ". score:" + score).send();
 					}
 					if (words[i].length() == longestPossible) {
 						//We have a winner!

@@ -99,12 +99,4 @@ public abstract class Module {
 	 * (ie. a message sent to everyone in a channel by a user).
 	 */
 	public abstract void processChannelMessage(Message m);
-
-	/**
-	 * Called when the Botcore removes the module. As some modules may be threaded, this will need to stop any threads.
-	 */
-	public void destroy() {
-    }
-
-
 }
