@@ -58,7 +58,7 @@ public class RandWords extends Module {
 			m.createReply(randWordString(num)).send() ;
 		} else if (m.getWord(0).equals("bandname")) {
 			String arg = m.modTrailing.trim() ;
-			String reply = "" ;
+			String reply;
 			if (arg.equals("") || arg.equals(null)) {
 				reply = randWordString(2) ;
 			} else {
@@ -100,8 +100,7 @@ public class RandWords extends Module {
 	public ArrayList getWords(int num) {
 		// return num random words as an ArrayList
 		ArrayList wordList = new ArrayList() ;
-		int i = 0 ;
-		for (i=0; i < num; i++) {
+		for (int i=0; i < num; i++) {
 			wordList.add(dict.getWord(this.random.nextInt(dict.numWords))) ;
 		}
 		return wordList ;
