@@ -5,8 +5,6 @@ package goat.module;
 
 import goat.uno.*;
 import goat.uno.cards.*;
-import goat.uno.cards.Colour;
-import goat.uno.cards.Draw;
 import goat.core.Module;
 import goat.core.Message;
 
@@ -27,7 +25,7 @@ public class Uno extends Module implements Output, Runnable {
 	Game game;
 	Message target;        //the target channel, effectively. The message that started the game
 	String longReply;			//Reply string for multiple events
-	private final static String SPACES[] = new String[20];	//spaces for formatting purposes
+	private static final String[] SPACES = new String[20];	//spaces for formatting purposes
 
 	static {
 		for (int i = 0; i < 20; i++) {
