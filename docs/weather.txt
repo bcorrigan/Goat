@@ -1,0 +1,2 @@
+Gets the latest weather report for your area.
+#weather# - get the latest weather report. I'll remember where you are, but the first time you use me, you need to tell me where you are, by getting your four letter ICAO code from https://pilotweb.nas.faa.gov/qryhtml/icao/ - you can then tell me by saying "weather CODE".
