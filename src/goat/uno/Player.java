@@ -15,7 +15,7 @@ import java.util.ArrayList;
  */
 public class Player {
 
-	private ArrayList hand = new ArrayList();
+	private ArrayList hand = new ArrayList(20);
 	private int score=0;
 	private String name;
 	private boolean hasWon = false;
@@ -82,12 +82,13 @@ public class Player {
 
 	Card[] getValidCards(Game game) {
 		Iterator it = hand.iterator();
-		ArrayList validCards = new ArrayList();
+		ArrayList validCards = new ArrayList(10);
 		while(it.hasNext()) {
 			Card card = (Card) it.next();
 			if(card.canPlay(game))
 				validCards.add(card);
 		}
+		validCards.trimToSize();
 		return (Card[]) validCards.toArray();
 	}
 
