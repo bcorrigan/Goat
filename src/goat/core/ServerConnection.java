@@ -99,7 +99,7 @@ public class ServerConnection extends Thread {
 						System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
 								           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
-						if((System.currentTimeMillis()-lastActivity)>300000) {
+						if((System.currentTimeMillis()-lastActivity)>305000) {
 							in.close();
 							oh.disconnect();
 							reconnect();
