@@ -10,5 +10,6 @@ insmod Weather all
 insmod RandWords all
 insmod Colours all
 insmod Define all
+insmod Threat all
 join #wordgame
 join #jism
