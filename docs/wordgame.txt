@@ -1,0 +1,4 @@
+Saying "wordgame" in chan starts a new game of wordgame. I say some scrambled letters, you guess words that fit for points. Longest wins. Longer the word, the longer the time you have.
+#wordgame# - starts a new game of wordgame. First to 168 points wins.
+#scores# - shows the scores in the current game
+#matchscores# - shows overall scores, ever (matches won).
