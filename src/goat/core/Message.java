@@ -1,5 +1,7 @@
 package goat.core;
 
+import goat.Goat;
+
 import java.util.*;
 
 /**
@@ -16,15 +18,16 @@ import java.util.*;
  * treatment here (except to say that this class handles converting Java Unicode Strings to the (unspecified but 8-bit)
  * character set for IRC.</P>
  * 
- * @author Daniel Pope
+ * @author bc & much filched from Daniel Pope's bot & bits from pircbot
  * @version 1.0
  */
 
 public class Message {
 
-	//public static String server;
-	//public static String nickuserhost;
-
+    /**
+	 * The outqueue instance for sending messages
+	 */
+	private static MessageQueue outqueue = Goat.outqueue;
 	/**
 	 * True if this message is sent by the owner.
 	 */
@@ -233,7 +236,6 @@ public class Message {
 	 */
 	public static final String LIGHT_GRAY = "\u000315";
 
-
 	/**
 	 * Creates a new outgoing NOTICE.
 	 * <p/>
@@ -344,7 +346,7 @@ public class Message {
 
 					default:
 						if (ch == '\'') {
-							//this case is an exception so we can count apostrophe's, etc within the one word.
+							//this case is an exception so we can count apostrophes, etc within the one word.
 							currentword += ch;
 							state = 1;
 							break;
@@ -507,7 +509,7 @@ public class Message {
 	}
 
 	/**
-	 * Removes all colours from a line of text.
+	 * Removes all colours from a line of text. nicked from pircbot
 	 */
 	private static String removeColors(String line) {
 		int length = line.length();
@@ -574,7 +576,7 @@ public class Message {
 	}
 
 	/**
-	 * Remove formatting from a line of IRC text.
+	 * Remove formatting from a line of IRC text. From pircbot
 	 *
 	 * @param line the input text.
 	 * @return the same text, but without any bold, underlining, reverse, etc.
@@ -607,5 +609,19 @@ public class Message {
 	public void removeFormattingAndColors() {
 		removeFormatting();
 		removeColors();
+	}
+
+	/**
+	 * Sends a generic message using the current connection.
+	 */
+	public static void send(Message m) {
+		outqueue.enqueue(m);
+	}
+
+	/**
+	 * Sends this message
+	 */
+	public void send() {
+		outqueue.enqueue(this);
 	}
 }

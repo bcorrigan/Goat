@@ -1,26 +1,29 @@
 package goat.core;
 
+import goat.Goat;
+
 import java.util.Iterator;
 import java.util.ArrayList;
 
 /**
  * <p>Takes Messages off the inqueue and dispatches them to appropriate Modules</p>
  * @version <p>Date: 17-Dec-2003</p>
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
  *
  */
 public class MessageDispatcher {
-    private MessageQueue inqueue;
+    private static MessageQueue inqueue;
     private ModuleController modController;
 
+	static {
+		inqueue=Goat.inqueue;
+	}
 	/**
 	 *
-	 * @param inqueue The inqueue to monitor
 	 * @param modController The modController containing modules to dispatch messages to.
 	 */
 
-    public MessageDispatcher(MessageQueue inqueue, ModuleController modController) {
-        this.inqueue = inqueue;
+    public MessageDispatcher(ModuleController modController) {
         this.modController = modController;
         monitor();
     }
