@@ -29,7 +29,9 @@ public class ModuleController  {
 	public Module load(String moduleName) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
 													NoClassDefFoundError, ClassCastException {
 		Module newmod = (Module) ClassLoader.getSystemClassLoader().loadClass("goat.module." + moduleName).newInstance();
-		return load(newmod);
+		//Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+		//Module newmod = (Module) getClass().getClassLoader().loadClass("goat.module." + moduleName).newInstance();
+		return load(newmod);  
 	}
 
 	private Module load(Module mod) {
@@ -51,7 +53,6 @@ public class ModuleController  {
 			mod = (Module) it.next();
 			if (mod.getClass().getName().toLowerCase().equals("goat.module." + moduleName.toLowerCase())) {
 				modules.remove(mod);
-				mod=null;
 				return true;
 			}
 		}
