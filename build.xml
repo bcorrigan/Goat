@@ -19,7 +19,7 @@
 	<target name="compile" depends="init"
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" source="1.4" optimize="yes"/>
+		<javac srcdir="${src}" destdir="${build}" source="1.4" optimize="yes" debug="on" debuglevel="lines,vars,source"/>
 	</target>
 
 	<target name="jar" depends="compile" description="Make a binary jar">
