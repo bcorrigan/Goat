@@ -35,8 +35,8 @@
 				<section name="common">
 					<attribute name="Specification-Title" value="Goatyness"/>
 					<attribute name="Specification-Version" value="Goaty Goat"/>
-					<attribute name="Implementation-Title" value="Goat"/>
-					<attribute name="Implementation-Version" value="${revision}"/>
+					<attribute name="Goat-Title" value="Goat"/>
+					<attribute name="Goat-Version" value="${revision}"/>
 				</section>
 			</manifest>
 		</jar>

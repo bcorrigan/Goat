@@ -19,8 +19,8 @@ public class BotStats {
 		String line;
 		try {
 			while ((line = br.readLine()) != null)
-				if (line.startsWith("Implementation-Version")) {
-					version = line.replaceFirst("Implementation-Version: ", "r");
+				if (line.startsWith("Goat-Version")) {
+					version = line.replaceFirst("Goat-Version: ", "r");
 					break;
 				}
 			br.close();
