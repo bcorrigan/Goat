@@ -25,7 +25,7 @@
 	<target name="jar" depends="compile" description="Make a binary jar">
 		<mkdir dir="${jars}/bin"/>
 		<!--Need to narrow this to specific OSs via "os" property-->
-		<exec executable="/bin/sh" output="${build}/goatRevision">
+		<exec executable="/bin/sh" output="${build}/goatRevision" os="Linux, FreeBSD">
 			<arg line="version.sh"/>
 		</exec>
 		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}">
