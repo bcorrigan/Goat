@@ -107,17 +107,21 @@ public class Goat {
 	}
 
 	private void setDefaultStats() {
-		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
-		String line;
-		try {
-			line = br.readLine();
-			BotStats.version = "r" + line;				
-			br.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if(BotStats.version==null)
-				BotStats.version = "unknown";
+		if (getClass().getClassLoader().getResource("goatRevision") != null) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
+			String line;
+			try {
+				line = br.readLine();
+				BotStats.version = "r" + line;				
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if(BotStats.version==null)
+					BotStats.version = "unknown";
+			}
+		} else {
+			BotStats.version = "unknown" ;
 		}
 		BotStats.botname = "goat";
 		BotStats.addChannel("#gayness");
