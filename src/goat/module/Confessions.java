@@ -31,17 +31,21 @@ public class Confessions extends Module {
 	private boolean getConfessions() {
 		String confession = "";
 		try {
-			//TODO deal with pingouts 
 			URL grouphug = new URL("http://grouphug.us/random");
 			HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
-			// incompatible with 1.4
+			/* incompatible with 1.4
+			 * It seems java.net.Socket supports socket timeouts, but URLConnection does not expose the
+			 * underlying socket's timeout ability before j2se1.5. So can either rework this code here to use Socket,
+			 * or leave this commented out till 1.5 is released and more prevalent. Think this latter option is the best
+			 * one (ie the one that involves least work).
+			 */
 			// connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
 				return false;
 			}
-			
+
 			BufferedReader in = new BufferedReader(new InputStreamReader(grouphug.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null) {
@@ -93,7 +97,7 @@ public class Confessions extends Module {
 
 		if (confessions.empty())
 			if(!getConfessions())
-				m.createReply("I don't feel like confessing, sorry.").send();
+				m.createReply("I don't feel like confessing anymore, sorry.").send();
 	}
 
 	public void processChannelMessage(Message m) {
