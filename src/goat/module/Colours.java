@@ -6,8 +6,6 @@ import goat.core.Message;
 /**
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
  * 
- * @title Colour
- * 
  *	@author encontrado
  * 
  * @version $id$
