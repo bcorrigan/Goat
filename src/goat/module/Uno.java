@@ -158,6 +158,7 @@ public class Uno extends Module implements Output, Runnable {
             it = records.iterator();
             int count = 0;
             while (it.hasNext()) {
+                if(count>20) break;
                 Record record = (Record) it.next();
                 count++;
                 String ratio;
