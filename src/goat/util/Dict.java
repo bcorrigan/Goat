@@ -188,7 +188,7 @@ public class Dict {
 		Dict dict = new Dict();
 		System.out.println("Some random words, hopefully:\n\n");
 		for (int i = 0; i < 100; i++)
-			System.out.print(dict.getRandomWord() + " ");
+			System.out.print(dict.getRandomWord() + ' ');
 		/*now check bsearch
 		//This next takes a while
 		System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
