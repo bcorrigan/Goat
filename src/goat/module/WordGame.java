@@ -87,7 +87,7 @@ public class WordGame extends Module implements Runnable {
 		String reply;
 		boolean shortest = false;
 		if (currentWinning != null) {
-			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + (int) score + " points!";
+			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + score + " points!";
 			if (currentWinning[ANSWER].length() == longestPossible) {
 				reply += " This was the longest possible.";
 				shortest = true;
