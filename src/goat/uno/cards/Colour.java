@@ -11,30 +11,29 @@ import goat.uno.Game;
  * @author bc
  */
 public class Colour implements Card {
+    int colour;
 
-	int colour;
+    public Colour(int colour) {
+        this.colour = colour;
+    }
 
-	public Colour(int colour) {
-		this.colour=colour;
-	}
+    public int getColour() {
+        return colour;
+    }
 
-	public int getColour() {
-		return colour;
-	}
+    public int getNumber() {
+        return ANYNUMBER;
+    }
 
-	public int getNumber() {
-		return ANYNUMBER;
-	}
+    public int getType() {
+        return FAKE;
+    }
 
-	public int getType() {
-		return FAKE;
-	}
+    public boolean canPlay(Game game) {
+        return false;
+    }
 
-	public boolean canPlay(Game game) {
-		return false;
-	}
+    public void play(Game game) {
 
-	public void play(Game game) {
-
-	}
+    }
 }

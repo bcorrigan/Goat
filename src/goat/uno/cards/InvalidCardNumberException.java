@@ -9,7 +9,7 @@ package goat.uno.cards;
  * @author bc
  */
 public class InvalidCardNumberException extends Exception {
-	public InvalidCardNumberException(String e) {
-		super(e);
-	}
+    public InvalidCardNumberException(String e) {
+        super(e);
+    }
 }

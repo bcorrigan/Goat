@@ -9,63 +9,63 @@ package goat.uno;
  * @author bc
  */
 public class Record {
-	private String name;
-	private int gamesWon;
-	private int gamesEntered;
-	private int hiScore;
-	private int totalScore;
+    private String name;
+    private int gamesWon;
+    private int gamesEntered;
+    private int hiScore;
+    private int totalScore;
 
-	public Record() {
-		name = "";
-		gamesWon=0;
-		gamesEntered=0;
-		hiScore=0;
-		totalScore=0;
-	}
+    public Record() {
+        name = "";
+        gamesWon = 0;
+        gamesEntered = 0;
+        hiScore = 0;
+        totalScore = 0;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public int getGamesWon() {
-		return gamesWon;
-	}
+    public int getGamesWon() {
+        return gamesWon;
+    }
 
-	public void setGamesWon(int gamesWon) {
-		this.gamesWon = gamesWon;
-	}
+    public void setGamesWon(int gamesWon) {
+        this.gamesWon = gamesWon;
+    }
 
-	public int getGamesEntered() {
-		return gamesEntered;
-	}
+    public int getGamesEntered() {
+        return gamesEntered;
+    }
 
-	public void setGamesEntered(int gamesEntered) {
-		this.gamesEntered = gamesEntered;
-	}
+    public void setGamesEntered(int gamesEntered) {
+        this.gamesEntered = gamesEntered;
+    }
 
-	public int getHiScore() {
-		return hiScore;
-	}
+    public int getHiScore() {
+        return hiScore;
+    }
 
-	public void setHiScore(int hiScore) {
-		this.hiScore = hiScore;
-	}
+    public void setHiScore(int hiScore) {
+        this.hiScore = hiScore;
+    }
 
-	public int getTotalScore() {
-		return totalScore;
-	}
+    public int getTotalScore() {
+        return totalScore;
+    }
 
-	public void setTotalScore(int totalScore) {
-		this.totalScore = totalScore;
-	}
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
+    }
 
-	public boolean equals(Record record) {
-		if(name.equals(record.getName()))
-			return true;
-		return false;
-	}
+    public boolean equals(Record record) {
+        if (name.equals(record.getName()))
+            return true;
+        return false;
+    }
 }

@@ -11,33 +11,34 @@ import goat.uno.Game;
  * @author bc
  */
 public class Wild implements Card {
-	public int getColour() {
-		return ANYCOLOUR;
-	}
+    public int getColour() {
+        return ANYCOLOUR;
+    }
 
-	public int getNumber() {
-		return ANYNUMBER;
-	}
+    public int getNumber() {
+        return ANYNUMBER;
+    }
 
-	public int getType() {
-		return WILD;
-	}
+    public int getType() {
+        return WILD;
+    }
 
-	public boolean canPlay(Game game) {
-		if(game.currentPlayer.hasUno())
-			return false;
-		return true;
-	}
+    public boolean canPlay(Game game) {
+        if (game.currentPlayer.hasUno())
+            return false;
+        return true;
+    }
 
-	public void play(Game game) {
-    	game.draw.discardCard(this);
-		game.output.normalPlay(game.currentPlayer, this);
-		game.needColour=true;
-		//game.draw.setFakePeek();
-		game.output.chooseColour(game.currentPlayer);
-		//game.players.addLast(game.currentPlayer);
-		//Player player = (Player) game.players.removeFirst();
-		//game.currentPlayer = player;
-		//game.output.playerSkipped(player);
-	}
+    public void play(Game game) {
+        game.draw.discardCard(this);
+        game.output.normalPlay(game.currentPlayer, this);
+        game.needColour = true;
+        //game.draw.setFakePeek();
+        if(!game.currentPlayer.isABot)
+            game.output.chooseColour(game.currentPlayer);
+        //game.players.addLast(game.currentPlayer);
+        //Player player = (Player) game.players.removeFirst();
+        //game.currentPlayer = player;
+        //game.output.playerSkipped(player);
+    }
 }
