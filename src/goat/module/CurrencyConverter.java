@@ -124,6 +124,7 @@ public class CurrencyConverter extends Module {
             }
         }
         System.out.println("1");
+        m.modTrailing = m.modTrailing.toLowerCase();
         if (!EXCHANGE_RATES.isEmpty()) {
             if (m.modTrailing.matches(".*\\d+([,\\d]+)?(\\.\\d+)? [a-z]{3}+ to [a-z]{3}+.*")) {
                 final String[] cmds = m.modTrailing.split(" ");
