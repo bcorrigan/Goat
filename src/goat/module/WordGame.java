@@ -34,8 +34,8 @@ public class WordGame extends Module implements Runnable {
 
 	private static HashMap lastAnswers = new HashMap();				//HashMap of last answers across many channels
 
-	private final static int NAME = 0;              //Various statics
-	private final static int ANSWER = 1;
+	private static final int NAME = 0;              //Various statics
+	private static final int ANSWER = 1;
 
 	public void processPrivateMessage(Message m) {
 	}
