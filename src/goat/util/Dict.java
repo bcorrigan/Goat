@@ -13,9 +13,9 @@ import java.util.Iterator;
 public class Dict {
 
 	private RandomAccessFile rafDict;
-	private final static File DICTFILE = new File("resources/words");
+	private static final File DICTFILE = new File("resources/words");
 	private RandomAccessFile rafIndex;
-	private final static File INDEXFILE = new File("resources/words.index");
+	private static final File INDEXFILE = new File("resources/words.index");
 	public int numWords = 0;
 
 
