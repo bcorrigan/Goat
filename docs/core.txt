@@ -3,6 +3,8 @@ my core is a module-, auth- and channel-manager.
 @#insmod <Module> <channel># - installs a module to listen to specified channel. Say "all" for channel if you want it to listen to all channels.. 
 #lsmod# - lists installed modules
 @#rmmod <Module># - unplugs a module
+#uptime# - states my uptime
+#mem# - what is my memory consumption?
 @#quit <QuitMessage># - cleanly disconnect me
 @#nick <new nick># - changes my default name
 @#join <new channel># - joins me to another channel
