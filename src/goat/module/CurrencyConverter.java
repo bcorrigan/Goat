@@ -138,12 +138,14 @@ public class CurrencyConverter extends Module {
                             final double from = Double.parseDouble((String) EXCHANGE_RATES.get(cmds[1].toUpperCase()));
                             final double to = Double.parseDouble((String) EXCHANGE_RATES.get(cmds[3].toUpperCase()));
 
-                            m.createReply(NumberFormat.getCurrencyInstance(Locale.US).format(amt).substring(1) + ' ' +
+                            m.createPagedReply(NumberFormat.getCurrencyInstance(Locale.getDefault()).format(amt).substring(1) + ' ' +
                                     cmds[1].toUpperCase() + " = " +
-                                    NumberFormat.getCurrencyInstance(Locale.US).format((amt * to) / from)
+                                    NumberFormat.getCurrencyInstance(Locale.getDefault()).format((amt * to) / from)
                                     .substring(1) + ' ' + cmds[3].toUpperCase()).send();
                         } catch (NullPointerException e) {
                             m.createReply("The supported currencies are: " + EXCHANGE_RATES.keySet().toString()).send();
+                        } catch (NumberFormatException nfe) {
+                            m.createReply("There's something funky about that number that confuses me.").send();
                         }
                     }
                 }
