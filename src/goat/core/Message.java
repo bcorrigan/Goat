@@ -472,7 +472,7 @@ public class Message {
 
 			isCTCP = true;
 		} else if (trailing != null) {
-			words = new ArrayList();
+			words = new ArrayList(30);
 
 			int state = 0;
 
