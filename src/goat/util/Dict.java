@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 /**
- * @author Barry Corrigan
+ * @author encontrado, bc
  *         <p/>
  *         A general utility class for accessing a dictionary
  */
@@ -17,21 +17,7 @@ public class Dict {
 	private RandomAccessFile rafIndex ;
 	private final static File INDEXFILE = new File("resources/words.index") ;
 	public int numWords = 0 ;
-	/* private final static int[][] METADATA = new int[25][25]; 	//an array holding locations in file
 
-	static {
-		try {
-			String word;
-			BufferedReader br = new BufferedReader(new FileReader(DICTFILE));
-			while ((word = br.readLine()) != null) {
-
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}*/
 
 	/**
 	 * This no-args constructor exits if for whatever reason the Dict resource does not exist.
@@ -154,52 +140,6 @@ public class Dict {
 		return validWords;
 	}
 
-	/**
-	 * Checks if the supplied String is a word in the dict or not. Ignores spaces around the word, if it has any, and case.
-	 *
-	 * @param word
-	 * @return <code>true</code> if a word contained in dictionary file, <code>false</code> otherwise.
-	 */
-	public boolean oldContains(String word) {
-		word.toLowerCase();
-		word.trim();
-		//OK lets use a bsearch
-		// TODO Make faster by cacheing data about file and using it to set an initial floor and ceiling. Investiagate, mibbie not worth it.
-		long guessPos = DICTFILE.length() / 2;
-		long ceiling = DICTFILE.length(), floor = 0, oldCeiling = 1, oldFloor = 2;
-		try {
-			do {
-				rafDict.seek(guessPos);
-				// the next two lines are screwing us up when we try to look up
-				// a word that would come after the last word in the dict file.
-				//
-				// this should be reworked using the index-based functions
-				// 
-				rafDict.readLine();	//throw away the first
-				String guessWord = rafDict.readLine();
-				guessWord.toLowerCase();
-				if (guessWord == null)
-					return false;
-				int ComparisonResult = compare(word, guessWord);
-				if (ComparisonResult < 0)
-					ceiling = guessPos;
-				else if (ComparisonResult > 0)
-					floor = guessPos;
-				else
-					return true;
-				guessPos = ((ceiling - floor) / 2) + floor;
-				if (ceiling == floor || ((oldCeiling == ceiling) && (oldFloor == floor)))
-					return false;
-				oldCeiling = ceiling;
-				oldFloor = floor;
-			} while (true);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return false;
-	}
-	
 	public boolean contains(String wordparam) {
 		String word = wordparam.toLowerCase();
 		word.trim();
