@@ -51,9 +51,9 @@ public class GoatSay extends Module {
 			long uptime = System.currentTimeMillis() - init;
 			long seconds = uptime / 1000;
 			int days = (int) (seconds / 86400);
-			int hours = (int) ((seconds - (days * 86400)) / 3600);
-			int minutes = (int) ((seconds - (days * 86400) - (hours * 3600)) / 60);
-			seconds = (int) (seconds - (days * 86400) - (hours * 3600) - (minutes * 60));
+			int hours = (int) ((seconds - days * 86400) / 3600);
+			int minutes = (int) ((seconds - days * 86400 - hours * 3600) / 60);
+			seconds = (int) (seconds - days * 86400 - hours * 3600 - minutes * 60);
 			if (days != 0) {
 				m.createReply(days + "d " + hours + "h " + minutes + "m " + seconds + "s.").send();
 				return;

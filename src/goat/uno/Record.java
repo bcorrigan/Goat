@@ -64,7 +64,7 @@ public class Record {
 	}
 
 	public boolean equals(Record record) {
-		if(this.name.equals(record.getName()))
+		if(name.equals(record.getName()))
 			return true;
 		return false;
 	}

@@ -25,7 +25,7 @@ public class SimpleTimer extends Thread {
 	 * @param listener The action listener to fire when the timer expires.
 	 */
 	public SimpleTimer(int delay, ActionListener listener) {
-		this.recurring = true;
+		recurring = true;
 
 		this.delay = delay;
 		this.listener = listener;

@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Goat {
-	private static boolean showhelp = false;
+	private static boolean showhelp;
     public static MessageQueue inqueue = new MessageQueue();
     public static  MessageQueue outqueue = new MessageQueue();
 
@@ -63,7 +63,7 @@ public class Goat {
 					break;
 
 				case 2:
-					BotStats.addChannel((args[i]));
+					BotStats.addChannel(args[i]);
 					state = 0;
 					break;
 
@@ -124,7 +124,7 @@ public class Goat {
 				String[] words = lineIn.split(" ");
 				m.modCommand = words[0];
 				for(int i=1;i<words.length;i++) {
-					m.modTrailing += words[i] + " ";
+					m.modTrailing += words[i] + ' ';
 				}
 				m.command="PRIVMSG";
 				inqueue.enqueue(m);

@@ -23,7 +23,7 @@ public class User {
 	}
 
 	public void setName(String userName) {
-		this.name = userName;
+		name = userName;
 	}
 
 	public String getLocation() {

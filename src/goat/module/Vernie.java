@@ -14,16 +14,18 @@ import goat.core.BotStats;
 
 import java.net.*;
 import java.io.*;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class Vernie extends Module {
-	private java.util.LinkedList linkhistory;
+	private LinkedList linkhistory;
 
 	private boolean posttitles = true;
 
 	private String channel;
 
 	public Vernie() {
-		linkhistory = new java.util.LinkedList();
+		linkhistory = new LinkedList();
 		loadHistory();
 	}
 
@@ -76,7 +78,7 @@ public class Vernie extends Module {
 
 			if (message.equals("post titles") || message.equals("show titles")) {
 				posttitles = !posttitles;
-				Message.createNotice(towho, "title posting " + ((posttitles) ? "On" : "Off")).send();
+				Message.createNotice(towho, "title posting " + (posttitles ? "On" : "Off")).send();
 			}
 		}
 
@@ -85,7 +87,7 @@ public class Vernie extends Module {
 	}
 
 	private void showLinkHistory(String towho) {
-		java.util.ListIterator it = linkhistory.listIterator();
+		ListIterator it = linkhistory.listIterator();
 
 		int i = 1;
 

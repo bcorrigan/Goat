@@ -18,7 +18,7 @@ public class Game {
 	public Colour colourCard;	//when above is true, this is the colour needed
 	public Output output;
 	public Deck draw; //= new Deck();
-	boolean hasDrawn = false;
+	boolean hasDrawn;
 	Player wildPlayer;
 	private Scores scores = new Scores();
 
@@ -29,7 +29,7 @@ public class Game {
 	 * @param uno The output class. This game will call the methods of this class for its output.
 	 */
 	public Game(Output uno, String name) {  //@TODO thread this for 30 seconds, while players join, turn over top card add to discard. show it
-		this.output = uno;
+		output = uno;
 		draw = new Deck(uno);
 		uno.gameInit();
 		Card[] cards = new Card[7];
@@ -57,7 +57,7 @@ public class Game {
 					}
 					if (card.getType() == Card.WDF)
 						wildPlayer = (Player) players.getLast();     //maybe make WILD skip nextPlayer() here too, but without this bit
-					else if ((card.getType() == Card.WILD))
+					else if (card.getType() == Card.WILD)
 						wildPlayer = currentPlayer;                  //this is why I was having problems with syncing!
 					else
 						nextPlayer();
@@ -136,7 +136,7 @@ public class Game {
 		int i = 0;
 		while (it.hasNext()) {
 			Player aPlayer = (Player) it.next();
-			if(!(player.getName().equals(aPlayer.getName()))) {
+			if(!player.getName().equals(aPlayer.getName())) {
 				playersArray[i] = aPlayer;
 				score += aPlayer.getScore();
 				i++;
@@ -155,7 +155,7 @@ public class Game {
 		Player[] allPlayers = new Player[totalNoPlayers];
 		int[] noCards = new int[totalNoPlayers];
 		for(int i=0;i<players.size();i++) {
-			Player player = (Player) players.get(i);;
+			Player player = (Player) players.get(i);
 			allPlayers[i+1] = player;
 			noCards[i+1] = player.getHand().size();
 		}

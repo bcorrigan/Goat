@@ -16,9 +16,9 @@ import java.util.ArrayList;
 public class Player {
 
 	private ArrayList hand = new ArrayList(20);
-	private int score=0;
+	private int score;
 	private String name;
-	private boolean hasWon = false;
+	private boolean hasWon;
 	private Game game;
 
 	public Player(Card[] cards, String name, Game game) {

@@ -96,7 +96,7 @@ public class ServerConnection extends Thread {
 						//System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
 						//		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
-						if((System.currentTimeMillis()-lastActivity)>305000) {
+						if(System.currentTimeMillis() - lastActivity>305000) {
 							in.close();
 							oh.disconnect();
 							reconnect();
@@ -117,7 +117,7 @@ public class ServerConnection extends Thread {
 
         OutputStream out;
         private boolean keeprunning;
-        int clearcount = 0;
+        int clearcount;
 
 		void disconnect() {
 			keeprunning=false;
@@ -125,7 +125,7 @@ public class ServerConnection extends Thread {
 
         public OutputHandler(OutputStream out) {
             this.out = out;
-            this.setName("Output Handler (client -> server)");
+            setName("Output Handler (client -> server)");
             keeprunning = true;
         }
 
@@ -153,7 +153,7 @@ public class ServerConnection extends Thread {
             }
         }
 
-        int bufused = 0;
+        int bufused;
 
         //should block until posting won't flood us off
         public void sendMessage(Message m) {
@@ -161,7 +161,7 @@ public class ServerConnection extends Thread {
 
             synchronized (out) {
                 outbuffer = m.toByteArray();
-                if ((bufused + outbuffer.length) > 1024) {
+                if (bufused + outbuffer.length > 1024) {
                     //hope that sleeping for two seconds will empty the buffer.
                     try {
                         sleep(2000 + bufused * 3);

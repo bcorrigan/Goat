@@ -57,11 +57,11 @@ public class WordGame extends Module implements Runnable {
 						+ letterString.toUpperCase()).send();
 				return;
 			}
-			if (m.modCommand.equals("scores") & ((System.currentTimeMillis() - top10time) > 30000l)) {
+			if (m.modCommand.equals("scores") & System.currentTimeMillis() - top10time > 30000L) {
 				top10time = System.currentTimeMillis();
 				scores.sendScoreTable(m);
 			}
-			if (m.modCommand.equals("matchscores") & ((System.currentTimeMillis() - matchscorestime) > 30000l)) {
+			if (m.modCommand.equals("matchscores") & System.currentTimeMillis() - matchscorestime > 30000L) {
 				matchscorestime = System.currentTimeMillis();
 				scores.sendMatchScoreTable(m);
 			}
@@ -194,7 +194,7 @@ public class WordGame extends Module implements Runnable {
 	public void run() {
 		//wait 25 seconds
 		try {
-			Thread.sleep(((letters.size() * 5) - 10) * 1000);
+			Thread.sleep((letters.size() * 5 - 10) * 1000);
 		} catch (InterruptedException e) {
 		}
 

@@ -31,7 +31,7 @@ public class Message {
 	/**
 	 * True if this message is sent by the owner.
 	 */
-	public boolean isAuthorised = false;
+	public boolean isAuthorised;
 	/**
 	 * The prefix of a message. Usually the hostmask who sent the message. The sender field is a substring of this.
 	 */
@@ -78,7 +78,7 @@ public class Message {
 	/**
 	 * Whether this message was sent one to one. False if sent to a channel, true if only to one user.
 	 */
-	public boolean isPrivate = false;
+	public boolean isPrivate;
 
 	/**
 	 * The Channel name
@@ -92,7 +92,7 @@ public class Message {
 	 * <p/>
 	 * The most common example of CTCP is the CTCP ACTION, which is used by typing /me in most clients.
 	 */
-	public boolean isCTCP = false;
+	public boolean isCTCP;
 
 	/**
 	 * The CTCP command (if isCTCP is true). eg. 'ACTION' for an action/emote
@@ -544,7 +544,7 @@ public class Message {
 					modCommand = st.nextToken();
 					modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
 					while (st.hasMoreTokens())
-						modTrailing += st.nextToken() + ' ';
+						modTrailing += st.nextToken() + ' ';         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
 				}
 			} else {
 				modCommand = firstWord;
@@ -575,7 +575,7 @@ public class Message {
 	}
 
 	byte[] toByteArray() {
-		String message = ((prefix.length() > 0) ? (':' + prefix + ' ') : "") + command + ((params.length() > 0) ? " " : "") + params + ((trailing.length() > 0) ? " :" + trailing : "");
+		String message = (prefix.length() > 0 ? ':' + prefix + ' ' : "") + command + (params.length() > 0 ? " " : "") + params + (trailing.length() > 0 ? " :" + trailing : "");
 
 		char[] chars = message.toCharArray();
 
@@ -659,7 +659,7 @@ public class Message {
 	 */
 	private static String removeColors(String line) {
 		int length = line.length();
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer = new StringBuffer(length);
 		int i = 0;
 		while (i < length) {
 			char ch = line.charAt(i);
@@ -729,7 +729,7 @@ public class Message {
 	 */
 	private static String removeFormatting(String line) {
 		int length = line.length();
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer = new StringBuffer(length);
 		for (int i = 0; i < length; i++) {
 			char ch = line.charAt(i);
 			if (ch == '\u000f' || ch == '\u0002' || ch == '\u001f' || ch == '\u0016') {

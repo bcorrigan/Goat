@@ -17,7 +17,7 @@ public class Deck {
 	private LinkedList discard = new LinkedList();
 	private Output uno;
 	Colour colourCard;
-	private boolean fake=false;
+	private boolean fake;
 
 	public Deck(Output uno) {
 		try {

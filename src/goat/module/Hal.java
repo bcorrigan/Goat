@@ -15,9 +15,9 @@ public class Hal extends Module {
 
 	private JMegaHal hal = new JMegaHal();
 
-	private boolean rant = false;
+	private boolean rant;
 
-	private int time=0;
+	private int time;
 
 	public int messageType() {
 		return WANT_UNCLAIMED_MESSAGES;

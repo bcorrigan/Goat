@@ -16,7 +16,7 @@ public class Dict {
 	private static final File DICTFILE = new File("resources/words");
 	private RandomAccessFile rafIndex;
 	private static final File INDEXFILE = new File("resources/words.index");
-	public int numWords = 0;
+	public int numWords;
 
 
 	/**
@@ -59,7 +59,7 @@ public class Dict {
 			long dictLength = rafDict.length();
 			rafIndex.seek(0);
 			// rebuild index if length of header doesn't match length of... Dict.
-			if (dictLength != ((long) rafIndex.readInt())) {
+			if (dictLength != (long) rafIndex.readInt()) {
 				System.out.println("Dict length mismatch!  Rebuilding index...");
 				// do you still wonder why there aren't more women in this field?
 				if (!buildIndex()) {
@@ -69,7 +69,7 @@ public class Dict {
 			}
 			// kill this next test once we're all confident and debugged
 			rafIndex.seek(0);
-			if (dictLength != ((long) rafIndex.readInt())) {
+			if (dictLength != (long) rafIndex.readInt()) {
 				System.out.println("Something has gone horribly wrong...");
 				System.out.println("dictLength: " + dictLength);
 				rafIndex.seek(0);
@@ -146,7 +146,7 @@ public class Dict {
 		word = word.trim();
 		//OK lets use a bsearch
 		int guessPos = numWords / 2;
-		int ceiling = (numWords + 1), floor = 1, oldCeiling = 1, oldFloor = 2;
+		int ceiling = numWords + 1, floor = 1, oldCeiling = 1, oldFloor = 2;
 		do {
 			String guessWord = getWord(guessPos);
 			guessWord = guessWord.toLowerCase();
@@ -159,8 +159,8 @@ public class Dict {
 				floor = guessPos;
 			else
 				return true;
-			guessPos = ((ceiling - floor) / 2) + floor;
-			if (ceiling == floor || ((oldCeiling == ceiling) && (oldFloor == floor)))
+			guessPos = (ceiling - floor) / 2 + floor;
+			if (ceiling == floor || oldCeiling == ceiling && oldFloor == floor)
 				return false;
 			oldCeiling = ceiling;
 			oldFloor = floor;
@@ -308,8 +308,8 @@ public class Dict {
 			//length of file
 			rafIndex.writeInt((int) rafDict.length());
 			int count = 0;
-			while (((int) rafDict.getFilePointer() < Integer.MAX_VALUE)
-					&& (rafDict.getFilePointer() < rafDict.length())) {
+			while ((int) rafDict.getFilePointer() < Integer.MAX_VALUE
+					&& rafDict.getFilePointer() < rafDict.length()) {
 				rafIndex.writeInt((int) rafDict.getFilePointer());
 				rafDict.readLine();
 				++count;

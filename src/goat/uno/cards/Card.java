@@ -28,30 +28,30 @@ public interface Card {
 	/**
 	 * This card can be played on any other colour of card.
 	 */
-	public static int ANYCOLOUR = 0;    //TODO seems ugly, consider removing ANYCOLOUR
-	public static int RED = 1;
-	public static int GREEN = 2;
-	public static int BLUE = 3;
-	public static int YELLOW = 4;
+	int ANYCOLOUR = 0;    //TODO seems ugly, consider removing ANYCOLOUR
+	int RED = 1;
+	int GREEN = 2;
+	int BLUE = 3;
+	int YELLOW = 4;
 
-	public static int NORMALCARD=0;
-	public static int DRAW=10;
-	public static int SKIP=11;
-	public static int REVERSE=12;
-	public static int WILD=13;
-	public static int WDF=14;
-	public static int FAKE=15;
+	int NORMALCARD=0;
+	int DRAW=10;
+	int SKIP=11;
+	int REVERSE=12;
+	int WILD=13;
+	int WDF=14;
+	int FAKE=15;
 
 	/**
 	 * This card can be played on any other numbered card.
 	 */
-	public static int ANYNUMBER=10; //TODO seems ugly, consider removing ANYNUMBER
+	int ANYNUMBER=10; //TODO seems ugly, consider removing ANYNUMBER
 
 	/**
 	 * Get the colour of this card.
 	 * @return <code>RED</code>, <code>GREEN</code>, <code>BLUE</code>, <code>YELLOW</code>, or <code>ANYCOLOUR</code>.
 	 */
-	public int getColour();
+	int getColour();
 
 	/**
 	 * Set the colour of this card.
@@ -62,7 +62,7 @@ public interface Card {
 	 * Get the number of this card.
 	 * @return
 	 */
-	public int getNumber();
+	int getNumber();
 
 	/**
 	 * Set the number of this card.
@@ -74,7 +74,7 @@ public interface Card {
 	 *
 	 * @return The type of card this is
 	 */
-	public int getType();
+	int getType();
 
 	/**
 	 * Checks if this card can play in this game

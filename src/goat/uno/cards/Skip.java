@@ -36,7 +36,7 @@ public class Skip implements Card {
 
 	public boolean canPlay(Game game) {
 		Card card = game.draw.peekDiscardCard();
-		if(this.colour==card.getColour())
+		if(colour==card.getColour())
 			return true;
 		if(SKIP==card.getNumber())
 			return true;

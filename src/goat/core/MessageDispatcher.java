@@ -99,7 +99,7 @@ public class MessageDispatcher {
     }
 
 	private void sendIfChannelsMatch(Message msg, Module mod) {
-		if (mod.inAllChannels == true || (msg.isPrivate & mod.wantsPrivate))
+		if (mod.inAllChannels || msg.isPrivate & mod.wantsPrivate)
 			sendMessage(msg, mod);
 		else {
 			ArrayList channels = mod.getChannels();

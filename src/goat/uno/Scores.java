@@ -18,7 +18,7 @@ import java.beans.XMLDecoder;
  */
 public class Scores implements Comparator {
 
-	ArrayList records; 
+	ArrayList records;
 
 	public Scores() {
 		try {
@@ -46,7 +46,7 @@ public class Scores implements Comparator {
 					record.setGamesEntered(record.getGamesEntered() + 1);
 					match = true;
 				}
-				if (record.getName().equals(winningPlayer.getName())&&winMatch==false) {
+				if (record.getName().equals(winningPlayer.getName())&&!winMatch) {
 					record.setGamesEntered(record.getGamesEntered() + 1);
 					record.setGamesWon(record.getGamesWon() + 1);
 					record.setTotalScore(record.getTotalScore() + score);

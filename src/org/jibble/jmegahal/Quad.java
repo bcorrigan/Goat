@@ -1,6 +1,8 @@
 package org.jibble.jmegahal;
 
-public class Quad implements java.io.Serializable {
+import java.io.Serializable;
+
+public class Quad implements Serializable {
     
     public Quad(String s1, String s2, String s3, String s4) {
         tokens = new String[]{s1, s2, s3, s4};
@@ -42,7 +44,7 @@ public class Quad implements java.io.Serializable {
     }
     
     private String[] tokens;
-    private boolean canStart = false;
-    private boolean canEnd = false;
+    private boolean canStart;
+    private boolean canEnd;
     
 }

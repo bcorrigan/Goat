@@ -55,9 +55,9 @@ public class NormalCard implements Card {
 
 	public boolean canPlay(Game game) {
 		Card card = game.draw.peekDiscardCard();
-		if(this.colour==card.getColour())
+		if(colour==card.getColour())
 			return true;
-		if(this.number==card.getNumber())
+		if(number==card.getNumber())
 			return true;
 		return false;
 	}

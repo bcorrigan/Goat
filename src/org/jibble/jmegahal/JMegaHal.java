@@ -27,7 +27,7 @@ public class JMegaHal implements Serializable {
     public void addDocument(String uri) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(uri).openStream()));
         StringBuffer buffer = new StringBuffer();
-        int ch = 0;
+        int ch;
         while ((ch = reader.read()) != -1) {
             buffer.append((char) ch);
             if (END_CHARS.indexOf((char) ch) >= 0) {
@@ -54,7 +54,7 @@ public class JMegaHal implements Serializable {
         StringBuffer buffer = new StringBuffer();
         while (i < chars.length) {
             char ch = chars[i];
-            if ((WORD_CHARS.indexOf(ch) >= 0) == punctuation) {
+            if (WORD_CHARS.indexOf(ch) >= 0 == punctuation) {
                 punctuation = !punctuation;
                 String token = buffer.toString();
                 if (token.length() > 0) {
@@ -158,7 +158,7 @@ public class JMegaHal implements Serializable {
             parts.add(quad.getToken(i));
         }
         
-        while (quad.canEnd() == false) {
+        while (!quad.canEnd()) {
             String[] nextTokens = (String[]) ((HashSet) next.get(quad)).toArray(new String[0]);
             String nextToken = nextTokens[rand.nextInt(nextTokens.length)];
             quad = (Quad) this.quads.get(new Quad(quad.getToken(1), quad.getToken(2), quad.getToken(3), nextToken));
@@ -166,7 +166,7 @@ public class JMegaHal implements Serializable {
         }
         
         quad = middleQuad;
-        while (quad.canStart() == false) {
+        while (!quad.canStart()) {
             String[] previousTokens = (String[]) ((HashSet) previous.get(quad)).toArray(new String[0]);
             String previousToken = previousTokens[rand.nextInt(previousTokens.length)];
             quad = (Quad) this.quads.get(new Quad(previousToken, quad.getToken(0), quad.getToken(1), quad.getToken(2)));

@@ -13,7 +13,7 @@ public abstract class Module {
 
 	private ArrayList channels = new ArrayList();
 
-	public boolean inAllChannels = false;
+	public boolean inAllChannels;
 	public boolean wantsPrivate = true;
 
 	public static final int WANT_ALL_MESSAGES = 0;

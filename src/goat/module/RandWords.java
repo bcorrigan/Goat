@@ -101,7 +101,7 @@ public class RandWords extends Module {
 		// return num random words as an ArrayList
 		ArrayList wordList = new ArrayList(num) ;
 		for (int i=0; i < num; i++) {
-			wordList.add(dict.getWord(this.random.nextInt(dict.numWords))) ;
+			wordList.add(dict.getWord(random.nextInt(dict.numWords))) ;
 		}
 		return wordList ;
 	}

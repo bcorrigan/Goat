@@ -36,7 +36,7 @@ public class Scores implements Comparator {
 		//construct SPACES array
 		for (int i = 0; i < 20; i++) {
 			SPACES[i] = " ";
-			for (int j = 0; j < (i - 1); j++) {
+			for (int j = 0; j < i - 1; j++) {
 				SPACES[i] += " ";
 			}
 		}
@@ -80,15 +80,15 @@ public class Scores implements Comparator {
 				largestsScore = entry[1].length();
 		}
 
-		m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[(largestNick + 3) - 4]
-				+ "HiScore" + SPACES[(largesthScore + 7) - 7]
+		m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[largestNick + 3 - 4]
+				+ "HiScore" + SPACES[largesthScore + 7 - 7]
 				+ "TotalScore").send();
 		for (int i = 0; i < top; i++) {
 			String[] entry = (String[]) scores.get(i);
 			String is = Integer.toString(i + 1);
 			m.createReply(Message.BOLD + is + Message.BOLD + SPACES[3 - is.length()] + entry[NAME] +
-					SPACES[(largestNick + 3) - entry[NAME].length()] +
-					entry[HIGHEST_SCORE] + SPACES[(largesthScore + 7) - entry[HIGHEST_SCORE].length()] + entry[TOTAL_SCORE]).send();
+					SPACES[largestNick + 3 - entry[NAME].length()] +
+					entry[HIGHEST_SCORE] + SPACES[largesthScore + 7 - entry[HIGHEST_SCORE].length()] + entry[TOTAL_SCORE]).send();
 		}
 	}
 
@@ -114,13 +114,13 @@ public class Scores implements Comparator {
 				largestsScore = entry[TOTAL_SCORE].length();
 		}
 
-		m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[(largestNick + 3) - 4]
+		m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[largestNick + 3 - 4]
 				+ "Matches Won").send();
 		for (int i = 0; i < top; i++) {
 			String[] entry = (String[]) matchScores.get(i);
 			String is = Integer.toString(i + 1);
 			m.createReply(Message.BOLD + is + Message.BOLD + SPACES[3 - is.length()] + entry[NAME] +
-					SPACES[(largestNick + 3) - entry[NAME].length()] + entry[TOTAL_SCORE]).send();
+					SPACES[largestNick + 3 - entry[NAME].length()] + entry[TOTAL_SCORE]).send();
 		}
 	}
 
@@ -137,7 +137,7 @@ public class Scores implements Comparator {
 					tscore += score;
 					if (tscore >= 168)
 						winner = true;
-					if (tscore >= 140 & warninggiven == false) {
+					if (tscore >= 140 & !warninggiven) {
 						target.createReply(Message.BOLD + "Warning: " + Message.BOLD + roundWinner[NAME] + " is within striking distance of victory!").send();
 						warninggiven = true;
 					}

@@ -19,9 +19,9 @@ import java.util.ArrayList;
  */
 public class Uno extends Module implements Output, Runnable {
 
-	boolean playing = false; //true if playing a game
-	boolean waiting = false; //true if a game has been started but only one player has joined it
-	boolean hasJoined = false; //signifies whether it is safe to start the game
+	boolean playing; //true if playing a game
+	boolean waiting; //true if a game has been started but only one player has joined it
+	boolean hasJoined; //signifies whether it is safe to start the game
 	Game game;
 	Message target;        //the target channel, effectively. The message that started the game
 	String longReply;			//Reply string for multiple events
@@ -30,7 +30,7 @@ public class Uno extends Module implements Output, Runnable {
 	static {
 		for (int i = 0; i < 20; i++) {
 			SPACES[i] = " ";
-			for (int j = 0; j < (i - 1); j++) {
+			for (int j = 0; j < i - 1; j++) {
 				SPACES[i] += " ";
 			}
 		}
@@ -39,7 +39,7 @@ public class Uno extends Module implements Output, Runnable {
 	public void processChannelMessage(Message m) {
 		m.modCommand = m.modCommand.toLowerCase();
 		if (!playing) {
-			if (m.modCommand.equals("uno") && waiting == false) {
+			if (m.modCommand.equals("uno") && !waiting) {
 				target = m;
 				game = new Game(this, m.sender);
 				longReply = "";
@@ -129,10 +129,10 @@ public class Uno extends Module implements Output, Runnable {
 					lgE = Integer.toString(record.getGamesEntered()).length();
 
 			}
-			m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[(lNick + 3) - 4]
-					+ "HiScore" + SPACES[(lHScore + 7) - 7]
-					+ "Won" + SPACES[(lgW + 3) - 3]
-					+ "Games" + SPACES[(lgE + 5) - 5]
+			m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[lNick + 3 - 4]
+					+ "HiScore" + SPACES[lHScore + 7 - 7]
+					+ "Won" + SPACES[lgW + 3 - 3]
+					+ "Games" + SPACES[lgE + 5 - 5]
 					+ "Ratio  "
 					+ "TotalScore").send();
 
@@ -143,9 +143,9 @@ public class Uno extends Module implements Output, Runnable {
 				count++;
 				String ratio;
 				if(record.getGamesEntered()>0) {
-					ratio = Float.toString(((float) record.getGamesWon()/(float) record.getGamesEntered())*100f);
+					ratio = Float.toString((float) record.getGamesWon() / (float) record.getGamesEntered()*100f);
 					if(ratio.length()==3)
-						ratio = ratio + "%   ";
+						ratio += "%   ";
 					else if(ratio.length()==4)
 						ratio += "%  ";
 					else if(ratio.length()>4)
@@ -154,10 +154,10 @@ public class Uno extends Module implements Output, Runnable {
 				else
 					ratio = "0%   ";
 				m.createReply(Message.BOLD + count + Message.BOLD + SPACES[3 - Integer.toString(count).length()] + record.getName()
-						+ SPACES[(lNick + 3) - record.getName().length()]
-						+ record.getHiScore() + SPACES[(lHScore + 7) - Integer.toString(record.getHiScore()).length()]
-						+ record.getGamesWon() + SPACES[(lgW + 3) - Integer.toString(record.getGamesWon()).length()]
-						+ record.getGamesEntered() + SPACES[(lgE + 5) - Integer.toString(record.getGamesEntered()).length()]
+						+ SPACES[lNick + 3 - record.getName().length()]
+						+ record.getHiScore() + SPACES[lHScore + 7 - Integer.toString(record.getHiScore()).length()]
+						+ record.getGamesWon() + SPACES[lgW + 3 - Integer.toString(record.getGamesWon()).length()]
+						+ record.getGamesEntered() + SPACES[lgE + 5 - Integer.toString(record.getGamesEntered()).length()]
 						+ ratio + "  "
 						+ record.getTotalScore()).send();
 			}
