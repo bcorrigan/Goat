@@ -38,7 +38,7 @@ public class ModuleController  {
 		while (it.hasNext()) {
 			module = (Module) it.next();
 			if (module.getClass().getName().equals(mod.getClass().getName()))
-				return null;    //@TODO maybe make this a new Exception? Instead of passing null (wtf!)
+				return null;    
 		}
 		modules.add(mod);
 		return mod;

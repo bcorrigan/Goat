@@ -416,7 +416,7 @@ public class Message {
 	 * @param CTCPparams  The parameters of the CTCP command. With an ACTION, this is the action.
 	 */
 	public static Message createCTCP(String to, String command, String CTCPcommand, String CTCPparams) {
-		return new Message("", command, to, (char) 0x01 + CTCPcommand + " " + CTCPparams + (char) 0x01);
+		return new Message("", command, to, (char) 0x01 + CTCPcommand + ' ' + CTCPparams + (char) 0x01);
 	}
 
 	/**
@@ -544,12 +544,12 @@ public class Message {
 					modCommand = st.nextToken();
 					modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
 					while (st.hasMoreTokens())
-						modTrailing += st.nextToken() + " ";
+						modTrailing += st.nextToken() + ' ';
 				}
 			} else {
 				modCommand = firstWord;
 				while (st.hasMoreTokens())
-					modTrailing += st.nextToken() + " ";
+					modTrailing += st.nextToken() + ' ';
 			}
 		} else if (!isCTCP) {
 			String words = trailing;
@@ -566,7 +566,7 @@ public class Message {
 			}
 
 			while (st.hasMoreTokens()) {
-				modTrailing += st.nextToken() + " ";
+				modTrailing += st.nextToken() + ' ';
 			}
 		}
 
@@ -575,7 +575,7 @@ public class Message {
 	}
 
 	byte[] toByteArray() {
-		String message = ((prefix.length() > 0) ? (":" + prefix + " ") : "") + command + ((params.length() > 0) ? " " : "") + params + ((trailing.length() > 0) ? " :" + trailing : "");
+		String message = ((prefix.length() > 0) ? (':' + prefix + ' ') : "") + command + ((params.length() > 0) ? " " : "") + params + ((trailing.length() > 0) ? " :" + trailing : "");
 
 		char[] chars = message.toCharArray();
 
