@@ -83,27 +83,6 @@ public class Dict {
 		}
 	}
 
-
-	/**
-	 * Just gets a totally random word from the dictionary file.
-	 *
-	 * @return A random word
-	 */
-	public String OldgetRandomWord() {
-		String word;
-		long seekLoc = (long) (Math.random() * DICTFILE.length());
-		try {
-			rafDict.seek(seekLoc);
-			rafDict.readLine();	//chuck away first, it's garbage
-			word = rafDict.readLine();
-			return word;
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		return null;
-	}
-
 	/**
 	 * Just gets a totally random word from the dictionary file.
 	 * <p/>
@@ -144,7 +123,7 @@ public class Dict {
 	public boolean contains(String word) {
 		word = word.toLowerCase();
 		word = word.trim();
-		//OK lets use a bsearch
+		//OK let's use a bsearch
 		int guessPos = numWords / 2;
 		int ceiling = numWords + 1, floor = 1, oldCeiling = 1, oldFloor = 2;
 		do {
@@ -169,7 +148,6 @@ public class Dict {
 	}
 
 	private int compare(String word1, String word2) {
-		//made this case insensitive, to no purpose
 		if (word1.equals(word2))
 			return 0;
 		String[] ordered = {word1, word2};
@@ -181,52 +159,6 @@ public class Dict {
 		return 0;
 	}
 
-	/**
-	 * Main method here for debugging
-	 */
-	public static void main(String[] args) {
-		Dict dict = new Dict();
-		System.out.println("Some random words, hopefully:\n\n");
-		for (int i = 0; i < 100; i++)
-			System.out.print(dict.getRandomWord() + ' ');
-		/*now check bsearch
-		//This next takes a while
-		System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
-		for (int i = 1; i <= dict.numWords; i++) {
-			String word = dict.getWord(i) ;
-			if ( ! dict.contains(word) ) {
-				System.out.println(word + " :contains() returns: " + dict.contains(word));
-			}
-		}*/
-		
-		
-		System.out.println("\n\nTesting \"prank\":\n\n");
-		System.out.println("prank" + " :contains() returns: " + dict.contains("prank"));
-		System.out.println("word number 70878: " + dict.getWord(70878));
-		System.out.println("word number 70879: " + dict.getWord(70879));
-		System.out.println("word number 70880: " + dict.getWord(70880));
-		System.out.println("\n\nAnd these false:\n\n");
-		System.out.println("poopmastah" + " :contains() returns: " + dict.contains("poopmastah"));
-		System.out.println("assedsr" + " :contains() returns: " + dict.contains("assedsr"));
-		System.out.println("zogg" + " :contains() returns: " + dict.contains("zogg"));
-		System.out.println("aaaaa" + " :contains() returns: " + dict.contains("aaaaa"));
-		System.out.println("zzzzz" + " :contains() returns: " + dict.contains("zzzzz"));
-		// don't need to test this, it's built into the constructor, if needed
-		//System.out.println("\n\nBuilding index...\n\n");
-		//dict.buildIndex() ;
-		System.out.println("\n\nSmall index file check:\n\n");
-		System.out.println("first word: " + dict.getWord(1));
-		System.out.println("Word #666: " + dict.getWord(666));
-		System.out.println("indexed words: " + dict.numWords);
-		System.out.println("last word : " + dict.getWord(dict.numWords));
-		System.out.println("trying to produce an error by requesting word #" + (dict.numWords + 1) + " : ");
-		System.out.println(dict.getWord(dict.numWords + 1));
-		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :");
-		System.out.println(dict.getWord(0));
-
-		System.out.println("\nDone.");
-	}
-
 	protected void finalize() throws Throwable {
 		try {
 			rafDict.close();
@@ -236,6 +168,12 @@ public class Dict {
 		}
 	}
 
+	/**
+	 * You probably want to use numWords instead of this; it's faster.
+	 * 
+	 * @param File File to be line-counted
+	 * @return number of lines in File
+	 */
 	private int lineCount(File file) {
 		int count = 0;
 		try {
@@ -330,7 +268,6 @@ public class Dict {
 	 * @param num word number
 	 * @return String
 	 */
-
 	public String getWord(int num) {
 		if (num > numWords) {
 			//complain
@@ -353,4 +290,51 @@ public class Dict {
 		}
 		return null;
 	}
+	
+	/**
+	 * Main method here for debugging
+	 */
+	public static void main(String[] args) {
+		Dict dict = new Dict();
+		System.out.println("Some random words, hopefully:\n\n");
+		for (int i = 0; i < 100; i++)
+			System.out.print(dict.getRandomWord() + ' ');
+		/*now check bsearch
+		//This next takes a while
+		System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
+		for (int i = 1; i <= dict.numWords; i++) {
+			String word = dict.getWord(i) ;
+			if ( ! dict.contains(word) ) {
+				System.out.println(word + " :contains() returns: " + dict.contains(word));
+			}
+		}*/
+		
+		
+		System.out.println("\n\nTesting \"prank\":\n\n");
+		System.out.println("prank" + " :contains() returns: " + dict.contains("prank"));
+		System.out.println("word number 70878: " + dict.getWord(70878));
+		System.out.println("word number 70879: " + dict.getWord(70879));
+		System.out.println("word number 70880: " + dict.getWord(70880));
+		System.out.println("\n\nAnd these false:\n\n");
+		System.out.println("poopmastah" + " :contains() returns: " + dict.contains("poopmastah"));
+		System.out.println("assedsr" + " :contains() returns: " + dict.contains("assedsr"));
+		System.out.println("zogg" + " :contains() returns: " + dict.contains("zogg"));
+		System.out.println("aaaaa" + " :contains() returns: " + dict.contains("aaaaa"));
+		System.out.println("zzzzz" + " :contains() returns: " + dict.contains("zzzzz"));
+		// don't need to test this, it's built into the constructor, if needed
+		//System.out.println("\n\nBuilding index...\n\n");
+		//dict.buildIndex() ;
+		System.out.println("\n\nSmall index file check:\n\n");
+		System.out.println("first word: " + dict.getWord(1));
+		System.out.println("Word #666: " + dict.getWord(666));
+		System.out.println("indexed words: " + dict.numWords);
+		System.out.println("last word : " + dict.getWord(dict.numWords));
+		System.out.println("trying to produce an error by requesting word #" + (dict.numWords + 1) + " : ");
+		System.out.println(dict.getWord(dict.numWords + 1));
+		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :");
+		System.out.println(dict.getWord(0));
+
+		System.out.println("\nDone.");
+	}
+
 }
