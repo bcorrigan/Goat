@@ -12,18 +12,18 @@ import java.util.Iterator;
  */
 public class Dict {
 
-	private RandomAccessFile rafDict ;
+	private RandomAccessFile rafDict;
 	private final static File DICTFILE = new File("resources/words");
-	private RandomAccessFile rafIndex ;
-	private final static File INDEXFILE = new File("resources/words.index") ;
-	public int numWords = 0 ;
+	private RandomAccessFile rafIndex;
+	private final static File INDEXFILE = new File("resources/words.index");
+	public int numWords = 0;
 
 
 	/**
 	 * This no-args constructor exits if for whatever reason the Dict resource does not exist.
-	 *
+	 * <p/>
 	 * And to build the index file if it doesn't exist
-	 *
+	 * <p/>
 	 * And to rebuild the index file if the length recorded in its header doesn't match the length of the Dict resource.
 	 */
 	public Dict() {
@@ -37,49 +37,49 @@ public class Dict {
 		try {
 			rafIndex = new RandomAccessFile(INDEXFILE, "rw");
 		} catch (FileNotFoundException fnfe) {
-			System.out.println("Could not open file \'" 
-					+ DICTFILE.toString() 
+			System.out.println("Could not open file \'"
+					+ DICTFILE.toString()
 					+ "\" for writing.");
 			fnfe.printStackTrace();
 			System.exit(1);
 		}
 		try {
 			if (0 == rafDict.length()) {
-				System.out.println("I refuse to work with zero-length dictionary files!") ;
-				System.exit(1) ;
+				System.out.println("I refuse to work with zero-length dictionary files!");
+				System.exit(1);
 			}
 			if (0 == rafIndex.length()) {
-				System.out.println("I refuse to work with zero-length index files.  Rebuilding index...") ;
-				if ( ! buildIndex() ) {
+				System.out.println("I refuse to work with zero-length index files.  Rebuilding index...");
+				if (!buildIndex()) {
 					System.out.println("Oh, screw it.  I can't index that.  I quit.");
-					System.exit(1) ;
+					System.exit(1);
 				}
 			}
 			// we don't need this variable, but I can't resist.
-			long dictLength = rafDict.length() ;
-			rafIndex.seek(0) ;
+			long dictLength = rafDict.length();
+			rafIndex.seek(0);
 			// rebuild index if length of header doesn't match length of... Dict.
-			if (dictLength != ( (long) rafIndex.readInt())) {
-				System.out.println("Dict length mismatch!  Rebuilding index...") ;
+			if (dictLength != ((long) rafIndex.readInt())) {
+				System.out.println("Dict length mismatch!  Rebuilding index...");
 				// do you still wonder why there aren't more women in this field?
-				if ( ! buildIndex() ) {
-					System.out.println("Alas!  I could not build ze index!  I expire!") ;
-					System.exit(1) ;
+				if (!buildIndex()) {
+					System.out.println("Alas!  I could not build ze index!  I expire!");
+					System.exit(1);
 				}
 			}
 			// kill this next test once we're all confident and debugged
-			rafIndex.seek(0) ;
-			if (dictLength != ( (long) rafIndex.readInt())) {
-				System.out.println("Something has gone horribly wrong...") ;
-				System.out.println("dictLength: " + dictLength) ;
-				rafIndex.seek(0) ;
-				System.out.println("rafIndex.readInt() : " + rafIndex.readInt() ) ;
-				System.exit(1) ;
+			rafIndex.seek(0);
+			if (dictLength != ((long) rafIndex.readInt())) {
+				System.out.println("Something has gone horribly wrong...");
+				System.out.println("dictLength: " + dictLength);
+				rafIndex.seek(0);
+				System.out.println("rafIndex.readInt() : " + rafIndex.readInt());
+				System.exit(1);
 			}
-			numWords = (int) rafIndex.length() / 4 - 1 ;
+			numWords = (int) rafIndex.length() / 4 - 1;
 		} catch (IOException e) {
-			e.printStackTrace() ;
-			System.exit(1) ;
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -103,17 +103,18 @@ public class Dict {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Just gets a totally random word from the dictionary file.
-	 *
+	 * <p/>
 	 * Now with hyper-index functioning!
 	 *
 	 * @return A random word
 	 */
 	public String getRandomWord() {
-		return getWord( (int) (Math.random() * numWords) + 1 ) ;
+		return getWord((int) (Math.random() * numWords) + 1);
 	}
+
 	/**
 	 * Gets all the words in the dictionary which have letters that match the supplied string. Ignores spaces around the string, and case.
 	 *
@@ -145,7 +146,7 @@ public class Dict {
 		word.trim();
 		//OK lets use a bsearch
 		int guessPos = numWords / 2;
-		int ceiling = numWords, floor = 1, oldCeiling = 1, oldFloor = 2;
+		int ceiling = (numWords + 1), floor = 1, oldCeiling = 1, oldFloor = 2;
 		do {
 			String guessWord = getWord(guessPos);
 			guessWord = guessWord.toLowerCase();
@@ -164,9 +165,9 @@ public class Dict {
 			oldCeiling = ceiling;
 			oldFloor = floor;
 		} while (true);
-	//	return false;
+		//	return false;
 	}
-	
+
 	private int compare(String word1, String word2) {
 		//made this case insensitive, to no purpose
 		if (word1.equals(word2))
@@ -188,22 +189,22 @@ public class Dict {
 		System.out.println("Some random words, hopefully:\n\n");
 		for (int i = 0; i < 100; i++)
 			System.out.print(dict.getRandomWord() + " ");
-		//now check bsearch
+		/*now check bsearch
 		//This next takes a while
-		// System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
-		//for (int i = 1; i <= dict.numWords; i++) {
-		//	String word = dict.getWord(i) ;
-		//	if ( ! dict.contains(word) ) {
-		//		System.out.println(word + " :contains() returns: " + dict.contains(word));
-		//	}
-		//}
+		System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
+		for (int i = 1; i <= dict.numWords; i++) {
+			String word = dict.getWord(i) ;
+			if ( ! dict.contains(word) ) {
+				System.out.println(word + " :contains() returns: " + dict.contains(word));
+			}
+		}*/
 		
 		
 		System.out.println("\n\nTesting \"prank\":\n\n");
 		System.out.println("prank" + " :contains() returns: " + dict.contains("poopmastah"));
-		System.out.println("word number 70878: " + dict.getWord(70878)) ;
-		System.out.println("word number 70879: " + dict.getWord(70879)) ;
-		System.out.println("word number 70880: " + dict.getWord(70880)) ;
+		System.out.println("word number 70878: " + dict.getWord(70878));
+		System.out.println("word number 70879: " + dict.getWord(70879));
+		System.out.println("word number 70880: " + dict.getWord(70880));
 		System.out.println("\n\nAnd these false:\n\n");
 		System.out.println("poopmastah" + " :contains() returns: " + dict.contains("poopmastah"));
 		System.out.println("assedsr" + " :contains() returns: " + dict.contains("assedsr"));
@@ -214,16 +215,16 @@ public class Dict {
 		//System.out.println("\n\nBuilding index...\n\n");
 		//dict.buildIndex() ;
 		System.out.println("\n\nSmall index file check:\n\n");
-		System.out.println("first word: " + dict.getWord(1) ) ;
-		System.out.println("Word #666: " + dict.getWord(666)) ;
-		System.out.println("indexed words: " + dict.numWords ) ;
-		System.out.println("last word : " + dict.getWord( dict.numWords )) ;
-		System.out.println("trying to produce an error by requesting word #" + (int) (dict.numWords + 1) + " : ") ;
-		System.out.println( dict.getWord(dict.numWords + 1)) ;
-		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :") ;
-		System.out.println( dict.getWord(0) ) ;
+		System.out.println("first word: " + dict.getWord(1));
+		System.out.println("Word #666: " + dict.getWord(666));
+		System.out.println("indexed words: " + dict.numWords);
+		System.out.println("last word : " + dict.getWord(dict.numWords));
+		System.out.println("trying to produce an error by requesting word #" + (int) (dict.numWords + 1) + " : ");
+		System.out.println(dict.getWord(dict.numWords + 1));
+		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :");
+		System.out.println(dict.getWord(0));
 
-		System.out.println("\nDone.") ;
+		System.out.println("\nDone.");
 	}
 
 	protected void finalize() throws Throwable {
@@ -288,66 +289,68 @@ public class Dict {
 			return true;
 		return false;
 	}
-	
-	/** (re)Builds the word index.  
-	 *
+
+	/**
+	 * (re)Builds the word index.
+	 * <p/>
 	 * Note raw word file should not exceed INT.MAX_VALUE bytes.
-	 *   We use int instead of long throughout this class mainly
-	 *   to keep the size of the index file down.
+	 * We use int instead of long throughout this class mainly
+	 * to keep the size of the index file down.
 	 *
 	 * @return True if index is successfully built
 	 */
 	private boolean buildIndex() {
 
 		try {
-			rafDict.seek(0) ;
-			rafIndex.seek(0) ;	
+			rafDict.seek(0);
+			rafIndex.seek(0);
 			//write the 'header' of the index
 			//length of file
-			rafIndex.writeInt( (int) rafDict.length() ) ;
-			int count = 0 ;
-			while ( ( (int) rafDict.getFilePointer() < Integer.MAX_VALUE) 
-					&& ( rafDict.getFilePointer() < rafDict.length() ) ) {
-				rafIndex.writeInt( (int) rafDict.getFilePointer() ) ;
-				rafDict.readLine() ;
-				++count ;
+			rafIndex.writeInt((int) rafDict.length());
+			int count = 0;
+			while (((int) rafDict.getFilePointer() < Integer.MAX_VALUE)
+					&& (rafDict.getFilePointer() < rafDict.length())) {
+				rafIndex.writeInt((int) rafDict.getFilePointer());
+				rafDict.readLine();
+				++count;
 			}
-			rafIndex.setLength( rafIndex.getFilePointer() ) ;
-			System.out.println("indexed " + count + " words.") ;
-			return true ;
+			rafIndex.setLength(rafIndex.getFilePointer());
+			System.out.println("indexed " + count + " words.");
+			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
-	return false;
+		return false;
 	}
 
-	/** get nth word in word file, using index file
+	/**
+	 * get nth word in word file, using index file
 	 *
 	 * @param num word number
 	 * @return String
 	 */
 
 	public String getWord(int num) {
-		if ( num > numWords ) {
+		if (num > numWords) {
 			//complain
-			System.out.println("I don't have " + num + " words!") ;
+			System.out.println("I don't have " + num + " words!");
 			// the java-like thing to do here is probably to throw 
 			// an exception, but that just seems excessive.  Also,
 			// I don't know how to monkey with exceptions yet.
-			return null ;
+			return null;
 		} else if (num < 1) {
-			System.out.println("word number must be 1 or greater, and no more than " + numWords) ;
-			return null ;
+			System.out.println("word number must be 1 or greater, and no more than " + numWords);
+			return null;
 		}
 		try {
-			rafIndex.seek((long) (num*4)) ;
-			rafDict.seek((long) rafIndex.readInt()) ;
-			return rafDict.readLine() ;
+			rafIndex.seek((long) (num * 4));
+			rafDict.seek((long) rafIndex.readInt());
+			return rafDict.readLine();
 		} catch (IOException e) {
-			e.printStackTrace() ;
-			System.exit(1) ;
+			e.printStackTrace();
+			System.exit(1);
 		}
-		return null ;
+		return null;
 	}
 }
