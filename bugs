@@ -8,4 +8,5 @@ Inbuffer: prefix: pb!~pb@cloaked.nc.rr.com params: #jism trailing:"Even as far b
 
 ^This is a probable problem with recieving a null string from the server. FIXED, hopefully. Was resp. for many a weird disconnection.
 
-
+***************
+Problem parsing arguments at the start! Doesn't parse -host properly. Always conencts to the default nomatter what yous[ecify
