@@ -45,7 +45,7 @@ public class RandWords extends Module {
 			if (parser.has("num")) 
 				num = parser.getInt("num") ;
 			else if (parser.remaining().matches("^\\d+$")) {
-				parser.setRemaining(parser.remaining().replace("^\\d+$", "")) ;
+				parser.setRemaining(parser.remaining().replaceFirst("^\\d+$", "")) ;
 				try {
 					num = Integer.parseInt(m.modTrailing.trim()) ;
 				} catch (NumberFormatException e) {

@@ -45,13 +45,13 @@ public class Define extends Module {
 		//parse out args
 
 		System.out.println("processing command: " + m.modCommand) ;
-		if (m.modCommand.equals("define")) {
+		if (m.modCommand.equalsIgnoreCase("define")) {
 			define(m) ;
-		} else if (m.modCommand.equals("randef")) { 
+		} else if (m.modCommand.equalsIgnoreCase("randef")) { 
 			randef(m) ;
-		} else if (m.modCommand.equals("dictionaries")) { 
+		} else if (m.modCommand.equalsIgnoreCase("dictionaries")) { 
 			dictionaries(m) ;
-		} else if (m.modCommand.equals("dictionary")) {
+		} else if (m.modCommand.equalsIgnoreCase("dictionary")) {
 			dictionary(m) ;
 		}
 	}

@@ -91,13 +91,13 @@ public class Confessions extends Module {
 	}
 
 	public void processPrivateMessage(Message m) {
-		if (m.modCommand.equals("confess")) {
-			m.createReply(confessions.pop().toString()).send();
+		if (m.modCommand.equalsIgnoreCase("confess")) {
+			m.createPagedReply(confessions.pop().toString()).send();
 		}
 
 		if (confessions.empty())
 			if(!getConfessions())
-				m.createReply("I don't feel like confessing anymore, sorry.").send();
+				m.createPagedReply("I don't feel like confessing anymore, sorry.").send();
 	}
 
 	public void processChannelMessage(Message m) {

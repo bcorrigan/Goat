@@ -42,7 +42,7 @@ public class WordGame extends Module implements Runnable {
 
 	public void processChannelMessage(Message m) {
 		if (!playing) {
-			if (m.modCommand.equals("wordgame")) {
+			if (m.modCommand.equalsIgnoreCase("wordgame") || m.modCommand.equalsIgnoreCase("nerdgame")) {
 				playing = true;
 				scores.setTarget(m);
 				target = m;
@@ -57,11 +57,11 @@ public class WordGame extends Module implements Runnable {
 						+ letterString.toUpperCase()).send();
 				return;
 			}
-			if (m.modCommand.equals("scores") & System.currentTimeMillis() - top10time > 30000L) {
+			if (m.modCommand.equalsIgnoreCase("scores") & System.currentTimeMillis() - top10time > 30000L) {
 				top10time = System.currentTimeMillis();
 				scores.sendScoreTable(m);
 			}
-			if (m.modCommand.equals("matchscores") & System.currentTimeMillis() - matchscorestime > 30000L) {
+			if (m.modCommand.equalsIgnoreCase("matchscores") & System.currentTimeMillis() - matchscorestime > 30000L) {
 				matchscorestime = System.currentTimeMillis();
 				scores.sendMatchScoreTable(m);
 			}
@@ -80,7 +80,7 @@ public class WordGame extends Module implements Runnable {
 	}
 
 	public String[] getCommands() {
-		return new String[]{"wordgame", "scores", "matchscores"};
+		return new String[]{"wordgame", "nerdgame", "scores", "matchscores"};
 	}
 
 	private void finaliseGame(Message m) {

@@ -49,7 +49,7 @@ public class Colours extends Module {
 			}
 		} else if(c.equals("colour")) {
 			String t = m.modTrailing.trim() ;
-			msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark grey, and light grey." ;
+			msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark gray, and light gray." ;
 			if (t.equalsIgnoreCase("white")) 
 				msg = m.WHITE + "white: " + m.WHITE.substring(1) ;
 			else if (t.equalsIgnoreCase("black"))
@@ -87,7 +87,7 @@ public class Colours extends Module {
 			else if (t.equalsIgnoreCase("adequacy"))
 				msg = m.LIGHT_GRAY + "adequacy: " + m.LIGHT_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("homosexuality"))
-				msg = homosexualise("HOMOSEXUALITY") ;
+				msg = homosexualise("HOMOSEXUALITY!!!!") ;
 			else if (t.equalsIgnoreCase("camouflage"))
 				msg = camouflage("Camouflage") ;
 		} else if (c.equals("colourise")) {
