@@ -31,9 +31,10 @@ public class Confessions extends Module {
 
 	//TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using a simple xml decoder or something
 	private boolean getConfessions() {
+        HttpURLConnection connection = null;
 		try {
 			URL grouphug = new URL("http://grouphug.us/random");
-			HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
+			connection = (HttpURLConnection) grouphug.openConnection();
 			/* incompatible with 1.4
 			 * It seems java.net.Socket supports socket timeouts, but URLConnection does not expose the
 			 * underlying socket's timeout ability before j2se1.5. So can either rework this code here to use Socket,
@@ -45,7 +46,9 @@ public class Confessions extends Module {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
-		}
+		} finally {
+            if(connection!=null) connection.disconnect();
+        }
 		if (confessions.isEmpty())
 			getConfessions();
 		return true;
@@ -127,12 +130,13 @@ public class Confessions extends Module {
 		if(confession!=null)
 			return confession;
 		LinkedList searchedConfessions = new LinkedList();
+        HttpURLConnection connection = null;
 		try {
 			for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
 				searchString = searchString.trim();
 				searchString = searchString.replaceAll(" ", "%20");
 				URL grouphug = new URL("http://grouphug.us/search/" + searchString + "/" + i*15 + "/n");
-				HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
+				connection = (HttpURLConnection) grouphug.openConnection();
 				searchedConfessions = parseConfession(connection);
 				if(!searchedConfessions.isEmpty()) {
 					confession = searchedConfessions.remove((int) (Math.random()*searchedConfessions.size())).toString();
@@ -148,6 +152,7 @@ public class Confessions extends Module {
 			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
+            if(connection!=null) connection.disconnect();
 		}
 		return null;
 	}

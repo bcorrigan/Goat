@@ -23,10 +23,10 @@ public class Horoscope extends Module {
     ArrayList users;	//all the users of this horoscope module
 
     public Horoscope() {
+        XMLDecoder XMLdec = null;
         try {
-            XMLDecoder XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/horoscopeUsers.xml")));
+            XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/horoscopeUsers.xml")));
             users = (ArrayList) XMLdec.readObject();
-            XMLdec.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             users = new ArrayList();
@@ -35,6 +35,8 @@ public class Horoscope extends Module {
             e.printStackTrace();
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
+        } finally {
+            if(XMLdec!=null) XMLdec.close();
         }
     }
 
@@ -87,11 +89,13 @@ public class Horoscope extends Module {
     }
 
     private String getReport(HoroscopeUser user) {
+        HttpURLConnection connection = null;
+        BufferedReader in = null;
         try {
             URL url = new URL("http://horoscopes.webscopes.com/daily" + user.getSign().toLowerCase() + ".php");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             // incompatible with 1.4
-            // connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+            // connection.setConnectTimeout(3000);
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                 return "That doesn't seem to be a valid star sign, " + user.getName() + ", sorry.";
@@ -99,7 +103,7 @@ public class Horoscope extends Module {
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 return "Hmmmn, " + user.getName() + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.";
             }
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine = in.readLine() + ' ';
             boolean inContent = false;
             while ((inputLine = in.readLine()) != null) {
@@ -116,17 +120,27 @@ public class Horoscope extends Module {
             return inputLine;
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            connection.disconnect();
+            try {
+                if(in!=null) in.close();
+            } catch (IOException ioe) {
+                System.out.println("Could not close stream. ");
+                ioe.printStackTrace();
+            }
         }
         return null;
     }
 
     private void commit() {
+        XMLEncoder XMLenc = null;
         try {
-            XMLEncoder XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/horoscopeUsers.xml")));
+            XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/horoscopeUsers.xml")));
             XMLenc.writeObject(users);
-            XMLenc.close();
         } catch (FileNotFoundException fnfe) {
             fnfe.printStackTrace();
+        } finally {
+            if(XMLenc!=null) XMLenc.close();
         }
     }
 

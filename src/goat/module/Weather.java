@@ -29,10 +29,10 @@ public class Weather extends Module {
 	ArrayList users;	//all the users of this weather module
 
 	public Weather() {
+        XMLDecoder XMLdec = null;
 		try {
-			XMLDecoder XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/weatherUsers.xml")));
+			XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/weatherUsers.xml")));
 			users = (ArrayList) XMLdec.readObject();
-			XMLdec.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			users = new ArrayList();
@@ -41,7 +41,9 @@ public class Weather extends Module {
 			e.printStackTrace();
 		} catch (ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
-		}
+		} finally {
+            if(XMLdec!=null) XMLdec.close();
+        }
 	}
 
 	/* (non-Javadoc)
@@ -87,9 +89,11 @@ public class Weather extends Module {
 	}
 
 	private String getReport(User user) {
+        HttpURLConnection connection = null;
+        BufferedReader in = null;
 		try {
 			URL url = new URL("http://weather.noaa.gov/pub/data/observations/metar/decoded/" + user.getLocation() + ".TXT");
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection = (HttpURLConnection) url.openConnection();
 			// incompatible with 1.4
 			// connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
 			connection.connect();
@@ -99,7 +103,7 @@ public class Weather extends Module {
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				return "Hmmmn, " + user.getName() + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.";
 			}
-			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String inputLine, response = in.readLine() + ' ';
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("ob") || inputLine.startsWith("cycle"))
@@ -115,18 +119,28 @@ public class Weather extends Module {
 			return response;
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} finally {
+            if(connection!=null) connection.disconnect();
+            try {
+                if(in!=null) in.close();
+            } catch (IOException ioe) {
+                System.out.println("Cannot close input stream");
+                ioe.printStackTrace();
+            }
+        }
 		return null;
 	}
 
 	private void commit() {
+        XMLEncoder XMLenc = null;
 		try {
-			XMLEncoder XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/weatherUsers.xml")));
+			XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/weatherUsers.xml")));
 			XMLenc.writeObject(users);
-			XMLenc.close();
 		} catch (FileNotFoundException fnfe) {
 			fnfe.printStackTrace();
-		}
+		} finally {
+            if(XMLenc!=null) XMLenc.close();
+        }
 	}
 
 	public String[] getCommands() {

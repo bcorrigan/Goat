@@ -251,8 +251,9 @@ public class Adventure extends Module implements ZScreen, Runnable {
     public void run() {
         //we need to read in the zmachine data file here
         byte[] data;
+        FileInputStream is = null;
         try {
-            FileInputStream is = new FileInputStream(gameImage);
+            is = new FileInputStream(gameImage);
             data = new byte[is.available()];
             is.read(data);
         } catch (FileNotFoundException e) {
@@ -261,6 +262,13 @@ public class Adventure extends Module implements ZScreen, Runnable {
         } catch (IOException e) {
             e.printStackTrace();
             return;
+        } finally {
+            if(is!=null)
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
         zm = new ZMachine(this, data);
         zmachineTh = new Thread(zm);

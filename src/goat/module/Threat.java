@@ -84,16 +84,18 @@ public class Threat extends Module implements Runnable {
 	 * @return The latest threat level
 	 */
 	private int getLatestThreatLevel() {
+        HttpURLConnection connection = null;
+        BufferedReader in = null;
 		try {
 			URL threatURL = new URL("http://www.threat-advisory.com/formal.html");
-			HttpURLConnection connection = (HttpURLConnection) threatURL.openConnection();
+			connection = (HttpURLConnection) threatURL.openConnection();
 			// connection.setConnectTimeout(3000);  //jdk5 only
 			connection.connect();
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				System.out.println("Fuck up at threat-advisory.com, HTTP Response code: " + connection.getResponseCode());
 				return UNKNOWN;
 			}
-			BufferedReader in = new BufferedReader(new InputStreamReader(threatURL.openStream()));
+			in = new BufferedReader(new InputStreamReader(threatURL.openStream()));
 			String threatLevelString = in.readLine();
 			if (threatLevelString.equals("Green"))
 				return GREEN;
@@ -109,7 +111,15 @@ public class Threat extends Module implements Runnable {
 			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} finally {
+            connection.disconnect();
+            try {
+                if(in!=null) in.close();
+            } catch(IOException ioe) {
+                System.out.println("Error closing stream");
+                ioe.printStackTrace();
+            }
+        }
 		return UNKNOWN;
 	}
 
