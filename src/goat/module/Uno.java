@@ -26,6 +26,8 @@ public class Uno extends Module implements Output, Runnable {
 	Message target;        //the target channel, effectively. The message that started the game
 	String longReply;			//Reply string for multiple events
 	private static final String[] SPACES = new String[20];	//spaces for formatting purposes
+    private static final String BG = Message.COLCODE + ",1";  //bg colour
+    private static final String NORMAL =   Message.WHITE + BG; //reset to normal + BG
 
 	static {
 		for (int i = 0; i < 20; i++) {
@@ -265,64 +267,64 @@ public class Uno extends Module implements Output, Runnable {
 			case Card.NORMALCARD:
 				switch (card.getColour()) {
 					case Card.RED:
-						return Message.RED + "Red " + card.getNumber() + Message.NORMAL;
+						return  Message.RED + "Red " + card.getNumber() + NORMAL;
 					case Card.BLUE:
-						return Message.BLUE + "Blue " + card.getNumber() + Message.NORMAL;
+						return  Message.BLUE + "Blue " + card.getNumber() + NORMAL;
 					case Card.YELLOW:
-						return Message.YELLOW + "Yellow " + card.getNumber() + Message.NORMAL;
+						return  Message.YELLOW + "Yellow " + card.getNumber() + NORMAL;
 					case Card.GREEN:
-						return Message.GREEN + "Green " + card.getNumber() + Message.NORMAL;
+						return  Message.GREEN + "Green " + card.getNumber() + NORMAL;
 				}
 			case Card.REVERSE:
 				switch (card.getColour()) {
 					case Card.RED:
-						return Message.RED + "Red Reverse" + Message.NORMAL;
+						return  Message.RED + "Red Reverse" + NORMAL;
 					case Card.BLUE:
-						return Message.BLUE + "Blue Reverse" + Message.NORMAL;
+						return  Message.BLUE + "Blue Reverse" + NORMAL;
 					case Card.YELLOW:
-						return Message.YELLOW + "Yellow Reverse" + Message.NORMAL;
+						return  Message.YELLOW + "Yellow Reverse" + NORMAL;
 					case Card.GREEN:
-						return Message.GREEN + "Green Reverse" + Message.NORMAL;
+						return  Message.GREEN + "Green Reverse" + NORMAL;
 				}
 			case Card.SKIP:
 				switch (card.getColour()) {
 					case Card.RED:
-						return Message.RED + "Red Skip" + Message.NORMAL;
+						return  Message.RED + "Red Skip" + NORMAL;
 					case Card.BLUE:
-						return Message.BLUE + "Blue Skip" + Message.NORMAL;
+						return  Message.BLUE + "Blue Skip" + NORMAL;
 					case Card.YELLOW:
-						return Message.YELLOW + "Yellow Skip" + Message.NORMAL;
+						return  Message.YELLOW + "Yellow Skip" + NORMAL;
 					case Card.GREEN:
-						return Message.GREEN + "Green Skip" + Message.NORMAL;
+						return  Message.GREEN + "Green Skip" + NORMAL;
 				}
 			case Card.DRAW:
 				switch (card.getColour()) {
 					case Card.RED:
-						return Message.RED + "Red Draw Two" + Message.NORMAL;
+						return  Message.RED + "Red Draw Two" + NORMAL;
 					case Card.BLUE:
-						return Message.BLUE + "Blue Draw Two" + Message.NORMAL;
+						return  Message.BLUE + "Blue Draw Two" + NORMAL;
 					case Card.YELLOW:
-						return Message.YELLOW + "Yellow Draw Two" + Message.NORMAL;
+						return  Message.YELLOW + "Yellow Draw Two" + NORMAL;
 					case Card.GREEN:
-						return Message.GREEN + "Green Draw Two" + Message.NORMAL;
+						return  Message.GREEN + "Green Draw Two" + NORMAL;
 				}
 			case Card.FAKE:
 				switch (card.getColour()) {
 					case Card.RED:
-						return Message.RED + "Red" + Message.NORMAL;
+						return  Message.RED + "Red" + NORMAL;
 					case Card.BLUE:
-						return Message.BLUE + "Blue" + Message.NORMAL;
+						return  Message.BLUE + "Blue" + NORMAL;
 					case Card.YELLOW:
-						return Message.YELLOW + "Yellow" + Message.NORMAL;
+						return  Message.YELLOW + "Yellow" + NORMAL;
 					case Card.GREEN:
-						return Message.GREEN + "Green" + Message.NORMAL;
+						return  Message.GREEN + "Green" + NORMAL;
 				}
 			case Card.WILD:
-				return Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + 'd' + Message.NORMAL;
+				return  Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + 'd' + NORMAL;
 			case Card.WDF:
-				return Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + "d "
+				return  Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + "d "
 						+ Message.BLUE + 'D' + Message.YELLOW + 'r' + Message.GREEN + 'a' + Message.RED + "w "
-						+ Message.GREEN + 'F' + Message.RED + 'o' + Message.BLUE + 'u' + Message.YELLOW + 'r' + Message.NORMAL;
+						+ Message.GREEN + 'F' + Message.RED + 'o' + Message.BLUE + 'u' + Message.YELLOW + 'r' + NORMAL;
 		}
 		return null;
 	}
@@ -342,7 +344,7 @@ public class Uno extends Module implements Output, Runnable {
 		while (it.hasNext()) {
 			reply += ' ' + getStringForCard((Card) it.next());
 		}
-		new Message("", "NOTICE", player.getName(), reply).send();
+		new Message("", "NOTICE", player.getName(), NORMAL + reply).send();
 	}
 
 	public void noSuchCard(Player player) {
@@ -364,7 +366,7 @@ public class Uno extends Module implements Output, Runnable {
 			while (it.hasNext()) {
 				cards += getStringForCard((Card) it.next()) + ' ';
 			}
-			target.createReply(Message.BOLD + players[i].getName() + Message.BOLD + ": " + cards).send();
+			target.createReply(NORMAL + Message.BOLD + players[i].getName() + Message.BOLD + ": " + cards).send();
 		}
 		playing = false;
 	}
@@ -375,7 +377,7 @@ public class Uno extends Module implements Output, Runnable {
 
 	public void playerDrewCard(Player player, Card card) {
 		target.createReply(Message.BOLD + player.getName() + Message.BOLD + " has drawn a card.").send();
-		new Message("", "NOTICE", player.getName(), "You drew: " + getStringForCard(card)).send();
+		new Message("", "NOTICE", player.getName(), NORMAL + "You drew: " + getStringForCard(card)).send();
 	}
 
 	public void playerPassed(Player player) {
@@ -386,7 +388,7 @@ public class Uno extends Module implements Output, Runnable {
 		if (longReply == null)
 			target.createReply("It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
 		else {
-			target.createReply(longReply + "It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
+			target.createReply(NORMAL + longReply + "It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
 			longReply = "";
 		}
 		hand(player);
@@ -396,14 +398,14 @@ public class Uno extends Module implements Output, Runnable {
 		if (card.getType() == Card.WILD || card.getType() == Card.WDF) {
 			card = game.colourCard;
 		}
-		new Message("", "NOTICE", player.getName(), getStringForCard(card) + " is up.").send();
+		new Message("", "NOTICE", player.getName(), NORMAL + getStringForCard(card) + " is up.").send();
 	}
 
 	public void showTopDiscardCardEverybody(Card card) {
 		if (card.getType() == Card.WILD || card.getType() == Card.WDF) {
 			card = game.colourCard;
 		}
-		target.createReply(getStringForCard(card) + " is up.").send();
+		target.createReply(NORMAL + getStringForCard(card) + " is up.").send();
 	}
 
 	public void normalPlay(Player player, Card card) {
@@ -432,7 +434,7 @@ public class Uno extends Module implements Output, Runnable {
 			longReply += Message.BOLD + player.getName() + Message.BOLD + " draws " + cards.length + " cards. ";
 		for (int i = 0; i < cards.length; i++)
 			reply += ' ' + getStringForCard(cards[i]);
-		new Message("", "NOTICE", player.getName(), "You drew:" + reply).send();
+		new Message("", "NOTICE", player.getName(),NORMAL + "You drew:" + reply).send();
 	}
 
 	public void chooseColour(Player player) {
@@ -444,11 +446,11 @@ public class Uno extends Module implements Output, Runnable {
 	}
 
 	public void chosenColour(Colour colour) {
-		target.createReply("The colour is now " + getStringForCard(colour) + '.').send();
+		target.createReply(NORMAL + "The colour is now " + getStringForCard(colour) + '.').send();
 	}
 
 	public void playerHasUno(Player player) {
-		target.createReply(Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + 'U' + Message.BLUE + 'N' + Message.RED + 'O' + Message.NORMAL + "!!").send();
+		target.createReply(NORMAL + Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + 'U' + Message.BLUE + 'N' + Message.RED + 'O' + NORMAL + "!!").send();
 	}
 
 	public void order(Player[] allPlayers, int[] noCards) {
@@ -456,7 +458,7 @@ public class Uno extends Module implements Output, Runnable {
 		for (int i = 0; i < allPlayers.length; i++) {
 			reply += Message.BOLD + allPlayers[i].getName() + Message.BOLD + '(' + noCards[i] + ") ";
 		}
-		target.createReply(reply).send();
+		target.createReply(NORMAL + reply).send();
 	}
 
 	public void run() {
