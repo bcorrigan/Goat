@@ -40,6 +40,7 @@
 				</section>
 			</manifest>
 		</jar>
+		<delete file="${build}/goatRevision"/>
 		<!-- delete the jar in top dir, and replace with updated copy -->
 		<delete file="goat.jar"/>
 		<copy file="${jars}/bin/Goat-${DSTAMP}.jar" tofile="goat.jar"/>
