@@ -551,8 +551,7 @@ public class Message {
 			StringTokenizer st = new StringTokenizer(words);
 			String firstWord = "";
 			if (st.hasMoreTokens()) {
-				firstWord = st.nextToken();
-				firstWord = firstWord.replaceAll("\\W", "");
+				firstWord = st.nextToken() ;
 			}
 			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
 				if (st.hasMoreTokens()) {
@@ -562,7 +561,7 @@ public class Message {
 						modTrailing += st.nextToken() + ' ';         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
 				}
 			} else {
-				modCommand = firstWord;
+				modCommand = removeColors(firstWord).replaceAll("\\W","");
 				while (st.hasMoreTokens())
 					modTrailing += st.nextToken() + ' ';
 			}
@@ -570,14 +569,15 @@ public class Message {
 			String words = trailing;
 			StringTokenizer st = new StringTokenizer(words);
 			String firstWord = "";
-			if (st.hasMoreTokens())
+			if (st.hasMoreTokens()) {
 				firstWord = st.nextToken();
+			}
 			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
 				if (st.hasMoreTokens())
 					modCommand = st.nextToken();
 				modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
 			} else {
-				modCommand = firstWord;
+				modCommand = removeColors(firstWord).replaceAll("\\W", "");
 			}
 
 			while (st.hasMoreTokens()) {

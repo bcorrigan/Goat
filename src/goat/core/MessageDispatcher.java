@@ -83,7 +83,7 @@ public class MessageDispatcher {
 			mod = (Module) it.next();
 			String[] commands = mod.getCommands();
 			for (int j = 0; j < commands.length; j++)
-				if (commands[j].equals(msg.modCommand)) {
+				if (commands[j].equalsIgnoreCase(msg.modCommand)) {
 					sendIfChannelsMatch(msg, mod);
 					used = true;
 				}
