@@ -63,7 +63,7 @@ public class Goat {
 					break;
 
 				case 2:
-					BotStats.channels.add(args[i]);
+					BotStats.addChannel((args[i]));
 					state = 0;
 					break;
 
@@ -85,7 +85,7 @@ public class Goat {
 		System.out.println("Usage: java Goat [-name <name>][-host <host>][-channel <channel>]");
 		System.out.println();
 		System.out.println("Options:");
-		System.out.println("  -name <name>         Changes the bot's default name [default: toga]");
+		System.out.println("  -name <name>         Changes the bot's default name [default: goat]");
 		System.out.println("  -channel <#channel>  Changes the bot's default channel [default: #jism]");
 		System.out.println("  -host <host>         Sets which host to connect to [default: coruscant.slashnet.org]");
 	}
@@ -113,6 +113,7 @@ public class Goat {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("goatrc"));
 			String lineIn;
+
 			while((lineIn=in.readLine())!=null) {
 				Message m = new Message("", "", "", "");
 				m.isAuthorised = true;
@@ -125,6 +126,7 @@ public class Goat {
 				for(int i=1;i<words.length;i++) {
 					m.modTrailing += words[i] + " ";
 				}
+				m.command="PRIVMSG";
 				inqueue.enqueue(m);
 			}
 			in.close();
@@ -138,9 +140,9 @@ public class Goat {
 	}
 
 	private static void setDefaultStats() {
-		BotStats.botname="toga";
- 		BotStats.channels.add("#testy");
-		BotStats.clientName = "toga";
+		BotStats.botname="goat";
+ 		BotStats.addChannel("#jism");
+		BotStats.clientName = "goat";
 		BotStats.owner = "bc";
 		BotStats.servername = "coruscant.slashnet.org";
 		BotStats.version = "Goat 2.0 Alpha Enterprise Edition";
