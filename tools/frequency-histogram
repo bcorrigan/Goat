@@ -1,0 +1,39 @@
+#!/usr/bin/perl -w
+
+use strict ;
+my $FREQ_FILE="resources/words-googlehits-rank" ;
+my $INCREMENT = 75000 ;
+my $CUTOFF = 3000000 ;
+
+main() ;
+exit ;
+
+sub main {
+	open(F, "<$FREQ_FILE")
+		or die "Couldn't open frequencies file \"$FREQ_FILE\"; run from top-level goat dir or edit script" ;
+	my ($w, $f, $r, %h) ;
+	my $c = 0 ;
+	while (<F>) {
+		($w, $f, $r) = split /\t/ ;
+		chomp $f ;
+		$h{$f}++ ;
+		$c++ ;
+	}
+	print "Of $c words:\n" ;
+	printf("%17s : %s\n", "google hits", "words") ;
+	my $i = 1 ;
+	my $tot = 0;
+	for my $freq (sort {$a<=>$b} keys(%h)) {
+		if (($freq <= $CUTOFF) and ($freq >= $i * $INCREMENT)) {
+			printf("%8d-%-8d : %d\n", $INCREMENT * ($i - 1),$i * $INCREMENT, $tot) ;
+			$i++ ;
+			$tot = $h{$freq} ;
+		}
+		else {
+			$tot += $h{$freq} ;
+		}
+	}
+	print "\n>" . $i * $INCREMENT . "\t$tot\n\n" ;
+	print int(keys %h) . " keys.\n" ;
+	print "8000000000: " . $h{8000000000} . "\n";
+}
