@@ -17,5 +17,6 @@ insmod GoatSay all
 insmod Horoscope all
 insmod Remind all
 insmod CurrencyConverter all
+insmod Sexy all
 join #jism
 join #wordgame

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<java version="1.5.0-beta3" class="java.beans.XMLDecoder"> 
+<java version="1.5.0_01" class="java.beans.XMLDecoder"> 
  <object class="java.util.ArrayList"> 
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
-     <int>59</int> 
+     <int>104</int> 
     </void> 
     <void property="gamesWon"> 
-     <int>22</int> 
+     <int>46</int> 
     </void> 
     <void property="hiScore"> 
-     <int>195</int> 
+     <int>210</int> 
     </void> 
     <void property="name"> 
      <string>bc</string> 
     </void> 
     <void property="totalScore"> 
-     <int>1598</int> 
+     <int>2843</int> 
     </void> 
    </object> 
   </void> 
@@ -36,6 +36,25 @@
     </void> 
     <void property="totalScore"> 
      <int>1257</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>39</int> 
+    </void> 
+    <void property="gamesWon"> 
+     <int>18</int> 
+    </void> 
+    <void property="hiScore"> 
+     <int>131</int> 
+    </void> 
+    <void property="name"> 
+     <string>kip</string> 
+    </void> 
+    <void property="totalScore"> 
+     <int>984</int> 
     </void> 
    </object> 
   </void> 
@@ -162,6 +181,63 @@
      <int>1</int> 
     </void> 
     <void property="hiScore"> 
+     <int>84</int> 
+    </void> 
+    <void property="name"> 
+     <string>kip__</string> 
+    </void> 
+    <void property="totalScore"> 
+     <int>84</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>1</int> 
+    </void> 
+    <void property="gamesWon"> 
+     <int>1</int> 
+    </void> 
+    <void property="hiScore"> 
+     <int>82</int> 
+    </void> 
+    <void property="name"> 
+     <string>kip2</string> 
+    </void> 
+    <void property="totalScore"> 
+     <int>82</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>2</int> 
+    </void> 
+    <void property="gamesWon"> 
+     <int>1</int> 
+    </void> 
+    <void property="hiScore"> 
+     <int>53</int> 
+    </void> 
+    <void property="name"> 
+     <string>condom</string> 
+    </void> 
+    <void property="totalScore"> 
+     <int>53</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>2</int> 
+    </void> 
+    <void property="gamesWon"> 
+     <int>1</int> 
+    </void> 
+    <void property="hiScore"> 
      <int>35</int> 
     </void> 
     <void property="name"> 
@@ -213,6 +289,25 @@
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
+     <int>5</int> 
+    </void> 
+    <void property="gamesWon"> 
+     <int>1</int> 
+    </void> 
+    <void property="hiScore"> 
+     <int>20</int> 
+    </void> 
+    <void property="name"> 
+     <string>Omni-Max</string> 
+    </void> 
+    <void property="totalScore"> 
+     <int>20</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
      <int>1</int> 
     </void> 
     <void property="gamesWon"> 
@@ -251,7 +346,7 @@
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
-     <int>5</int> 
+     <int>6</int> 
     </void> 
     <void property="gamesWon"> 
      <int>1</int> 
@@ -304,6 +399,26 @@
     </void> 
     <void property="name"> 
      <string>kari</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>1</int> 
+    </void> 
+    <void property="name"> 
+     <string>yves</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>1</int> 
+    </void> 
+    <void property="name"> 
+     <string>ZoobToob</string> 
     </void> 
    </object> 
   </void> 
