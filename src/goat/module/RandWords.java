@@ -63,9 +63,9 @@ public class RandWords extends Module {
 				reply = randWordString(2) ;
 			} else {
 				if (random.nextBoolean()) {
-					reply = arg + " " + getWord() ;
+					reply = arg + ' ' + getWord() ;
 				} else {
-					reply = getWord() + " " + arg ;
+					reply = getWord() + ' ' + arg ;
 				}
 			}
 			m.createReply(reply).send() ;

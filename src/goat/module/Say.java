@@ -12,7 +12,7 @@ public class Say extends Module {
 			String[] words = m.modTrailing.split(" ");
 			String trailing="";
 			for(int i=1;i<words.length;i++)
-				trailing+=words[i] + " ";
+				trailing+=words[i] + ' ';
 			new Message("", "PRIVMSG", words[0], trailing).send();
 		}
 	}

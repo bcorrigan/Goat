@@ -105,7 +105,7 @@ public class ModuleCommands extends Module {
 		} catch (ClassNotFoundException e) {
 			m.createReply("ClassNotFoundException: Module " + moduleName + " could not be found.").send();
 		} catch (ClassCastException e) {
-			m.createReply("ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + ".").send();
+			m.createReply("ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + '.').send();
 		} catch (NoClassDefFoundError e) {
 			m.createReply("NoClassDefFoundError: Module " + moduleName + " not found.").send();
 		}
@@ -115,7 +115,7 @@ public class ModuleCommands extends Module {
 		if (modControl.unload(m.modTrailing.trim()))
 			m.createReply("Successfully removed module '" + m.modTrailing.trim() + "'!").send();
 		else
-			m.createReply("Module not found: '" + m.modTrailing.trim() + "'").send();
+			m.createReply("Module not found: '" + m.modTrailing.trim() + '\'').send();
 	}
 
 	private void lsmod(Message m) {

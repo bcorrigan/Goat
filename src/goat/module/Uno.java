@@ -318,11 +318,11 @@ public class Uno extends Module implements Output, Runnable {
 						return Message.GREEN + "Green" + Message.NORMAL;
 				}
 			case Card.WILD:
-				return Message.YELLOW + "W" + Message.BLUE + "i" + Message.RED + "l" + Message.GREEN + "d" + Message.NORMAL;
+				return Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + 'd' + Message.NORMAL;
 			case Card.WDF:
-				return Message.YELLOW + "W" + Message.BLUE + "i" + Message.RED + "l" + Message.GREEN + "d "
-						+ Message.BLUE + "D" + Message.YELLOW + "r" + Message.GREEN + "a" + Message.RED + "w "
-						+ Message.GREEN + "F" + Message.RED + "o" + Message.BLUE + "u" + Message.YELLOW + "r" + Message.NORMAL;
+				return Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + "d "
+						+ Message.BLUE + 'D' + Message.YELLOW + 'r' + Message.GREEN + 'a' + Message.RED + "w "
+						+ Message.GREEN + 'F' + Message.RED + 'o' + Message.BLUE + 'u' + Message.YELLOW + 'r' + Message.NORMAL;
 		}
 		return null;
 	}
@@ -340,7 +340,7 @@ public class Uno extends Module implements Output, Runnable {
 		Iterator it = cards.iterator();
 		String reply = "";
 		while (it.hasNext()) {
-			reply += " " + getStringForCard((Card) it.next());
+			reply += ' ' + getStringForCard((Card) it.next());
 		}
 		new Message("", "NOTICE", player.getName(), reply).send();
 	}
@@ -362,7 +362,7 @@ public class Uno extends Module implements Output, Runnable {
 			Iterator it = hand.iterator();
 			String cards = "";
 			while (it.hasNext()) {
-				cards += getStringForCard((Card) it.next()) + " ";
+				cards += getStringForCard((Card) it.next()) + ' ';
 			}
 			target.createReply(Message.BOLD + players[i].getName() + Message.BOLD + ": " + cards).send();
 		}
@@ -384,9 +384,9 @@ public class Uno extends Module implements Output, Runnable {
 
 	public void nextPlayer(Player player) {
 		if (longReply == null)
-			target.createReply("It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + ".").send();
+			target.createReply("It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
 		else {
-			target.createReply(longReply + "It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + ".").send();
+			target.createReply(longReply + "It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
 			longReply = "";
 		}
 		hand(player);
@@ -431,7 +431,7 @@ public class Uno extends Module implements Output, Runnable {
 		else
 			longReply += Message.BOLD + player.getName() + Message.BOLD + " draws " + cards.length + " cards. ";
 		for (int i = 0; i < cards.length; i++)
-			reply += " " + getStringForCard(cards[i]);
+			reply += ' ' + getStringForCard(cards[i]);
 		new Message("", "NOTICE", player.getName(), "You drew:" + reply).send();
 	}
 
@@ -444,17 +444,17 @@ public class Uno extends Module implements Output, Runnable {
 	}
 
 	public void chosenColour(Colour colour) {
-		target.createReply("The colour is now " + getStringForCard(colour) + ".").send();
+		target.createReply("The colour is now " + getStringForCard(colour) + '.').send();
 	}
 
 	public void playerHasUno(Player player) {
-		target.createReply(Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + "U" + Message.BLUE + "N" + Message.RED + "O" + Message.NORMAL + "!!").send();
+		target.createReply(Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + 'U' + Message.BLUE + 'N' + Message.RED + 'O' + Message.NORMAL + "!!").send();
 	}
 
 	public void order(Player[] allPlayers, int[] noCards) {
 		String reply = "";
 		for (int i = 0; i < allPlayers.length; i++) {
-			reply += Message.BOLD + allPlayers[i].getName() + Message.BOLD + "(" + noCards[i] + ") ";
+			reply += Message.BOLD + allPlayers[i].getName() + Message.BOLD + '(' + noCards[i] + ") ";
 		}
 		target.createReply(reply).send();
 	}

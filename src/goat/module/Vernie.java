@@ -95,7 +95,7 @@ public class Vernie extends Module {
 			String num = Integer.toString(i);
 
 			if (num.length() < 2)
-				num = " " + num;
+				num = ' ' + num;
 
 			Message.createNotice(towho, num + ". " + currentitem).send();
 

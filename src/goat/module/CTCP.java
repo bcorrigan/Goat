@@ -43,7 +43,7 @@ public class CTCP extends Module {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP && m.CTCPCommand.equals("VERSION")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + "Goatbot" + ":" + BotStats.version + ":(" + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ";" + System.getProperty("os.arch") + ")" + (char) 0x01).send();
+				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + "Goatbot" + ':' + BotStats.version + ":(" + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';' + System.getProperty("os.arch") + ')' + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("PING")) {
 				new Message("", "NOTICE", name, (char) 0x01 + "PING " + m.CTCPMessage + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("TIME")) {

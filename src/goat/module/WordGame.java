@@ -47,7 +47,7 @@ public class WordGame extends Module implements Runnable {
 				scores.setTarget(m);
 				target = m;
 				initGame();
-				String letterString = new String(" ");
+				String letterString = " ";
 				Iterator it = letters.iterator();
 				while (it.hasNext()) {
 					letterString += ((Character) it.next()).charValue() + " ";

@@ -100,16 +100,16 @@ public class Weather extends Module {
 				return "Hmmmn, " + user.getName() + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.";
 			}
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String inputLine, response = in.readLine() + " ";
+			String inputLine, response = in.readLine() + ' ';
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("ob") || inputLine.startsWith("cycle"))
 					continue;
 				inputLine = inputLine.replaceAll(":0", "");
 				if (inputLine.matches(": ") && inputLine.substring(0, 1).matches("[A-Z]")) {
-					inputLine = inputLine.replaceAll(": ", ":" + Message.BOLD + " ");
+					inputLine = inputLine.replaceAll(": ", ':' + Message.BOLD + ' ');
 					inputLine = Message.BOLD + inputLine;
 				}
-				response += inputLine + " ";
+				response += inputLine + ' ';
 				
 			}
 			return response;
