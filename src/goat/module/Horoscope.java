@@ -28,7 +28,13 @@ public class Horoscope extends Module {
             XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/horoscopeUsers.xml")));
             users = (ArrayList) XMLdec.readObject();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            File file = new File("resources/horoscopeUsers.xml");
+            try {
+                file.createNewFile();
+            } catch (IOException ioe) {
+                System.out.println("horoscopeUsers.xml not found; and furthermore there is an error touching a new one.");
+                ioe.printStackTrace();
+            }
             users = new ArrayList();
         } catch (NoSuchElementException e) {
             users = new ArrayList();
