@@ -41,7 +41,12 @@ public class RandWords extends Module {
 		if (m.modCommand.equals("randword") 
 				|| m.modCommand.equals("randwords")) {
 			if (m.modTrailing.trim().matches("^\\d+$")) {
-				num = Integer.parseInt(m.modTrailing.trim()) ;
+				try {
+					num = Integer.parseInt(m.modTrailing.trim()) ;
+				} catch (NumberFormatException e) {
+					m.createReply("Don't fuck with me, tough guy.").send() ;
+					return ;
+				}
 				if (num > 1000) {
 					m.createReply("Now you're just being a prick.").send() ;
 					return ;
