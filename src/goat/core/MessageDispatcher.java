@@ -57,9 +57,9 @@ public class MessageDispatcher {
 				  modulesWantingSome = new ArrayList(),
 				  modulesWantingOne = new ArrayList();
 		Module mod;
-        if(msg.isAuthorised)
-			System.out.println("Inbuffer: prefix: " + msg.prefix + " params: " + msg.params + " trailing:" + msg.trailing + " command:" + msg.command + " sender: " + msg.sender +
-								           "\n    " + "isCTCP:" + msg.isCTCP + " isPrivate:" + msg.isPrivate + " CTCPCommand:" + msg.CTCPCommand + " CTCPMessage:" + msg.CTCPMessage);
+        //if(msg.isAuthorised)
+			//System.out.println("Inbuffer: prefix: " + msg.prefix + " params: " + msg.params + " trailing:" + msg.trailing + " command:" + msg.command + " sender: " + msg.sender +
+			//					           "\n    " + "isCTCP:" + msg.isCTCP + " isPrivate:" + msg.isPrivate + " CTCPCommand:" + msg.CTCPCommand + " CTCPMessage:" + msg.CTCPMessage);
 
 		while(it.hasNext()) {
 			mod = (Module) it.next();
