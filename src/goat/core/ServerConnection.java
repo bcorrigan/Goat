@@ -7,8 +7,9 @@ import java.io.*;
 
 /**
  * Maintains the connection with the server. A seperate thread, this.
- * @version <p>Date: 14.12.2003</p>
+ *
  * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
+ * @version <p>Date: 14.12.2003</p>
  */
 
 public class ServerConnection extends Thread {
@@ -19,126 +20,128 @@ public class ServerConnection extends Thread {
     private InputHandler ih;
     private OutputHandler oh;
     private String serverName;
-	private boolean connected = false;
+    private boolean connected = false;
 
     /**
      * Connects us to a server.
+     *
      * @param serverName The server to connect to.
      */
     public ServerConnection(String serverName) {
         this.serverName = serverName;
-        connect();
+        reconnect();
     }
 
-    private void connect() {
-        try {
-            IrcServer = new Socket(serverName, 6667);
-        } catch(UnknownHostException uhe) {
-            System.out.println("UnknownHostException: " + uhe.getMessage());
-            System.exit(0);
-        } catch(IOException ioe) {
-            System.out.println("IOException: " + ioe.getMessage());
-            System.exit(0);
-        }
+    private void connect() throws UnknownHostException, IOException {
+        IrcServer = new Socket(serverName, 6667);
 
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream()));
-            OutputStream os = IrcServer.getOutputStream();
-            ih = new InputHandler(br);
-            oh = new OutputHandler(os);
+        BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream()));
+        OutputStream os = IrcServer.getOutputStream();
+        ih = new InputHandler(br);
+        oh = new OutputHandler(os);
 
-        } catch(IOException ioe) {
-            System.out.println("Error opening streams to IRC server: " + ioe.getMessage());
-            System.exit(0);
-        }
         ih.start();
-        oh.start();	
+        oh.start();
         new Message("", "PASS", "foo", "").send();
         new Message("", "NICK", BotStats.botname, "").send();
         new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.version).send();
-		//we sleep until we are connected, don't want to send these next messages too soon
-		while(!connected) {
-			try {
-				sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		String[] channels = BotStats.getChannels();
-		for(int i=0; i<channels.length; i++)
-			new Message("", "JOIN", channels[i], "").send();
+        //we sleep until we are connected, don't want to send these next messages too soon
+        while (!connected) {
+            try {
+                sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        String[] channels = BotStats.getChannels();
+        for (int i = 0; i < channels.length; i++)
+            new Message("", "JOIN", channels[i], "").send();
     }
 
     private void reconnect() {
-		connected = false;
-		try {
-			sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		connect();
+        connected = false;
+        while (true) {
+            try {
+                connect();
+                return;
+            } catch (UnknownHostException uhe) {
+                System.out.println("Hmmn unknown host, will wait 305 seconds then try connecting again.. ");
+            } catch (IOException ioe) {
+                System.out.println("IOException, waiting 305 secs then retry. ");
+            }
+
+            try {
+                sleep(305000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     class InputHandler extends Thread {
         BufferedReader in;
-		private boolean keeprunning = true;
-		int namecount = 1;
-		private String botdefaultname = BotStats.botname;
+        private boolean keeprunning = true;
+        int namecount = 1;
+        private String botdefaultname = BotStats.botname;
+
         public InputHandler(BufferedReader in) {
-            this.in=in;
+            this.in = in;
         }
 
-		void disconnect() {
-			keeprunning=false;
-		}
+        void disconnect() {
+            keeprunning = false;
+        }
 
         public void run() {
             String messageString;
-			long lastActivity=System.currentTimeMillis();
-            while(keeprunning) {
+            long lastActivity = System.currentTimeMillis();
+            while (keeprunning) {
                 try {
-                    if(in.ready()) {
+                    if (in.ready()) {
                         messageString = in.readLine();
-						lastActivity=System.currentTimeMillis();
-						if(messageString.equals(null))
-							continue;
-						Message m = new Message(messageString);
-						
-						if(!connected) {
-							try {
-								int intcommand = Integer.parseInt(m.command);
-								if(intcommand == Message.RPL_ENDOFMOTD)
-									connected = true;
-								else if (intcommand == Message.ERR_NICKNAMEINUSE) {
-									namecount++;
-									BotStats.botname = botdefaultname + namecount;
-									new Message("", "NICK", BotStats.botname, "").send();
-									new Message("", "USER", BotStats.botname + " nowhere.com " + 
-												BotStats.servername, BotStats.clientName + 
-												" v." + BotStats.version).send();
-								}
-							} catch(NumberFormatException nfe) {
-								//we ignore this
-							}
-						}
+                        lastActivity = System.currentTimeMillis();
+                        if (messageString.equals(null))
+                            continue;
+                        Message m = new Message(messageString);
 
-						if(m.command.equals("PING"))
-							outqueue.enqueue(new Message("", "PONG", "", m.trailing));
-                  else inqueue.enqueue(m); //add to inqueue
-					// System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
-					//		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
+                        if (!connected) {
+                            try {
+                                int intcommand = Integer.parseInt(m.command);
+                                if (intcommand == Message.RPL_ENDOFMOTD)
+                                    connected = true;
+                                else if (intcommand == Message.ERR_NICKNAMEINUSE) {
+                                    namecount++;
+                                    BotStats.botname = botdefaultname + namecount;
+                                    new Message("", "NICK", BotStats.botname, "").send();
+                                    new Message("", "USER", BotStats.botname + " nowhere.com " +
+                                            BotStats.servername, BotStats.clientName +
+                                            " v." + BotStats.version).send();
+                                }
+                            } catch (NumberFormatException nfe) {
+                                //we ignore this
+                            }
+                        }
+
+                        if (m.command.equals("PING"))
+                            outqueue.enqueue(new Message("", "PONG", "", m.trailing));
+                        else
+                            inqueue.enqueue(m); //add to inqueue
+                        // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
+                        //		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
-						if(System.currentTimeMillis() - lastActivity>305000) {
-							in.close();
-							oh.disconnect();
-							reconnect();
-							return;
-						}
+                        if (System.currentTimeMillis() - lastActivity > 305000) {
+                            in.close();
+                            oh.disconnect();
+                            keeprunning = false;
+                            reconnect();
+                            return;
+                        }
                         sleep(100);
                     }
                 } catch (IOException ioe) {
                     System.out.println("EOF on connection: " + ioe.getMessage());
-                } catch(InterruptedException ie) {
+                } catch (InterruptedException ie) {
                     System.out.println("Interrupted: " + ie.getMessage());
                 }
             }
@@ -151,9 +154,9 @@ public class ServerConnection extends Thread {
         private boolean keeprunning;
         int clearcount;
 
-		void disconnect() {
-			keeprunning=false;
-		}
+        void disconnect() {
+            keeprunning = false;
+        }
 
         public OutputHandler(OutputStream out) {
             this.out = out;
@@ -163,14 +166,14 @@ public class ServerConnection extends Thread {
 
         public void run() {
             while (keeprunning) {
-				synchronized(outqueue) {
-                	if (!outqueue.isQueueEmpty()) {
-                    	sendMessage(outqueue.dequeue());
+                synchronized (outqueue) {
+                    if (!outqueue.isQueueEmpty()) {
+                        sendMessage(outqueue.dequeue());
 
-                    	clearcount = 0;
-                	} else
-                    	clearcount++;
-				}
+                        clearcount = 0;
+                    } else
+                        clearcount++;
+                }
                 if (clearcount == 100 && bufused > 0) {	//guess that the server has flushed the buffer if I haven't written a message in under two seconds.
                     clearcount = 0;
                     bufused -= 512;
@@ -205,7 +208,7 @@ public class ServerConnection extends Thread {
 
                 try {
                     out.write(outbuffer);
-					// System.out.println("Outbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing);
+                    // System.out.println("Outbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing);
                 } catch (IOException e) {
                     System.out.println("Write error: " + e.getMessage());
                     reconnect();
