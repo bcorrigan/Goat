@@ -87,6 +87,11 @@ public class Message {
 	public String channame = "";
 
 	/**
+	 * Where replies to this message should be sent.  Should be equal to sender if isPrivate is true, otherwise equal to channame.  Changing this will change the behavior of createReply() and createPagedReply().
+	 */
+	public String replyTo = "" ;
+
+	/**
 	 * CTCP is a slight addition to the protocol. Effectively, this allows extension commands to be supplied, which can be
 	 * ignored by the client if not understood. CTCP is usually a PRIVMSG, where the trailing is encapulated by ASCII 0x01,
 	 * and the first full word of which is the command.
@@ -109,23 +114,6 @@ public class Message {
 
 	private static HashMap pagerCache = new HashMap() ;
 
-	/**
-	 * Is there more text in the pager buffer for the current channel/nick?
-	 *
-	 * @return true if there's more text to be had.
-	 */
-	public boolean hasNextPage() {
-		if ( ! pagerCache.containsKey(params) ) 
-			return false ;
-		Pager pager = (Pager) pagerCache.get(params) ;
-		if (pager.isEmpty()) {
-			pagerCache.remove(params) ;
-			return false ;
-		}
-		return true ;
-	}
-
-	
 	/**
 	 * The most low level way of creating a new message, this requires some knowledge of the IRC RFC. prefix can be left
 	 * empty (but not null) with most outgoing messages.
@@ -540,22 +528,23 @@ public class Message {
 
 			words.trimToSize();
 		}
-
+		if (prefix != null) {
+			j = prefix.indexOf('!');
+			if (j > -1) 
+				sender = prefix.substring(0, j);
+		}
 		if (command.equals("PRIVMSG")) {
 			if (params.equals(BotStats.botname)) {
 				isPrivate = true;
-			} else
-				channame = params;
-
+				replyTo = sender;
+			} else 
+				replyTo = channame = params ;
 		}
 
-		if (prefix != null) {
-			j = prefix.indexOf('!');
-
-			if (j > -1) {
-				sender = prefix.substring(0, j);
-			}
-		}
+		if (isPrivate)
+			replyTo = sender ;
+		else
+			replyTo = channame ;
 
 		if (isPrivate) {  //if private, set modTrailing (everything after command), modCommand (first word) and ignore "goat"
 			String words = trailing;
@@ -650,13 +639,7 @@ public class Message {
 		if (!command.equals("PRIVMSG")) {
 			return new Message("", "", "", ""); //hopefully this will be accepted and ignored
 		}
-
-		if (!params.equals(BotStats.botname))    //if this is a private message
-		{
-			return new Message("", "PRIVMSG", params, trailing);
-		} else {
-			return new Message("", "PRIVMSG", sender, trailing);
-		}
+		return new Message("", "PRIVMSG", replyTo, trailing);
 	}
 
 	/** 
@@ -671,11 +654,27 @@ public class Message {
 			return createReply(Pager.smush(trailing)) ;
 		else {
 			Pager pager = new Pager(trailing) ;
-			pagerCache.put(params, pager) ;
+			pagerCache.put(replyTo, pager) ;
 			return createReply(pager.getNext()) ;
 		}
 	}
 	
+	/**
+	 * Is there more text in the pager buffer for the current channel/nick?
+	 *
+	 * @return true if there's more text to be had.
+	 */
+	public boolean hasNextPage() {
+		if ( ! pagerCache.containsKey(replyTo) ) 
+			return false ;
+		Pager pager = (Pager) pagerCache.get(replyTo) ;
+		if (pager.isEmpty()) {
+			pagerCache.remove(replyTo) ;
+			return false ;
+		}
+		return true ;
+	}
+
 	/** 
 	 * returns a reply message via createReply containing the next page of text, if any, from the pager cache for the current channel/nick (ie, "params")
 	 *
@@ -684,7 +683,7 @@ public class Message {
 	public Message createNextPage() {
 		if (! hasNextPage() ) 
 			return new Message("", "", "", "") ;
-		Pager pager = (Pager) pagerCache.get(params) ;
+		Pager pager = (Pager) pagerCache.get(replyTo)  ;
 		return createReply(pager.getNext()) ;
 	}
 
@@ -700,13 +699,7 @@ public class Message {
 		if (!this.command.equals("PRIVMSG")) {
 			return new Message("", "", "", ""); //hopefully this will be accepted and ignored
 		}
-
-		if (!params.equals(BotStats.botname))    //if this is a private message
-		{
-			return new Message("", command, params, trailing);
-		} else {
-			return new Message("", command, sender, trailing);
-		}
+		return new Message("", command, replyTo, trailing);
 	}
 
 	/**
