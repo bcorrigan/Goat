@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.HashMap;
 
 /**
  * @author Barry Corrigan
@@ -30,6 +31,8 @@ public class WordGame extends Module implements Runnable {
 	private long top10time;							//how long since someone asked for the top10 table       <----\
 	private long matchscorestime;					//how long since someone asked for the match score table <-----\__These two to stop users from being able to make the bot flood
 	private Scores scores = new Scores();			//scores related stuff
+
+	private static HashMap lastAnswers;				//HashMap of last answers across many channels
 
 	private final static int NAME = 0;              //Various statics
 	private final static int ANSWER = 1;
@@ -97,6 +100,7 @@ public class WordGame extends Module implements Runnable {
 		if (currentWinning != null) {
 			scores.commit(currentWinning, score);   //commit new score to league table etc
 		}
+		lastAnswers.put(m.channame, answer);
 		playing = false;
 		validWords = new ArrayList();
 		currentWinning = null;
@@ -204,5 +208,17 @@ public class WordGame extends Module implements Runnable {
 
 		playing = false;
 		finaliseGame(target);
+	}
+
+	/**
+	 * You can get the answer to the last game played in the channel passed here.
+	 *
+	 * @param chan The channel for which caller wants last answer.
+	 * @return Answer to the last game played in that channel
+	 */
+	public static String getLastAnswer(String chan) {
+		if (lastAnswers.containsKey(chan))
+			return (String) lastAnswers.get(chan);
+		return null;
 	}
 }
