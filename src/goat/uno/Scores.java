@@ -3,8 +3,6 @@
  */
 package goat.uno;
 
-import org.xml.sax.SAXParseException;
-
 import java.util.*;
 import java.io.*;
 import java.beans.XMLEncoder;
@@ -28,8 +26,6 @@ public class Scores implements Comparator {
 			records = (ArrayList) XMLdec.readObject();
 			XMLdec.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NoSuchElementException e) {
 			e.printStackTrace();
@@ -107,8 +103,6 @@ public class Scores implements Comparator {
 			ArrayList records = (ArrayList) XMLdec.readObject();
 			return records;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (NoSuchElementException e) {
 			e.printStackTrace();

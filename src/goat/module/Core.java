@@ -4,8 +4,6 @@ import goat.core.Module;
 import goat.core.Message;
 import goat.core.BotStats;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>

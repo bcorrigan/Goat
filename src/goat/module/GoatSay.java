@@ -5,7 +5,7 @@ import goat.core.Message;
 import goat.core.BotStats;
 
 /**
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>Barry Corrigan</b> All Rights Reserved.</p>
  * @version 0.1 <p>Date: 26-Nov-2003</p>
  */
 
