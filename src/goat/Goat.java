@@ -141,7 +141,7 @@ public class Goat {
 
 	private static void setDefaultStats() {
 		BotStats.botname="goat";
- 		BotStats.addChannel("#jism");
+ 		BotStats.addChannel("#gayness");
 		BotStats.clientName = "goat";
 		BotStats.owner = "bc";
 		BotStats.servername = "coruscant.slashnet.org";
