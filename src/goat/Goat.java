@@ -11,7 +11,7 @@ import java.io.IOException;
 public class Goat {
 	private static boolean showhelp = false;
     private MessageQueue inqueue = new MessageQueue();
-    private MessageQueue outqueue = new MessageQueue();
+    public static  MessageQueue outqueue = new MessageQueue();
 
 	public static void main(String[] args) {
 		setDefaultStats();
@@ -85,7 +85,7 @@ public class Goat {
 		System.out.println("Usage: java Goat [-name <name>][-host <host>][-channel <channel>]");
 		System.out.println();
 		System.out.println("Options:");
-		System.out.println("  -name <name>         Changes the bot's default name [default: goat]");
+		System.out.println("  -name <name>         Changes the bot's default name [default: toga]");
 		System.out.println("  -channel <#channel>  Changes the bot's default channel [default: #jism]");
 		System.out.println("  -host <host>         Sets which host to connect to [default: coruscant.slashnet.org]");
 	}
@@ -138,9 +138,9 @@ public class Goat {
 	}
 
 	private static void setDefaultStats() {
-		BotStats.botname="gaot";
+		BotStats.botname="toga";
  		BotStats.channels.add("#testy");
-		BotStats.clientName = "Gaot";
+		BotStats.clientName = "toga";
 		BotStats.owner = "bc";
 		BotStats.servername = "coruscant.slashnet.org";
 		BotStats.version = "Goat 2.0 Alpha Enterprise Edition";
