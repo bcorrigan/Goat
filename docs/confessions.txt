@@ -1,0 +1,2 @@
+module #Confessions# - Have me make random confessions culled from http://grouphug.us
+Just say "goat, confess" in channel, or message me with that, and I will confess a random confession.

@@ -1,0 +1,5 @@
+module #Vernie# - a URL title lookup service.
+Paste a URL into the channel or a /query to receive a title and size lookup.
+-----
+#link history# or #show history# - list the last 10 links spammed.
+@#show titles# or #post titles# - toggle displaying of link titles in the channel (otherwise just add to history).

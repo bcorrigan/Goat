@@ -1,0 +1,11 @@
+pb: ah, I love slashdot, occasionally
+Inbuffer: prefix: pb!~pb@cloaked.nc.rr.com params: #jism trailing:"Even as far back as Frogger, we were witness to the environmental impacts that industrialization has on nature. The brave but fragile frog's futile attempts to cross a busy highway to get back home only show the producer's bias -- they never show the poor truck driver, driving for 20 hours straight just to earn a living, fighting exhaustion but alert enough to avoid swerving his big white truck into oncoming traffic, just to avoid a frog too stupid to stay off t command:PRIVMSG sender: pb
+    isCTCP:false isPrivate:false CTCPCommand: CTCPMessage:
+    java.lang.StringIndexOutOfBoundsException: String index out of range: 0
+            at java.lang.String.charAt(String.java:444)
+            at goat.core.Message.<init>(Message.java:160)
+            at goat.core.ServerConnection$InputHandler.run(ServerConnection.java:82)
+
+
+
+

@@ -1,0 +1,6 @@
+#Just add commands you would direct at goat here, and he will execute them on start up.
+insmod GoatSay all
+insmod Confessions all
+insmod WordGame #wordgame
+join #jism
+join #wordgame

@@ -1,0 +1,8 @@
+module #Callvote# - Allows channel members to call public votes.
+Based on Quake3 callvoting.
+-----
+#callvote <Question># - Starts a vote. Question should be a yes/no question.
+Users can vote by saying, in the channel or a private message, one of the following:
+(#yes#, #f1#, #ins#) | (#no#, #f2#, #del#)
+These votes should be on their own on a line. Private messages will be replied to confirming vote cast.
+#callvote kick <username># - calls a vote to kick a user (bot must be opped). Quorum of 3 yes votes required.

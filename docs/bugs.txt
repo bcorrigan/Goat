@@ -1,0 +1,2 @@
+Callvote is open - Users can call votes from outside the channel.
+Vernie history - History is too transient. Need to serialise the list.
