@@ -44,7 +44,6 @@ public class WDF implements Card {
 		game.needColour=true;
 		game.output.chooseColour(game.currentPlayer);
 		Player player = (Player) game.players.getFirst();
-		game.players.addFirst(player) ;
 		Card card1=player.drawCardNoOutput();
 		Card card2=player.drawCardNoOutput();
 		Card card3=player.drawCardNoOutput();
