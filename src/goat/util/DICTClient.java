@@ -551,7 +551,7 @@ public class DICTClient {
     private String[][] receiveStrategies() throws ConnectException {
         String[][] result;
         Vector stratVector = new Vector();
-        Enumeration enum = stratVector.elements();
+        Enumeration enumer = stratVector.elements();
         String buf;
         
         send(SHOW_STRATEGIES_COMMAND);
@@ -570,8 +570,8 @@ public class DICTClient {
             }
             result = new String[stratVector.size() / 2][2];
             for (int i = 0; i < result.length; i++) {
-                result[i][0] = (String) enum.nextElement();
-                result[i][1] = (String) enum.nextElement();
+                result[i][0] = (String) enumer.nextElement();
+                result[i][1] = (String) enumer.nextElement();
             }
             receive();	// this should be the code 250
             return result;
