@@ -55,7 +55,6 @@ public class Weather extends Module {
 	 * @see goat.core.Module#processChannelMessage(goat.core.Message)
 	 */
 	public void processChannelMessage(Message m) {
-		String location;
 		if (m.modTrailing.matches("\\s*")) {     //if just whitespace
 			Iterator it = users.iterator();
 			while (it.hasNext()) {

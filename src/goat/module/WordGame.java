@@ -174,7 +174,7 @@ public class WordGame extends Module implements Runnable {
 	 */
 
 	private void getLetters() {
-		String word = dict.getRandomWord();
+		String word;
 
 		letters = new ArrayList();
 
