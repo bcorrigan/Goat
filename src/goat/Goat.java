@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class Goat {
 	private static boolean showhelp = false;
-    private MessageQueue inqueue = new MessageQueue();
+    public static MessageQueue inqueue = new MessageQueue();
     public static  MessageQueue outqueue = new MessageQueue();
 
 	public static void main(String[] args) {
@@ -24,8 +24,8 @@ public class Goat {
 	}
 
     public Goat() {
-        ServerConnection sc = new ServerConnection(BotStats.servername, inqueue, outqueue); //lets init the connection..
-        ModuleController modController = new ModuleController(outqueue);
+        ServerConnection sc = new ServerConnection(BotStats.servername); //lets init the connection..
+        ModuleController modController = new ModuleController();
         loadDefaultModules(modController);
 		try {
 			Thread.sleep(100);   //lets give the logon a chance to progress before adding messages to queues
@@ -33,7 +33,7 @@ public class Goat {
 			e.printStackTrace();
 		}
 		loadInitScript();
-		MessageDispatcher msgDispatch = new MessageDispatcher(inqueue, modController);
+		MessageDispatcher msgDispatch = new MessageDispatcher(modController);
     }
 
 	private static void parseArgs(String[] args) {
