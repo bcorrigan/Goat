@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 /**
  * @author Barry Corrigan
- * Date: Apr 25, 2004
+ *         Date: Apr 25, 2004
  */
 
 public class WordGame extends Module implements Runnable {
@@ -22,7 +22,7 @@ public class WordGame extends Module implements Runnable {
 	private ArrayList validWords = new ArrayList(); //all the valid answers
 	private ArrayList letters;						//letters in this match
 	private String answer;							//the answer word
-	private int longestPossible;   					//shortest possible word length for this game
+	private int longestPossible;   					//longest possible word length for this game
 	private String[] currentWinning; 				//nick of person currently winning with the shortest word, and the winning word     @TODO Awful choice of data structure, this
 	private int score;           					//score for this one
 	private Message target = new Message(" ");		//just the target channel for any given game
@@ -44,14 +44,14 @@ public class WordGame extends Module implements Runnable {
 				scores.setTarget(m);
 				target = m;
 				initGame();
-				String nineLettersString = new String(" ");
+				String letterString = new String(" ");
 				Iterator it = letters.iterator();
 				while (it.hasNext()) {
-					nineLettersString += ((Character) it.next()).charValue() + " ";
+					letterString += ((Character) it.next()).charValue() + " ";
 				}
 				m.createReply(Message.REVERSE + "***" + Message.REVERSE
 						+ " New Letters:" + Message.BOLD
-						+ nineLettersString.toUpperCase()).send();
+						+ letterString.toUpperCase()).send();
 				return;
 			}
 			if (m.modCommand.equals("scores") & ((System.currentTimeMillis() - top10time) > 30000l)) {
@@ -176,9 +176,9 @@ public class WordGame extends Module implements Runnable {
 
 		while (true) {
 			word = dict.getRandomWord();
-			if (word.length()<6)
+			if (word.length() < 6)
 				continue;
-			answer=word;
+			answer = word;
 			longestPossible = word.length();
 			for (int i = 0; i < word.length(); i++) {
 				letters.add(new Character(word.charAt(i)));
@@ -204,7 +204,5 @@ public class WordGame extends Module implements Runnable {
 
 		playing = false;
 		finaliseGame(target);
-
-
 	}
 }
