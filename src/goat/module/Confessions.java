@@ -71,7 +71,7 @@ public class Confessions extends Module {
 				confession = confession.replaceAll("\\r", "");
 				confession = confession.replaceAll("\\t", "");
 				confession = confession.trim();
-				if (confession.length() <= 456 && confession.length() > 0) {
+				if (confession.length() > 0) {
 					confessions.addFirst(confession);
 				}
 				confession = "";
