@@ -3,10 +3,13 @@ package goat.module ;
 import goat.core.Module;
 import goat.core.Message;
 import goat.util.DICTClient;
+import goat.util.Definition;
 
 import java.io.*;
 import java.net.*;
 import java.util.Random ;
+import java.util.Vector;
+		
 
 
 /**
@@ -64,7 +67,51 @@ public class Define extends Module {
 	}
 
 	private void define(Message m) {
-		m.createReply("Not implmemented, please stand by").send() ; 
+		// todo: parse message for args, defaults follow:
+		String dictionary = "*" ;
+		String word = m.modTrailing.trim() ;
+		int num = 1 ;
+		String text = "" ;
+		
+		Vector definitionList = null ;
+
+		if(null == word || word.equals("") ) {
+			m.createReply("Er, define what, exactly?").send() ;
+			return ;
+		}
+		try {
+			definitionList = dictClient.getDefinitions( new String[] {dictionary}, word) ;
+		} catch (ConnectException e) {
+			e.printStackTrace() ;
+		}
+
+		if(null == definitionList) {
+			m.createReply("Couldn't talk to dict server :(") ;
+			return ;
+		}
+		
+		// check list not empty
+		if (definitionList.isEmpty()) {
+			m.createReply("No definitions found.").send() ;
+			//add suggestions, mention dict if specified
+			return ;
+		}
+		
+		// check num not greater than number of elements in list
+		if (num > definitionList.size() ) {
+			String line = "I don't have " + num + " definitions for \"" + word ;
+			if (! dictionary.equals("*") ) 
+				line = line + "\" in dictionary \"" + dictionary + "." ;
+			else
+				line = line + "." ;
+			m.createReply(line).send() ;
+		}
+		
+		// go get it
+		Definition d = (Definition) definitionList.get(num - 1) ;
+		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
+		
+		m.createPagedReply(text).send() ; 
 	}
 	
 	private void randef(Message m) {
