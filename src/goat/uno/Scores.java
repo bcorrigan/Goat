@@ -37,39 +37,42 @@ public class Scores implements Comparator {
         for (int i = 0; i < players.length; i++) {
             Iterator it = records.iterator();
             boolean match = false;
-
-            while (it.hasNext()) {                    //this is all completely wrong!!
+            while (it.hasNext()) {
                 Record record = (Record) it.next();
-                if (record.getName().equals(players[i].getName())) { //we already have a record of this player
-                    record.setGamesEntered(record.getGamesEntered() + 1);
-                    match = true;
-                }
-                if (record.getName().equals(winningPlayer.getName()) && !winMatch) {
-                    record.setGamesEntered(record.getGamesEntered() + 1);
-                    record.setGamesWon(record.getGamesWon() + 1);
-                    record.setTotalScore(record.getTotalScore() + score);
-                    if (score > record.getHiScore())
-                        record.setHiScore(score);
-                    winMatch = true;
-                }
+                if(!players[i].isABot)
+                    if (record.getName().equals(players[i].getName())) { //we already have a record of this player
+                        record.setGamesEntered(record.getGamesEntered() + 1);
+                        match = true;
+                    }
+                if(!winningPlayer.isABot)
+                    if (record.getName().equals(winningPlayer.getName()) && !winMatch) {
+                        record.setGamesEntered(record.getGamesEntered() + 1);
+                        record.setGamesWon(record.getGamesWon() + 1);
+                        record.setTotalScore(record.getTotalScore() + score);
+                        if (score > record.getHiScore())
+                            record.setHiScore(score);
+                        winMatch = true;
+                    }
             }
-            if (!match) {
-                Record newRecord = new Record();
-                newRecord.setName(players[i].getName());
-                newRecord.setGamesEntered(1);
+            if(!players[i].isABot)
+                if (!match) {
+                    Record newRecord = new Record();
+                    newRecord.setName(players[i].getName());
+                    newRecord.setGamesEntered(1);
 
+                    records.add(newRecord);
+                }
+        }
+        if(!winningPlayer.isABot)
+            if (!winMatch) {
+                Record newRecord = new Record();
+                newRecord.setName(winningPlayer.getName());
+                newRecord.setGamesEntered(1);
+                newRecord.setGamesWon(1);
+                newRecord.setTotalScore(score);
+                newRecord.setHiScore(score);
                 records.add(newRecord);
             }
-        }
-        if (!winMatch) {
-            Record newRecord = new Record();
-            newRecord.setName(winningPlayer.getName());
-            newRecord.setGamesEntered(1);
-            newRecord.setGamesWon(1);
-            newRecord.setTotalScore(score);
-            newRecord.setHiScore(score);
-            records.add(newRecord);
-        }
         //now zap out the records to a file
         Collections.sort(records, this);
         try {

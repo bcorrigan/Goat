@@ -130,7 +130,11 @@ public class Uno extends Module implements Output, Runnable {
             }
             Iterator it = records.iterator();
             int lScore = 0, lHScore = 0, lgW = 0, lgE = 0, lNick = 0;
+            int i=0;
             while (it.hasNext()) {
+                i++;
+                if(i>20)
+                    break;
                 Record record = (Record) it.next();
                 if (record.getName().length() > lNick)
                     lNick = record.getName().length();
