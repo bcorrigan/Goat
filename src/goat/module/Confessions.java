@@ -2,31 +2,45 @@ package goat.module;
 
 import goat.core.Module;
 import goat.core.Message;
-import goat.core.BotStats;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.Stack;
 
+
 /**
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>Barry Corrigan</b> All Rights Reserved.</p>
  * @version 0.1 <p>Date: 26-Nov-2003</p>
  */
 
 public class Confessions extends Module {
 
 	private Stack confessions = new Stack();
+	//Document document;
 
 	public Confessions() {
 		getConfessions();
 	}
 
-	//@TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using SAX or something
-	private void getConfessions() {
+	//TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using a simple xml decoder or something
+	private boolean getConfessions() {
 		String confession = "";
 		try {
+			//TODO deal with pingouts 
 			URL grouphug = new URL("http://grouphug.us/random");
+			HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
+			connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+			connection.connect();
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
+				return false;
+			}
+			
 			BufferedReader in = new BufferedReader(new InputStreamReader(grouphug.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null) {
@@ -51,31 +65,37 @@ public class Confessions extends Module {
 				}
 			}
 			in.close();
-		} catch (Exception e) {
+		} catch (SocketTimeoutException e) {
 			e.printStackTrace();
+			return false;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
 		}
 		if (confessions.empty())
 			getConfessions();
+		return true;
 	}
 
+
 	public String[] getCommands() {
-		return new String[] {"confess"};
+		return new String[]{"confess", "search"};
 	}
 
 	public void processPrivateMessage(Message m) {
-		if (m.trailing.toLowerCase().matches("^\\s*confess\\W*"))
-			m.createReply(confessions.pop().toString()).send();
-
-		if (confessions.empty())
-			getConfessions();
-	}
-
-	public void processChannelMessage(Message m) {
-		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+confess\\W*")) {
+		if (m.modCommand.equals("confess")) {
 			m.createReply(confessions.pop().toString()).send();
 		}
 
 		if (confessions.empty())
-			getConfessions();
+			if(!getConfessions())
+				m.createReply("I don't feel like confessing, sorry.").send();
+	}
+
+	public void processChannelMessage(Message m) {
+		processPrivateMessage(m);
 	}
 }
