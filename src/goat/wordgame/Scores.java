@@ -22,7 +22,7 @@ public class Scores implements Comparator {
 
 	public Scores() {
 		try {
-			FileInputStream in = new FileInputStream("wordgame/scores");
+			FileInputStream in = new FileInputStream("resources/wordgameScores");
 			ObjectInputStream s = new ObjectInputStream(in);
 			scores = (ArrayList) s.readObject();
 			in.close();
@@ -41,7 +41,7 @@ public class Scores implements Comparator {
 			}
 		}
 		try {
-			FileInputStream in = new FileInputStream("wordgame/matchScores");
+			FileInputStream in = new FileInputStream("resources/wordgameMatchScores");
 			ObjectInputStream s = new ObjectInputStream(in);
 			matchScores = (ArrayList) s.readObject();
 			in.close();
@@ -168,7 +168,7 @@ public class Scores implements Comparator {
 
 		//now write the list out to a file
 		try {
-			FileOutputStream fos = new FileOutputStream("wordgame/scores");
+			FileOutputStream fos = new FileOutputStream("resources/wordgameScores");
 			ObjectOutput out = new ObjectOutputStream(fos);
 			out.writeObject(scores);
 			out.flush();
@@ -220,7 +220,7 @@ public class Scores implements Comparator {
 
 		//now write the list out to a file
 		try {
-			FileOutputStream out = new FileOutputStream("wordgame/matchScores");
+			FileOutputStream out = new FileOutputStream("resources/wordgameMatchScores");
 			ObjectOutputStream s = new ObjectOutputStream(out);
 			s.writeObject(matchScores);
 			s.flush();
@@ -234,7 +234,7 @@ public class Scores implements Comparator {
 		}
 
 		scores = new ArrayList();
-		File file = new File("wordgame/scores");
+		File file = new File("resources/wordgameScores");
 		file.delete();
 		warninggiven = false;
 
