@@ -148,7 +148,11 @@ public class Message {
 	 */
 	public static final String REVERSE = "\u0016";
 
-
+    /**
+     * A colour code, provided for doing bg colours and stuff
+     */
+    public static final String COLCODE = "\u0003";
+    
 	/**
 	 * White coloured text.
 	 */
@@ -556,12 +560,11 @@ public class Message {
 			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
 				if (st.hasMoreTokens()) {
 					modCommand = st.nextToken();
-					modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
 					while (st.hasMoreTokens())
 						modTrailing += st.nextToken() + ' ';         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
 				}
 			} else {
-				modCommand = removeColors(firstWord).replaceAll("\\W","");
+				modCommand = removeColors(firstWord);
 				while (st.hasMoreTokens())
 					modTrailing += st.nextToken() + ' ';
 			}
@@ -575,9 +578,8 @@ public class Message {
 			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
 				if (st.hasMoreTokens())
 					modCommand = st.nextToken();
-				modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
 			} else {
-				modCommand = removeColors(firstWord).replaceAll("\\W", "");
+				modCommand = removeColors(firstWord);
 			}
 
 			while (st.hasMoreTokens()) {
