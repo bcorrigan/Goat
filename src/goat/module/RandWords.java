@@ -56,7 +56,7 @@ public class RandWords extends Module {
 				}
 			}
 			m.createReply(randWordString(num)).send() ;
-		} else if (m.getWord(0).equals("bandname")) {
+		} else if (m.modCommand.equals("bandname")) {
 			String arg = m.modTrailing.trim() ;
 			String reply;
 			if (arg.equals("") || arg.equals(null)) {
