@@ -7,10 +7,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.Stack;
+import java.util.LinkedList;
 
 
 /**
@@ -20,16 +18,16 @@ import java.util.Stack;
 
 public class Confessions extends Module {
 
-	private Stack confessions = new Stack();
+	private LinkedList confessions = new LinkedList();
 	//Document document;
 
 	public Confessions() {
 		getConfessions();
 	}
 
+
 	//TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using a simple xml decoder or something
 	private boolean getConfessions() {
-		String confession = "";
 		try {
 			URL grouphug = new URL("http://grouphug.us/random");
 			HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
@@ -40,49 +38,47 @@ public class Confessions extends Module {
 			 * one (ie the one that involves least work).
 			 */
 			// connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
-			connection.connect();
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
-				return false;
-			}
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(grouphug.openStream()));
-			String inputLine;
-			while ((inputLine = in.readLine()) != null) {
-				if (inputLine.matches(".*conf-text.*")) {  //inside confession
-					in.readLine();
-					while (true) {
-						inputLine = in.readLine();
-						if (inputLine.matches(".*</td>.*")) { //outside confession - break
-							break;
-						}
-						confession += inputLine;
-					}
-					confession = confession.replaceAll("<.*?>", "");
-					confession = confession.replaceAll("\\s{2,}?", " ");
-					confession = confession.replaceAll("\\r", "");
-					confession = confession.replaceAll("\\t", "");
-					confession = confession.trim();
-					if (confession.length() <= 456) {
-						confessions.push(confession);
-					}
-					confession = "";
-				}
-			}
-			in.close();
-		} catch (SocketTimeoutException e) {
-			e.printStackTrace();
-			return false;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return false;
+			confessions = parseConfession(connection);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
 		}
-		if (confessions.empty())
+		if (confessions.isEmpty())
 			getConfessions();
 		return true;
+	}
+
+	private LinkedList parseConfession(HttpURLConnection connection) throws IOException {
+		String confession = "";
+		LinkedList confessions = new LinkedList();
+		connection.connect();
+		if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
+			System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String inputLine;
+		while ((inputLine = in.readLine()) != null) {
+			if (inputLine.matches(".*conf-text.*")) {  //inside confession
+				while (true) {
+					if (inputLine.matches(".*</td>.*")) { //outside confession - break
+						break;
+					}
+					confession += inputLine;
+					inputLine = in.readLine();
+				}
+				confession = confession.replaceAll("<.*?>", "");
+				confession = confession.replaceAll("\\s{2,}?", " ");
+				confession = confession.replaceAll("\\r", "");
+				confession = confession.replaceAll("\\t", "");
+				confession = confession.trim();
+				if (confession.length() <= 456 && confession.length() > 0) {
+					confessions.addFirst(confession);
+				}
+				confession = "";
+			}
+		}
+		in.close();
+		return confessions;
 	}
 
 
@@ -92,15 +88,50 @@ public class Confessions extends Module {
 
 	public void processPrivateMessage(Message m) {
 		if (m.modCommand.equalsIgnoreCase("confess")) {
-			m.createPagedReply(confessions.pop().toString()).send();
+			if(m.modTrailing.toLowerCase().startsWith("about ")) {
+				String searchReply = m.modTrailing.toLowerCase().substring(6);
+				LinkedList searchConf = searchConfessions(searchReply);
+				if(searchConf!=null) {
+					//send a random one
+					m.createPagedReply(searchConf.remove((int) (Math.random()*searchConf.size())).toString()).send();
+					//might as well add the rest to cache
+					while(searchConf.size()>0) {
+						Object confession = searchConf.removeFirst();
+						if(!confessions.contains(confession))
+							confessions.addFirst(confession);
+					}
+				}
+				else
+					m.createReply("I'm afraid I just don't feel guilty about that.").send();
+			} else 
+				m.createPagedReply(confessions.removeFirst().toString()).send();
 		}
 
-		if (confessions.empty())
+		if (confessions.isEmpty())
 			if(!getConfessions())
 				m.createPagedReply("I don't feel like confessing anymore, sorry.").send();
 	}
 
 	public void processChannelMessage(Message m) {
 		processPrivateMessage(m);
+	}
+	
+	private LinkedList searchConfessions(String searchString) {
+		LinkedList searchedConfessions = new LinkedList();
+		try {
+			for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
+				searchString = searchString.trim();
+				searchString = searchString.replaceAll(" ", "%20");
+				URL grouphug = new URL("http://grouphug.us/search/" + searchString + "/" + i*15 + "/n");
+				HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
+				searchedConfessions = parseConfession(connection);
+				if(!searchedConfessions.isEmpty())
+					return searchedConfessions;
+			}
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
