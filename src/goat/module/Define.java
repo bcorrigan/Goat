@@ -4,10 +4,10 @@ import goat.core.Module;
 import goat.core.Message;
 import goat.util.DICTClient;
 import goat.util.Definition;
+import goat.util.CommandParser;
 
 import java.io.*;
-import java.net.*;
-import java.util.Random ;
+import java.net.* ;
 import java.util.Vector;
 		
 
@@ -54,10 +54,25 @@ public class Define extends Module {
 	}
 
 	private void define(Message m) {
-		// TODO: parse message for args, defaults follow:
+		CommandParser parser = new CommandParser(m) ;
 		String dictionary = "*" ;
-		String word = m.modTrailing.trim() ;
+		if (parser.has("dictionary")) 
+			dictionary = parser.get("dictionary") ;
+		else if (parser.has("dict") ) 
+			dictionary = parser.get("dict") ;
 		int num = 1 ;
+		if (parser.has("number"))
+			num = parser.getInt("number") ;
+		else if (parser.has("num")) 
+			num = parser.getInt("num") ;
+		// check for num not negative, not zero (will be zero if specified, or if parsing input threw an Num Exception)
+		if (num <= 0 ) {
+			m.createReply("Very funny.  Go back to your cubicle, nerd.").send() ;
+			return ;
+		}
+		String word = parser.remaining() ;
+		System.out.println("parser.remaining() : " + parser.remaining() );
+		System.out.println("word : " + word) ;
 		String text = "" ;
 		if(null == word || word.equals("") ) {
 			m.createReply("Er, define what, exactly?").send() ;
@@ -71,6 +86,21 @@ public class Define extends Module {
 			return ;
 		try {
 			dbList = dc.getDatabases() ;
+			// Check to see if we were given a valid dictionary
+			if(! dictionary.equals("*")) {
+				boolean found = false ;
+				for (int i=0; i<dbList.length ;i++) {
+					if (dictionary.equals(dbList[i][0])) {
+						found = true ;
+						break ;
+					}
+				}
+				if( ! found ) {
+					m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
+					dictionaries(m) ;
+					return ;
+				}
+			}
 			definitionList = dc.getDefinitions( new String[] {dictionary}, word) ;
 			matchList = dc.getMatches(new String[] {dictionary}, ".", word) ;
 		} catch (ConnectException e) {
@@ -79,59 +109,63 @@ public class Define extends Module {
 		} finally {
 			dc.close() ;
 		}
-		// Check to see if we were given a valid dictionary
-		if(! dictionary.equals("*")) {
-			boolean found = false ;
-			for (int i=0; i<dbList.length ;i++) {
-				if (dictionary.equals(dbList[i][0])) {
-					found = true ;
-					break ;
-				}
-			}
-			if( ! found ) {
-				m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
-				dictionaries(m) ;
-				return ;
-			}
-		}
 		// check not-null definition list and match list
 		if(null == definitionList || null == matchList) {
 			System.out.println("I'm sorry, Dave, something has gone horribly wrong.") ;
 			return ;
 		}
-		// check match list not empty
-		if (0 == matchList.length) {
-			m.createPagedReply("No definitions found.  Couldn't find any alternate spelling suggestions.  Try a little harder next time.").send() ;
-			return ;
-		}
-		// check definition list not empty
+		// check for empty definition list
 		if (definitionList.isEmpty()) {
-			String suggestions = "" ;
-			for(int i=0;i<matchList.length;i++) 
-				suggestions += " " + matchList[i][1] ;
-			suggestions = suggestions.replaceAll("\"", "") ;
-			suggestions = suggestions.trim() ;
-			String line = "No definitions found" ;
-			if (! dictionary.equals("*"))
-				line += " in dictionary \"" + dictionary + "\"." ;
+			// check match list not empty 
+			String reply = "No definitions found for \"" + word + "\"" ;
+			if (! dictionary.equals("*")) 
+				reply += " in dictionary " + dictionary + "." ;
 			else
-				line += "." ;
-			m.createPagedReply(line + "  Suggestions: " + suggestions).send() ;
+				reply += "." ;
+			if (0 == matchList.length) {
+				m.createPagedReply(reply + "  Couldn't find any alternate spelling suggestions.").send() ;
+			} else {
+				String suggestions = "" ;
+				for(int i=0;i<matchList.length;i++) 
+					suggestions += " " + matchList[i][1] ;
+				suggestions = suggestions.replaceAll("\"", "") ;
+				suggestions = suggestions.trim() ;
+				m.createPagedReply(reply + "  Suggestions: " + suggestions).send() ;
+			}
 			return ;
 		}
 		// check num not greater than number of elements in list
 		if (num > definitionList.size() ) {
 			String line = "I don't have " + num + " definitions for \"" + word ;
 			if (! dictionary.equals("*") ) 
-				line = line + "\" in dictionary \"" + dictionary + "." ;
+				line = line + "\" in dictionary \"" + dictionary + "\"." ;
 			else
-				line = line + "." ;
+				line = line + "\"." ;
 			m.createReply(line).send() ;
+			return ;
 		}
 		Definition d = (Definition) definitionList.get(num - 1) ;
 		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
-		m.createPagedReply(text).send() ; 
-		// TODO add definitions per dictionary line, if more than one def.
+		m.createPagedReply(text).send() ;
+		// show available definitions, if more than one.
+		if (definitionList.size() > 1) {
+			int perDict = 0 ;
+			Definition thisDef = (Definition) definitionList.get(0) ;
+			String thisDict = thisDef.getDatabaseShort() ;
+			String msg = "Definitions available: " + thisDict + "(" ;
+			for(int i=0;i<definitionList.size();i++) {
+				thisDef = (Definition) definitionList.get(i) ;
+				if (! thisDict.equals(thisDef.getDatabaseShort())) {
+					thisDict = thisDef.getDatabaseShort() ;
+					msg += perDict + ") " + thisDict + "(" ;
+					perDict = 1 ;
+				} else {
+					perDict++ ;
+				}
+			}
+			msg += perDict + ")" ;
+			m.createReply(msg).send() ;
+		}
 	}
 	
 	private void randef(Message m) {
