@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.5.0_01" class="java.beans.XMLDecoder"> 
+ <object class="java.util.ArrayList"> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>cujimmy</string> 
+    </void> 
+    <void property="sign"> 
+     <string>LEO</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>kip_</string> 
+    </void> 
+    <void property="sign"> 
+     <string>CANCER</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>animal</string> 
+    </void> 
+    <void property="sign"> 
+     <string>PISCES</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>rs</string> 
+    </void> 
+    <void property="sign"> 
+     <string>ARIES</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>meteor</string> 
+    </void> 
+    <void property="sign"> 
+     <string>GEMINI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>bc</string> 
+    </void> 
+    <void property="sign"> 
+     <string>ARIES</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>flight</string> 
+    </void> 
+    <void property="sign"> 
+     <string>GEMINI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>laststand</string> 
+    </void> 
+    <void property="sign"> 
+     <string>GEMINI</string> 
+    </void> 
+   </object> 
+  </void> 
+ </object> 
+</java> 
