@@ -13,9 +13,9 @@ import java.util.Iterator;
 public class Dict {
 
 	private RandomAccessFile rafDict;
-	private static final File DICTFILE = new File("resources/words");
+	private static final File DICTFILE = new File("../resources/words");
 	private RandomAccessFile rafIndex;
-	private static final File INDEXFILE = new File("resources/words.index");
+	private static final File INDEXFILE = new File("../resources/words.index");
 	public int numWords;
                                              
 
@@ -102,8 +102,9 @@ public class Dict {
 	public ArrayList getMatchingWords(String targetWord) {
 		targetWord = targetWord.trim();
 		char[] targetWordArray = targetWord.toLowerCase().toCharArray();
+		Arrays.sort(targetWordArray);	//presort this, save some time later
 		String word;
-		ArrayList validWords = new ArrayList(500);
+		ArrayList validWords = new ArrayList(750);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(DICTFILE));
 			while ((word = br.readLine()) != null) {
@@ -196,13 +197,14 @@ public class Dict {
 
 	/**
 	 * Checks if a given word is valid for current char arraylist.
+	 * Note: targetWord has to be pre-sorted (alphabetically) before it gets here
 	 *
 	 * @param word Word to be checked.
+	 * @param targetWord A sorted word, in alphabetical order.
 	 * @return True if matches, false if not.
 	 */
 	private boolean checkWord(char[] word, char[] targetWord) {
 		Arrays.sort(word);
-		Arrays.sort(targetWord);
 		int floor = 0;
 		int hits = 0;
 		int tlength = targetWord.length;
@@ -319,7 +321,7 @@ public class Dict {
 		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :");
 		System.out.println(dict.getWord(0));
 
-		System.out.println("\nDone.");
+		System.out.println("\nDone."); 
 		System.out.println("Doing a quick benchmark of checkWord2, and getMatchingWords.");
 		long time1 = System.currentTimeMillis();
 		for(int i=0;i<20;i++) {
