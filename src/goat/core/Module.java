@@ -1,5 +1,7 @@
 package goat.core;
 
+import goat.Goat;
+
 import java.util.ArrayList;
 
 /**
@@ -18,8 +20,6 @@ public abstract class Module {
 	public static final int WANT_ALL_MESSAGES = 0;
 	public static final int WANT_UNCLAIMED_MESSAGES = 1;
 	public static final int WANT_COMMAND_MESSAGES = 2;
-
-    private MessageQueue outqueue;
 
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
@@ -83,13 +83,6 @@ public abstract class Module {
 	}
 
 	/**
-	 * Sends a generic message using the current connection.
-	 */
-	protected final void sendMessage(Message m) {
-		outqueue.enqueue(m);
-	}
-
-	/**
 	 * Called when the bot receives a message which is not a PRIVMSG. Many modules may not need to override the default
 	 * implementation, which does nothing.
 	 */
@@ -113,11 +106,5 @@ public abstract class Module {
 	public void destroy() {
     }
 
-    /**
-     * Passes in the MessageQueue object so that message methods above can directly add stuff to it
-     * @param outqueue
-     */
-    public final void init(MessageQueue outqueue) {
-        this.outqueue = outqueue;
-    }
+
 }
