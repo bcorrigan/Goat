@@ -4,9 +4,6 @@ import goat.Goat;
 
 import java.net.*;
 import java.io.*;
-import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * Maintains the connection with the server. A seperate thread, this.
