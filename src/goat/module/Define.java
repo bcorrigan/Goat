@@ -54,35 +54,69 @@ public class Define extends Module {
 	}
 
 	private void define(Message m) {
-		// todo: parse message for args, defaults follow:
+		// TODO: parse message for args, defaults follow:
 		String dictionary = "*" ;
 		String word = m.modTrailing.trim() ;
 		int num = 1 ;
 		String text = "" ;
-		
 		if(null == word || word.equals("") ) {
 			m.createReply("Er, define what, exactly?").send() ;
 			return ;
 		}
+		String[][] dbList = null ;
+		String[][] matchList = null ;
 		Vector definitionList = null ;
 		DICTClient dc = getDICTClient(m) ;
 		if(null == dc) 
 			return ;
 		try {
+			dbList = dc.getDatabases() ;
 			definitionList = dc.getDefinitions( new String[] {dictionary}, word) ;
+			matchList = dc.getMatches(new String[] {dictionary}, ".", word) ;
 		} catch (ConnectException e) {
-			m.createReply("Couldn't talk to dict server to get definition(s)") ;
+			m.createReply("Something went wrong while connecting to DICT server at " + host ) ;
 			e.printStackTrace() ;
 		} finally {
 			dc.close() ;
 		}
-		if(null == definitionList) {
+		// Check to see if we were given a valid dictionary
+		if(! dictionary.equals("*")) {
+			boolean found = false ;
+			for (int i=0; i<dbList.length ;i++) {
+				if (dictionary.equals(dbList[i][0])) {
+					found = true ;
+					break ;
+				}
+			}
+			if( ! found ) {
+				m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
+				dictionaries(m) ;
+				return ;
+			}
+		}
+		// check not-null definition list and match list
+		if(null == definitionList || null == matchList) {
+			System.out.println("I'm sorry, Dave, something has gone horribly wrong.") ;
 			return ;
 		}
-		// check list not empty
+		// check match list not empty
+		if (0 == matchList.length) {
+			m.createPagedReply("No definitions found.  Couldn't find any alternate spelling suggestions.  Try a little harder next time.").send() ;
+			return ;
+		}
+		// check definition list not empty
 		if (definitionList.isEmpty()) {
-			m.createReply("No definitions found.").send() ;
-			//add suggestions, mention dict if specified
+			String suggestions = "" ;
+			for(int i=0;i<matchList.length;i++) 
+				suggestions += " " + matchList[i][1] ;
+			suggestions = suggestions.replaceAll("\"", "") ;
+			suggestions = suggestions.trim() ;
+			String line = "No definitions found" ;
+			if (! dictionary.equals("*"))
+				line += " in dictionary \"" + dictionary + "\"." ;
+			else
+				line += "." ;
+			m.createPagedReply(line + "  Suggestions: " + suggestions).send() ;
 			return ;
 		}
 		// check num not greater than number of elements in list
@@ -97,6 +131,7 @@ public class Define extends Module {
 		Definition d = (Definition) definitionList.get(num - 1) ;
 		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
 		m.createPagedReply(text).send() ; 
+		// TODO add definitions per dictionary line, if more than one def.
 	}
 	
 	private void randef(Message m) {

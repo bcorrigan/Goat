@@ -17,7 +17,7 @@ public class Pager {
 	private String buffer = "";
 	
 	// Config-like stuff
-	private int maxMessageLength = 300 ;
+	private int maxMessageLength = 420 ;
 	private String innerPre = ".." ;
 	private String innerPost = "..[more]" ;
 

@@ -7,6 +7,7 @@
 	<property name="build" location="bin"/>
 	<property name="jars" location="jars"/>
 	<property name="version" value="2.0"/>
+	<property name="docs" location="javadocs" />
 
 
 	<target name="init">
@@ -14,6 +15,7 @@
 		<tstamp/>
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
+		<mkdir dir="${docs}"/>
 	</target>
 
 	<target name="compile" depends="init"
@@ -44,6 +46,14 @@
 		<!-- delete the jar in top dir, and replace with updated copy -->
 		<delete file="goat.jar"/>
 		<copy file="${jars}/bin/Goat-${DSTAMP}.jar" tofile="goat.jar"/>
+	</target>
+
+	<target name="doc"
+		description="build documentation from source files"
+		depends="init">
+		<javadoc packagenames="*" sourcepath="${src}" destdir="${docs}" 
+			author="yes" version="yes" use="yes" verbose="yes" 
+			source="1.4" />
 	</target>
 
 	<target name="clean"
