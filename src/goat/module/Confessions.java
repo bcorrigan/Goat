@@ -62,10 +62,10 @@ public class Confessions extends Module {
 		while ((inputLine = in.readLine()) != null) {
 			if (inputLine.matches(".*conf-text.*")) {  //inside confession
 				while (true) {
+					confession += inputLine + " ";
 					if (inputLine.matches(".*</td>.*")) { //outside confession - break
 						break;
 					}
-					confession += inputLine;
 					inputLine = in.readLine();
 				}
 				confession = confession.replaceAll("<.*?>", "");
