@@ -78,7 +78,29 @@ public class CommandParser {
 	}
 
 	/**
-	 * Checker
+	 * Remainder setter.  For use in further user processing of the command.
+	 *
+	 * @param string New remainder.  
+	 */
+	public void setRemaining(String string) {
+		if( string != null)
+			remaining = string.trim() ;
+	}
+	
+	/**
+	 * Remainder checker
+	 *
+	 * @return true if there's some text remaining, false otherwise.
+	 */
+	public boolean hasRemaining() {
+		if (remaining.equals(""))
+			return false ;
+		else
+			return true ;
+	}
+
+	/**
+	 * Variable Checker
 	 *
 	 * @param name var name to check for
 	 * 
