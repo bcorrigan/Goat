@@ -8,7 +8,13 @@
 	<property name="jars" location="jars"/>
 	<property name="version" value="2.0"/>
 	<property name="docs" location="javadocs" />
-
+    
+    <path id="project.class.path">
+        <pathelement path="${classpath}"/>
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
 
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -21,7 +27,9 @@
 	<target name="compile" depends="init"
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" source="1.4" optimize="yes" debug="on" debuglevel="lines,vars,source"/>
+		<javac srcdir="${src}" destdir="${build}" source="1.4" optimize="yes" debug="on" debuglevel="lines,vars,source">
+            <classpath refid="project.class.path"/>
+        </javac>
 	</target>
 
 	<target name="jar" depends="compile" description="Make a binary jar">
@@ -61,6 +69,14 @@
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}"/>
 	</target>
+
+    <target name="run" description="Start up goat">
+        <java jar="goat.jar" fork="true" classpathref="project.class.path">
+            <jvmarg value="-server"/>
+            <!--<classpath refid="project.class.path"/>-->
+        </java>
+    </target>
+ 
 </project>
 
 
