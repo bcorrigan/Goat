@@ -42,7 +42,7 @@ public class CTCP extends Module {
 		if (j > -1) {
 			name = m.prefix.substring(0, j);
 		}
-		System.out.println("botname: " + BotStats.botname + "; m.params: " + m.params);
+		// System.out.println("botname: " + BotStats.botname + "; m.params: " + m.params);
 		if (m.params.trim().equals(BotStats.botname)) {
 			//check the command
 			//sort ctcp bits
