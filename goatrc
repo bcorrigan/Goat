@@ -1,15 +1,16 @@
 #Just add commands you would direct at goat here, and he will execute them on start up.
 insmod NickServ all
-#insmod GoatSay all
+insmod GoatSay all
 insmod More all
 insmod Confessions all
 insmod WordGame #wordgame
 insmod Say all
-insmod Uno #wordgame
+insmod Uno all
 insmod Weather all
 insmod RandWords all
 insmod Colours all
 insmod Define all
 insmod Threat all
+insmod TODO all
 join #wordgame
 join #jism
