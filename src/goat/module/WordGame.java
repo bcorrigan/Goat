@@ -223,7 +223,7 @@ public class WordGame extends Module implements Runnable {
 	 * You can get the answer to the last game played in the channel passed here.
 	 *
 	 * @param chan The channel for which caller wants last answer.
-	 * @return Answer to the last game played in that channel
+	 * @return Answer to the last game played in that channel, if any, or null.
 	 */
 	public static String getLastAnswer(String chan) {
 		if (lastAnswers.containsKey(chan))

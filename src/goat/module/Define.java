@@ -1,10 +1,13 @@
 package goat.module ;
 
+import goat.Goat;
 import goat.core.Module;
 import goat.core.Message;
+import goat.core.ModuleController;
 import goat.util.DICTClient;
 import goat.util.Definition;
 import goat.util.CommandParser;
+import goat.module.WordGame;
 
 import java.io.*;
 import java.net.* ;
@@ -71,12 +74,22 @@ public class Define extends Module {
 			return ;
 		}
 		String word = parser.remaining() ;
-		System.out.println("parser.remaining() : " + parser.remaining() );
-		System.out.println("word : " + word) ;
 		String text = "" ;
+		//make sure we've got a word, if not, ask wordgame mod what its last answer for this channel is, if any, and use that.
 		if(null == word || word.equals("") ) {
-			m.createReply("Er, define what, exactly?").send() ;
-			return ;
+			WordGame wordgameMod = (WordGame) Goat.modController.get("WordGame") ;
+			if ((wordgameMod != null) && (wordgameMod.inChannel(m.params))) {
+				String lastWord = wordgameMod.getLastAnswer(m.params) ;
+				if(lastWord != null)
+					word = lastWord ;
+				else {
+					m.createReply("Didn't find last answer; maybe you haven't played a round of wordgame yet?").send() ;
+					return ;
+				}
+			} else {
+				m.createReply("Er, define what, exactly?").send() ;
+				return ;
+			}
 		}
 		String[][] dbList = null ;
 		String[][] matchList = null ;
