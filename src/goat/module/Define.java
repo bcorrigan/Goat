@@ -21,7 +21,8 @@ import java.util.Vector;
  */
 public class Define extends Module {
 	
-	private static DICTClient dictClient = null ;
+	private static String host = "edslocomb.com" ;
+	
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
@@ -30,22 +31,8 @@ public class Define extends Module {
    }
 	
 	public Define() {
-		if ( null == dictClient ) 
-			init() ;
 	}
 
-	private void init() {
-		try {
-			dictClient = new DICTClient("www.edslocomb.com") ;
-		} catch (UnknownHostException e) {
-			e.printStackTrace() ;
-			System.exit(1) ;
-		} catch (ConnectException e) {
-			e.printStackTrace() ;
-			System.exit(1) ;
-		}
-	}
-		
 	
 	public void processPrivateMessage(Message m) {
 		processChannelMessage(m) ;
@@ -73,30 +60,31 @@ public class Define extends Module {
 		int num = 1 ;
 		String text = "" ;
 		
-		Vector definitionList = null ;
-
 		if(null == word || word.equals("") ) {
 			m.createReply("Er, define what, exactly?").send() ;
 			return ;
 		}
+		Vector definitionList = null ;
+		DICTClient dc = getDICTClient(m) ;
+		if(null == dc) 
+			return ;
 		try {
-			definitionList = dictClient.getDefinitions( new String[] {dictionary}, word) ;
+			definitionList = dc.getDefinitions( new String[] {dictionary}, word) ;
 		} catch (ConnectException e) {
+			m.createReply("Couldn't talk to dict server to get definition(s)") ;
 			e.printStackTrace() ;
+		} finally {
+			dc.close() ;
 		}
-
 		if(null == definitionList) {
-			m.createReply("Couldn't talk to dict server :(") ;
 			return ;
 		}
-		
 		// check list not empty
 		if (definitionList.isEmpty()) {
 			m.createReply("No definitions found.").send() ;
 			//add suggestions, mention dict if specified
 			return ;
 		}
-		
 		// check num not greater than number of elements in list
 		if (num > definitionList.size() ) {
 			String line = "I don't have " + num + " definitions for \"" + word ;
@@ -106,11 +94,8 @@ public class Define extends Module {
 				line = line + "." ;
 			m.createReply(line).send() ;
 		}
-		
-		// go get it
 		Definition d = (Definition) definitionList.get(num - 1) ;
 		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
-		
 		m.createPagedReply(text).send() ; 
 	}
 	
@@ -119,7 +104,9 @@ public class Define extends Module {
 	}
 	
 	private void dictionaries(Message m) {
-		String[][] dbList = dictClient.getDatabases() ;
+		DICTClient dc = getDICTClient(m) ;
+		String[][] dbList = dc.getDatabases() ;
+		dc.close() ;
 		String line = "" ;
 		for (int i = 0; i < dbList.length ; i++) {
 			if (line.equals(""))
@@ -132,9 +119,11 @@ public class Define extends Module {
 	}
 	
 	private void dictionary(Message m) {
+		DICTClient dc = getDICTClient(m) ;
 		String code = m.modTrailing.trim() ;
 		String line = "" ;
-		String[][] dbList = dictClient.getDatabases() ;
+		String[][] dbList = dc.getDatabases() ;
+		dc.close() ;
 		boolean found = false ;
 		for (int i = 0; i < dbList.length ; i++ ) {
 			if (dbList[i][0].equals(code)) {
@@ -153,15 +142,32 @@ public class Define extends Module {
 		m.createPagedReply(line).send() ;
 	}
 
+	private DICTClient getDICTClient(Message m) {
+		DICTClient dc = null ;
+		try {
+			dc = new DICTClient(host) ;
+		} catch (UnknownHostException e) {
+			e.printStackTrace() ;
+			m.createReply("Couldn't talk to dict server: host \"" + host + "\" unknown").send() ;
+			System.exit(1) ;
+		} catch (ConnectException e) {
+			e.printStackTrace() ;
+			m.createReply("Couldn't talk to dict server.").send() ;
+		}
+		return dc ;
+	}
+		
 	public static void main(String[] arg) {
-		new Define() ;
+		Define define = new Define() ;
+		DICTClient dc = define.getDICTClient(new Message("","","","")) ;
 		System.out.println("Starting main()") ;
-		String[][] dbList = dictClient.getDatabases() ;
+		String[][] dbList = dc.getDatabases() ;
 		String line = "" ;
 		for (int i = 0 ; i < dbList.length ; i++) {
 			line = line + " " + dbList[i][0] ;
 		}
 		line = line.trim() ;
 		System.out.println(line) ;
+		dc.close() ;
 	}
 }
