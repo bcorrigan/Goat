@@ -3,24 +3,25 @@ package goat.module;
 import goat.core.Module;
 import goat.core.Message;
 import goat.wordgame.Scores;
+import goat.util.Dict;
 
-import java.io.*;
 import java.util.ArrayList;
 
 import java.util.Collections;
 import java.util.Iterator;
 
 /**
- * User: bc
+ * @author Barry Corrigan
  * Date: Apr 25, 2004
  */
 
 public class WordGame extends Module implements Runnable {
 
 	private boolean playing;						//True if a game is being played just now
-	private ArrayList dict = new ArrayList();		//the entire dictionary
+	private Dict dict = new Dict();					//the entire dictionary
 	private ArrayList validWords = new ArrayList(); //all the valid answers
 	private ArrayList letters;						//letters in this match
+	private String answer;							//the answer word
 	private int longestPossible;   					//shortest possible word length for this game
 	private String[] currentWinning; 				//nick of person currently winning with the shortest word, and the winning word     @TODO Awful choice of data structure, this
 	private int score;           					//score for this one
@@ -32,23 +33,6 @@ public class WordGame extends Module implements Runnable {
 
 	private final static int NAME = 0;              //Various statics
 	private final static int ANSWER = 1;
-
-
-	public WordGame() {
-		File words = new File("resources/words");
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(words));
-			String inputLine;
-			while ((inputLine = in.readLine()) != null) {
-				dict.add(inputLine.toLowerCase());
-			}
-			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public void processPrivateMessage(Message m) {
 	}
@@ -108,7 +92,7 @@ public class WordGame extends Module implements Runnable {
 		} else
 			reply = "Nobody guessed a correct answer :(";
 		if (!shortest)
-			reply += " A longest possible word was \"" + getShortest(validWords) + "\".";
+			reply += " A longest possible word was \"" + getLongest(validWords) + "\".";
 		m.createReply(reply).send();
 		if (currentWinning != null) {
 			scores.commit(currentWinning, score);   //commit new score to league table etc
@@ -120,21 +104,10 @@ public class WordGame extends Module implements Runnable {
 	}
 
 	private void initGame() {
-		//first find valid three letters for this game
 		getLetters();
 		t = new Thread(this);
 		t.start();
-		//now cache all words that match the letters, for speed purposes
-		Iterator it = dict.iterator();
-		longestPossible = 1;
-		while (it.hasNext()) {
-			String word = (String) it.next();
-			if (checkWord(word)) {
-				validWords.add(word);
-				if (word.length() > longestPossible)
-					longestPossible = word.length();
-			}
-		}
+		validWords = dict.getMatchingWords(answer);
 		currentWinning = null;
 	}
 
@@ -143,8 +116,8 @@ public class WordGame extends Module implements Runnable {
 		String[] words = m.trailing.split("[\\s,.;]+");
 		ArrayList correctWords = new ArrayList();
 		for (int i = 0; i < words.length; i++) {
-			if (scanDictForWord(words[i].toLowerCase())) {
-				if (checkWord(words[i].toLowerCase())) { //you need to check it is actually a word you clown
+			if (dict.contains(words[i].toLowerCase())) {
+				if (validWords.contains(words[i].toLowerCase())) {
 					correctWords.add(words[i].toLowerCase());
 					if (currentWinning != null) {
 						if (currentWinning[ANSWER].length() < words[i].length()) {
@@ -179,52 +152,17 @@ public class WordGame extends Module implements Runnable {
 		}
 	}
 
-	private boolean scanDictForWord(String word) {
-		if (dict.contains(word))
-			return true;
-		return false;
-	}
-
-	/**
-	 * Checks if a given word is valid for current char arraylist.
-	 *
-	 * @param word Word to be checked.
-	 * @return True if matches, false if not.
-	 */
-	private boolean checkWord(String word) {
-		Iterator it = letters.iterator();
-		ArrayList wordLetters = new ArrayList();
-		for (int i = 0; i < word.length(); i++) {
-			wordLetters.add(new Character(word.charAt(i)));
-		}
-		while (it.hasNext()) {
-			char letter = ((Character) it.next()).charValue();
-			for (int i = 0; i < wordLetters.size(); i++) {
-				if (wordLetters.size() == 0)
-					return false;
-				char wordLetter = ((Character) wordLetters.get(i)).charValue();
-				if (wordLetter == letter) {
-					wordLetters.remove(i);
-					break;
-				}
-			}
-		}
-		if (wordLetters.size() == 0)
-			return true;
-		return false;
-	}
-
-	private String getShortest(ArrayList list) {
+	private String getLongest(ArrayList list) {
 		Iterator it = list.iterator();
-		String shortestWord = "";
+		String longestWord = "";
 		while (it.hasNext()) {
 			String word = (String) it.next();
 			if (word.length() == longestPossible) {
-				shortestWord = word;
+				longestWord = word;
 				break;
 			}
 		}
-		return shortestWord;
+		return longestWord;
 	}
 
 	/**
@@ -232,17 +170,20 @@ public class WordGame extends Module implements Runnable {
 	 */
 
 	private void getLetters() {
-		int dictsize = dict.size();
+		String word = dict.getRandomWord();
+
 		letters = new ArrayList();
-		int wordLength = (int) (Math.random() * 8) + 7;
+
 		while (true) {
-			String word = (String) dict.get((int) (Math.random() * dictsize));
-			if (word.length() == wordLength) {
-				for (int i = 0; i < word.length(); i++) {
-					letters.add(new Character(word.charAt(i)));
-				}
-				break;
+			word = dict.getRandomWord();
+			if (word.length()<6)
+				continue;
+			answer=word;
+			longestPossible = word.length();
+			for (int i = 0; i < word.length(); i++) {
+				letters.add(new Character(word.charAt(i)));
 			}
+			break;
 		}
 		Collections.shuffle(letters);
 	}
