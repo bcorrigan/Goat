@@ -3,7 +3,7 @@ package goat.module;
 import goat.core.Module;
 import goat.core.Message;
 import goat.util.Dict ;
-import goat.util.Parser ;
+import goat.util.CommandParser ;
 
 import java.util.ArrayList ;
 import java.util.Iterator ;
@@ -41,9 +41,9 @@ public class RandWords extends Module {
 		int num = 1 ;
 		if (m.modCommand.equals("randword") 
 				|| m.modCommand.equals("randwords")) {
-			Parser parser = new Parser(m) ;
+			CommandParser parser = new CommandParser(m) ;
 			if (parser.has("num")) 
-				num = parser.get("num") ;
+				num = parser.getInt("num") ;
 			else if (parser.remaining().matches("^\\d+$")) {
 				parser.setRemaining(parser.remaining().replace("^\\d+$", "")) ;
 				try {
