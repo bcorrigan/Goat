@@ -667,9 +667,13 @@ public class Message {
 	 * @return a message containing the first chunk of paged text, which the caller will most likely want to send()
 	 */
 	public Message createPagedReply(String trailing) {
-		Pager pager = new Pager(trailing) ;
-		pagerCache.put(params, pager) ;
-		return createReply(pager.getNext()) ;
+		if (trailing.length() <= Pager.maxMessageLength) 
+			return createReply(Pager.smush(trailing)) ;
+		else {
+			Pager pager = new Pager(trailing) ;
+			pagerCache.put(params, pager) ;
+			return createReply(pager.getNext()) ;
+		}
 	}
 	
 	/** 

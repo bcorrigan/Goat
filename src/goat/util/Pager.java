@@ -17,7 +17,7 @@ public class Pager {
 	private String buffer = "";
 	
 	// Config-like stuff
-	private int maxMessageLength = 420 ;
+	public static final int maxMessageLength = 420 ;
 	private String innerPre = ".." ;
 	private String innerPost = "..[more]" ;
 
@@ -107,7 +107,7 @@ public class Pager {
 		return ret ;
 	}
 
-	private String smush(String text) {
+	public static String smush(String text) {
 		text = text.replaceAll("\\s+", " ") ;
 		text = text.trim() ;
 		return text ;
