@@ -122,10 +122,10 @@ public class Dict {
 	 * @return An ArrayList of the matching words
 	 */
 	public ArrayList getMatchingWords(String targetWord) {
-		targetWord.trim();
-		targetWord.toLowerCase();
+		targetWord = targetWord.trim();
+		targetWord = targetWord.toLowerCase();
 		String word;
-		ArrayList validWords = new ArrayList();
+		ArrayList validWords = new ArrayList(500);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(DICTFILE));
 			while ((word = br.readLine()) != null) {
@@ -137,7 +137,7 @@ public class Dict {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+        validWords.trimToSize();
 		return validWords;
 	}
 
@@ -264,12 +264,12 @@ public class Dict {
 	 * @return True if matches, false if not.
 	 */
 	private boolean checkWord(String word, String targetWord) {
-		ArrayList targetLetters = new ArrayList();
+		ArrayList targetLetters = new ArrayList(targetWord.length());
 		for (int i = 0; i < targetWord.length(); i++) {
 			targetLetters.add(new Character(targetWord.charAt(i)));
 		}
 		Iterator it = targetLetters.iterator();
-		ArrayList wordLetters = new ArrayList();
+		ArrayList wordLetters = new ArrayList(word.length());
 		for (int i = 0; i < word.length(); i++) {
 			wordLetters.add(new Character(word.charAt(i)));
 		}
