@@ -233,18 +233,16 @@ public class WordGame extends Module implements Runnable {
 
 	private void getLetters() {
 		int dictsize = dict.size();
-		boolean match = false;
 		letters = new ArrayList();
 		int wordLength = (int) (Math.random() * 8) + 7;
-		while (!match) {
+		while (true) {
 			String word = (String) dict.get((int) (Math.random() * dictsize));
 			if (word.length() == wordLength) {
 				for (int i = 0; i < word.length(); i++) {
 					letters.add(new Character(word.charAt(i)));
 				}
-				match = true;
+				break;
 			}
-
 		}
 		Collections.shuffle(letters);
 	}
