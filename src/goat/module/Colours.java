@@ -40,7 +40,7 @@ public class Colours extends Module {
 			m.createReply(line).send() ;
 		} else if(c.equals("colour")) {
 			String t = m.modTrailing.trim() ;
-			String msg = "Colors are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark grey, and light grey." ;
+			String msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark grey, and light grey." ;
 			if (t.equalsIgnoreCase("white")) 
 				msg = m.WHITE + "white: " + m.WHITE.substring(1) ;
 			else if (t.equalsIgnoreCase("black"))
