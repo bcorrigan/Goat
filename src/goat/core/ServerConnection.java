@@ -19,6 +19,7 @@ public class ServerConnection extends Thread {
     private InputHandler ih;
     private OutputHandler oh;
     private String serverName;
+	private boolean connected = false;
 
     /**
      * Connects us to a server.
@@ -45,21 +46,31 @@ public class ServerConnection extends Thread {
             OutputStream os = IrcServer.getOutputStream();
             ih = new InputHandler(br);
             oh = new OutputHandler(os);
+
         } catch(IOException ioe) {
             System.out.println("Error opening streams to IRC server: " + ioe.getMessage());
             System.exit(0);
         }
         ih.start();
-        oh.start();
+        oh.start();	
         new Message("", "PASS", "foo", "").send();
         new Message("", "NICK", BotStats.botname, "").send();
         new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.version).send();
+		//we sleep until we are connected, don't want to send these next messages too soon
+		while(!connected) {
+			try {
+				sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		String[] channels = BotStats.getChannels();
 		for(int i=0; i<channels.length; i++)
 			new Message("", "JOIN", channels[i], "").send();
     }
 
     private void reconnect() {
+		connected = false;
 		try {
 			sleep(100);
 		} catch (InterruptedException e) {
@@ -71,6 +82,8 @@ public class ServerConnection extends Thread {
     class InputHandler extends Thread {
         BufferedReader in;
 		private boolean keeprunning = true;
+		int namecount = 1;
+		private String botdefaultname = BotStats.botname;
         public InputHandler(BufferedReader in) {
             this.in=in;
         }
@@ -90,11 +103,30 @@ public class ServerConnection extends Thread {
 						if(messageString.equals(null))
 							continue;
 						Message m = new Message(messageString);
+						
+						if(!connected) {
+							try {
+								int intcommand = Integer.parseInt(m.command);
+								if(intcommand == Message.RPL_ENDOFMOTD)
+									connected = true;
+								else if (intcommand == Message.ERR_NICKNAMEINUSE) {
+									namecount++;
+									BotStats.botname = botdefaultname + namecount;
+									new Message("", "NICK", BotStats.botname, "").send();
+									new Message("", "USER", BotStats.botname + " nowhere.com " + 
+												BotStats.servername, BotStats.clientName + 
+												" v." + BotStats.version).send();
+								}
+							} catch(NumberFormatException nfe) {
+								//we ignore this
+							}
+						}
+
 						if(m.command.equals("PING"))
 							outqueue.enqueue(new Message("", "PONG", "", m.trailing));
                         else inqueue.enqueue(m); //add to inqueue
-						//System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
-						//		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
+						System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
+								           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
 						if(System.currentTimeMillis() - lastActivity>305000) {
 							in.close();

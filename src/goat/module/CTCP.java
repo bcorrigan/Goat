@@ -17,8 +17,6 @@ import java.io.IOException;
  */
 public class CTCP extends Module {
 
-	private int namecount = 1;
-	private String botdefaultname = BotStats.botname;
 	private boolean alreadySeenMOTD = false;
 
 	public CTCP() {
@@ -83,25 +81,15 @@ public class CTCP extends Module {
 				if (i > -1) {
 					new Message("", "PRIVMSG", m.params.substring(i + 1), "Goat!").send();
 				}
-			} else if (intcommand == Message.ERR_NICKNAMEINUSE) {
-				namecount++;
-				BotStats.botname = botdefaultname + namecount;
-				new Message("", "NICK", BotStats.botname, "").send();
-				new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version).send();
 			} else if (intcommand == Message.ERR_ERRONEUSNICKNAME) {
-				BotStats.botname = "Plum";
+				BotStats.botname = "Goat";
 				new Message("", "NICK", BotStats.botname, "").send();
 				new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version).send();
 			} else if (intcommand == Message.RPL_ENDOFMOTD) {   //End of /MOTD command.
-				namecount = 1;
-				new Message("", "JOIN", m.channame, "").send();
+				//new Message("", "JOIN", m.channame, "").send();
 				if (!alreadySeenMOTD) {
 					readConfFile();  	//we only want to read the conf file when we've joined the server
 					alreadySeenMOTD = true;
-				}
-			} else if (intcommand == Message.RPL_ISON) {
-				if (!m.trailing.equals(botdefaultname)) {
-					new Message("", "NICK", botdefaultname, "").send();
 				}
 			}
 		} catch (NumberFormatException e) {
