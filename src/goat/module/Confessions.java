@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.LinkedList;
+import java.util.StringTokenizer;
+import java.util.ListIterator;
 
 
 /**
@@ -93,34 +95,37 @@ public class Confessions extends Module {
 			noConfessions++;
 			if(m.modTrailing.toLowerCase().startsWith("about ")) {
 				String searchReply = m.modTrailing.toLowerCase().substring(6);
-				LinkedList searchConf = searchConfessions(searchReply);
-				if(searchConf!=null) {
-					//send a random one
-					m.createPagedReply(searchConf.remove((int) (Math.random()*searchConf.size())).toString()).send();
-					//might as well add the rest to cache
-					while(searchConf.size()>0) {
-						Object confession = searchConf.removeFirst();
-						if(!confessions.contains(confession))
-							confessions.addFirst(confession);
-					}
-				}
+				String confession = searchConfessions(searchReply);
+				if(confession!=null)
+					m.createPagedReply(confession).send();
 				else
 					m.createReply("I'm afraid I just don't feel guilty about that.").send();
 			} else 
 				m.createPagedReply(confessions.removeFirst().toString()).send();
 		} else if(m.modCommand.equalsIgnoreCase("csize"))
-			m.createReply("Number of confessions cached: " + confessions.size() + ". Number of confessions asked for: " + noConfessions + " Number of page requests sent: " + hits).send();
+			m.createReply("Number of confessions cached: " + confessions.size() + 
+						  ". Number of confessions asked for: " + noConfessions + 
+						  " Number of page requests sent: " + hits).send();
 
 		if (confessions.isEmpty())
 			if(!getConfessions())
 				m.createPagedReply("I don't feel like confessing anymore, sorry.").send();
+		
+		//if cache is getting a bit on the big side, lets delete the 100 oldest
+		if(confessions.size()>500)
+			for(int i=0; i<100; i++)
+				confessions.removeLast();
 	}
 
 	public void processChannelMessage(Message m) {
 		processPrivateMessage(m);
 	}
 	
-	private LinkedList searchConfessions(String searchString) {
+	private String searchConfessions(String searchString) {
+		//first search all the confessions stored for the search string
+		String confession = searchStoredConfessions(searchString);
+		if(confession!=null)
+			return confession;
 		LinkedList searchedConfessions = new LinkedList();
 		try {
 			for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
@@ -129,12 +134,40 @@ public class Confessions extends Module {
 				URL grouphug = new URL("http://grouphug.us/search/" + searchString + "/" + i*15 + "/n");
 				HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
 				searchedConfessions = parseConfession(connection);
-				if(!searchedConfessions.isEmpty())
-					return searchedConfessions;
+				if(!searchedConfessions.isEmpty()) {
+					confession = searchedConfessions.remove((int) (Math.random()*searchedConfessions.size())).toString();
+					//might as well add the rest to cache
+					while(searchedConfessions.size()>0) {
+						Object storeConfession = searchedConfessions.removeFirst();
+						if(!confessions.contains(storeConfession))
+							confessions.addFirst(storeConfession);
+					}
+					return confession;
+				}
 			}
 			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private String searchStoredConfessions(String searchString) {
+		StringTokenizer st = new StringTokenizer(searchString);
+		LinkedList filteredConfessions = (LinkedList) confessions.clone();	//this is a shallow clone
+		while(st.hasMoreTokens()) {
+			String term = st.nextToken();
+			ListIterator confIter = filteredConfessions.listIterator(0);
+			while(confIter.hasNext()) {
+				String confession = (String) confIter.next();
+				if(!confession.matches(".*" + term + ".*"))
+					confIter.remove();	//no match, so we take this entry out
+			}
+		}
+		if(filteredConfessions.size()>0) {
+			String confession = (String) filteredConfessions.removeFirst();
+			confessions.remove(confession);	//also remove it from the overall cache
+			return confession;
 		}
 		return null;
 	}
