@@ -201,7 +201,7 @@ public class Dict {
 		
 		
 		System.out.println("\n\nTesting \"prank\":\n\n");
-		System.out.println("prank" + " :contains() returns: " + dict.contains("poopmastah"));
+		System.out.println("prank" + " :contains() returns: " + dict.contains("prank"));
 		System.out.println("word number 70878: " + dict.getWord(70878));
 		System.out.println("word number 70879: " + dict.getWord(70879));
 		System.out.println("word number 70880: " + dict.getWord(70880));
