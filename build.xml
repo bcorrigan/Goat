@@ -1,47 +1,52 @@
 <project name="Goat" default="compile" basedir=".">
-    <description>
+	<description>
         Builds Goat.
-    </description>
-  <!-- set global properties for this build -->
-  <property name="src" location="src"/>
-  <property name="build" location="bin"/>
-  <property name="jars" location="jars"/>
-  <property name="version" value="2.0"/>
+	</description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src"/>
+	<property name="build" location="bin"/>
+	<property name="jars" location="jars"/>
+	<property name="version" value="2.0"/>
 
-  <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
-    <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
-  </target>
 
-  <target name="compile" depends="init"
-        description="compile the source " >
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" source="1.4"/>
-  </target>
-  
-  <target name="jar" depends="compile" description="Make a binary jar">
-  	<mkdir dir="${jars}/bin"/>
-	<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}" >
-		<manifest>
-			<attribute name="Main-Class" value="goat.Goat"/>
-			<attribute name="Built-By" value="${user.name}"/>
-			<section name="common">
-				<attribute name="Specification-Title" value="Goatbot"/>
-				<attribute name="Specification-Version" value="${version}"/>
-				<attribute name="Implementation-Title" value="Goat"/>
-				<attribute name="Implementation-Version" value="${version} ${TODAY}"/> 
-			</section>
-		</manifest>
-	</jar>
-  </target>
-  
-  <target name="clean"
-        description="clean up" >
-    <!-- Delete the ${build} and ${dist} directory trees -->
-    <delete dir="${build}"/>
-  </target>
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp/>
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile" depends="init"
+		description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" source="1.4"/>
+	</target>
+
+	<target name="jar" depends="compile" description="Make a binary jar">
+		<mkdir dir="${jars}/bin"/>
+		<!--Need to narrow this to specific OSs via "os" property-->
+		<exec executable="/bin/bash" outputproperty="revision">
+			<arg line="version.sh"/>
+		</exec>
+		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" value="goat.Goat"/>
+				<attribute name="Built-By" value="${user.name}"/>
+				<section name="common">
+					<attribute name="Specification-Title" value="Goatyness"/>
+					<attribute name="Specification-Version" value="Goaty Goat"/>
+					<attribute name="Implementation-Title" value="Goat"/>
+					<attribute name="Implementation-Version" value="${revision}"/>
+				</section>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="clean"
+		description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}"/>
+	</target>
 </project>
 
 

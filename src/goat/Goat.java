@@ -115,6 +115,5 @@ public class Goat {
 		BotStats.clientName = "goat";
 		BotStats.owner = "bc";
 		BotStats.servername = "coruscant.slashnet.org";
-		BotStats.version = "Goat 2.0 Alpha Enterprise Edition";
 	}
 }
