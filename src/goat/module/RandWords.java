@@ -2,10 +2,8 @@ package goat.module;
 
 import goat.core.Module;
 import goat.core.Message;
-import goat.core.BotStats;
 import goat.util.Dict ;
 
-import java.io.*;
 import java.util.ArrayList ;
 import java.util.Iterator ;
 import java.util.Random ;
