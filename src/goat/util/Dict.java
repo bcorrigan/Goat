@@ -17,7 +17,7 @@ public class Dict {
 	private RandomAccessFile rafIndex;
 	private static final File INDEXFILE = new File("resources/words.index");
 	public int numWords;
-
+                                             
 
 	/**
 	 * This no-args constructor exits if for whatever reason the Dict resource does not exist.
@@ -37,9 +37,7 @@ public class Dict {
 		try {
 			rafIndex = new RandomAccessFile(INDEXFILE, "rw");
 		} catch (FileNotFoundException fnfe) {
-			System.out.println("Could not open file \'"
-					+ DICTFILE.toString()
-					+ "\" for writing.");
+			System.out.println("Could not open file \'" + DICTFILE.toString() + "\" for writing.");
 			fnfe.printStackTrace();
 			System.exit(1);
 		}
@@ -95,28 +93,29 @@ public class Dict {
 	}
 
 	/**
-	 * Gets all the words in the dictionary which have letters that match the supplied string. Ignores spaces around the string, and case.
+	 * Gets all the words in the dictionary which have letters that match the supplied string. Ignores spaces around the
+	 * string, and case.
 	 *
 	 * @param targetWord The word you are seeking all matches with.
 	 * @return An ArrayList of the matching words
 	 */
 	public ArrayList getMatchingWords(String targetWord) {
 		targetWord = targetWord.trim();
-		targetWord = targetWord.toLowerCase();
+		char[] targetWordArray = targetWord.toLowerCase().toCharArray();
 		String word;
 		ArrayList validWords = new ArrayList(500);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(DICTFILE));
 			while ((word = br.readLine()) != null) {
 				word = word.toLowerCase();
-				if (checkWord(word, targetWord))
+				if (checkWord(word.toCharArray(), targetWordArray))
 					validWords.add(word);
 			}
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        validWords.trimToSize();
+		validWords.trimToSize();
 		return validWords;
 	}
 
@@ -168,12 +167,12 @@ public class Dict {
 		}
 	}
 
-	/**
-	 * You probably want to use numWords instead of this; it's faster.
+	/*
+	  You probably want to use numWords instead of this; it's faster.
 	 * 
 	 * @param file File to be line-counted
 	 * @return number of lines in File
-	 */
+
 	private int lineCount(File file) {
 		int count = 0;
 		try {
@@ -193,7 +192,7 @@ public class Dict {
 			System.exit(1);
 		}
 		return count;
-	}
+	} */
 
 	/**
 	 * Checks if a given word is valid for current char arraylist.
@@ -201,29 +200,24 @@ public class Dict {
 	 * @param word Word to be checked.
 	 * @return True if matches, false if not.
 	 */
-	private boolean checkWord(String word, String targetWord) {
-		ArrayList targetLetters = new ArrayList(targetWord.length());
-		for (int i = 0; i < targetWord.length(); i++) {
-			targetLetters.add(new Character(targetWord.charAt(i)));
-		}
-		Iterator it = targetLetters.iterator();
-		ArrayList wordLetters = new ArrayList(word.length());
-		for (int i = 0; i < word.length(); i++) {
-			wordLetters.add(new Character(word.charAt(i)));
-		}
-		while (it.hasNext()) {
-			char letter = ((Character) it.next()).charValue();
-			for (int i = 0; i < wordLetters.size(); i++) {
-				if (wordLetters.size() == 0)
+	private boolean checkWord(char[] word, char[] targetWord) {
+		Arrays.sort(word);
+		Arrays.sort(targetWord);
+		int floor = 0;
+		int hits = 0;
+		int tlength = targetWord.length;
+		int wlength = word.length;
+		for (int i = 0; i < wlength; i++)
+			for (int j = floor; j < tlength; j++) {
+				if (word[i] < targetWord[j])
 					return false;
-				char wordLetter = ((Character) wordLetters.get(i)).charValue();
-				if (wordLetter == letter) {
-					wordLetters.remove(i);
-					break;
-				}
+				if (word[i] > targetWord[j])
+					continue;
+				floor = j + 1;
+				hits++;
+				break;
 			}
-		}
-		if (wordLetters.size() == 0)
+		if (hits == wlength)
 			return true;
 		return false;
 	}
@@ -231,9 +225,8 @@ public class Dict {
 	/**
 	 * (re)Builds the word index.
 	 * <p/>
-	 * Note raw word file should not exceed INT.MAX_VALUE bytes.
-	 * We use int instead of long throughout this class mainly
-	 * to keep the size of the index file down.
+	 * Note raw word file should not exceed INT.MAX_VALUE bytes. We use int instead of long throughout this class mainly to
+	 * keep the size of the index file down.
 	 *
 	 * @return True if index is successfully built
 	 */
@@ -246,8 +239,7 @@ public class Dict {
 			//length of file
 			rafIndex.writeInt((int) rafDict.length());
 			int count = 0;
-			while ((int) rafDict.getFilePointer() < Integer.MAX_VALUE
-					&& rafDict.getFilePointer() < rafDict.length()) {
+			while ((int) rafDict.getFilePointer() < Integer.MAX_VALUE && rafDict.getFilePointer() < rafDict.length()) {
 				rafIndex.writeInt((int) rafDict.getFilePointer());
 				rafDict.readLine();
 				++count;
@@ -291,12 +283,12 @@ public class Dict {
 		return null;
 	}
 	
-	/**
-	 * Main method here for debugging
-	 */
+	/*
+	  Main method here for debugging
+
 	public static void main(String[] args) {
 		Dict dict = new Dict();
-		System.out.println("Some random words, hopefully:\n\n");
+		/*System.out.println("Some random words, hopefully:\n\n");
 		for (int i = 0; i < 100; i++)
 			System.out.print(dict.getRandomWord() + ' ');
 		/*now check bsearch
@@ -307,7 +299,7 @@ public class Dict {
 			if ( ! dict.contains(word) ) {
 				System.out.println(word + " :contains() returns: " + dict.contains(word));
 			}
-		}*/
+		}
 		System.out.println("\n\nAnd these false:\n\n");
 		System.out.println("poopmastah" + " :contains() returns: " + dict.contains("poopmastah"));
 		System.out.println("assedsr" + " :contains() returns: " + dict.contains("assedsr"));
@@ -328,6 +320,23 @@ public class Dict {
 		System.out.println(dict.getWord(0));
 
 		System.out.println("\nDone.");
-	}
+		System.out.println("Doing a quick benchmark of checkWord2, and getMatchingWords.");
+		long time1 = System.currentTimeMillis();
+		for(int i=0;i<20;i++) {
+			dict.getMatchingWords("electroencephalographies");
+			dict.getMatchingWords("absolutes");
+			dict.getMatchingWords("door");
+		}
+		System.out.println("Benched: " + (System.currentTimeMillis() - time1)/1000.0/60.0 + " seconds per getMatchingWords()");
+		time1 = System.currentTimeMillis();
+		for(int i=0;i<2000;i++) {
+			dict.checkWord("electroencephalographies".toCharArray(), "graphs".toCharArray());
+			dict.checkWord("absolutes".toCharArray(), "sots".toCharArray());
+			dict.checkWord("monsters".toCharArray(), "young".toCharArray());
+		}
+		System.out.println("Benched: " + (System.currentTimeMillis() - time1)/1000.0/6000.0 + " seconds per checkWord2()");
+		System.out.println("OldCheckwords: " + dict.getMatchingWords("electroencephalographies").size());
+		System.out.println("OldCheckwords: " + dict.getMatchingWords("absolutes").size());
+	} */
 
 }
