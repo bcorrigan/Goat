@@ -1,4 +1,4 @@
-package goat.module;
+package goat.module ;
 
 import goat.core.Module;
 import goat.core.Message;
@@ -8,12 +8,16 @@ import java.io.*;
 //import java.util.ArrayList ;
 //import java.util.Iterator ;
 import java.util.Random ;
-import net.zuckerfrei.jcfd.* ;
+import net.zuckerfrei.jcfd.DictFactory ;
+import net.zuckerfrei.jcfd.Dict ;
+import net.zuckerfrei.jcfd.DictException ;
+import net.zuckerfrei.jcfd.DatabaseList ;
+import net.zuckerfrei.jcfd.Database ;
 
 /**
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
  * 
- * @title Define
+ * @title Definer
  * 
  *	@author encontrado
  * 
@@ -25,17 +29,23 @@ public class Define extends Module {
 	private static Dict dict ;
 	
 	public int messageType() {
-		return WANT_ALL_MESSAGES;
+		return WANT_COMMAND_MESSAGES;
 	}
    public String[] getCommands() {
-		return new String[]{"define", "randef" };
+		return new String[]{"define", "randef", "dictionaries", "dictionary" };
    }
 	
-	public Define() {
+	public void Define() {
+		init() ;
+	}
+	
+	private void init() {
 		try {
-			dict = DictFactory.getInstance().getDictClient() ;
+			DictFactory df = DictFactory.getInstance() ;
+			dict = df.getDictClient() ;
 		} catch (DictException e) {
-			System.out.println("Dict Exeption:") ;
+			System.out.println("Dict Exception:") ;
+			e.printStackTrace() ;
 			System.exit(1) ;
 		}
 	}
@@ -47,19 +57,60 @@ public class Define extends Module {
 	public void processChannelMessage(Message m) {
 		//parse out args
 		if (m.modCommand.equals("define")) {
-			//blither blither
-			m.createReply("blather").send() ;
-		} else if (m.getWord(0).equals("randef")) {
+			define(m) ;
+		} else if (m.modCommand.equals("randef")) { 
+			randef(m) ;
+		} else if (m.modCommand.equals("dictionaries")) { 
+			dictionaries(m) ;
+		} else if (m.modCommand.equals("dictionary")) {
+			dictionary(m) ;
 		}
 	}
 
-	public static void main(String[] arg) {
-		new Define() ;
+	private void define(Message m) {
+		m.createReply("Not implmemented, please stand by").send() ; 
+	}
+	
+	private void randef(Message m) {
+		m.createReply("Not implmemented, please stand by").send() ; 
+	}
+	
+	private void dictionaries(Message m) {
 		DatabaseList dbList = dict.listDatabases() ;
 		Database db ;
+		String line = "" ;
 		while (dbList.hasNext()) {
 			db = dbList.next() ;
-			System.out.println(db.getCode() + " : " + db.getName() + " : " + db.toString()) ;
+			line = line + ", " + db.getCode() ;
 		}
+		line = line.trim() ;
+		m.createPagedReply(line).send() ;
+	}
+	
+	private void dictionary(Message m) {
+		m.createReply("Not implmemented, please stand by").send() ; 
+	}
+
+	public static void main(String[] arg) {
+		System.out.println("Starting main()") ;
+		
+		Define d = new Define() ;
+		d.Define() ; // Seems the constructor isn't actually called in a static context, or some such ballocks, so we need this.
+		System.out.println("initialized.") ;
+		if (null == dict) {
+			System.out.println("null dict, dying") ;
+			System.exit(1) ;
+		}
+
+		DatabaseList dbList ;
+		dbList = dict.listDatabases() ;
+		Database db ;
+		String line = "" ;
+		while (dbList.hasNext()) {
+			db = dbList.next() ;
+			line = line + " " + db.getCode() ;
+		}
+		line = line.trim() ;
+		System.out.println(line) ;
 	}
 }
