@@ -3,7 +3,9 @@ package goat.core;
 import goat.Goat;
 import goat.util.Pager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.StringTokenizer;
 
 /**
  * <P>This class encapsulates an IRC Message. An IRC message is one line of communication, either from the server to the
