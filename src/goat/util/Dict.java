@@ -144,15 +144,9 @@ public class Dict {
 		String word = wordparam.toLowerCase();
 		word.trim();
 		//OK lets use a bsearch
-		// TODO Make faster by cacheing data about file and using it to set an initial floor and ceiling. Investiagate, mibbie not worth it.
 		int guessPos = numWords / 2;
 		int ceiling = numWords, floor = 1, oldCeiling = 1, oldFloor = 2;
 		do {
-			// the next two lines are screwing us up when we try to look up
-			// a word that would come after the last word in the dict file.
-			//
-			// this should be reworked using the index-based functions
-			// 
 			String guessWord = getWord(guessPos);
 			guessWord = guessWord.toLowerCase();
 			if (guessWord == null)
@@ -195,11 +189,21 @@ public class Dict {
 		for (int i = 0; i < 100; i++)
 			System.out.print(dict.getRandomWord() + " ");
 		//now check bsearch
-		System.out.println("\n\nAll these values should be true:\n\n");
-		for (int i = 0; i < 100; i++) {
-			String word = dict.getRandomWord();
-			System.out.println(word + " :contains() returns: " + dict.contains(word));
-		}
+		//This next takes a while
+		// System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
+		//for (int i = 1; i <= dict.numWords; i++) {
+		//	String word = dict.getWord(i) ;
+		//	if ( ! dict.contains(word) ) {
+		//		System.out.println(word + " :contains() returns: " + dict.contains(word));
+		//	}
+		//}
+		
+		
+		System.out.println("\n\nTesting \"prank\":\n\n");
+		System.out.println("prank" + " :contains() returns: " + dict.contains("poopmastah"));
+		System.out.println("word number 70878: " + dict.getWord(70878)) ;
+		System.out.println("word number 70879: " + dict.getWord(70879)) ;
+		System.out.println("word number 70880: " + dict.getWord(70880)) ;
 		System.out.println("\n\nAnd these false:\n\n");
 		System.out.println("poopmastah" + " :contains() returns: " + dict.contains("poopmastah"));
 		System.out.println("assedsr" + " :contains() returns: " + dict.contains("assedsr"));
@@ -285,7 +289,11 @@ public class Dict {
 		return false;
 	}
 	
-	/** (re)Builds the word index.  Note raw word file should not exceed INT.MAX_VALUE bytes
+	/** (re)Builds the word index.  
+	 *
+	 * Note raw word file should not exceed INT.MAX_VALUE bytes.
+	 *   We use int instead of long throughout this class mainly
+	 *   to keep the size of the index file down.
 	 *
 	 * @return True if index is successfully built
 	 */
