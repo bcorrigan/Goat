@@ -127,8 +127,9 @@ public class ModuleCommands extends Module {
 		String modLine = "Loaded modules: " + mods[0];
 		for (int i = 1; i < mods.length; i++)
 			modLine += ", " + mods[i];
+		modLine = modLine.replaceAll("goat.module.", "") ;
 		modLine += ".";
-		m.createReply(modLine).send();
+		m.createPagedReply(modLine).send();
 	}
 
 
