@@ -1,0 +1,75 @@
+#!/usr/bin/perl
+# yes, perl.  doing this sort of crap in java is... lengthy
+
+# Script to get fun facts about our wordlist
+
+use strict ;
+
+main() ;
+exit ;
+
+sub main {
+	open(F, "resources/words") 
+		|| die "Couldn't open words file (this script expexct you to run it from goat's root dir... are you there?)" ;
+	my @words = <F> ;
+	close F ;
+	chomp @words ;
+	my %sigtowords ;
+	
+	for my $word (@words) {
+		my $sig = sig($word) ;
+		$sigtowords{$sig} = [] if (! exists $sigtowords{$sig}) ; 
+		push(@{$sigtowords{$sig}}, $word) ;
+	}
+	print "indexed " . int(@words) . " words to " 
+		. int(keys(%sigtowords)) . " signatures\n" ;
+	my $nonuniques = 0;
+	my $highestSigWordCount = 0 ;
+	my $highestSigWordCountSigs = [] ;
+	my %wordCountHistogram ;
+	my $highestSigLengthWithMultiples = 0;
+	my $highestSigLengthWithMultiplesSigs = [] ;
+	my %wordLengthWithMultiplesHistogram ;
+	for my $sig ( keys %sigtowords ) {
+		my $wordCount = int(@{$sigtowords{$sig}}) ;
+		$wordCountHistogram{$wordCount}++ ;
+		if ($wordCount > 1) {
+			$nonuniques++ ;
+			my $length = length($sig) ;
+			$wordLengthWithMultiplesHistogram{$length}++ ;
+			if ($wordCount >= $highestSigWordCount) {
+				$highestSigWordCount = $wordCount ;
+				push(@$highestSigWordCountSigs, $sig) ;
+			}
+			if ($length >= $highestSigLengthWithMultiples) {
+				$highestSigLengthWithMultiples = $length ;
+				push(@$highestSigLengthWithMultiplesSigs, $sig) ;
+			}
+		}
+	}
+	print "$nonuniques signatures were non-unique\n" ;
+	print "The greatest number of words mapping to a single sig was $highestSigWordCount\n" ;
+	print "\nDump of our max num matches accumulating array:\n" ;
+	for my $sig (@$highestSigWordCountSigs) {
+		print "$sig: " . join(" ", @{$sigtowords{$sig}}) . "\n";
+	}
+	print "\nWinning words histogram (number of winning words : unique letter combinations)\n" ;
+	for my $numwinners (sort {$a <=> $b} keys(%wordCountHistogram)) {
+		print "$numwinners\t: " . $wordCountHistogram{$numwinners} . "\n" ;
+	}
+	print "\nDump of our max word length with multiple solutions accumulating array:\n" ;
+	for my $sig (@$highestSigLengthWithMultiplesSigs) {
+		print "$sig: " . join(" ", @{$sigtowords{$sig}}) . "\n";
+	}
+	print "\nWord length histogram (word length : unique letter combinations with multiple solutions)\n" ;
+	for my $length (sort {$a <=> $b} keys(%wordLengthWithMultiplesHistogram)) {
+		print "$length\t: " . $wordLengthWithMultiplesHistogram{$length} . "\n" ;
+	}
+}
+
+sub sig {
+	my $word = shift ;
+	$word = lc($word) ;
+	$word = join("", sort(split /\B/, $word)) ;
+	return $word ;
+}
