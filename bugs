@@ -10,3 +10,10 @@ Inbuffer: prefix: pb!~pb@cloaked.nc.rr.com params: #jism trailing:"Even as far b
 
 ***************
 Problem parsing arguments at the start! Doesn't parse -host properly. Always conencts to the default nomatter what yous[ecify
+
+Exception in thread "main" java.lang.NullPointerException
+        at goat.module.WordGame.wordIsValid(WordGame.java:153)
+        at goat.module.WordGame.checkMessageIn(WordGame.java:124)
+        at goat.module.WordGame.processChannelMessage(WordGame.java:71)
+        at goat.core.MessageDispatcher.sendMessage(MessageDispatcher.java:123)
+        at goat.core.MessageDispatcher.sendIfChannelsMatch(MessageDispatcher.java:111)

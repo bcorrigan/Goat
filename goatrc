@@ -18,5 +18,6 @@ insmod Horoscope all
 insmod Remind all
 insmod CurrencyConverter all
 insmod Sexy all
+#insmod Quiz all
 join #jism
 join #wordgame

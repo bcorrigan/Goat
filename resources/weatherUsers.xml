@@ -4,7 +4,7 @@
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>EGPK</string> 
+     <string>EGPN</string> 
     </void> 
     <void property="name"> 
      <string>bc</string> 
@@ -298,6 +298,16 @@
     </void> 
     <void property="name"> 
      <string>meteor</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KLGA</string> 
+    </void> 
+    <void property="name"> 
+     <string>laststand</string> 
     </void> 
    </object> 
   </void> 
