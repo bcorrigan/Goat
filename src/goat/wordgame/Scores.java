@@ -10,10 +10,10 @@ import java.util.Comparator;
 
 public class Scores implements Comparator {
 
-	private final static int NAME = 0;              //Various final statics
-	private final static int TOTAL_SCORE = 1;
-	private final static int HIGHEST_SCORE = 2;
-    private final static String[] SPACES = new String[20]; //for formatting purposes when printing table
+	private static final int NAME = 0;              //Various final statics
+	private static final int TOTAL_SCORE = 1;
+	private static final int HIGHEST_SCORE = 2;
+    private static final String[] SPACES = new String[20]; //for formatting purposes when printing table
 
 	private boolean warninggiven;
 	private Message target = new Message(" ");		//just the target channel for any given game
