@@ -99,7 +99,7 @@ public class RandWords extends Module {
 
 	public ArrayList getWords(int num) {
 		// return num random words as an ArrayList
-		ArrayList wordList = new ArrayList() ;
+		ArrayList wordList = new ArrayList(num) ;
 		for (int i=0; i < num; i++) {
 			wordList.add(dict.getWord(this.random.nextInt(dict.numWords))) ;
 		}
