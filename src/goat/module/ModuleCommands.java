@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 /**
  * @version <p>Date: 18-Dec-2003</p>
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
  */
 public class ModuleCommands extends Module {
 
@@ -39,9 +39,9 @@ public class ModuleCommands extends Module {
 		ArrayList chans = new ArrayList();
 		String moduleName;
 		if (args.length == 0) {
-			sendMessage(m.createReply("You must specify some arguments.\n " +
+			m.createReply("You must specify some arguments.\n " +
 										"Format: " + m.modCommand + " <moduleName> <channel1> <channel2> .. [ALL].\n " +
-										"ALL means the module will be active for all channels."));
+										"ALL means the module will be active for all channels.").send();
 			return;
 		}
 		moduleName = args[0];
@@ -49,7 +49,7 @@ public class ModuleCommands extends Module {
 			if (args[i].startsWith("#") & args[i].length() > 1 || args[i].toLowerCase().equals("all"))
 				chans.add(args[i]);
 			else {
-				sendMessage(m.createReply("You have not specified proper channels in the arguments."));
+				m.createReply("You have not specified proper channels in the arguments.").send();
 				return;
 			}
 		}
@@ -64,9 +64,9 @@ public class ModuleCommands extends Module {
 		Module mod = modControl.get(moduleName);
 		if(mod!=null) {
 			setChans(chans, mod);
-			sendMessage(m.createReply("Modified registered channels of " + mod.getClass().getName()));
+			m.createReply("Modified registered channels of " + mod.getClass().getName()).send();
 		} else {
-			sendMessage(m.createReply("Could not modify registered channels of '" + moduleName + "'. That module does not exist or is not loaded."));
+			m.createReply("Could not modify registered channels of '" + moduleName + "'. That module does not exist or is not loaded.").send();
 		}
 	}
 
@@ -95,27 +95,27 @@ public class ModuleCommands extends Module {
 			Module mod = modControl.load(moduleName);
 			if(mod!=null) {
 				setChans(chans, mod);
-				sendMessage(m.createReply("Module '" + mod.getClass().getName() + "' successfully loaded."));
+				m.createReply("Module '" + mod.getClass().getName() + "' successfully loaded.").send();
 			} else
-				sendMessage(m.createReply("Module '" + moduleName + "' is already loaded!"));
+				m.createReply("Module '" + moduleName + "' is already loaded!").send();
 		} catch (IllegalAccessException e) {
-			sendMessage(m.createReply("IllegalAccessException: Module " + moduleName + " could not be loaded."));
+			m.createReply("IllegalAccessException: Module " + moduleName + " could not be loaded.").send();
 		} catch (InstantiationException e) {
-			sendMessage(m.createReply("InstantiationException: Module " + moduleName + " could not be instantiated."));
+			m.createReply("InstantiationException: Module " + moduleName + " could not be instantiated.").send();
 		} catch (ClassNotFoundException e) {
-			sendMessage(m.createReply("ClassNotFoundException: Module " + moduleName + " could not be found."));
+			m.createReply("ClassNotFoundException: Module " + moduleName + " could not be found.").send();
 		} catch (ClassCastException e) {
-			sendMessage(m.createReply("ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + "."));
+			m.createReply("ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + ".").send();
 		} catch (NoClassDefFoundError e) {
-			sendMessage(m.createReply("NoClassDefFoundError: Module " + moduleName + " not found."));
+			m.createReply("NoClassDefFoundError: Module " + moduleName + " not found.").send();
 		}
 	}
 
 	private void rmmod(Message m) {
 		if (modControl.unload(m.modTrailing.trim()))
-			sendMessage(m.createReply("Successfully removed module '" + m.modTrailing.trim() + "'!"));
+			m.createReply("Successfully removed module '" + m.modTrailing.trim() + "'!").send();
 		else
-			sendMessage(m.createReply("Module not found: '" + m.modTrailing.trim() + "'"));
+			m.createReply("Module not found: '" + m.modTrailing.trim() + "'").send();
 	}
 
 	private void lsmod(Message m) {
@@ -124,7 +124,7 @@ public class ModuleCommands extends Module {
 		for (int i = 1; i < mods.length; i++)
 			modLine += ", " + mods[i];
 		modLine += ".";
-		sendMessage(m.createReply(modLine));
+		m.createReply(modLine).send();
 	}
 
 

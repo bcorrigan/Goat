@@ -26,7 +26,7 @@ public class GoatSay extends Module {
 
 	public void processChannelMessage(Message m) {
 		if (m.trailing.toLowerCase().matches("^\\s*goat\\W*")) {
-			sendMessage(m.createReply("Goat!"));
+			m.createReply("Goat!").send();
 		}
 
 		if (m.trailing.toLowerCase().matches("^\\s*moo*\\W*")) {
@@ -44,7 +44,7 @@ public class GoatSay extends Module {
 		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
 			memRounded = (int) mem;
-			sendMessage(m.createReply(mem + "kb"));
+			m.createReply(mem + "kb").send();
 		}
 
 		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+uptime\\W*")) {
@@ -55,18 +55,18 @@ public class GoatSay extends Module {
 			int minutes = (int) ((seconds - (days * 86400) - (hours * 3600)) / 60);
 			seconds = (int) (seconds - (days * 86400) - (hours * 3600) - (minutes * 60));
 			if (days != 0) {
-				sendMessage(m.createReply(days + "d " + hours + "h " + minutes + "m " + seconds + "s."));
+				m.createReply(days + "d " + hours + "h " + minutes + "m " + seconds + "s.").send();
 				return;
 			}
 			if (hours != 0) {
-				sendMessage(m.createReply(hours + "h " + minutes + "m " + seconds + "s."));
+				m.createReply(hours + "h " + minutes + "m " + seconds + "s.").send();
 				return;
 			}
 			if (minutes != 0) {
-				sendMessage(m.createReply(minutes + "m " + seconds + "s."));
+				m.createReply(minutes + "m " + seconds + "s.").send();
 				return;
 			}
-			sendMessage(m.createReply(seconds + "s."));
+			m.createReply(seconds + "s.").send();
 		}
 	}
 
@@ -75,22 +75,22 @@ public class GoatSay extends Module {
 
 		switch (i) {
 			case 0:
-				sendMessage(m.createReply("Moooooo!"));
+				m.createReply("Moooooo!").send();
 				break;
 			case 1:
-				sendMessage(m.createReply("moooo"));
+				m.createReply("moooo").send();
 				break;
 			case 2:
-				sendMessage(m.createReply("MOOO"));
+				m.createReply("MOOO").send();
 				break;
 			case 3:
-				sendMessage(m.createReply("mooOOOoOo"));
+				m.createReply("mooOOOoOo").send();
 				break;
 			case 4:
-				sendMessage(m.createReply("moo"));
+				m.createReply("moo").send();
 				break;
 			case 5:
-				sendMessage(m.createReply("moo :)"));
+				m.createReply("moo :)").send();
 		}
 	}
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 
 /**
  * @version <p>Date: 22-Dec-2003</p>
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
  */
 public class CTCP extends Module {
 
@@ -25,7 +25,7 @@ public class CTCP extends Module {
 	public void processOtherMessage(Message m) {
 		int i, j;
 		if (m.command.equals("PING")) {
-			sendMessage(new Message("", "PONG", "", m.trailing));
+			new Message("", "PONG", "", m.trailing).send();
 			return;
 		}
 		//dig out the sender
@@ -39,25 +39,25 @@ public class CTCP extends Module {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP && m.CTCPCommand.equals("VERSION")) {
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + "Goatbot" + ":" + BotStats.version + ":(" + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ";" + System.getProperty("os.arch") + ")" + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + "Goatbot" + ":" + BotStats.version + ":(" + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ";" + System.getProperty("os.arch") + ")" + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("PING")) {
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "PING " + m.CTCPMessage + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "PING " + m.CTCPMessage + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("TIME")) {
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "TIME :" + (new Date()).toString() + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "TIME :" + (new Date()).toString() + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("CLIENTINFO")) {
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "CLIENTINFO ACTION VERSION PING TIME CLIENTINFO SOURCE" + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "CLIENTINFO ACTION VERSION PING TIME CLIENTINFO SOURCE" + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("SOURCE")) {
-				sendMessage(Message.createCTCP("NOTICE", name, "SOURCE", "You're not getting my source, hippy."));
+				Message.createCTCP("NOTICE", name, "SOURCE", "You're not getting my source, hippy.").send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("USERINFO")) {
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "USERINFO I am goat. All things goat." + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "USERINFO I am goat. All things goat." + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("ERRMSG")) {
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "ERRMSG " + m.CTCPMessage + " :No error" + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "ERRMSG " + m.CTCPMessage + " :No error" + (char) 0x01).send();
 			} else if (m.isCTCP && !m.CTCPCommand.equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
 			{
-				sendMessage(new Message("", "NOTICE", name, (char) 0x01 + "ERRMSG " + m.CTCPCommand + " :Unsupported CTCP command" + (char) 0x01));
+				new Message("", "NOTICE", name, (char) 0x01 + "ERRMSG " + m.CTCPCommand + " :Unsupported CTCP command" + (char) 0x01).send();
 			}
 		} else if (m.command.equals("KICK")) {
-			sendMessage(new Message("", "JOIN", m.channame, ""));
+			new Message("", "JOIN", m.channame, "").send();
 		}
 		  else if (m.command.equals("NICK")) {
 			if (m.sender.equals(BotStats.botname)) {
@@ -72,24 +72,24 @@ public class CTCP extends Module {
 			{
 				i = m.params.indexOf(' ');
 				if (i > -1) {
-					sendMessage(new Message("", "PRIVMSG", m.params.substring(i + 1), "Goat!"));
+					new Message("", "PRIVMSG", m.params.substring(i + 1), "Goat!").send();
 				}
 			} else if (intcommand == 433) {
 				namecount++;
 				BotStats.botname = botdefaultname + namecount;
-				sendMessage(new Message("", "NICK", BotStats.botname, ""));
-				sendMessage(new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version));
+				new Message("", "NICK", BotStats.botname, "").send();
+				new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version).send();
 			} else if (intcommand == 432) {
 				BotStats.botname = "Plum";
-				sendMessage(new Message("", "NICK", BotStats.botname, ""));
-				sendMessage(new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version));
+				new Message("", "NICK", BotStats.botname, "").send();
+				new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version).send();
 			} else if (intcommand == 376)     //End of /MOTD command.
 			{
 				namecount = 1;
-				sendMessage(new Message("", "JOIN", m.channame, ""));
+				new Message("", "JOIN", m.channame, "").send();
 			} else if (intcommand == 303) {
 				if (!m.trailing.equals(botdefaultname)) {
-					sendMessage(new Message("", "NICK", botdefaultname, ""));
+					new Message("", "NICK", botdefaultname, "").send();
 				}
 			}
 		} catch (NumberFormatException e) {

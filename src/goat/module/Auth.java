@@ -10,7 +10,7 @@ import java.io.*;
 
 /**
  * <p>Date: 18-Dec-2003</p>
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
  */
 public class Auth extends Module {
 
@@ -23,11 +23,11 @@ public class Auth extends Module {
     public void processPrivateMessage(Message m) {
         if (checkPassword(m.modTrailing.trim().toLowerCase())) {
             BotStats.owner = m.prefix;
-            sendMessage(m.createReply("Authorisation successful."));
-            sendMessage(m.createReply("You (" + m.prefix + ") are now my registered owner."));	//TODO: This still needs to watch the user to determine if they drop.
-            sendMessage(new Message("", "MODE", m.channame + " +o " + BotStats.owner, ""));
+            m.createReply("Authorisation successful.").send();
+            m.createReply("You (" + m.prefix + ") are now my registered owner.").send();	//TODO: This still needs to watch the user to determine if they drop.
+            new Message("", "MODE", m.channame + " +o " + BotStats.owner, "").send();
         } else
-            sendMessage(m.createReply("Invalid login."));
+            m.createReply("Invalid login.").send();
     }
 
     public void processChannelMessage(Message m) {
@@ -79,14 +79,14 @@ public class Auth extends Module {
             d = MessageDigest.getInstance("MD5");
             d.update(newpassword.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            sendMessage(new Message("", "NOTICE", ownername, "Could not open Message Digest algorithm."));
+            new Message("", "NOTICE", ownername, "Could not open Message Digest algorithm.").send();
             return;
         }
         byte[] digest = d.digest();
         try {
             w = new PrintWriter(new FileWriter("password.txt"));
         } catch (IOException e) {
-            sendMessage(new Message("", "NOTICE", ownername, "Couldn't open file."));
+            new Message("", "NOTICE", ownername, "Couldn't open file.").send();
             return;
         }
         byte current, hibits, lobits;
@@ -102,7 +102,7 @@ public class Auth extends Module {
         w.println(out);
         w.close();
 
-        sendMessage(new Message("", "NOTICE", ownername, "Authentication tokens updated successfully."));
+        new Message("", "NOTICE", ownername, "Authentication tokens updated successfully.").send();
         passwordhash = out;
     }
 }

@@ -22,6 +22,7 @@ public class Confessions extends Module {
 		getConfessions();
 	}
 
+	//@TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using SAX or something
 	private void getConfessions() {
 		String confession = "";
 		try {
@@ -63,7 +64,7 @@ public class Confessions extends Module {
 
 	public void processPrivateMessage(Message m) {
 		if (m.trailing.toLowerCase().matches("^\\s*confess\\W*"))
-			sendMessage(m.createReply(confessions.pop().toString()));
+			m.createReply(confessions.pop().toString()).send();
 
 		if (confessions.empty())
 			getConfessions();
@@ -71,7 +72,7 @@ public class Confessions extends Module {
 
 	public void processChannelMessage(Message m) {
 		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+confess\\W*")) {
-			sendMessage(m.createReply(confessions.pop().toString()));
+			m.createReply(confessions.pop().toString()).send();
 		}
 
 		if (confessions.empty())

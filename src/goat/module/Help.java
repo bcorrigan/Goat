@@ -50,7 +50,7 @@ public class Help extends Module {
 		try {
 			in = new BufferedReader(new FileReader("docs" + File.separatorChar + fname));
 		} catch (FileNotFoundException e) {
-			sendMessage(new Message("", "NOTICE", towho, "No such help file."));
+			new Message("", "NOTICE", towho, "No such help file.").send();
 			return;
 		}
 
@@ -76,9 +76,9 @@ public class Help extends Module {
 
 			if (buf.length() > 0) {
 				if (buf.charAt(0) != '@')
-					sendMessage(new Message("", "NOTICE", towho, buf.toString()));
+					new Message("", "NOTICE", towho, buf.toString()).send();
 				else if (isowner)
-					sendMessage(new Message("", "NOTICE", towho, buf.toString().substring(1)));
+					new Message("", "NOTICE", towho, buf.toString().substring(1)).send();
 			}
 		}
 

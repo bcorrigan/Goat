@@ -41,7 +41,7 @@ public class Hal extends Module {
 
 	public void processPrivateMessage(Message m) {
 	}
-
+    //@TODO Some ugly stuff here from when Goat couldn't tell if a message was used by another module..
 	public void processChannelMessage(Message m) {
 		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+confess\\W*"))
 			return;
@@ -49,17 +49,17 @@ public class Hal extends Module {
 			return;
 		}
 		if (m.trailing.toLowerCase().matches("^\\s*goat\\W*.*")) {
-			sendMessage(m.createReply(hal.getSentence(m.trailing.toLowerCase())));
+			m.createReply(hal.getSentence(m.trailing.toLowerCase())).send();
 			hal.add(m.trailing.toLowerCase());
 		}
 		if (m.trailing.toLowerCase().matches("^\\s*rant\\W*"))
 			rant = !rant;
 		if (rant) {
-			sendMessage(m.createReply(hal.getSentence(m.trailing.toLowerCase())));
+			m.createReply(hal.getSentence(m.trailing.toLowerCase())).send();
 			hal.add(m.trailing.toLowerCase());
 		} else {
 			if(time<=0) {
-				sendMessage(m.createReply(hal.getSentence(m.modTrailing)));
+				m.createReply(hal.getSentence(m.modTrailing)).send();
 				hal.add(m.modTrailing);
 				time = (int) (Math.random() * 40 + 10);
 			} else
