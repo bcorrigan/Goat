@@ -85,22 +85,22 @@ public class WordGame extends Module implements Runnable {
 
 	private void finaliseGame(Message m) {
 		String reply;
-		boolean shortest = false;
+		lastAnswers.put(m.channame, answer) ;
 		if (currentWinning != null) {
 			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + score + " points!";
 			if (currentWinning[ANSWER].length() == longestPossible) {
 				reply += " This was the longest possible.";
-				shortest = true;
-			}
-		} else
+				lastAnswers.put(m.channame, currentWinning[ANSWER]) ;
+			} else
+				reply += "  The longest possible word was \"" + answer + "\".";
+		} else {
 			reply = "Nobody guessed a correct answer :(";
-		if (!shortest)
-			reply += " A longest possible word was \"" + getLongest(validWords) + "\".";
+			reply += "  A longest possible word was \"" + answer + "\".";
+		}
 		m.createReply(reply).send();
 		if (currentWinning != null) {
 			scores.commit(currentWinning, score);   //commit new score to league table etc
 		}
-		lastAnswers.put(m.channame, answer);
 		playing = false;
 		validWords = null;
 		currentWinning = null;
@@ -225,7 +225,7 @@ public class WordGame extends Module implements Runnable {
 	 * @param chan The channel for which caller wants last answer.
 	 * @return Answer to the last game played in that channel, if any, or null.
 	 */
-	public static String getLastAnswer(String chan) {
+	public String getLastAnswer(String chan) {
 		if (lastAnswers.containsKey(chan))
 			return (String) lastAnswers.get(chan);
 		return null;

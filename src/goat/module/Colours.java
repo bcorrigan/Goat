@@ -2,6 +2,7 @@ package goat.module;
 
 import goat.core.Module;
 import goat.core.Message;
+import java.util.Random ;
 
 /**
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
@@ -13,15 +14,25 @@ import goat.core.Message;
 
 public class Colours extends Module {
 
+	private String[] colourStrings ;
+	private Random rand = new Random() ;
 	
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
    public String[] getCommands() {
-		return new String[]{"colour", "colours", "colourguide" };
+		return new String[]{"colour", "colours", "colourguide", "colourise" };
    }
 	
 	public Colours() {
+		//set up colour-by-numbers
+		colourStrings = new String[16] ;
+		for (int i=0; i<16; i++) {
+			colourStrings[i] = "\u0003";
+			if (i < 10) 
+				colourStrings[i] += "0" ;
+			colourStrings[i] += i ;
+		}
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -30,15 +41,15 @@ public class Colours extends Module {
 
 	public void processChannelMessage(Message m) {
 		String c = m.modCommand ;
+		String msg = "" ;
 		if (c.equals("colours") || c.equals("colourguide")) {
-			String line = "\u0003000 \u0003011 \u0003022 \u0003033 " +
-			              "\u0003044 \u0003055 \u0003066 \u0003077 " +
-							  "\u0003088 \u0003099 \u00031010 \u00031111 " +
-							  "\u00031212 \u00031313 \u00031414 \u00031515" ;
-			m.createReply(line).send() ;
+			msg = "" ;
+			for (int i=0; i<16; i++) {
+				msg += colourStrings[i] + i + " ";
+			}
 		} else if(c.equals("colour")) {
 			String t = m.modTrailing.trim() ;
-			String msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark grey, and light grey." ;
+			msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark grey, and light grey." ;
 			if (t.equalsIgnoreCase("white")) 
 				msg = m.WHITE + "white: " + m.WHITE.substring(1) ;
 			else if (t.equalsIgnoreCase("black"))
@@ -76,24 +87,47 @@ public class Colours extends Module {
 			else if (t.equalsIgnoreCase("adequacy"))
 				msg = m.LIGHT_GRAY + "adequacy: " + m.LIGHT_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("homosexuality"))
-				msg = m.RED + "H" +
-					   m.YELLOW + "O" +
-						m.DARK_GREEN + "M" +
-						m.BLUE + "O" +
-						m.PURPLE + "S" +
-						m.RED + "E" +
-					   m.YELLOW + "X" +
-						m.DARK_GREEN + "U" +
-						m.BLUE + "A" +
-						m.PURPLE + "L" +
-						m.RED + "I" +
-					   m.YELLOW + "T" +
-						m.DARK_GREEN + "Y" +
-						m.BLUE + "!" +
-						m.PURPLE + "!" +
-						m.RED + "!" ;
-			m.createReply(msg).send() ;
+				msg = homosexualise("HOMOSEXUALITY") ;
+			else if (t.equalsIgnoreCase("camouflage"))
+				msg = camouflage("Camouflage") ;
+		} else if (c.equals("colourise")) {
+			String text = m.modTrailing ;
+			m.removeFormattingAndColors() ;
+			text = m.modTrailing.trim() ;
+			int numColours = colourStrings.length ;
+			int colourNum = text.hashCode() ;
+			if (colourNum < 0) 
+				colourNum = -colourNum ;
+			colourNum = colourNum % (numColours + 3) ;
+			System.out.println("selecting colour for \"" + text + "\", hash=" + text.hashCode() + ", colorNum=" + text.hashCode() % (numColours + 3) );
+			if (colourNum < numColours )
+				msg = colourStrings[colourNum] + text ;
+			else if (numColours + 0 == colourNum)
+				msg = homosexualise(text) ;
+			else if (numColours + 1 == colourNum)
+				msg = camouflage(text) ;
+			else if (numColours + 2 == colourNum) 
+				msg = Message.RED + text.toUpperCase() + "!!!" ;
+			else
+				msg = "I think something has gone wrong in my innards" ;
 		}
+		m.createReply(msg).send() ;
+	}
+	
+	private String homosexualise(String arg) {
+		String[] rainbow = { Message.RED, Message.YELLOW, Message.DARK_GREEN, Message.BLUE, Message.PURPLE } ;
+		String out = "" ;
+		for (int i=0; i<arg.length(); i++) 
+			out += rainbow[i % rainbow.length] + arg.charAt(i) ;
+		return out ;
+	}
+
+	private String camouflage(String arg) {
+		String[] camo = { Message.DARK_GRAY, Message.DARK_GREEN, Message.DARK_GREEN, Message.OLIVE, Message.OLIVE, Message.OLIVE, Message.WHITE, Message.BLACK } ;
+		String out = "" ;
+		for (int i=0; i<arg.length(); i++) 
+			out += camo[rand.nextInt(camo.length)] + arg.charAt(i) ;
+		return out ;
 	}
 
 	public static void main(String[] arg) {

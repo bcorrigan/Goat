@@ -13,9 +13,9 @@ import java.util.Iterator;
 public class Dict {
 
 	private RandomAccessFile rafDict;
-	private static final File DICTFILE = new File("../resources/words");
+	private static final File DICTFILE = new File("resources/words");
 	private RandomAccessFile rafIndex;
-	private static final File INDEXFILE = new File("../resources/words.index");
+	private static final File INDEXFILE = new File("resources/words.index");
 	public int numWords;
                                              
 
@@ -285,15 +285,15 @@ public class Dict {
 		return null;
 	}
 	
-	/*
-	  Main method here for debugging
+	
+	//  Main method here for debugging
 
 	public static void main(String[] args) {
 		Dict dict = new Dict();
-		/*System.out.println("Some random words, hopefully:\n\n");
+		System.out.println("Some random words, hopefully:\n\n");
 		for (int i = 0; i < 100; i++)
 			System.out.print(dict.getRandomWord() + ' ');
-		/*now check bsearch
+		/* now check bsearch
 		//This next takes a while
 		System.out.println("\n\nTesting contains() on all words in index, be patient:\n\n");
 		for (int i = 1; i <= dict.numWords; i++) {
@@ -301,7 +301,7 @@ public class Dict {
 			if ( ! dict.contains(word) ) {
 				System.out.println(word + " :contains() returns: " + dict.contains(word));
 			}
-		}
+		}*/
 		System.out.println("\n\nAnd these false:\n\n");
 		System.out.println("poopmastah" + " :contains() returns: " + dict.contains("poopmastah"));
 		System.out.println("assedsr" + " :contains() returns: " + dict.contains("assedsr"));
@@ -320,9 +320,13 @@ public class Dict {
 		System.out.println(dict.getWord(dict.numWords + 1));
 		System.out.println("this should get another error, requesting word #0 (i.e., before #1) :");
 		System.out.println(dict.getWord(0));
-
-		System.out.println("\nDone."); 
-		System.out.println("Doing a quick benchmark of checkWord2, and getMatchingWords.");
+		System.out.println("\n\nSmall index file check:\n\n");
+		System.out.println("Finding matches for \"rubellas\"") ;
+		ArrayList matches = dict.getMatchingWords("rubellas") ;
+		System.out.println(matches.size() + " matches found:") ;
+		System.out.println(matches) ;
+		
+		System.out.println("\nDoing a quick benchmark of checkWord2, and getMatchingWords.");
 		long time1 = System.currentTimeMillis();
 		for(int i=0;i<20;i++) {
 			dict.getMatchingWords("electroencephalographies");
@@ -339,6 +343,34 @@ public class Dict {
 		System.out.println("Benched: " + (System.currentTimeMillis() - time1)/1000.0/6000.0 + " seconds per checkWord2()");
 		System.out.println("OldCheckwords: " + dict.getMatchingWords("electroencephalographies").size());
 		System.out.println("OldCheckwords: " + dict.getMatchingWords("absolutes").size());
-	} */
+		
+		//This next takes long, long while
+		System.out.println("\n\nBig index file check:\n\n");
+		System.out.println("\n\nTesting getMatchingWords() on all words in index, be patient:\n\n");
+		int maxMatches = 0 ;
+		String maxMatchWords = "" ;
+		int progressIndicator = 1 ;
+		ArrayList wordMatches = new ArrayList() ;
+		for (int i = 1; i <= dict.numWords; i++) {
+			String word = dict.getWord(i) ;
+			wordMatches = dict.getMatchingWords(word) ;
+			if (0 == matches.size())
+				System.out.println(word + ": no matches found!") ;
+			if (wordMatches.size() > maxMatches) {
+				maxMatches = wordMatches.size() ;
+				maxMatchWords =  maxMatchWords + " " + word + ":" + wordMatches.size();
+			}
+			if (progressIndicator >= 1000) {
+				System.out.print(i + "...") ;
+				progressIndicator = 1 ;
+			} else {
+				progressIndicator++ ;
+			}
+		}
+		System.out.println("Max number of matches: " + maxMatches) ;
+		System.out.println("Some words, with number of matches: " + maxMatchWords) ;
+
+		System.out.println("\nDone."); 
+	} 
 
 }

@@ -24,7 +24,7 @@ import java.util.Vector;
  */
 public class Define extends Module {
 	
-	private static String host = "edslocomb.com" ;
+	private static String host = "dict.org" ;
 	
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;

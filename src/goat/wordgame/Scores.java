@@ -184,6 +184,7 @@ public class Scores implements Comparator {
 
 	private void commitTopScores(String[] matchWinner) {
 		boolean match = false;
+		boolean no_contest = false;
 		target.createReply(Message.BOLD + matchWinner[NAME].toUpperCase() + Message.BOLD
 				+ Message.YELLOW + " has " + Message.RED + Message.UNDERLINE
 				+ "WON THE MATCH!!!").send();
@@ -193,44 +194,54 @@ public class Scores implements Comparator {
 			entry2 = (String[]) scores.get(1);
 			int difference = Integer.parseInt(entry1[1]) - Integer.parseInt(entry2[1]);
 			target.createReply(matchWinner[NAME] + " won by a clear " + difference + " points.").send();
+			if (difference > 150) {
+				target.createReply("The scorekeeper has declared this match a " + Message.UNDERLINE + "no contest" + Message.UNDERLINE + ", by reason of overwhelming margin of victory.").send() ;
+				no_contest = true ;
+			}
+		} else {
+			target.createReply("The scorekeeper has declared this match a " + Message.UNDERLINE + "no contest" + Message.UNDERLINE + ", by reason of \"no one else was playing.\"").send() ;
+			no_contest = true ;
 		}
-		if (matchScores.size() != 0) {
-			for (int i = 0; i < matchScores.size(); i++) {
-				String[] entry; //name, total score, highest score
-				entry = (String[]) matchScores.get(i);
-				if (entry[NAME].equals(matchWinner[NAME])) {
-					int tscore = Integer.parseInt(entry[TOTAL_SCORE]);
-					tscore += 1;
-					entry[TOTAL_SCORE] = Integer.toString(tscore);
-					matchScores.set(i, entry);
-					match = true;
+		
+		if (!no_contest) {
+			if (matchScores.size() != 0) {
+				for (int i = 0; i < matchScores.size(); i++) {
+					String[] entry; //name, total score, highest score
+					entry = (String[]) matchScores.get(i);
+					if (entry[NAME].equals(matchWinner[NAME])) {
+						int tscore = Integer.parseInt(entry[TOTAL_SCORE]);
+						tscore += 1;
+						entry[TOTAL_SCORE] = Integer.toString(tscore);
+						matchScores.set(i, entry);
+						match = true;
+					}
 				}
 			}
-		}
 
-		if (!match) {
-			String[] entry = new String[3];
-			entry[NAME] = matchWinner[NAME];
-			entry[TOTAL_SCORE] = "1";
-			matchScores.add(entry);
-		}
+			if (!match) {
+				String[] entry = new String[3];
+				entry[NAME] = matchWinner[NAME];
+				entry[TOTAL_SCORE] = "1";
+				matchScores.add(entry);
+			}
 
-		//reorder the list
-		Collections.sort(matchScores, this);
-
-		//now write the list out to a file
-		try {
-			FileOutputStream out = new FileOutputStream("resources/wordgameMatchScores");
-			ObjectOutputStream s = new ObjectOutputStream(out);
-			s.writeObject(matchScores);
-			s.flush();
-			s.close();
-			out.flush();
-			out.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			//reorder the list
+			Collections.sort(matchScores, this);
+	
+			//now write the list out to a file
+			try {
+				FileOutputStream out = new FileOutputStream("resources/wordgameMatchScores");
+				ObjectOutputStream s = new ObjectOutputStream(out);
+				s.writeObject(matchScores);
+				s.flush();
+				s.close();
+				out.flush();
+				out.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		scores = new ArrayList();

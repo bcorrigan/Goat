@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Module;
 import goat.core.Message;
 import goat.util.Dict ;
+import goat.util.Parser ;
 
 import java.util.ArrayList ;
 import java.util.Iterator ;
@@ -40,7 +41,11 @@ public class RandWords extends Module {
 		int num = 1 ;
 		if (m.modCommand.equals("randword") 
 				|| m.modCommand.equals("randwords")) {
-			if (m.modTrailing.trim().matches("^\\d+$")) {
+			Parser parser = new Parser(m) ;
+			if (parser.has("num")) 
+				num = parser.get("num") ;
+			else if (parser.remaining().matches("^\\d+$")) {
+				parser.setRemaining(parser.remaining().replace("^\\d+$", "")) ;
 				try {
 					num = Integer.parseInt(m.modTrailing.trim()) ;
 				} catch (NumberFormatException e) {
@@ -60,6 +65,7 @@ public class RandWords extends Module {
 					num = 30 ;
 				}
 			}
+			
 			m.createReply(randWordString(num)).send() ;
 		} else if (m.modCommand.equals("bandname")) {
 			String arg = m.modTrailing.trim() ;
