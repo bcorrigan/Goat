@@ -112,6 +112,10 @@ public class ModuleCommands extends Module {
 	}
 
 	private void rmmod(Message m) {
+		if (m.modTrailing.trim().equalsIgnoreCase("ModCommands")) {
+			m.createReply("ModuleCommands says:  I won't remove myself!").send() ;
+			return ;
+		}
 		if (modControl.unload(m.modTrailing.trim()))
 			m.createReply("Successfully removed module '" + m.modTrailing.trim() + "'!").send();
 		else
