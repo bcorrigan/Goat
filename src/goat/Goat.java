@@ -91,6 +91,7 @@ public class Goat {
 		try {
 			modController.load("CTCP");
 			modController.load("ModuleCommands");
+            modController.load("NickServ");
 			ModuleCommands moduleCommands = (ModuleCommands) modController.get(1);
 			moduleCommands.modControl = modController;
 			moduleCommands.inAllChannels = true;

@@ -24,14 +24,19 @@ public class NickServ extends Module {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+        new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
 	}
 	public void processPrivateMessage(Message m) {
+        processChannelMessage(m);
+	}
+
+    public void processOtherMessage(Message m) {
+        processChannelMessage(m);
 	}
 
 	public void processChannelMessage(Message m) {  //TODO really need notice functionality in this thing
 		if(m.sender.equals("NickServ")) 
 			if(m.prefix.equals("NickServ!services@services.slashnet.org"))
-				if(m.trailing.startsWith("This nickname is registered and protected."))
 					new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
 	}
 
