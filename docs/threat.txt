@@ -1,0 +1,1 @@
+#threat# - Displays the latest threat level as ascertained by the Department of Homeland Security. Possible results vary from green (everything fine), through brown, yellow, orange, and red (severe, imminent danger). If there is any change in the terror level, all channels are notified. Such changes are infrequent.
