@@ -121,7 +121,7 @@ public class WordGame extends Module implements Runnable {
 		ArrayList correctWords = new ArrayList();
 		for (int i = 0; i < words.length; i++) {
 			if (dict.contains(words[i].toLowerCase())) {
-				if (validWords.contains(words[i].toLowerCase())) {
+				if (wordIsValid(words[i])) {
 					correctWords.add(words[i].toLowerCase());
 					if (currentWinning != null) {
 						if (currentWinning[ANSWER].length() < words[i].length()) {
@@ -147,6 +147,16 @@ public class WordGame extends Module implements Runnable {
 				}
 			}
 		}
+	}
+
+	private boolean wordIsValid(String word) {
+		Iterator it = validWords.iterator();
+		while (it.hasNext()) {
+			String word2 = (String) it.next();
+			if (word2.toLowerCase().equals(word.toLowerCase()))
+				return true;
+		}
+		return false;
 	}
 
 	private void score() {
