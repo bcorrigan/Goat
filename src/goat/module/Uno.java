@@ -393,7 +393,6 @@ public class Uno extends Module implements Output, Runnable {
 	}
 
 	public void showTopDiscardCard(Player player, Card card) {
-		String reply = "";
 		if (card.getType() == Card.WILD || card.getType() == Card.WDF) {
 			card = game.colourCard;
 		}
@@ -401,7 +400,6 @@ public class Uno extends Module implements Output, Runnable {
 	}
 
 	public void showTopDiscardCardEverybody(Card card) {
-		String reply = "";
 		if (card.getType() == Card.WILD || card.getType() == Card.WDF) {
 			card = game.colourCard;
 		}
