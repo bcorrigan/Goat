@@ -4,7 +4,6 @@
 package goat.uno.cards;
 
 import goat.uno.Game;
-import goat.uno.Player;
 
 /**
  * Can be played on any card. Player can set a new colour when it is played.
