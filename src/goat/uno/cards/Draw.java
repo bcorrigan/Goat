@@ -46,7 +46,8 @@ public class Draw implements Card {
 	public void play(Game game) {
     	game.draw.discardCard(this);
 		game.output.normalPlay(game.currentPlayer, this);
-		Player player = (Player) game.players.peek();
+		Player player = (Player) game.players.getFirst();
+		game.players.addFirst(player) ;
 
 		Card card1=player.drawCardNoOutput();
 		Card card2=player.drawCardNoOutput();

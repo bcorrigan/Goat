@@ -34,7 +34,8 @@ public class Confessions extends Module {
 			//TODO deal with pingouts 
 			URL grouphug = new URL("http://grouphug.us/random");
 			HttpURLConnection connection = (HttpURLConnection) grouphug.openConnection();
-			connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+			// incompatible with 1.4
+			// connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());

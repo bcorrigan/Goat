@@ -91,7 +91,8 @@ public class Weather extends Module {
 		try {
 			URL url = new URL("http://weather.noaa.gov/pub/data/observations/metar/decoded/" + user.getLocation() + ".TXT");
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-			connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+			// incompatible with 1.4
+			// connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
 				return "That doesn't seem to be a valid location, " + user.getName() + ", sorry.";
@@ -104,9 +105,9 @@ public class Weather extends Module {
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("ob") || inputLine.startsWith("cycle"))
 					continue;
-				inputLine = inputLine.replace(":0", "");
-				if (inputLine.contains(": ") && inputLine.substring(0, 1).matches("[A-Z]")) {
-					inputLine = inputLine.replace(": ", ":" + Message.BOLD + " ");
+				inputLine = inputLine.replaceAll(":0", "");
+				if (inputLine.matches(": ") && inputLine.substring(0, 1).matches("[A-Z]")) {
+					inputLine = inputLine.replaceAll(": ", ":" + Message.BOLD + " ");
 					inputLine = Message.BOLD + inputLine;
 				}
 				response += inputLine + " ";

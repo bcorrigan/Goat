@@ -46,7 +46,8 @@ public class Skip implements Card {
 	public void play(Game game) {
     	game.draw.discardCard(this);
 		game.output.normalPlay(game.currentPlayer, this);
-		Player player = (Player) game.players.peek();
+		Player player = (Player) game.players.getFirst();
+		game.players.addFirst(player) ;
 		game.output.playerSkipped(player);
 		game.players.addLast(game.currentPlayer);
 		game.currentPlayer = (Player) game.players.removeFirst();

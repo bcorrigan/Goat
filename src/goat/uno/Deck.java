@@ -102,7 +102,9 @@ public class Deck {
 		if(fake) {
 			return colourCard;
 		}
-		return (Card) discard.peek();
+		Card ret = (Card) discard.getFirst() ;
+		discard.addFirst(ret) ;
+		return ret ;
 	}
 
 	public void discardCard(Card card) {
