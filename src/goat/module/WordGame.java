@@ -20,13 +20,13 @@ public class WordGame extends Module implements Runnable {
 
 	private boolean playing;						//True if a game is being played just now
 	private Dict dict = new Dict();					//the entire dictionary
-	private ArrayList validWords = new ArrayList(); //all the valid answers
+	private ArrayList validWords; 					//all the valid answers
 	private ArrayList letters;						//letters in this match
 	private String answer;							//the answer word
 	private int longestPossible;   					//longest possible word length for this game
 	private String[] currentWinning; 				//nick of person currently winning with the shortest word, and the winning word     @TODO Awful choice of data structure, this
 	private int score;           					//score for this one
-	private Message target = new Message(" ");		//just the target channel for any given game
+	private Message target;							//just the target channel for any given game
 	private Thread t;								//the timing thread
 	private long top10time;							//how long since someone asked for the top10 table       <----\
 	private long matchscorestime;					//how long since someone asked for the match score table <-----\__These two to stop users from being able to make the bot flood
@@ -102,7 +102,7 @@ public class WordGame extends Module implements Runnable {
 		}
 		lastAnswers.put(m.channame, answer);
 		playing = false;
-		validWords = new ArrayList();
+		validWords = null;
 		currentWinning = null;
 		t.stop();  //yikes! @TODO: FIX THIS! Make it pass a message to tell other thread to stop
 	}
@@ -176,14 +176,13 @@ public class WordGame extends Module implements Runnable {
 	private void getLetters() {
 		String word;
 
-		letters = new ArrayList();
-
 		while (true) {
 			word = dict.getRandomWord();
 			if (word.length() < 6)
 				continue;
 			answer = word;
 			longestPossible = word.length();
+			letters = new ArrayList(word.length());
 			for (int i = 0; i < word.length(); i++) {
 				letters.add(new Character(word.charAt(i)));
 			}
