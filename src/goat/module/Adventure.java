@@ -71,12 +71,12 @@ public class Adventure extends Module implements ZScreen, Runnable {
                             }
                         }
 
-                        if (stringArg.matches("\\.")) {
-                            m.createReply("No full stops allowed in the comment, sorry.").send();
+                        if (stringArg.matches("^[a-zA-Z]*$")) {
+                            m.createReply("Comment must match ^[a-zA-Z]*$").send();
                             return;
                         }
-                        if (stringArg.length() > 15) {
-                            m.createReply("No save game comments greater than 15 chars allowed!").send();
+                        if (stringArg.length() > 25) {
+                            m.createReply("No save game comments greater than 25 chars allowed!").send();
                             return;
                         }
                         adv.saveGameName = stringArg;
