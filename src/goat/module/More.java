@@ -35,8 +35,8 @@ public class More extends Module {
 		if (m.modTrailing.trim().equals("")) {
 			if (m.hasNextPage())
 				m.createNextPage().send() ;
-			else
-				m.createReply("No more :(").send() ;
+			//else
+			//	m.createReply("No more :(").send() ;
 		}
 	}
 }
