@@ -129,7 +129,7 @@ public class Dict {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(DICTFILE));
 			while ((word = br.readLine()) != null) {
-				word.toLowerCase();
+				word = word.toLowerCase();
 				if (checkWord(word, targetWord))
 					validWords.add(word);
 			}
@@ -141,9 +141,9 @@ public class Dict {
 		return validWords;
 	}
 
-	public boolean contains(String wordparam) {
-		String word = wordparam.toLowerCase();
-		word.trim();
+	public boolean contains(String word) {
+		word = word.toLowerCase();
+		word = word.trim();
 		//OK lets use a bsearch
 		int guessPos = numWords / 2;
 		int ceiling = (numWords + 1), floor = 1, oldCeiling = 1, oldFloor = 2;
