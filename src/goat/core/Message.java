@@ -1,6 +1,7 @@
 package goat.core;
 
 import goat.Goat;
+import goat.util.Pager;
 
 import java.util.*;
 
@@ -106,6 +107,25 @@ public class Message {
 
 	private ArrayList words;
 
+	private static HashMap pagerCache = new HashMap() ;
+
+	/**
+	 * Is there more text in the pager buffer for the current channel/nick?
+	 *
+	 * @return true if there's more text to be had.
+	 */
+	public boolean hasNextPage() {
+		if ( ! pagerCache.containsKey(params) ) 
+			return false ;
+		Pager pager = (Pager) pagerCache.get(params) ;
+		if (pager.isEmpty()) {
+			pagerCache.remove(params) ;
+			return false ;
+		}
+		return true ;
+	}
+
+	
 	/**
 	 * The most low level way of creating a new message, this requires some knowledge of the IRC RFC. prefix can be left
 	 * empty (but not null) with most outgoing messages.
@@ -407,6 +427,12 @@ public class Message {
 		return new Message("", "PRIVMSG", to, message);
 	}
 
+	public static Message createPagedPrivmsg(String to, String message) {
+		Pager pager = new Pager(message) ;
+		pagerCache.put(to, pager) ;
+		return new Message("", "PRIVMSG", to, pager.getNext()) ;
+	}
+
 	/**
 	 * Creates a new outgoing CTCP message.
 	 * 
@@ -631,6 +657,31 @@ public class Message {
 		} else {
 			return new Message("", "PRIVMSG", sender, trailing);
 		}
+	}
+
+	/** 
+	 * Creates a new paged reply, using createReply(), and initializes the pager cache with the supplied string
+	 * 
+	 * @param trailing The text to be paged and sent
+	 *
+	 * @return a message containing the first chunk of paged text, which the caller will most likely want to send()
+	 */
+	public Message createPagedReply(String trailing) {
+		Pager pager = new Pager(trailing) ;
+		pagerCache.put(params, pager) ;
+		return createReply(pager.getNext()) ;
+	}
+	
+	/** 
+	 * returns a reply message via createReply containing the next page of text, if any, from the pager cache for the current channel/nick (ie, "params")
+	 *
+	 * @return aforsaid message, if there is more text in the buffer, else an empty message.
+	 */
+	public Message createNextPage() {
+		if (! hasNextPage() ) 
+			return new Message("", "", "", "") ;
+		Pager pager = (Pager) pagerCache.get(params) ;
+		return createReply(pager.getNext()) ;
 	}
 
 	/**

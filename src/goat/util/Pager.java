@@ -139,8 +139,5 @@ public class Pager {
 		while (! pager.isEmpty()) {
 			System.out.println(pager.getNext() + "\n") ;
 		}
-		
-		
 	}
-
 }
