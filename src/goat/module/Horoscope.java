@@ -48,7 +48,7 @@ public class Horoscope extends Module {
             while (it.hasNext()) {
                 HoroscopeUser user = (HoroscopeUser) it.next();
                 if (user.getName().equals(m.sender.toLowerCase())) {
-                    m.createReply(getReport(user)).send();
+                    m.createReply(user.getSign() + ": " + getReport(user)).send();
                     return;
                 }
             }
@@ -60,7 +60,7 @@ public class Horoscope extends Module {
                 if (user.getName().equals(m.sender.toLowerCase())) {
                     user.setSign(m.modTrailing.split(" ")[0].toUpperCase());
                     commit();
-                    m.createReply(getReport(user)).send();
+                    m.createReply(user.getSign() + ": " + getReport(user)).send();
                     return;
                 }
             }
