@@ -539,7 +539,7 @@ public class Message {
 				firstWord = st.nextToken();
 				firstWord = firstWord.replaceAll("\\W", "");
 			}
-			if (firstWord.toLowerCase().startsWith(BotStats.botname)) {
+			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
 				if (st.hasMoreTokens()) {
 					modCommand = st.nextToken();
 					modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
@@ -557,7 +557,7 @@ public class Message {
 			String firstWord = "";
 			if (st.hasMoreTokens())
 				firstWord = st.nextToken();
-			if (firstWord.toLowerCase().startsWith(BotStats.botname)) {
+			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
 				if (st.hasMoreTokens())
 					modCommand = st.nextToken();
 				modCommand = modCommand.replaceAll("\\W", "");  //zap nonword characters
