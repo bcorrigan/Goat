@@ -32,6 +32,9 @@ class ZFrame
 
 public class ZMachine implements Runnable
 {
+    //is this thread running or not?
+    public boolean running = true;
+
 	class ZObject {
 		int Size;
 		int PropMax;
@@ -46,6 +49,7 @@ public class ZMachine implements Runnable
 		private static final int kObjChild = 6;
 		private static final int kObjProps = 7;
 		private static final int kObjSize = 9;
+
 
 		boolean attr_test(int obj, int attr) {
 			return (U8(object_ptr + obj * kObjSize + (attr >> 3)) & (1 << (7 - (attr & 7)))) != 0;
@@ -684,6 +688,11 @@ public class ZMachine implements Runnable
 	
 	
 	public int execute(ZFrame f) {
+
+
+        if(!running)
+            return 0;
+        
 		int op, num, t, x;
 		int a,b,c,d;
 		

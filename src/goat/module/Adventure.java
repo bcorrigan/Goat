@@ -6,10 +6,10 @@ import goat.util.ZScreen;
 import goat.util.ZMachine;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * The ZMachine variously calls all ZScreen methods as it runs. However the ZMachine is very character orientated
@@ -25,6 +25,8 @@ import java.util.Arrays;
  */
 public class Adventure extends Module implements ZScreen, Runnable {
 
+    private String gameName;    //the name of the game (ie zork, whatever)
+
     private ZMachine zm;
     private char nbuf[] = new char[16];
     private Thread zgameTh;
@@ -33,23 +35,189 @@ public class Adventure extends Module implements ZScreen, Runnable {
     private LinkedList input;
     private boolean playing=false;
     private String buffer = new String();
+    private boolean running = true;
+
+    private int saveSlot;
+    private int loadSlot;
+
+    private File gameImage;
+
+    private static ArrayList adventures = new ArrayList(); //all the adventures being played
 
     //for random numbers, to give to ZMachine
     private Random r = new Random();
 
     public void processPrivateMessage(Message m) {
-        if(m.modCommand.equals("adv") && playing==true) {
-            input.addLast(m.modTrailing.trim());
-        } else if(m.modCommand.equals("startadv") && playing==false) {
-            target = m;
-            input = new LinkedList();
-            playing = true;
-            zgameTh = new Thread(this);
-            zgameTh.start();
-        } else if(m.modCommand.equals("stopadv") && playing==true) {
-            zgameTh.stop();         //TODO bad to use stop() for a thread, fix, blah blah
-            playing = false;
+        if(m.modCommand.equals("adv")) {
+            Iterator it = adventures.iterator();
+            while(it.hasNext()) {
+                Adventure adv = (Adventure) it.next();
+                if(adv.target.channame.equals(m.channame)) {
+                    //this channel has a running adventure
+                    //first we check for "save" and "restore" commands, because they are going to be treated specially
+                    if(m.modTrailing.startsWith("save")) {
+                        //look for the int argument
+                        String intArg = m.modTrailing.replaceAll("save", "");
+                        intArg = intArg.trim();
+                        try {
+                            adv.saveSlot = Integer.parseInt(intArg);
+                            if(adv.saveSlot>10 || adv.saveSlot<1) {
+                                m.createReply("Please choose a slot between 1 and 10.").send();
+                                adv.saveSlot = 0;
+                                return;
+                            }
+                        } catch(NumberFormatException nfe) {
+                            m.createReply("Invalid syntax for save command. Try \"save <int>\" " +
+                                          "where int is between 1 and 10.").send();
+                            return;
+                        }
+                        //got this far, everything must be valid
+                        adv.input.addLast("save");
+                        return;
+                    }
+                    if(m.modTrailing.startsWith("restore")) {
+                        //look for the int argument
+                        String intArg = m.modTrailing.replaceAll("restore", "");
+                        intArg = intArg.trim();
+                        if(intArg.length()==0) {//oh-ho, no int argument given, so lets use the default slot
+                            if(adv.loadSlot>=1 && adv.loadSlot<=10)
+                                adv.input.addLast("restore");
+                            else
+                                m.createReply("There doesn't seem to be a default restore point. ").send();
+                            return;
+                        }
+                        try {
+                            adv.loadSlot = Integer.parseInt(intArg);
+                            if(adv.loadSlot>10 || adv.loadSlot<1) {
+                                m.createReply("Please choose a slot between 1 and 10.").send();
+                                adv.loadSlot = 0;
+                                return;
+                            }
+                        } catch(NumberFormatException nfe) {
+                            m.createReply("Invalid syntax for restore command. Try \"restore <int>\" " +
+                                          "where int is between 1 and 10.").send();
+                            return;
+                        }
+                        //got this far, everything must be valid
+                        adv.input.addLast("restore");
+                        return;
+                    }
+                    adv.input.addLast(m.modTrailing.trim());
+                    return;
+                }
+            }
+        } else if(m.modCommand.equals("startadv")) {
+            Iterator it = adventures.iterator();
+            while(it.hasNext()) {
+                Adventure adv = (Adventure) it.next();
+                if(adv.target.channame.equals(m.channame)) {
+                    m.createReply("Umm, we seem to be already playing an Adventure game in here.").send();
+                    return; //this channel already has a running adventure
+                }
+            }
+            File gameImage;
+            String intArg = m.modTrailing.replaceAll("startadv", "");
+            intArg = intArg.trim();
+            try {
+                int zmNum = Integer.parseInt(intArg);
+                gameImage = getZMFile(zmNum);
+                if(gameImage == null) {
+                    m.createReply("That's not a valid game number!").send();
+                    listFiles(m);
+                    return;
+                }
+            } catch(NumberFormatException nfe) {
+                m.createReply("Invalid syntax for startadv command. Try \"startadv <int>\" " +
+                              "where int is the number of an adventure game:").send();
+                listFiles(m);
+                return;
+            }
+
+            Adventure adv = new Adventure();
+            adv.target = m;
+            adv.input = new LinkedList();
+            adv.playing = true;
+            adv.zgameTh = new Thread(adv);
+            adv.gameName = gameImage.getName().replaceAll("\\.z3", "").replaceAll("\\.z5", "");
+            adv.gameImage = gameImage;
+            adventures.add(adv);
+            adv.zgameTh.start();
+        } else if(m.modCommand.equals("stopadv")) {
+            Iterator it = adventures.iterator();
+            while(it.hasNext()) {
+                Adventure adv = (Adventure) it.next();
+                if(adv.target.channame.equals(m.channame)) {
+                    //this channel has a running adventure
+                    adventures.remove(adv);
+                    adv.playing=false;
+                    adv.running = false;
+                    m.createReply("Game stopped!").send();
+                    return;
+                }
+            }
+        } else if(m.modCommand.equals("lsgames")) {
+            listFiles(m);
+        } else if(m.modCommand.equals("lssaves")) {
+            Iterator it = adventures.iterator();
+            while(it.hasNext()) {
+                Adventure adv = (Adventure) it.next();
+                if(adv.target.channame.equals(m.channame)) {
+                    listSaves(m, adv);
+                    return;
+                }
+            }
+            m.createReply("Not playing a game, not going to list all possible save files.").send();
         }
+    }
+
+    //list the save games for the current game, ie which slots are taken
+    private void listSaves(Message m, Adventure adv) {
+        m.createReply("The following save slots are taken for this game: ").send();
+        File file = new File("resources/adventureData/saves");
+        File[] files = file.listFiles();
+        String reply = "";
+        int counter=0;
+        String slots = "";
+        for(int i=0;i<files.length; i++) {
+            String[] parts = files[i].getName().split("\\."); //parts of the file name
+            if(parts[0].equals(adv.gameName))
+                if(parts[1].equals(m.channame))
+                    slots += " " + parts[2];
+        }
+        m.createReply("\"" + adv.gameName.replaceAll("_", " ") + "\" slots used: " + slots).send();
+    }
+
+    //sends a list of all the available games with their numbers
+    private void listFiles(Message m) {
+        File file = new File("resources/adventureData");
+        File[] files = file.listFiles();
+        String reply = "";
+        int counter=0;
+        for(int i=0;i<files.length; i++)
+            if(!files[i].isDirectory())
+                if(files[i].getName().endsWith(".z3") || files[i].getName().endsWith(".z5")) {
+                    counter++;
+                    String fileName = files[i].getName().replaceAll("\\.z3", "").replaceAll("\\.z5", "");
+                    fileName = fileName.replaceAll("_", " ");
+                    reply += counter + ") " + fileName + " ";
+                }
+        m.createReply(reply).send();
+    }
+
+    //has a look at the directory of game files and get's the nth one and returns it
+    //the actual ordering of the numbering is irrelevant so long as it is consistent
+    private File getZMFile(int zmNum) {
+        File file = new File("resources/adventureData");
+        File[] files = file.listFiles();
+        int counter=0;
+        for(int i=0;i<files.length; i++)
+            if(!files[i].isDirectory())
+                if(files[i].getName().endsWith(".z3") || files[i].getName().endsWith(".z5")) {
+                    counter++;
+                    if(counter==zmNum)
+                        return files[i];
+                }
+        return null;
     }
 
     public void processChannelMessage(Message m) {
@@ -57,14 +225,14 @@ public class Adventure extends Module implements ZScreen, Runnable {
     }
 
     public String[] getCommands() {
-		return new String[]{"adv", "startadv", "stopadv"};
+		return new String[]{"adv", "startadv", "stopadv", "lsgames", "lssaves"};
 	}
 
     public void run() {
         //we need to read in the zmachine data file here
         byte[] data;
         try {
-            FileInputStream is = new FileInputStream("resources/leather_goddessen_of_phobos.z5");
+            FileInputStream is = new FileInputStream(gameImage);
             data = new byte[is.available()];
             is.read(data);
         } catch (FileNotFoundException e) {
@@ -77,6 +245,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
         zm = new ZMachine(this, data);
         zmachineTh = new Thread(zm);
         zmachineTh.start();
+        Thread.currentThread().getName();
         //zm.run();
 
         //here we want to poll the buffer and print it out when we notice something, which should hopefully chunkify it
@@ -89,6 +258,12 @@ public class Adventure extends Module implements ZScreen, Runnable {
                 }
             target.createPagedReply(buffer).send();
             buffer = new String();
+
+            //for gracefully exiting the threads. No stop()s, for once.
+            if(!running) {
+                zm.running = false;
+                return;
+            }
         }
     }
 
@@ -177,10 +352,35 @@ public class Adventure extends Module implements ZScreen, Runnable {
 
     }
 
-    //this is for saving and restoring games I think, I am going to ignore this for now
-    //but could be useful later
-    public boolean Save(byte state[]) { return false; }
-	public byte[] Restore() { return null; }
+    public boolean Save(byte state[]) {
+        File file = new File("resources/adventureData/saves/" + gameName + "." + target.channame + "." + saveSlot);
+        loadSlot = saveSlot; //set default restore point
+        try {
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(state);
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+	public byte[] Restore() {
+        File file = new File("resources/adventureData/saves/" + gameName + "." + target.channame + "." + loadSlot);
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            byte[] data = new byte[fis.available()];
+            fis.read(data);
+            return data;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     //ignoring all this screen-orientated stuff
     public void SetWindow(int num) {
@@ -198,21 +398,11 @@ public class Adventure extends Module implements ZScreen, Runnable {
     public void MoveCursor(int x, int y) {
 
     }
-    //don't knwo what this does, stolen from the implementation. Was actually in ZScreen before I made I made it an interface,
-    //so it must be default in some way. Why can't people comment code? Fuck.
+
     public void PrintNumber(int num) {
-		/*int i = 16;
-		int j;
-
-		do {
-			nbuf[--i] = (char) ('0' + (num % 10));
-			num = num / 10;
-		} while(num > 0);
-
-		for(j = 0; i < 16; j++){
-			nbuf[j] = nbuf[i++];
-		}
-		Print(nbuf, j); */
+		String st = Integer.toString(num);
+        char[] chars = st.toCharArray();
+        Print(chars, chars.length);
 	}
 
 	public void PrintChar(int ch) {
