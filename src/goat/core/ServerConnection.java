@@ -168,7 +168,7 @@ public class ServerConnection extends Thread {
                     } catch (InterruptedException e) {
                     }
 
-                    bufused /= 2;
+                    bufused >>= 1;
                 }
 
                 try {
