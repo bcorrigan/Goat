@@ -13,7 +13,7 @@ import java.util.LinkedList;
 public class ServerConnection extends Thread {
 
     private MessageQueue inqueue; //Queue of messages FROM the server
-    private MessageQueue outqueue;//Queue of messages TO the server
+    private static MessageQueue outqueue;//Queue of messages TO the server
     private Socket IrcServer;
     private InputHandler ih;
     private OutputHandler oh;
@@ -23,11 +23,11 @@ public class ServerConnection extends Thread {
      * Connects us to a server.
      * @param serverName The server to connect to.
      * @param inqueue Messages from the server
-	 * @param outqueue Messages to the server
+	 * @param outqueueIn Messages to the server
      */
-    public ServerConnection(String serverName, MessageQueue inqueue, MessageQueue outqueue) {
+    public ServerConnection(String serverName, MessageQueue inqueue, MessageQueue outqueueIn) {
         this.inqueue = inqueue;
-        this.outqueue = outqueue;
+        outqueue = outqueueIn;
         this.serverName = serverName;
         connect();
     }

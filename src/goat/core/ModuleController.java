@@ -10,7 +10,7 @@ import java.util.Iterator;
  * to find out what Modules are loaded, to control the Modules, and
  * to return them.<p>
  * @version <p>Date: 17-Dec-2003</p>
- * @author <p><b>© Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
  *
  */
 public class ModuleController  {
@@ -49,7 +49,7 @@ public class ModuleController  {
 			if (module.getClass().getName().equals(mod.getClass().getName()))
 				return null;
 		}
-		mod.init(outqueue); //send the new Module the outqueue instance so it can send messages
+		//mod.init(outqueue); //send the new Module the outqueue instance so it can send messages
 		modules.add(mod);
 		return mod;
 	}
