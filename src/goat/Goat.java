@@ -94,8 +94,10 @@ public class Goat {
 			ModuleCommands moduleCommands = (ModuleCommands) modController.get(1);
 			moduleCommands.modControl = modController;
 			moduleCommands.inAllChannels = true;
-			modController.load("Auth");
 			modController.load("Help");
+			if (modController.get("Help") != null)
+				modController.get("Help").inAllChannels = true ;
+			modController.load("Auth");
 			modController.load("Core");
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
