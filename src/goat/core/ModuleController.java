@@ -1,7 +1,5 @@
 package goat.core;
 
-import de.qfs.lib.util.DynamicClassLoader;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -14,15 +12,8 @@ import java.util.Iterator;
  *
  */
 public class ModuleController  {
-    private ArrayList modules = new ArrayList();
-	private MessageQueue outqueue;
 
-	public ModuleController(MessageQueue outqueue)  {
-
-		this.outqueue = outqueue;
-	}
-
-
+	private ArrayList modules = new ArrayList();
 
     /**
 	 * Loads a module.
@@ -37,7 +28,7 @@ public class ModuleController  {
 	 */
 	public Module load(String moduleName) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
 													NoClassDefFoundError, ClassCastException {
-		Module newmod = (Module) DynamicClassLoader.getDynamicObject("goat.module." + moduleName);
+		Module newmod = (Module) ClassLoader.getSystemClassLoader().loadClass("goat.module." + moduleName).newInstance();
 		return load(newmod);
 	}
 
@@ -47,9 +38,8 @@ public class ModuleController  {
 		while (it.hasNext()) {
 			module = (Module) it.next();
 			if (module.getClass().getName().equals(mod.getClass().getName()))
-				return null;
+				return null;    //@TODO maybe make this a new Exception? Instead of passing null (wtf!)
 		}
-		//mod.init(outqueue); //send the new Module the outqueue instance so it can send messages
 		modules.add(mod);
 		return mod;
 	}
@@ -61,9 +51,7 @@ public class ModuleController  {
 			mod = (Module) it.next();
 			if (mod.getClass().getName().toLowerCase().equals("goat.module." + moduleName.toLowerCase())) {
 				modules.remove(mod);
-				mod.destroy();
 				mod=null;
-				System.gc();
 				return true;
 			}
 		}
