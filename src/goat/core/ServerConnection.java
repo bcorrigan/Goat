@@ -1,8 +1,12 @@
 package goat.core;
 
+import goat.Goat;
+
 import java.net.*;
 import java.io.*;
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Maintains the connection with the server. A seperate thread, this.
@@ -12,8 +16,8 @@ import java.util.LinkedList;
 
 public class ServerConnection extends Thread {
 
-    private MessageQueue inqueue; //Queue of messages FROM the server
-    private static MessageQueue outqueue;//Queue of messages TO the server
+    private static MessageQueue inqueue = Goat.inqueue; //Queue of messages FROM the server
+    private static MessageQueue outqueue = Goat.outqueue; //Queue of messages TO the server
     private Socket IrcServer;
     private InputHandler ih;
     private OutputHandler oh;
@@ -22,18 +26,13 @@ public class ServerConnection extends Thread {
     /**
      * Connects us to a server.
      * @param serverName The server to connect to.
-     * @param inqueue Messages from the server
-	 * @param outqueueIn Messages to the server
      */
-    public ServerConnection(String serverName, MessageQueue inqueue, MessageQueue outqueueIn) {
-        this.inqueue = inqueue;
-        outqueue = outqueueIn;
+    public ServerConnection(String serverName) {
         this.serverName = serverName;
         connect();
     }
 
     private void connect() {
-        //@todo Make it keep trying to reconnect on failure
         try {
             IrcServer = new Socket(serverName, 6667);
         } catch(UnknownHostException uhe) {
@@ -47,50 +46,65 @@ public class ServerConnection extends Thread {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream()));
             OutputStream os = IrcServer.getOutputStream();
-            ih = new InputHandler(br, this);
-            oh = new OutputHandler(os, this);
+            ih = new InputHandler(br);
+            oh = new OutputHandler(os);
         } catch(IOException ioe) {
             System.out.println("Error opening streams to IRC server: " + ioe.getMessage());
             System.exit(0);
         }
         ih.start();
         oh.start();
-        outqueue.enqueue(new Message("", "PASS", "foo", ""));
-        outqueue.enqueue(new Message("", "NICK", BotStats.botname, ""));
-        outqueue.enqueue(new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.version));
+        new Message("", "PASS", "foo", "").send();
+        new Message("", "NICK", BotStats.botname, "").send();
+        new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.version).send();
+		String[] channels = BotStats.getChannels();
+		for(int i=0; i<channels.length; i++)
+			new Message("", "JOIN", channels[i], "").send();
     }
 
     private void reconnect() {
-        connect();
+		try {
+			sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		connect();
     }
 
     class InputHandler extends Thread {
         BufferedReader in;
-        ServerConnection parent;
-        public InputHandler(BufferedReader in, ServerConnection parent) {
+		private boolean keeprunning = true;
+        public InputHandler(BufferedReader in) {
             this.in=in;
-            this.parent=parent;
         }
+
+		void disconnect() {
+			keeprunning=false;
+		}
 
         public void run() {
             String messageString;
-            System.out.println("hi!");
-            while(true) {
+			long lastActivity=System.currentTimeMillis();
+            while(keeprunning) {
                 try {
                     if(in.ready()) {
                         messageString = in.readLine();
+						lastActivity=System.currentTimeMillis();
 						if(messageString.equals(null))
 							continue;
 						Message m = new Message(messageString);
-						if(m.command.equals("PING")) //@TODO make a note of time between pings, if it exceeds 300 seconds reconnect to server
+						if(m.command.equals("PING"))
 							outqueue.enqueue(new Message("", "PONG", "", m.trailing));
                         else inqueue.enqueue(m); //add to inqueue
 						System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
 								           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
-
-							  //notify the MessageDispatcher thread that its got a message waiting
-						
                     } else {
+						if((System.currentTimeMillis()-lastActivity)>300000) {
+							in.close();
+							oh.disconnect();
+							reconnect();
+							return;
+						}
                         sleep(100);
                     }
                 } catch (IOException ioe) {
@@ -105,23 +119,17 @@ public class ServerConnection extends Thread {
     class OutputHandler extends Thread {
 
         OutputStream out;
-        boolean keeprunning;
-        ServerConnection parent;
+        private boolean keeprunning;
         int clearcount = 0;
 
-        public OutputHandler(OutputStream out, ServerConnection parent) {
+		void disconnect() {
+			keeprunning=false;
+		}
+
+        public OutputHandler(OutputStream out) {
             this.out = out;
-            this.parent = parent;
             this.setName("Output Handler (client -> server)");
             keeprunning = true;
-        }
-
-        public void pleaseStop() {
-            keeprunning = false;
-            try {
-                join();
-            } catch (InterruptedException e) {
-            }
         }
 
         public void run() {
@@ -148,17 +156,6 @@ public class ServerConnection extends Thread {
             }
         }
 
-        /**
-         * Flushes the message queue. this is useful for clean disconnection.
-         */
-        public void flush() {
-			synchronized(outqueue) {
-            	while (!outqueue.isQueueEmpty()) {
-                	sendMessage(outqueue.dequeue());
-            	}
-			}
-        }
-
         int bufused = 0;
 
         //should block until posting won't flood us off
@@ -182,26 +179,12 @@ public class ServerConnection extends Thread {
 					System.out.println("Outbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing);
                 } catch (IOException e) {
                     System.out.println("Write error: " + e.getMessage());
-                    parent.reconnect();
+                    reconnect();
                     return;
                 }
 
                 bufused += outbuffer.length;
             }
-
         }
     }
-
-
-    //dirty testing method
-    public static void main(String[] args) {
-        //ServerConnection sc = new ServerConnection("coruscant.slashnet.org");
-        try {
-            sleep(9999999);
-        } catch (InterruptedException e) {
-            System.out.println("e: " + e.getMessage());
-        }
-    }
-
-	
 }
