@@ -12,12 +12,9 @@ import java.util.ArrayList;
  *
  */
 public class MessageDispatcher {
-    private static MessageQueue inqueue;
+    private static MessageQueue inqueue=Goat.inqueue;
     private ModuleController modController;
 
-	static {
-		inqueue=Goat.inqueue;
-	}
 	/**
 	 *
 	 * @param modController The modController containing modules to dispatch messages to.
@@ -32,7 +29,7 @@ public class MessageDispatcher {
 	 */
 	private void monitor() {
         while(true) {
-            if(inqueue.hasNext()) {
+            if(Goat.inqueue.hasNext()) {
                 Message msg = inqueue.dequeue();
                 processMessage(msg);
             }
@@ -60,6 +57,10 @@ public class MessageDispatcher {
 				  modulesWantingSome = new ArrayList(),
 				  modulesWantingOne = new ArrayList();
 		Module mod;
+        if(msg.isAuthorised)
+			System.out.println("Inbuffer: prefix: " + msg.prefix + " params: " + msg.params + " trailing:" + msg.trailing + " command:" + msg.command + " sender: " + msg.sender +
+								           "\n    " + "isCTCP:" + msg.isCTCP + " isPrivate:" + msg.isPrivate + " CTCPCommand:" + msg.CTCPCommand + " CTCPMessage:" + msg.CTCPMessage);
+
 		while(it.hasNext()) {
 			mod = (Module) it.next();
 			if(mod.messageType() == Module.WANT_ALL_MESSAGES)
@@ -114,10 +115,10 @@ public class MessageDispatcher {
     }
 
 	private void sendMessage(Message msg, Module mod) {
-		if (msg.isPrivate) {
-			mod.processPrivateMessage(msg);
-		} else if (msg.isCTCP) {
+		if (msg.isCTCP||!msg.command.equals("PRIVMSG")) {
 			mod.processOtherMessage(msg);
+		} else if (msg.isPrivate) {
+			mod.processPrivateMessage(msg);
 		} else {
 			mod.processChannelMessage(msg);
 		}
