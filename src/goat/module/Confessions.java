@@ -20,7 +20,8 @@ public class Confessions extends Module {
 
 	private LinkedList confessions = new LinkedList();
 	//Document document;
-
+    private int noConfessions = 0;
+	private int hits = 0;
 	public Confessions() {
 		getConfessions();
 	}
@@ -52,6 +53,7 @@ public class Confessions extends Module {
 		String confession = "";
 		LinkedList confessions = new LinkedList();
 		connection.connect();
+		hits++;
 		if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
 			System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
 
@@ -83,11 +85,12 @@ public class Confessions extends Module {
 
 
 	public String[] getCommands() {
-		return new String[]{"confess", "search"};
+		return new String[]{"confess", "search", "csize"};
 	}
 
 	public void processPrivateMessage(Message m) {
 		if (m.modCommand.equalsIgnoreCase("confess")) {
+			noConfessions++;
 			if(m.modTrailing.toLowerCase().startsWith("about ")) {
 				String searchReply = m.modTrailing.toLowerCase().substring(6);
 				LinkedList searchConf = searchConfessions(searchReply);
@@ -105,7 +108,8 @@ public class Confessions extends Module {
 					m.createReply("I'm afraid I just don't feel guilty about that.").send();
 			} else 
 				m.createPagedReply(confessions.removeFirst().toString()).send();
-		}
+		} else if(m.modCommand.equalsIgnoreCase("csize"))
+			m.createReply("Number of confessions cached: " + confessions.size() + ". Number of confessions asked for: " + noConfessions + " Number of page requests sent: " + hits).send();
 
 		if (confessions.isEmpty())
 			if(!getConfessions())
