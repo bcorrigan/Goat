@@ -9,7 +9,7 @@ public class SavePassword {
 		MessageDigest d;
 
 		if (args.length < 1) {
-			System.out.println("Usage: java SavePassword <password>");
+			System.out.println("Usage: java tools/SavePassword <password>. Will leave password.txt in resources dir, best run from top dir of project.");
 			return;
 		}
 
@@ -24,7 +24,7 @@ public class SavePassword {
 		byte[] digest = d.digest();
 
 		try {
-			w = new PrintWriter(new FileWriter("password.txt"));
+			w = new PrintWriter(new FileWriter("resources/password.txt"));
 		} catch (IOException e) {
 			System.err.println("Couldn't open file");
 			return;
