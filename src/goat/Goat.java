@@ -107,14 +107,11 @@ public class Goat {
 	}
 
 	private void setDefaultStats() {
-		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF")));
+		BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
 		String line;
 		try {
-			while ((line = br.readLine()) != null)
-				if (line.startsWith("Goat-Version")) {
-					BotStats.version = line.replaceFirst("Goat-Version: ", "r");
-					break;
-				}
+			line = br.readLine();
+			BotStats.version = "r" + line;				
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
