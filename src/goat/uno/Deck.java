@@ -103,7 +103,6 @@ public class Deck {
 			return colourCard;
 		}
 		Card ret = (Card) discard.getFirst() ;
-		discard.addFirst(ret) ;
 		return ret ;
 	}
 
