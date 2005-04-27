@@ -19,7 +19,7 @@ public class Quiz extends Module implements Runnable {
     private static RandomAccessFile questions;
     private boolean playing;
     private String answer;
-    private ArrayList<Integer> tip;     //the current tip. List of indexes of letters (not spaces) in answers
+    private ArrayList tip;     //the current tip. List of indexes of letters (not spaces) in answers
     private Message target;
     private boolean answered;
 
@@ -47,7 +47,7 @@ public class Quiz extends Module implements Runnable {
                 playing = false;
                 return;
             }
-            if (m.trailing.toLowerCase().trim().contains(answer.toLowerCase().trim()) && !answered) {
+            if (m.trailing.toLowerCase().trim().matches(answer.toLowerCase().trim()) && !answered) {
                 m.createReply(m.sender + ": Congratulations, you got the correct answer, \"" + answer + "\".").send();
                 answered = true;
             }
@@ -90,10 +90,10 @@ public class Quiz extends Module implements Runnable {
 
     private String getTip() {
         if (!canTip()) {
-            tip = new ArrayList<Integer>(answer.length());
+            tip = new ArrayList(answer.length());
             for (int i = 0; i < answer.length(); i++) {
                 if (Character.isLetter(answer.charAt(i)))
-                    tip.add(i);
+                    tip.add(new Integer(i));
             }
             Collections.shuffle(tip);
         }
@@ -108,7 +108,11 @@ public class Quiz extends Module implements Runnable {
 
         //now convert to a StringBuf
         StringBuffer tipStb = new StringBuffer(answer);
-        for (int i : tip) {
+		  int i ;
+        while ( (tip.size() > 0) ) {
+			  	// grand fuckery here to get an int value out of an
+				//   Object that we know is an Integer.  Thanks, bc.
+			   i = Integer.valueOf(tip.remove(0).toString()).intValue(); 
             tipStb.setCharAt(i, '_');
         }
         return (tipStb.toString());

@@ -16,6 +16,12 @@
         </fileset>
     </path>
 
+	<path id="depends">
+	</path>
+
+	<path id="run">
+	</path>
+	
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp/>
@@ -27,7 +33,7 @@
 	<target name="compile" depends="init"
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" source="1.5" optimize="yes" debug="on" debuglevel="lines,vars,source">
+		<javac srcdir="${src}" destdir="${build}" source="1.4" optimize="yes" debug="on" debuglevel="lines,vars,source">
             <classpath refid="project.class.path"/>
         </javac>
 	</target>
@@ -69,10 +75,13 @@
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}"/>
 	</target>
-
     <target name="run" description="Start up goat">
         <java jar="goat.jar" fork="true" classpathref="project.class.path">
+			  <!-- no idea what all this next malarkey was supposed to accomplish, replaced it with something sensible below -->
+			  <!--
             <jvmarg value="-server -Xbootclasspath/a:lib/ant.jar:lib/jaxen-core.jar:lib/jaxen-jdom.jar:lib/jdom.jar:lib/saxpath.jar:lib/xalan.jar:lib/xerces.jar:lib/xml-apis.jar"/>
+				-->
+				<jvmarg value="-server" />
             <!--<classpath refid="project.class.path"/>-->
         </java>
     </target>

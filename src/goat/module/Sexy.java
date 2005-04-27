@@ -45,7 +45,7 @@ public class Sexy extends Module {
             URL url = new URL("http://www.google.co.uk/search?q=" + searchString.replaceAll(" ", "+"));
             connection = (HttpURLConnection) url.openConnection();
             // incompatible with 1.4
-            connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+            // connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
             connection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)");
             connection.setRequestProperty("referer", "http://www.google.com");
             connection.setRequestProperty("Pragma", "no-cache");
@@ -63,7 +63,7 @@ public class Sexy extends Module {
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                if (inputLine.contains("color=>Results")) { //in the content line
+                if (inputLine.matches("color=>Results")) { //in the content line
                     inputLine = inputLine.substring(0,477); //ignore later shite it can confuse and varies too much
                     inputLine = inputLine.replaceAll(".*</b> of about <b>", ""); //zap everything before
                     inputLine = inputLine.replaceAll(".*\\d</b> of <b>", ""); //sometimes above not work when just 1 result

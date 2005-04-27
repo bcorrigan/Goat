@@ -12,7 +12,7 @@ import java.util.*;
  * @author bc
  */
 public class Game {
-    public LinkedList<Player> players = new LinkedList<Player>();
+    public LinkedList players = new LinkedList();
     public Player currentPlayer;
     public boolean needColour;    //true when the game is looking for a colour
     public Colour colourCard;    //when above is true, this is the colour needed

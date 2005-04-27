@@ -25,7 +25,7 @@ public class SimpleAI implements AI {
          * @param draw    Deck
          *                todo Implement this goat.uno.AI method
          */
-    public void play(Player botPlayer, LinkedList<Player> players, Deck draw, Game game) {
+    public void play(Player botPlayer, LinkedList players, Deck draw, Game game) {
         play(botPlayer, game);
 
         if (game.needColour) {

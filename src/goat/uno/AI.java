@@ -11,5 +11,5 @@ import java.util.LinkedList;
  * @version 1.0
  */
 public interface AI {
-    void play(Player botPlayer, LinkedList<Player> players, Deck draw, Game game);
+    void play(Player botPlayer, LinkedList players, Deck draw, Game game);
 }
