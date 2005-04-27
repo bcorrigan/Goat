@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<java version="1.5.0_01" class="java.beans.XMLDecoder"> 
+<java version="1.4.2-p7" class="java.beans.XMLDecoder"> 
  <object class="java.util.ArrayList"> 
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>EGPN</string> 
+     <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>bc</string> 
+     <string>meteor</string> 
     </void> 
    </object> 
   </void> 
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>KDAL</string> 
+     <string>KSFO</string> 
     </void> 
     <void property="name"> 
-     <string>gunnerbobby</string> 
+     <string>\</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KSQL</string> 
+    </void> 
+    <void property="name"> 
+     <string>em</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KLGA</string> 
+    </void> 
+    <void property="name"> 
+     <string>leviathan</string> 
     </void> 
    </object> 
   </void> 
@@ -34,86 +54,6 @@
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>KSQL</string> 
-    </void> 
-    <void property="name"> 
-     <string>\</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KLGA</string> 
-    </void> 
-    <void property="name"> 
-     <string>dw</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KSEA</string> 
-    </void> 
-    <void property="name"> 
-     <string>williams</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KOLM</string> 
-    </void> 
-    <void property="name"> 
-     <string>ct</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KOLM</string> 
-    </void> 
-    <void property="name"> 
-     <string>gdzlla</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KSEA</string> 
-    </void> 
-    <void property="name"> 
-     <string>yves</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KIAH</string> 
-    </void> 
-    <void property="name"> 
-     <string>luisa</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>TJSJ</string> 
-    </void> 
-    <void property="name"> 
-     <string>em</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
      <string>KBFI</string> 
     </void> 
     <void property="name"> 
@@ -124,70 +64,10 @@
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>KSEA</string> 
-    </void> 
-    <void property="name"> 
-     <string>damnatio</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KLGA</string> 
-    </void> 
-    <void property="name"> 
-     <string>ww</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>LNDN</string> 
-    </void> 
-    <void property="name"> 
-     <string>condom</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KLGA</string> 
-    </void> 
-    <void property="name"> 
-     <string>vic</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>CYVR</string> 
-    </void> 
-    <void property="name"> 
-     <string>zoobtoob</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KLGA</string> 
-    </void> 
-    <void property="name"> 
-     <string>nocturno</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
      <string>KIAH</string> 
     </void> 
     <void property="name"> 
-     <string>alline</string> 
+     <string>mariele</string> 
     </void> 
    </object> 
   </void> 
@@ -197,27 +77,7 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>dead</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>EGWU</string> 
-    </void> 
-    <void property="name"> 
-     <string>kip</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.weather.User"> 
-    <void property="location"> 
-     <string>KGNV</string> 
-    </void> 
-    <void property="name"> 
-     <string>reverendmoss</string> 
+     <string>cornchip</string> 
     </void> 
    </object> 
   </void> 
@@ -227,7 +87,17 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>evasion</string> 
+     <string>wastrel</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KDAL</string> 
+    </void> 
+    <void property="name"> 
+     <string>ubu</string> 
     </void> 
    </object> 
   </void> 
@@ -244,10 +114,20 @@
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>KLGA</string> 
+     <string>EGPN</string> 
     </void> 
     <void property="name"> 
-     <string>alsace</string> 
+     <string>bc</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KOLM</string> 
+    </void> 
+    <void property="name"> 
+     <string>ct</string> 
     </void> 
    </object> 
   </void> 
@@ -257,7 +137,27 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>coagulant</string> 
+     <string>shelter</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KIAH</string> 
+    </void> 
+    <void property="name"> 
+     <string>avalynne</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KHOU</string> 
+    </void> 
+    <void property="name"> 
+     <string>marie</string> 
     </void> 
    </object> 
   </void> 
@@ -267,7 +167,37 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>puddle</string> 
+     <string>sanctuary</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>EGVP</string> 
+    </void> 
+    <void property="name"> 
+     <string>kip</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>NZHN</string> 
+    </void> 
+    <void property="name"> 
+     <string>mjl</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>WWLP</string> 
+    </void> 
+    <void property="name"> 
+     <string>your_majesty</string> 
     </void> 
    </object> 
   </void> 
@@ -277,7 +207,17 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>flare</string> 
+     <string>beefquake</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KBFI</string> 
+    </void> 
+    <void property="name"> 
+     <string>pleasant</string> 
     </void> 
    </object> 
   </void> 
@@ -287,7 +227,7 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>supervisor</string> 
+     <string>exocet</string> 
     </void> 
    </object> 
   </void> 
@@ -297,7 +237,7 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>meteor</string> 
+     <string>sup</string> 
     </void> 
    </object> 
   </void> 
@@ -307,7 +247,27 @@
      <string>KLGA</string> 
     </void> 
     <void property="name"> 
-     <string>laststand</string> 
+     <string>petrusromanus</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>EGPN</string> 
+    </void> 
+    <void property="name"> 
+     <string>cb</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KLGA</string> 
+    </void> 
+    <void property="name"> 
+     <string>catastrophe</string> 
     </void> 
    </object> 
   </void> 
