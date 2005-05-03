@@ -108,12 +108,10 @@ public class Quiz extends Module implements Runnable {
 
         //now convert to a StringBuf
         StringBuffer tipStb = new StringBuffer(answer);
-		  int i ;
+		  Integer i ;
         while ( (tip.size() > 0) ) {
-			  	// grand fuckery here to get an int value out of an
-				//   Object that we know is an Integer.  Thanks, bc.
-			   i = Integer.valueOf(tip.remove(0).toString()).intValue(); 
-            tipStb.setCharAt(i, '_');
+				i = (Integer) tip.remove(0) ;
+            tipStb.setCharAt(i.intValue(), '_');
         }
         return (tipStb.toString());
     }
