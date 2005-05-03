@@ -1,5 +1,6 @@
 #Just add commands you would direct at goat here, and he will execute them on start up.
-#insmod GoatSay all
+insmod Help all
+insmod GoatSay all
 insmod More all
 insmod Confessions all
 insmod WordGame #wordgame
@@ -7,17 +8,21 @@ insmod Say all
 insmod Uno all
 insmod Weather all
 insmod RandWords all
+insmod Psychiatrist all
 insmod Colours all
 insmod Define all
-insmod Threat all
-insmod TODO all
-insmod Adventure all
+# The department of homeland security seems to have falled off of the internet.
+#insmod Threat all
 insmod Calc all
-insmod GoatSay all
+insmod TODO all
+insmod Adventure #adventure
 insmod Horoscope all
 insmod Remind all
 insmod CurrencyConverter all
+# Sexy appears to be broken
 insmod Sexy all
 #insmod Quiz all
 join #jism
+join #adventure
+join #goat
 join #wordgame
