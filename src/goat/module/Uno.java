@@ -42,12 +42,14 @@ public class Uno extends Module implements Output, Runnable {
         if (waiting || playing)
             if (m.modCommand.equals("botjoin")) {
                 String[] botNames = m.modTrailing.split(" ");
-                for (int i = 0; i < botNames.length; i++) {
+                for (int i = 0; i < botNames.length; i++) { 
                     if (getPlayer(botNames[i]) == null) {
                         if (game.players.size() > 10) {
                             m.createReply("Fuck off, we're full. ").send();
                             return;
                         }
+						if(botNames[i].trim().length() == 0) 
+							continue;
                         game.join(botNames[i], true);
                         hasJoined = true;
                     }
