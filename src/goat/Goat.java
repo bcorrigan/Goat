@@ -130,7 +130,6 @@ public class Goat {
 			BotStats.version = "unknown" ;
 		}
 		BotStats.botname = "goat";
-		BotStats.addChannel("#gayness");
 		BotStats.clientName = "goat";
 		BotStats.owner = "rs";
 		BotStats.servername = "moo.slashnet.org";
