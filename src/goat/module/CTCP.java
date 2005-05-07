@@ -24,7 +24,6 @@ public class CTCP extends Module {
 	}
 
 	public void processPrivateMessage(Message m) {
-		processOtherMessage(m);
 	}
 
 	public void processChannelMessage(Message m) {
@@ -42,12 +41,15 @@ public class CTCP extends Module {
 		if (j > -1) {
 			name = m.prefix.substring(0, j);
 		}
-		// System.out.println("botname: " + BotStats.botname + "; m.params: " + m.params);
-		if (m.params.trim().equals(BotStats.botname)) {
+		if (m.params.trim().equals(BotStats.botname) || m.isCTCP) {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP && m.CTCPCommand.equals("VERSION")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + Message.BOLD + BotStats.version + Message.BOLD + " (" + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';' + System.getProperty("os.arch") + ')' + (char) 0x01).send();
+				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + Message.BOLD + BotStats.version + Message.BOLD
+						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
+						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
+						+ " user: " + System.getProperty("user.name")
+						+ ')' + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("PING")) {
 				new Message("", "NOTICE", name, (char) 0x01 + "PING " + m.CTCPMessage + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("TIME")) {
