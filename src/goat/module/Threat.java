@@ -13,7 +13,7 @@ import java.io.InputStreamReader;
 /**
  * This class keeps us informed of changes in the current US Threat Advisory Level.
  * <p/>
- * Class gets the latest info on it here: http://www.threat-advisory.com/formal.html
+ * Class gets the latest info on it here: http://www.dhs.gov/dhspublic/getAdvisoryCondition
  * <p/>
  * The levels are:
  * <p/>
@@ -79,7 +79,7 @@ public class Threat extends Module implements Runnable {
 	}
 
 	/**
-	 * Contacts http://www.threat-advisory.com/formal.html yo get the latest threat level.
+	 * Contacts http://www.dhs.gov/dhspublic/getAdvisoryCondition yo get the latest threat level.
 	 *
 	 * @return The latest threat level
 	 */
@@ -87,25 +87,26 @@ public class Threat extends Module implements Runnable {
         HttpURLConnection connection = null;
         BufferedReader in = null;
 		try {
-			URL threatURL = new URL("http://www.threat-advisory.com/formal.html");
+			URL threatURL = new URL("http://www.dhs.gov/dhspublic/getAdvisoryCondition");
 			connection = (HttpURLConnection) threatURL.openConnection();
 			// connection.setConnectTimeout(3000);  //jdk5 only
 			connection.connect();
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				System.out.println("Fuck up at threat-advisory.com, HTTP Response code: " + connection.getResponseCode());
+				System.out.println("Fuck up at dhs.gov, HTTP Response code: " + connection.getResponseCode());
 				return UNKNOWN;
 			}
 			in = new BufferedReader(new InputStreamReader(threatURL.openStream()));
+			in.readLine();	//we discard the first line, the content we want is on the second
 			String threatLevelString = in.readLine();
-			if (threatLevelString.equals("Green"))
+			if (threatLevelString.contains("LOW"))
 				return GREEN;
-			else if (threatLevelString.equals("Blue"))
+			else if (threatLevelString.contains("GUARDED"))
 				return BLUE;
-			else if (threatLevelString.equals("Yellow"))
+			else if (threatLevelString.contains("ELEVATED"))
 				return YELLOW;
-			else if (threatLevelString.equals("Orange"))
+			else if (threatLevelString.contains("HIGH"))
 				return ORANGE;
-			else if (threatLevelString.equals("Red"))
+			else if (threatLevelString.contains("SEVERE"))
 				return RED;
 			connection.disconnect();
 			in.close();

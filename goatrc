@@ -11,8 +11,7 @@ insmod RandWords all
 insmod Psychiatrist all
 insmod Colours all
 insmod Define all
-# The department of homeland security seems to have falled off of the internet.
-#insmod Threat all
+insmod Threat all
 insmod Calc all
 insmod TODO all
 insmod Adventure #adventure
