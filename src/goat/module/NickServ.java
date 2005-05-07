@@ -24,6 +24,7 @@ public class NickServ extends Module {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		inAllChannels = true;
         new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
 	}
 	public void processPrivateMessage(Message m) {
