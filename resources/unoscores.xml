@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<<<<<<< .mine
-<java version="1.4.2-p6" class="java.beans.XMLDecoder"> 
-=======
 <java version="1.5.0_01" class="java.beans.XMLDecoder"> 
->>>>>>> .r239
  <object class="java.util.ArrayList"> 
   <void method="add"> 
    <object class="goat.uno.Record"> 
@@ -160,27 +156,6 @@
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
-<<<<<<< .mine
-     <int>2</int> 
-    </void> 
-    <void property="gamesWon"> 
-     <int>2</int> 
-    </void> 
-    <void property="hiScore"> 
-     <int>320</int> 
-    </void> 
-    <void property="name"> 
-     <string>Crio</string> 
-    </void> 
-    <void property="totalScore"> 
-     <int>341</int> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.uno.Record"> 
-    <void property="gamesEntered"> 
-=======
      <int>3</int> 
     </void> 
     <void property="gamesWon"> 
@@ -200,7 +175,6 @@
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
->>>>>>> .r239
      <int>5</int> 
     </void> 
     <void property="gamesWon"> 
@@ -447,28 +421,6 @@
     </void> 
    </object> 
   </void> 
-<<<<<<< .mine
-  <void method="add"> 
-   <object class="goat.uno.Record"> 
-    <void property="gamesEntered"> 
-     <int>5</int> 
-    </void> 
-    <void property="name"> 
-     <string>Arono</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="add"> 
-   <object class="goat.uno.Record"> 
-    <void property="gamesEntered"> 
-     <int>1</int> 
-    </void> 
-    <void property="name"> 
-     <string>Crio</string> 
-    </void> 
-   </object> 
-  </void> 
-=======
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
@@ -489,6 +441,6 @@
     </void> 
    </object> 
   </void> 
->>>>>>> .r239
  </object> 
 </java> 
+
