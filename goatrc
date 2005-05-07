@@ -22,6 +22,5 @@ insmod CurrencyConverter all
 insmod Sexy all
 #insmod Quiz all
 join #jism
-join #adventure
-join #goat
+#join #adventure
 join #wordgame
