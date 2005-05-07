@@ -27,6 +27,7 @@ public class Scores implements Comparator {
             e.printStackTrace();
         } catch (NoSuchElementException e) {
             e.printStackTrace();
+			System.out.println("Most likely your resources/unoscores.xml file has become corrupted - have a look at it please.");
         } catch (ArrayIndexOutOfBoundsException e) {
             e.printStackTrace();
         }
