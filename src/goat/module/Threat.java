@@ -98,15 +98,15 @@ public class Threat extends Module implements Runnable {
 			in = new BufferedReader(new InputStreamReader(threatURL.openStream()));
 			in.readLine();	//we discard the first line, the content we want is on the second
 			String threatLevelString = in.readLine();
-			if (threatLevelString.contains("LOW"))
+			if (threatLevelString.matches(".*LOW.*"))
 				return GREEN;
-			else if (threatLevelString.contains("GUARDED"))
+			else if (threatLevelString.matches(".*GUARDED.*"))
 				return BLUE;
-			else if (threatLevelString.contains("ELEVATED"))
+			else if (threatLevelString.matches(".*ELEVATED.*"))
 				return YELLOW;
-			else if (threatLevelString.contains("HIGH"))
+			else if (threatLevelString.matches(".*HIGH.*"))
 				return ORANGE;
-			else if (threatLevelString.contains("SEVERE"))
+			else if (threatLevelString.matches(".*SEVERE.*"))
 				return RED;
 			connection.disconnect();
 			in.close();
