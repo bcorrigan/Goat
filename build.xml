@@ -9,18 +9,19 @@
 	<property name="version" value="2.0"/>
 	<property name="docs" location="javadocs" />
     
-    <path id="project.class.path">
+    <path id="build.class.path">
         <pathelement path="${classpath}"/>
         <fileset dir="lib">
             <include name="**/*.jar"/>
         </fileset>
-    </path>
-
-	<path id="depends">
+	  </path>
+	  <property name='build.class.path' refid='build.class.path' />
+	 
+	<path id="run.class.path">
+		<path refid="build.class.path"/>
+		<pathelement location="classes"/>
 	</path>
-
-	<path id="run">
-	</path>
+	<property name='run.class.path' refid='run.class.path' />
 	
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -34,8 +35,8 @@
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac srcdir="${src}" destdir="${build}" source="1.4" target="1.4" optimize="yes" debug="on" debuglevel="lines,vars,source">
-            <classpath refid="project.class.path"/>
-        </javac>
+            <classpath refid="build.class.path"/>
+      </javac>
 	</target>
 
 	<target name="jar" depends="compile" description="Make a binary jar">
@@ -75,16 +76,22 @@
 		<!-- Delete the ${build} and ${dist} directory trees -->
 		<delete dir="${build}"/>
 	</target>
-    <target name="run" description="Start up goat">
-        <java jar="goat.jar" fork="true" classpathref="project.class.path">
-			  <!-- no idea what all this next malarkey was supposed to accomplish, replaced it with something sensible below -->
-			  <!--
-            <jvmarg value="-server -Xbootclasspath/a:lib/ant.jar:lib/jaxen-core.jar:lib/jaxen-jdom.jar:lib/jdom.jar:lib/saxpath.jar:lib/xalan.jar:lib/xerces.jar:lib/xml-apis.jar"/>
-				-->
-				<jvmarg value="-server" />
-            <!--<classpath refid="project.class.path"/>-->
-        </java>
-    </target>
+
+	<!-- still would like to get this to work in non-forked mode -->
+	<target name="run" description="Start up goat">
+		<!-- The classpath malarky works properly now, but only in
+			forked mode.  Next line is for debugging purposes -->
+		<!-- <echo message="Using classpath: ${run.class.path}" /> -->
+      <java classname="goat.Goat" fork="true" classpathref="run.class.path">
+			<jvmarg value="-server" />
+		</java>
+	</target>
+	  
+	 <target name="jarclean" description="remove old goat jars">
+		 <delete verbose='true'>
+			 <fileset dir="jars/bin" includes="**/*.jar"/>
+		 </delete>
+	 </target>
  
 </project>
 
