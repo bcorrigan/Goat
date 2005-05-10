@@ -48,7 +48,6 @@ public class CTCP extends Module {
 				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + Message.BOLD + BotStats.version + Message.BOLD
 						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
 						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
-						+ " user: " + System.getProperty("user.name")
 						+ ')' + (char) 0x01).send();
 			} else if (m.isCTCP && m.CTCPCommand.equals("PING")) {
 				new Message("", "NOTICE", name, (char) 0x01 + "PING " + m.CTCPMessage + (char) 0x01).send();
