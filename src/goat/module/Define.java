@@ -24,13 +24,13 @@ import java.util.Vector;
  */
 public class Define extends Module {
 	
-	private static String host = "localhost" ;
+	private static String host = "dict.org" ;
 	
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
    public String[] getCommands() {
-		return new String[]{"define", "randef", "dictionaries", "dictionary" };
+		return new String[] { "define", "randef", "dictionaries", "dictionary", "oed" };
    }
 	
 	public Define() {
@@ -53,6 +53,8 @@ public class Define extends Module {
 			dictionaries(m) ;
 		} else if (m.modCommand.equalsIgnoreCase("dictionary")) {
 			dictionary(m) ;
+		} else if (m.modCommand.equalsIgnoreCase("oed")) {
+			m.createReply(oedUrl(m.modTrailing)).send() ;
 		}
 	}
 
@@ -90,6 +92,10 @@ public class Define extends Module {
 				m.createReply("Er, define what, exactly?").send() ;
 				return ;
 			}
+		}
+		if (dictionary.equalsIgnoreCase("oed")) {
+			m.createReply(oedUrl(word)).send() ;
+			return ;
 		}
 		String[][] dbList = null ;
 		String[][] matchList = null ;
@@ -183,6 +189,10 @@ public class Define extends Module {
 	
 	private void randef(Message m) {
 		m.createReply("Not implmemented, please stand by").send() ; 
+	}
+
+	private String oedUrl(String word) {
+		return "http://dictionary.oed.com/cgi/findword?query_type=word&queryword=" + word.replaceAll(" ", "%20") ;
 	}
 	
 	private void dictionaries(Message m) {
