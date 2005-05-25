@@ -820,6 +820,8 @@ public class Message {
 	 * Sends this message
 	 */
 	public void send() {
+		// copy to console
+		System.out.println("(goat): " + this.trailing) ;
 		outqueue.enqueue(this);
 	}
 }
