@@ -12,7 +12,7 @@ import goat.module.WordGame;
 import java.io.*;
 import java.net.* ;
 import java.util.Vector;
-		
+import java.util.regex.* ;
 
 
 /**
@@ -20,12 +20,15 @@ import java.util.Vector;
  * 
  *	@author encontrado
  * 
+ * This fucker needs some serious reorganizing before anything more is added to it (2005-05-23)
+ *
  * @version 1.0
  */
 public class Define extends Module {
 	
 	private static String host = "dict.org" ;
-	
+	private static String urbandictionaryDescription = "The somewhat spotty slang dictionary at urbandictionary.com" ;
+   
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
@@ -93,41 +96,61 @@ public class Define extends Module {
 				return ;
 			}
 		}
-		if (dictionary.equalsIgnoreCase("oed")) {
+
+      Vector definitionList = null ;
+      String[][] matchList = null ;
+         
+      // This next block is thuggish.  If we keep tacking dictionaries onto the project,
+      // we might want to rearrange stuff here and elsewhere to do things consistently
+      if (dictionary.equalsIgnoreCase("urban")) {
+         definitionList = getUrbanDefinitions(word) ;
+         // this next is ugly, but urbandictionary.com doesn't have a guess-mis-spelt-word feature
+         if (definitionList.isEmpty())
+            matchList =  new String[0][0];
+         else {
+            matchList = new String[1][1] ;
+            matchList[0][0] = word ;
+         }
+      } 
+      else if (dictionary.equalsIgnoreCase("oed")) {
+         // If we were clever monkeys, we could get goat to ask bugmenot for 
+         //   a login/password for oed.com, and then use that to get the page, 
+         //   and then parse the page for definitionList and matchList.
+         //   instead, we'll just burp up a URL, and let the user do the legwork.
 			m.createReply(oedUrl(word)).send() ;
-			return ;
-		}
-		String[][] dbList = null ;
-		String[][] matchList = null ;
-		Vector definitionList = null ;
-		DICTClient dc = getDICTClient(m) ;
-		if(null == dc) 
-			return ;
-		try {
-			dbList = dc.getDatabases() ;
-			// Check to see if we were given a valid dictionary
-			if(! dictionary.equals("*")) {
-				boolean found = false ;
-				for (int i=0; i<dbList.length ;i++) {
-					if (dictionary.equals(dbList[i][0])) {
-						found = true ;
-						break ;
-					}
-				}
-				if( ! found ) {
-					m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
-					dictionaries(m) ;
-					return ;
-				}
-			}
-			definitionList = dc.getDefinitions( new String[] {dictionary}, word) ;
-			matchList = dc.getMatches(new String[] {dictionary}, ".", word) ;
-		} catch (ConnectException e) {
-			m.createReply("Something went wrong while connecting to DICT server at " + host ) ;
-			e.printStackTrace() ;
-		} finally {
-			dc.close() ;
-		}
+			return ;  //naughty!
+		} 
+      else {
+   		String[][] dbList = null ;
+   		DICTClient dc = getDICTClient(m) ;
+   		if(null == dc) 
+   			return ;
+   		try {
+   			dbList = dc.getDatabases() ;
+   			// Check to see if we were given a valid dictionary
+   			if(! dictionary.equals("*")) {
+   				boolean found = false ;
+             for (int i=0; i<dbList.length ;i++) {
+                if (dictionary.equals(dbList[i][0])) {
+                   found = true ;
+                   break ;
+                }
+             }
+   				if( ! found ) {
+   					m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
+   					dictionaries(m) ;
+   					return ;
+   				}
+   			}
+   			definitionList = dc.getDefinitions( new String[] {dictionary}, word) ;
+   			matchList = dc.getMatches(new String[] {dictionary}, ".", word) ;
+   		} catch (ConnectException e) {
+   			m.createReply("Something went wrong while connecting to DICT server at " + host ) ;
+   			e.printStackTrace() ;
+   		} finally {
+   			dc.close() ;
+   		}
+      }
 		// check not-null definition list and match list
 		if(null == definitionList || null == matchList) {
 			System.out.println("I'm sorry, Dave, something has gone horribly wrong.") ;
@@ -163,6 +186,7 @@ public class Define extends Module {
 			m.createReply(line).send() ;
 			return ;
 		}
+      
 		Definition d = (Definition) definitionList.get(num - 1) ;
 		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
 		m.createPagedReply(text).send() ;
@@ -195,6 +219,95 @@ public class Define extends Module {
 		return "http://dictionary.oed.com/cgi/findword?query_type=word&queryword=" + word.replaceAll(" ", "%20") ;
 	}
 	
+	private String urbanUrl(String word) {
+		return "http://www.urbandictionary.com/define.php?term=" + word.replaceAll(" ", "%20") ;
+	}
+        
+	private Vector getUrbanDefinitions(String word) {
+      Vector definitionList = null;
+      HttpURLConnection connection = null;
+      try {
+         URL urban = new URL(urbanUrl(word));
+         connection = (HttpURLConnection) urban.openConnection();
+         /* incompatible with 1.4
+         * It seems java.net.Socket supports socket timeouts, but URLConnection does not expose the
+         * underlying socket's timeout ability before j2se1.5. So can either rework this code here to use Socket,
+         * or leave this commented out till 1.5 is released and more prevalent. Think this latter option is the best
+         * one (ie the one that involves least work).
+         */
+         // connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+         if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            System.out.println("Fuckup at urbandictionary, HTTP Response code: " + connection.getResponseCode());
+            return null ;
+         }
+         definitionList = parseUrbanPage(new BufferedReader(new InputStreamReader(connection.getInputStream())));
+      } catch (IOException e) {
+         e.printStackTrace();
+          return null ;
+      } finally {
+          if(connection!=null) connection.disconnect();
+      }
+      return definitionList ;
+   }   
+   
+   private Vector parseUrbanPage(BufferedReader br) throws IOException {
+      // In which we use java regexps, the painful way
+      Vector definitionList = new Vector();
+      String inputLine;
+      String word;
+      String definition;
+      String example = "";
+      Matcher matcher ;
+      
+      Pattern wordPattern = Pattern.compile("^\\s*<span class=\"word\">(.*)+?</span>\\s*$") ;
+      Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"def\">(.*)") ;
+      Pattern exampleStartPattern = Pattern.compile("^\\s*<div class=\"example\">(.*)") ;
+      Pattern endPattern = Pattern.compile("(.*)</div>\\s*$") ;
+      
+		while ((inputLine = br.readLine()) != null) {
+         // Do stuff...
+         matcher = wordPattern.matcher(inputLine) ;
+         if (matcher.find()) { // word found 
+            // parse out word
+            word = matcher.group(1) ;
+            // parse out definition
+            matcher = definitionStartPattern.matcher(br.readLine()) ;
+            while (! matcher.find()) 
+               matcher = definitionStartPattern.matcher(br.readLine()) ;
+            definition = matcher.group(1) ;
+            matcher = endPattern.matcher(definition) ;
+            while (! matcher.find()) {
+               definition += br.readLine() ;
+               matcher = endPattern.matcher(definition) ;
+            }
+            definition = matcher.group(1) ;
+            // and example
+            matcher = exampleStartPattern.matcher(br.readLine()) ;
+            while (! matcher.find()) 
+               matcher = exampleStartPattern.matcher(br.readLine()) ;
+            example = matcher.group(1) ; 
+            matcher = endPattern.matcher(example) ;
+            while (! matcher.find()) {
+               example += br.readLine() ;
+               matcher = endPattern.matcher(example) ;
+            }
+            example = matcher.group(1) ;
+            // massage our definition into one line of readable ascii
+            if (! example.equals(""))
+               definition += Message.BOLD + " Ex:" + Message.NORMAL + " \"" + example + "\"" ;
+            definition = definition.replaceAll("\\n", " ") ;
+            definition = definition.replaceAll("&quot;", "\"");
+            definition = definition.replaceAll("&amp;", "&");
+            definition = definition.replaceAll("<br />", " ") ;
+            definition = definition.replaceAll("<a .*?>", Message.UNDERLINE) ;
+            definition = definition.replaceAll("</a>", Message.NORMAL) ;
+            // insert new Definition object into definitionList
+            definitionList.addElement(new Definition("urban", urbandictionaryDescription, word, definition)) ;
+         }
+      }
+      return definitionList ;
+   }
+	
 	private void dictionaries(Message m) {
 		DICTClient dc = getDICTClient(m) ;
 		String[][] dbList = dc.getDatabases() ;
@@ -205,8 +318,8 @@ public class Define extends Module {
 				line = dbList[i][0] ;
 			else
 				line = line + ", " + dbList[i][0] ;
-			line = line.trim() ;
 		}
+      line += ", urban, oed" ;
 		m.createPagedReply(line).send() ;
 	}
 	
@@ -217,18 +330,28 @@ public class Define extends Module {
 		String[][] dbList = dc.getDatabases() ;
 		dc.close() ;
 		boolean found = false ;
-		for (int i = 0; i < dbList.length ; i++ ) {
-			if (dbList[i][0].equals(code)) {
-				found = true ;
-				line = code + ": " + dbList[i][1] ;
-				break ;
-			}
-			if (line.equals(""))
-				line = dbList[i][0] ;
-			else
-				line = line + ", " + dbList[i][0] ;
-			line = line.trim() ;
-		}
+      if (code.equalsIgnoreCase("oed")) {
+         line = "oed: The One True English Dictionary" ;
+         found = true ;
+      }
+      else if (code.equalsIgnoreCase("urban") ) {
+         line = "urban:  " + urbandictionaryDescription ;
+         found = true ;
+      }
+      else {
+         for (int i = 0; i < dbList.length ; i++ ) {
+            if (dbList[i][0].equals(code)) {
+               found = true ;
+               line = code + ": " + dbList[i][1] ;
+            	break ;
+   			}
+      		if (line.equals(""))
+         		line = dbList[i][0] ;
+   			else
+      			line = line + ", " + dbList[i][0] ;
+         	line = line.trim() ;
+         }
+      }
 		if (! found) 
 			line = "Dictionary \"" + code + "\" not found; available dictionaries: " + line ;
 		m.createPagedReply(line).send() ;
