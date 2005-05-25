@@ -1,5 +1,6 @@
 #Just add commands you would direct at goat here, and he will execute them on start up.
-insmod Help all
+# Help is started by Core
+# insmod Help all
 insmod GoatSay all
 insmod More all
 insmod Confessions all
@@ -18,9 +19,9 @@ insmod Adventure #adventure
 insmod Horoscope all
 insmod Remind all
 insmod CurrencyConverter all
-# Sexy appears to be broken
 insmod Sexy all
 #insmod Quiz all
 join #jism
 #join #adventure
 join #wordgame
+
