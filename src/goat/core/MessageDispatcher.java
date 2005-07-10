@@ -115,13 +115,18 @@ public class MessageDispatcher {
     }
 
 	private void sendMessage(Message msg, Module mod) {
-		if (msg.isCTCP||!msg.command.equals("PRIVMSG")) {
-			mod.processOtherMessage(msg);
-		} else if (msg.isPrivate) {
-			mod.processPrivateMessage(msg);
-		} else {
-			mod.processChannelMessage(msg);
-		}
+        try {
+            if (msg.isCTCP||!msg.command.equals("PRIVMSG")) {
+                mod.processOtherMessage(msg);
+            } else if (msg.isPrivate) {
+                mod.processPrivateMessage(msg);
+            } else {
+                mod.processChannelMessage(msg);
+            }
+        } catch(Exception e) {
+            msg.createReply( mod.getClass().getName() + " caused an exception: " 
+                    + e.getMessage() + ". You will probably want to fix this. Saving stacktrace to a bugfix file.").send();
+        }
 	}
 
 }
