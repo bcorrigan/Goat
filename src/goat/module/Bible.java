@@ -109,6 +109,7 @@ public class Bible extends Module {
             }
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 m.createReply( "Hmmmn, " + m.sender + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
+                return;
             }
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine = in.readLine() + ' ';
