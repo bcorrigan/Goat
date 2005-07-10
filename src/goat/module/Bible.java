@@ -1,7 +1,8 @@
 /**
- * Allows users to query goat for bible quotes. eg:
- * &lt;bc&gt; goat, bible genesis 1:1 bible=kjv
- * &lt;goat&gt; In the beginning God created the heaven and the earth.
+ * <P>Allows users to query goat for bible quotes. eg:</P>
+ * 
+ * <b>&lt;bc&gt;</b> goat, bible genesis 1:1 bible=kjv<br>
+ * <b>&lt;goat&gt;</b> In the beginning God created the heaven and the earth.
  *  
  * @author bc
  * Created on 10-Jul-2005
@@ -52,7 +53,7 @@ public class Bible extends Module {
         bibles.put("HCSB", new Integer(77));    //Holman Christian Standard Bible
         bibles.put("NIRV", new Integer(76));    //New International Reader's Version
         bibles.put("WNT", new Integer(53));     //Wycliffe New Testament
-        bibles.put("WE", new Integer(73));    //World English (New Testament)
+        bibles.put("WE", new Integer(73));      //World English (New Testament)
         bibles.put("NIVUK", new Integer(64));   //New International Version - UK
     }
     
@@ -111,9 +112,8 @@ public class Bible extends Module {
             }
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine = in.readLine() + ' ';
-            //First, match this, it marks the start of the line all the content is on: &nbsp;&nbsp;&nbsp;<sup
+            
             while ((inputLine = in.readLine()) != null) {
-                //System.out.println("into parse loop: inputLine:" + inputLine);
                 if (inputLine.contains("en-" + bible)) {
                     inputLine = inputLine.replaceAll("<.*?>", " "); //strip html
                     inputLine = inputLine.replaceAll("&nbsp;", ""); //strip &nbsp;'s
