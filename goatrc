@@ -21,6 +21,7 @@ insmod Remind all
 insmod CurrencyConverter all
 insmod Sexy all
 #insmod Quiz all
+insmod Bible all
 join #jism
 #join #adventure
 join #wordgame
