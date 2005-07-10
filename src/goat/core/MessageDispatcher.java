@@ -124,8 +124,9 @@ public class MessageDispatcher {
                 mod.processChannelMessage(msg);
             }
         } catch(Exception e) {
-            msg.createReply( mod.getClass().getName() + " caused an exception: " 
-                    + e.getMessage() + ". You will probably want to fix this. Saving stacktrace to a bugfix file.").send();
+            e.printStackTrace();
+            msg.createReply( mod.getClass().getSimpleName() + " caused an exception: " 
+                    + e.getClass().getSimpleName() + ". You will probably want to fix this. Saving stacktrace to a bugfix file.").send();
         }
 	}
 
