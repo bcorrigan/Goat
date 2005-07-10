@@ -91,6 +91,7 @@ public class Bible extends Module {
         } catch (UnsupportedEncodingException e) {
             m.createReply("Internal error: encoding not supported for urlencode. ").send();
             e.printStackTrace();
+            return;
         }
         System.out.println("bibleQuery: " + bibleQuery);
         HttpURLConnection connection = null;
