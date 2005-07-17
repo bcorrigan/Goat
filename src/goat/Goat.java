@@ -1,6 +1,7 @@
 package goat;
 
 import goat.core.*;
+import goat.module.Core;
 import goat.module.ModuleCommands;
 import goat.module.CTCP;
 
@@ -12,6 +13,7 @@ public class Goat {
 	public static MessageQueue outqueue = new MessageQueue();
 	public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};
+    public static ServerConnection sc;
 
 	public static void main(String[] args) {
         argv=args;
@@ -26,7 +28,7 @@ public class Goat {
             System.exit(0);
         }
 
-		ServerConnection sc = new ServerConnection(BotStats.servername); //lets init the connection..
+		sc = new ServerConnection(BotStats.servername); //lets init the connection..
 		loadDefaultModules(modController);
 		try {
 			Thread.sleep(100);   //lets give the logon a chance to progress before adding messages to queues
@@ -103,6 +105,8 @@ public class Goat {
 				modController.get("Help").inAllChannels = true ;
 			modController.load("Auth");
 			modController.load("Core");
+			Core core = (Core) modController.get(5);
+			core.inAllChannels = true;
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
