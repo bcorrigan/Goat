@@ -198,7 +198,6 @@ public class ServerConnection extends Thread {
         //should block until posting won't flood us off
         public void sendMessage(Message m) {
             byte[] outbuffer;
-            System.out.println("HI THERE!");
             synchronized (out) {
                 System.out.println("outbuffer:" + String.valueOf( m.toString() ));
                 outbuffer = m.toByteArray();
