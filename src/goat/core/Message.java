@@ -612,6 +612,10 @@ public class Message {
 
 		return bytes;
 	}
+	
+	public String toString() {
+		return ( (prefix.length() > 0 ? ':' + prefix + ' ' : "") + command + (params.length() > 0 ? " " : "") + params + (trailing.length() > 0 ? " :" + trailing : "") );
+	}
 
 	/**
 	 * <P>Gets the word at the given position from the decoded message.</P>

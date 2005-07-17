@@ -1,5 +1,6 @@
 package goat.core;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
@@ -31,7 +32,12 @@ public class BotStats {
 	 */
 	public static String servername;
 	public static String clientName;
-
+	
+	/**
+	 * The charset the bot is currently using
+	 */
+	private static Charset charset = Charset.forName("ISO-8859-1");
+	
 	public static synchronized String[] getChannels() {
 		Object[] ob = channels.toArray();
 		String[] chans = new String[ob.length];
@@ -60,5 +66,22 @@ public class BotStats {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Call to set the charset in use by goat
+	 * @param charset
+	 */
+	public static void setCharset(Charset charset) {
+		BotStats.charset = charset;
+		goat.Goat.sc.setCharset(charset);
+	}
+	
+	/**
+	 * Get the currently used charset from here
+	 * @return
+	 */
+	public static Charset getCharset() {
+		return charset;
 	}
 }

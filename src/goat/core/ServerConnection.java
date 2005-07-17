@@ -3,6 +3,7 @@ package goat.core;
 import goat.Goat;
 
 import java.net.*;
+import java.nio.charset.Charset;
 import java.io.*;
 
 /**
@@ -34,11 +35,11 @@ public class ServerConnection extends Thread {
 
     private void connect() throws UnknownHostException, IOException {
         IrcServer = new Socket(serverName, 6667);
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream()));
-        OutputStream os = IrcServer.getOutputStream();
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream(), BotStats.getCharset()));
+        PrintWriter pw = new PrintWriter( new OutputStreamWriter( IrcServer.getOutputStream(), BotStats.getCharset() ), true);
         ih = new InputHandler(br);
-        oh = new OutputHandler(os);
+        oh = new OutputHandler(pw);
 
         ih.start();
         oh.start();
@@ -146,11 +147,15 @@ public class ServerConnection extends Thread {
                 }
             }
         }
+        
+        protected void setBR( BufferedReader br) {
+        	in = br;
+        }
     }
 
     class OutputHandler extends Thread {
 
-        OutputStream out;
+        PrintWriter out;
         private boolean keeprunning;
         int clearcount;
 
@@ -158,7 +163,7 @@ public class ServerConnection extends Thread {
             keeprunning = false;
         }
 
-        public OutputHandler(OutputStream out) {
+        public OutputHandler(PrintWriter out) {
             this.out = out;
             setName("Output Handler (client -> server)");
             keeprunning = true;
@@ -193,11 +198,13 @@ public class ServerConnection extends Thread {
         //should block until posting won't flood us off
         public void sendMessage(Message m) {
             byte[] outbuffer;
-
+            System.out.println("HI THERE!");
             synchronized (out) {
+                System.out.println("outbuffer:" + String.valueOf( m.toString() ));
                 outbuffer = m.toByteArray();
                 if (bufused + outbuffer.length > 1024) {
                     //hope that sleeping for two seconds will empty the buffer.
+                	System.out.println(2000 + bufused * 3);
                     try {
                         sleep(2000 + bufused * 3);
                     } catch (InterruptedException e) {
@@ -206,17 +213,27 @@ public class ServerConnection extends Thread {
                     bufused >>= 1;
                 }
 
-                try {
-                    out.write(outbuffer);
-                    // System.out.println("Outbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing);
-                } catch (IOException e) {
-                    System.out.println("Write error: " + e.getMessage());
-                    reconnect();
-                    return;
-                }
+                out.println(m.toString());
+                //System.out.println("Outbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing);
 
                 bufused += outbuffer.length;
             }
         }
+        
+        protected void setOSW( PrintWriter pw) {
+        	out = pw;
+        }
+    }
+    
+    protected void setCharset( Charset cs) {
+    	try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream(), cs));
+			PrintWriter pw = new PrintWriter( new OutputStreamWriter( IrcServer.getOutputStream(), cs), true);
+			ih.setBR(br);
+			oh.setOSW(pw);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
     }
 }
