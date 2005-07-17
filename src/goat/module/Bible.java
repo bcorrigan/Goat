@@ -32,7 +32,7 @@ public class Bible extends Module {
             " Young's Literal Translation (YLT), Darby Translation (DARBY), New Life Version (NLV)," +
             " Holman Christian Standard Bible (HCSB), New International Reader's Version (NIRV)," +
             " Wycliffe New Testament (WNT), World English New Testament (WE)," +
-            " New International Version - UK (NIVUK).";
+            " New International Version - UK (NIVUK), Hatian Creole Version (HCV).";
         
     
     public Bible() {
@@ -55,6 +55,7 @@ public class Bible extends Module {
         bibles.put("WNT", new Integer(53));     //Wycliffe New Testament
         bibles.put("WE", new Integer(73));      //World English (New Testament)
         bibles.put("NIVUK", new Integer(64));   //New International Version - UK
+        bibles.put("HCV", new Integer(23));     //Haitian Creole Version
     }
     
     public int messageType() {
@@ -115,7 +116,7 @@ public class Bible extends Module {
             String inputLine = in.readLine() + ' ';
             
             while ((inputLine = in.readLine()) != null) {
-                if (inputLine.contains("en-" + bible)) {
+                if (inputLine.contains("en-" + bible) || inputLine.contains("cpf-" + bible)) {
                     inputLine = inputLine.replaceAll("<.*?>", " "); //strip html
                     inputLine = inputLine.replaceAll("&nbsp;", ""); //strip &nbsp;'s
                     m.createPagedReply( inputLine ).send();
