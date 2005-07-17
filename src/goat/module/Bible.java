@@ -32,7 +32,7 @@ public class Bible extends Module {
             " Young's Literal Translation (YLT), Darby Translation (DARBY), New Life Version (NLV)," +
             " Holman Christian Standard Bible (HCSB), New International Reader's Version (NIRV)," +
             " Wycliffe New Testament (WNT), World English New Testament (WE)," +
-            " New International Version - UK (NIVUK), Hatian Creole Version (HCV).";
+            " New International Version - UK (NIVUK), Hatian Creole Version (HCV), Luther Bibel 1545 (LUTH1545).";
         
     
     public Bible() {
@@ -56,6 +56,7 @@ public class Bible extends Module {
         bibles.put("WE", new Integer(73));      //World English (New Testament)
         bibles.put("NIVUK", new Integer(64));   //New International Version - UK
         bibles.put("HCV", new Integer(23));     //Haitian Creole Version
+        bibles.put("LUTH1545", new Integer(10));//Martin Luther version
     }
     
     public int messageType() {
@@ -112,11 +113,11 @@ public class Bible extends Module {
                 m.createReply( "Hmmmn, " + m.sender + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
                 return;
             }
-            in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
             String inputLine = in.readLine() + ' ';
             
             while ((inputLine = in.readLine()) != null) {
-                if (inputLine.contains("en-" + bible) || inputLine.contains("cpf-" + bible)) {
+                if (inputLine.contains("en-" + bible) || inputLine.contains("cpf-" + bible) || inputLine.contains("de-" + bible)) {
                     inputLine = inputLine.replaceAll("<.*?>", " "); //strip html
                     inputLine = inputLine.replaceAll("&nbsp;", ""); //strip &nbsp;'s
                     m.createPagedReply( inputLine ).send();
