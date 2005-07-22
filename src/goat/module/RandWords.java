@@ -80,6 +80,24 @@ public class RandWords extends Module {
 				}
 			}
 			m.createReply(reply).send() ;
+		} else if (m.modCommand.equals("headline")) {
+			CommandParser parser = new CommandParser(m) ;
+			String reply = "";
+			ArrayList seeds = parser.remainingAsArrayList() ;
+			if (seeds.isEmpty()) {
+				reply = randWordString(4) ;
+			} else if (seeds.size() > 3) {
+				reply = "Too long, kid.  Give me three words or less." ;
+			} else {
+				while (seeds.size() < 4) {
+					seeds.add(getWord()) ;
+				}
+				while (seeds.size() != 1) {
+					reply += ((String) seeds.remove(random.nextInt(seeds.size() - 1)) ) + " " ;
+				}
+				reply += seeds.remove(0) ;
+			}
+			m.createReply(reply).send() ;
 		}
 	}
 

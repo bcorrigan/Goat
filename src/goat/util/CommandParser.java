@@ -2,6 +2,7 @@ package goat.util ;
 
 import goat.core.Message ;
 import java.util.HashMap ;
+import java.util.ArrayList ;
 
 /**
  * A simple command parser
@@ -19,17 +20,18 @@ public class CommandParser {
 	private HashMap vars = new HashMap();
 	private String command = "" ;
 	private String remaining = "" ; 
+	private ArrayList remainingAsArrayList = new ArrayList() ;
 	
 	/**
 	 * @param m Message to be parsed
 	 */
 	public CommandParser(Message m) {
 		command = m.modCommand ;
-		parse(m.modTrailing) ;
+		parse(m.modTrailing.trim()) ;
 	}
 
 	public CommandParser(String text) {
-		parse(text) ;
+		parse(text.trim()) ;
 	}
 
 	/**
@@ -37,7 +39,12 @@ public class CommandParser {
 	 */
 	private void parse(String text) {
 		//TODO might be nice if this handled quotes helpfully
-		String[] words = text.split("\\s+") ;
+		String[] words = {} ;
+		if (! text.equals("")) {
+			// we need to wrap this in an if() because java's split() returns an
+			// array with one element in it ("") when invoked on an empty string.
+			words = text.split("\\s+") ;
+		}
 		int start = 0 ;
 		if (command.equals("")) {
 			command = words[0] ;
@@ -45,7 +52,8 @@ public class CommandParser {
 		}
 		String word = "" ;
 		String[] buf = {} ;
-		for(int i=start;i<words.length; i++) {
+		int i = start ;
+		while (i < words.length) {
 			//quote handling would go in here somewhere
 			word = words[i] ;
 			if ( word.matches("\\S+=\\S+") ) {
@@ -53,7 +61,9 @@ public class CommandParser {
 				vars.put(buf[0].toLowerCase(),buf[1]) ;
 			} else {
 				remaining = remaining + " " + word ;
+				remainingAsArrayList.add(word) ;
 			}
+			++i ;
 		}
 		remaining = remaining.trim() ;
 	}
@@ -68,13 +78,17 @@ public class CommandParser {
 	}
 
 	/**
-	 * Remainder getter
+	 * Remainder getters
 	 *
 	 * @return what remains of the line, after the command and vars have been parsed out
 	 */
 	public String remaining() {
-		System.out.println("remaining in remaining(): " + this.remaining) ;
+		// System.out.println("remaining in remaining(): " + this.remaining) ;
 		return remaining ;
+	}
+
+	public ArrayList remainingAsArrayList() {
+		return remainingAsArrayList ;
 	}
 
 	/**
