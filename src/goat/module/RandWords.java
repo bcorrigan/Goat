@@ -39,7 +39,7 @@ public class RandWords extends Module {
 
 	public void processChannelMessage(Message m) {
 		int num = 1 ;
-		if (m.modCommand.equals("randword") 
+		if (m.modCommand.equalsIgnoreCase("randword") 
 				|| m.modCommand.equals("randwords")) {
 			CommandParser parser = new CommandParser(m) ;
 			if (parser.has("num")) 
@@ -67,7 +67,7 @@ public class RandWords extends Module {
 			}
 			
 			m.createReply(randWordString(num)).send() ;
-		} else if (m.modCommand.equals("bandname")) {
+		} else if (m.modCommand.equalsIgnoreCase("bandname")) {
 			String arg = m.modTrailing.trim() ;
 			String reply;
 			if (arg.equals("") || arg.equals(null)) {
@@ -80,7 +80,7 @@ public class RandWords extends Module {
 				}
 			}
 			m.createReply(reply).send() ;
-		} else if (m.modCommand.equals("headline")) {
+		} else if (m.modCommand.equalsIgnoreCase("headline")) {
 			CommandParser parser = new CommandParser(m) ;
 			String reply = "";
 			ArrayList seeds = parser.remainingAsArrayList() ;
@@ -93,7 +93,7 @@ public class RandWords extends Module {
 					seeds.add(getWord()) ;
 				}
 				while (seeds.size() != 1) {
-					reply += ((String) seeds.remove(random.nextInt(seeds.size() - 1)) ) + " " ;
+					reply += ((String) seeds.remove(random.nextInt(seeds.size())) ) + " " ;
 				}
 				reply += seeds.remove(0) ;
 			}
