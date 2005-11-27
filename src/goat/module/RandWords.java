@@ -24,10 +24,10 @@ public class RandWords extends Module {
 	private Dict dict = new Dict() ;
 	
 	public int messageType() {
-		return WANT_ALL_MESSAGES;
+		return WANT_COMMAND_MESSAGES;
 	}
    public String[] getCommands() {
-		return new String[]{"randword", "randwords", "bandname"};
+		return new String[]{"randword", "randwords", "bandname", "headline"};
    }
 	
 	public RandWords() {
