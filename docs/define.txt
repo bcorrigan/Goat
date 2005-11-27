@@ -1,0 +1,10 @@
+Get word definitions via goat's preferred DICT server with '#define# [word]'.
+If more than one definition is found, goat will note all available definitions.
+
+Options can be given to 'define':  '#dict#=[abbr]' and '#num#=[integer]'.
+The #dict# option specifies a dictionary (default is all available dictionaries).
+The #num# option specifies a definition, from 1 to the last available (cycling through successive dictionaries, as appropriate).
+
+If no word is supplied, and the command is issued in a channel where #wordgame# is played, then the last winning word is the default.
+
+#dictionaries# will list all available dictionaries, by abbreviation.  #dictionary# <abbr> yields a brief description of the dictionary corresponding to #abbr#.
