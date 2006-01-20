@@ -4,6 +4,7 @@ import goat.core.Module;
 import goat.core.Message;
 
 import java.io.* ;
+import java.util.Arrays ;
 import java.util.ArrayList ;
 import java.util.Iterator ;
 import java.util.Random ;
@@ -34,7 +35,7 @@ public class BookTitle extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
    public String[] getCommands() {
-		return new String[]{"title"};
+		return new String[]{"title", "titleadjectives", "titlenouns"};
    }
 	
 	public BookTitle() {
@@ -76,6 +77,20 @@ public class BookTitle extends Module {
 			titles.add("The " + noun1 + " of the " + noun2) ;
 			titles.add(noun1 + " in the " + noun2) ;
 			m.createReply((String) titles.remove(random.nextInt(titles.size()))).send();
+		} else if(m.modCommand.equalsIgnoreCase("titlenouns")) {
+			String reply = num_nouns + " nouns:  " ;
+			for(int i=0;i<num_nouns;i++) {
+				reply += nouns[i] + " " ;
+			}
+			m.createPagedReply(reply).send() ;
+		} else if(m.modCommand.equalsIgnoreCase("titleadjectives")) {
+			String reply = num_adjs + " adjectives:  " ;
+			for(int i=0;i<num_adjs;i++) {
+				reply += adjectives[i] + " " ;
+			}
+			m.createPagedReply(reply).send() ;
+		} else if(m.modCommand.equalsIgnoreCase("titlewords")) {
+			m.createReply("I'm not telling.").send() ;
 		}
 	}
 	
@@ -108,6 +123,8 @@ public class BookTitle extends Module {
 					++num_adjs;
 				}
 			br.close();
+			Arrays.sort(nouns, 0, num_nouns) ;
+			Arrays.sort(adjectives, 0, num_adjs) ;
 			wordsLoaded = true ;
 		} catch (IOException e) {
 			e.printStackTrace();

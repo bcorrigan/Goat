@@ -235,7 +235,7 @@ public class Define extends Module {
          * or leave this commented out till 1.5 is released and more prevalent. Think this latter option is the best
          * one (ie the one that involves least work).
          */
-         // connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+         connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
          if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
             System.out.println("Fuckup at urbandictionary, HTTP Response code: " + connection.getResponseCode());
             return null ;
@@ -259,8 +259,8 @@ public class Define extends Module {
       String example = "";
       Matcher matcher ;
       
-      Pattern wordPattern = Pattern.compile("^\\s*<span class=\"word\">(.*)+?</span>\\s*$") ;
-      Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"def\">(.*)") ;
+      Pattern wordPattern = Pattern.compile("^\\s*<td class=\"word\">[0-9. ]*(.*)+?</td>\\s*$") ;
+      Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"definition\">(.*)") ;
       Pattern exampleStartPattern = Pattern.compile("^\\s*<div class=\"example\">(.*)") ;
       Pattern endPattern = Pattern.compile("(.*)</div>\\s*$") ;
       

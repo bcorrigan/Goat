@@ -89,7 +89,7 @@ public class Goat {
 		System.out.println("Options:");
 		System.out.println("  -name <name>         Changes the bot's default name [default: goat]");
 		System.out.println("  -channel <#channel>  Changes the bot's default channel [default: #jism]");
-		System.out.println("  -host <host>         Sets which host to connect to [default: radon.slashnet.org]");
+		System.out.println("  -host <host>         Sets which host to connect to [default: irc.slashnet.org]");
 	}
 
 	private void loadDefaultModules(ModuleController modController) {
@@ -136,6 +136,6 @@ public class Goat {
 		BotStats.botname = "goat";
 		BotStats.clientName = "goat";
 		BotStats.owner = "rs";
-		BotStats.servername = "moo.slashnet.org";
+		BotStats.servername = "irc.slashnet.org";
 	}
 }
