@@ -134,8 +134,8 @@ public class Weather extends Module {
 			int report_year = 0;
 			int report_month = 0;
 			int report_day = 0;
-			int longitude = 0;
-			int latitude = 0;
+			double longitude = 0;
+			double latitude = 0;
 			while ((inputLine = in.readLine()) != null) {
 				if (inputLine.startsWith("ob") || inputLine.startsWith("cycle"))
 					continue;
@@ -159,17 +159,18 @@ public class Weather extends Module {
 				}
 
 				// Coordinates
-				m = Pattern.compile(".* (\\d+)-\\d+(?:-\\d+)*([NS]) (\\d+)-\\d+(?:-\\d+)*([EW]).*").matcher(inputLine) ;
+				m = Pattern.compile(".* (\\d+)-(\\d+)(?:-\\d+)*([NS]) (\\d+)-(\\d+)(?:-\\d+)*([EW]).*").matcher(inputLine) ;
 				if (m.matches()) {
 					System.out.println("matched: " + m.group()) ;
-					latitude = Integer.parseInt(m.group(1)) ;
-					if ((m.group(2) != null) && (m.group(2).equals("S"))) {
+					latitude = Double.parseDouble(m.group(1)) + Double.parseDouble(m.group(2)) / 60L ;
+					if ((m.group(3) != null) && (m.group(3).equals("S"))) {
 						latitude = - latitude ;
 					}
-					longitude = Integer.parseInt(m.group(3)) ;
-					if ((m.group(4) != null) && (m.group(4).equals("W"))) {
+					longitude = Double.parseDouble(m.group(4)) + Double.parseDouble(m.group(5)) / 60L ;
+					if ((m.group(6) != null) && (m.group(6).equals("W"))) {
 						longitude = - longitude ;
 					}
+					System.out.println("coordinates (lat/long): " + latitude + "/" + longitude) ;
 				}
 
 				// Sky conditions
@@ -282,7 +283,7 @@ public class Weather extends Module {
         }
 	}
 
-	private String sunString(Time t, String type, int longitude, TimeZone tz) {
+	private String sunString(Time t, String type, double longitude, TimeZone tz) {
 		if (type.equalsIgnoreCase("sunrise")) {
 			type = "Sunrise" ;
 		} else if (type.equalsIgnoreCase("sunset")) {
@@ -296,7 +297,7 @@ public class Weather extends Module {
 		cal.set(cal.MINUTE, t.getMinute()) ;
 		if (null == tz) {
 			// Fake time zone conversion
-			cal.add(cal.HOUR_OF_DAY, longitude / 15) ;
+			cal.add(cal.HOUR_OF_DAY, (int) longitude / 15) ;
 		} else {
  	   	// Real time zone conversion
 			long tempdate = cal.getTimeInMillis() ;
