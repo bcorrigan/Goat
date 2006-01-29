@@ -127,6 +127,7 @@ public class Weather extends Module {
 			String temp_f = "";
 			String temp_c = "";
 			String sky_conditions = "";
+			String weather_type = "";
 			String precipitation = "none";
 			String humidity = "";
 			long minutes_since_report = 0 ;
@@ -177,6 +178,12 @@ public class Weather extends Module {
 				m = Pattern.compile("^Sky conditions: (.*)").matcher(inputLine) ;
 				if (m.matches()) {
 					sky_conditions = m.group(1) ;
+				}
+				
+				// Weather type
+				m = Pattern.compile("^Weather: (.*)").matcher(inputLine) ;
+				if (m.matches()) {
+					weather_type = m.group(1) ;
 				}
 
 				// Time
@@ -233,25 +240,31 @@ public class Weather extends Module {
 			} catch (SunTimesException e) {
 				e.printStackTrace() ;
 			}
-			sunrise_string = sunString(sunrise_UTC, "sunrise", longitude, null) ;
-			sunset_string = sunString(sunset_UTC, "sunset", longitude, null) ;
-			String short_response = temp_f + "F/" + temp_c + "C, " 
-				+ sky_conditions + ".  " + "Wind: " ;
-			if (! wind_direction.equals("")) {
-				short_response += wind_direction + " " + wind_mph + "mph" ;
-			} else {
-				short_response += "Calm" ;
+			sunrise_string = sunString(sunrise_UTC, longitude, null) ;
+			sunset_string = sunString(sunset_UTC, longitude, null) ;
+			String sun_report = "Sunrise " + sunrise_string + ", sunset " + sunset_string;
+			String short_response = temp_f + "F/" + temp_c + "C";
+			if (! sky_conditions.equals("")) {
+				short_response += ", " + sky_conditions ;
 			}
-			if (! wind_gust.equals("")) {
-				short_response += " gusting to " + wind_gust + "mph";
+			if (! weather_type.equals("")) {
+				short_response += ", " + weather_type ;
+			}
+			if (! wind_direction.equals("")) {
+				short_response += ".  Wind " + wind_direction + " " + wind_mph + "mph" ;
+				if (! wind_gust.equals("")) {
+					short_response += " gusting to " + wind_gust + "mph";
+				}
+			} else {
+				short_response += ".  No wind" ;
 			}
 			short_response += ".  Humidity " + humidity ;
-			if (! precipitation.equals("none")) {
-				short_response += ".  Precipitation: " + precipitation ;
-			}
+			//if (! precipitation.equals("none")) {
+			//	short_response += ".  Precip last hour: " + precipitation ;
+			//}
 			if (! (sunrise_string.equals("") || sunset_string.equals(""))) {
-				short_response += ".  " + sunrise_string + ", " + sunset_string ;
-				response += " " + sunrise_string + ", " + sunset_string ;
+				short_response +=  ".  " + sun_report ;
+				response += ".  " + sun_report ;
 			}
 			if (0 != minutes_since_report) {
 				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station + "." ;
@@ -287,15 +300,8 @@ public class Weather extends Module {
         }
 	}
 
-	private String sunString(Time t, String type, double longitude, TimeZone tz) {
-		if (type.equalsIgnoreCase("sunrise")) {
-			type = "Sunrise" ;
-		} else if (type.equalsIgnoreCase("sunset")) {
-			type = "Sunset" ;
-		} else {
-			return "" ;
-		}
-		String ret = type + ": " ;
+	private String sunString(Time t, double longitude, TimeZone tz) {
+		String ret = "" ;
 		GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC")) ;
 		cal.set(cal.HOUR_OF_DAY, t.getHour()) ;
 		cal.set(cal.MINUTE, t.getMinute()) ;
