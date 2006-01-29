@@ -236,8 +236,12 @@ public class Weather extends Module {
 			sunrise_string = sunString(sunrise_UTC, "sunrise", longitude, null) ;
 			sunset_string = sunString(sunset_UTC, "sunset", longitude, null) ;
 			String short_response = temp_f + "F/" + temp_c + "C, " 
-				+ sky_conditions + ".  " + "Wind " + wind_direction + " " 
-				+ wind_mph + "mph" ;
+				+ sky_conditions + ".  " + "Wind: " ;
+			if (! wind_direction.equals("")) {
+				short_response += wind_direction + " " + wind_mph + "mph" ;
+			} else {
+				short_response += "Calm" ;
+			}
 			if (! wind_gust.equals("")) {
 				short_response += " gusting to " + wind_gust + "mph";
 			}
