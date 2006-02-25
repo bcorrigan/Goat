@@ -1,7 +1,7 @@
 #Just add commands you would direct at goat here, and he will execute them on start up.
 # Help is started by Core
 # insmod Help all
-insmod GoatSay all
+#insmod GoatSay all
 insmod More all
 #insmod Confessions all
 insmod WordGame #wordgame
@@ -23,7 +23,7 @@ insmod Sexy all
 #insmod Quiz all
 insmod Bible all
 insmod BookTitle all
+insmod CountDown all
 join #jism
 #join #adventure
 join #wordgame
-
