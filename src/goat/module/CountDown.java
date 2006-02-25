@@ -235,7 +235,7 @@ public class CountDown extends Module implements Runnable {
     public void run() {
         //wait 30 seconds
         try {
-            Thread.sleep(30000);
+            Thread.sleep(40000);
         } catch (InterruptedException e) {
         }
 
