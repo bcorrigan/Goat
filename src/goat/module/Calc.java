@@ -44,6 +44,7 @@ public class Calc extends Module {
 			}
 			cog.tooLong = true;
 			if(cog.answer==null && cog.error==false) {
+                //TODO we should peacefully inform the other thread that it would be a good idea for it to stop, rather than this brutality.
 				cog.stop();
 				target.createReply("Don't be a wanker. I'm not thinking that hard.").send();
 			}
