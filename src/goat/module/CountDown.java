@@ -62,7 +62,13 @@ public class CountDown extends Module implements Runnable {
                 //it is valid, so we evaluate
                 try {
                     String answer = calc.evaluate_equation( m.trailing );
-                    Answer possibleAnswer = new Answer( Integer.parseInt( answer ), m.sender );
+                    Answer possibleAnswer;
+                    try {
+                        possibleAnswer = new Answer( Integer.parseInt( answer ), m.sender );
+                    } catch( NumberFormatException nfe) {
+                        m.createReply("You used a formula that resulted in a non-int answer. This is not allowed!").send();
+                        return;
+                    }
                     if(bestAnswer == null || bestAnswer.getDistance( targetNumber )>possibleAnswer.getDistance( targetNumber ) ) {
                         bestAnswer = possibleAnswer;
                         if(bestAnswer.getAnswer() == bestPossibleAnswer) {
