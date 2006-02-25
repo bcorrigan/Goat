@@ -154,7 +154,7 @@ public class CountDown extends Module implements Runnable {
         //we gradually strip away everything allowed. If anything is left after that,
         //the attempt is invalid.
         attempt = attempt.replaceAll("\\d", "");             //strip all numbers
-        attempt = attempt.replaceAll("\\\\", ""); //strip \ sign
+        attempt = attempt.replaceAll("/", ""); //strip \ sign
         attempt = attempt.replaceAll("\\*", "");  //strip *
         attempt = attempt.replaceAll("\\+", "");  //strip +
         attempt = attempt.replaceAll("\\-", "");  //strip -
