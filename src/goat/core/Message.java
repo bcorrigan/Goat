@@ -551,7 +551,6 @@ public class Message {
 			replyTo = sender ;
 		else
 			replyTo = channame ;
-
 		if (isPrivate) {  //if private, set modTrailing (everything after command), modCommand (first word) and ignore "goat"
 			String words = trailing;
 			StringTokenizer st = new StringTokenizer(words);
@@ -559,7 +558,8 @@ public class Message {
 			if (st.hasMoreTokens()) {
 				firstWord = st.nextToken() ;
 			}
-			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
+			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
+                    && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
 				if (st.hasMoreTokens()) {
 					modCommand = st.nextToken();
 					while (st.hasMoreTokens())
@@ -577,7 +577,8 @@ public class Message {
 			if (st.hasMoreTokens()) {
 				firstWord = st.nextToken();
 			}
-			if (firstWord.toLowerCase().startsWith(BotStats.botname.toLowerCase())) {
+			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
+                    && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
 				if (st.hasMoreTokens())
 					modCommand = st.nextToken();
 			} else {
