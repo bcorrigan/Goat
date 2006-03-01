@@ -16,12 +16,15 @@ import java.util.regex.* ;
 
 
 /**
+ * Module to provide access to a dict-protocol dictionary server.
+ * 
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
+ * <p/>
+ * This fucker needs some serious reorganizing before anything more is added to it (2005-05-23)
+ * <p/>
  * 
  *	@author encontrado
  * 
- * This fucker needs some serious reorganizing before anything more is added to it (2005-05-23)
- *
  * @version 1.0
  */
 public class Define extends Module {
