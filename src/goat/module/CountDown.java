@@ -3,8 +3,6 @@ package goat.module;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import goat.core.Message;
 import goat.core.Module;
@@ -134,15 +132,6 @@ public class CountDown extends Module implements Runnable {
      * @return <code>true</code> if the string is valid, <code>false</code> if not.
      */
     private boolean checkAttemptValid( String attempt ) {
-        /*Pattern p = Pattern.compile("\\d*"); //any sequence of numbers
-        Matcher m = p.matcher(attempt);
-        while(m.find()) {
-            String number = m.group();
-            System.out.println( "number: " + number);
-            int num = Integer.parseInt( number );
-            if( !sourceNumbersContain( num ))
-                return false;
-        }*/
         String tokenString = attempt.replaceAll( "[^\\d]", " ");
         StringTokenizer st = new StringTokenizer(tokenString);
         int[] userNums = new int[st.countTokens()];
@@ -235,7 +224,7 @@ public class CountDown extends Module implements Runnable {
     public void run() {
         //wait 30 seconds
         try {
-            Thread.sleep(40000);
+            Thread.sleep(50000);
         } catch (InterruptedException e) {
         }
 
