@@ -34,7 +34,7 @@
 	<target name="compile" depends="init"
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" source="1.4" target="1.4" optimize="yes" debug="on" debuglevel="lines,vars,source">
+		<javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" optimize="yes" debug="on" debuglevel="lines,vars,source">
             <classpath refid="build.class.path"/>
       </javac>
 	</target>
@@ -68,13 +68,16 @@
 		depends="init">
 		<javadoc packagenames="*" sourcepath="${src}" destdir="${docs}" 
 			author="yes" version="yes" use="yes" verbose="yes" 
-			source="1.4" />
+			source="1.5" />
 	</target>
 
 	<target name="clean"
-		description="clean up">
+		description="clean up"
+		depends="jarclean">
 		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete dir="${build}"/>
+		<delete>
+			<fileset dir="${build}" includes="**/*" />
+		</delete>
 	</target>
 
 	<!-- still would like to get this to work in non-forked mode -->
