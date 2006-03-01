@@ -76,7 +76,7 @@ public class Weather extends Module {
 			m.createReply("I don't know where you are, " + m.sender + ", perhaps you should tell me " +
 					"by looking at" + Message.BLUE + " " + codes_url + " " + Message.NORMAL +
 					"and telling me where you are.").send();
-		} else if (m.modTrailing.matches("\\s*[a-zA-Z]{4}\\s*")) { //if 4 letter code is supplied
+		} else if (m.modTrailing.matches("\\s*[a-zA-Z0-9]{4}\\s*")) { //if 4 letter code is supplied
 			String location = m.modTrailing.trim().toUpperCase() ;
 			boolean user_found = false ;
 			User user = new User(m.sender.toLowerCase(), location) ;
