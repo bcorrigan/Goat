@@ -714,7 +714,7 @@ public class Message {
 	/**
 	 * Removes all colours from a line of text. nicked from pircbot
 	 */
-	private static String removeColors(String line) {
+	public static String removeColors(String line) {
 		int length = line.length();
 		StringBuffer buffer = new StringBuffer(length);
 		int i = 0;
@@ -784,7 +784,7 @@ public class Message {
 	 * @param line the input text.
 	 * @return the same text, but without any bold, underlining, reverse, etc.
 	 */
-	private static String removeFormatting(String line) {
+	public static String removeFormatting(String line) {
 		int length = line.length();
 		StringBuffer buffer = new StringBuffer(length);
 		for (int i = 0; i < length; i++) {
@@ -812,6 +812,15 @@ public class Message {
 	public void removeFormattingAndColors() {
 		removeFormatting();
 		removeColors();
+	}
+
+	/**
+	 * Removes all formatting and colours from a string.
+	 */
+	public static String removeFormattingAndColors(String s) {
+		s = removeColors(s) ;
+		s = removeFormatting(s) ;
+		return s ;
 	}
 
 	/**
