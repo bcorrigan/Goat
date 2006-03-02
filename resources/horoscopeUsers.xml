@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<java version="1.5.0_01" class="java.beans.XMLDecoder"> 
+<java version="1.5.0-p2" class="java.beans.XMLDecoder"> 
  <object class="java.util.ArrayList"> 
   <void method="add"> 
    <object class="goat.module.Horoscope$HoroscopeUser"> 
@@ -78,6 +78,26 @@
     </void> 
     <void property="sign"> 
      <string>GEMINI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>sabado_gigante</string> 
+    </void> 
+    <void property="sign"> 
+     <string>GEMINI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>napnap</string> 
+    </void> 
+    <void property="sign"> 
+     <string>CANCER</string> 
     </void> 
    </object> 
   </void> 

@@ -4,7 +4,7 @@
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
-     <int>126</int> 
+     <int>127</int> 
     </void> 
     <void property="gamesWon"> 
      <int>58</int> 
