@@ -24,7 +24,8 @@ public class Google extends Module {
 	
 	public String[] getCommands() {
 		return new String[]{"google", "goatle", "googlefight", 
-			"searchcount", "pornometer", "pronometer", "sexiness"};
+			"searchcount", "pornometer", "pronometer", "pr0nometer",
+			"sexiness"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -44,7 +45,8 @@ public class Google extends Module {
 			} else if ("googlefight".equalsIgnoreCase(m.modCommand)) {
 				ircGoogleFight(m) ;
 			} else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
-					"pronometer".equalsIgnoreCase(m.modCommand)) {
+					"pronometer".equalsIgnoreCase(m.modCommand) ||
+					"pr0nometer".equalsIgnoreCase(m.modCommand)) {
 				ircPornometer(m) ;
 			} else if ("sexiness".equalsIgnoreCase(m.modCommand)) {
 				ircSexiness(m) ;
@@ -94,7 +96,8 @@ public class Google extends Module {
 				"Even Jesus would approve of " + query + ".",
 				query + " is so fresh and so " + Message.BOLD + "clean!",
 				query + " is safe for church.",
-				query + " is 100% " + Message.BOLD + "BORING."
+				query + " is 100% " + Message.BOLD + "BORING.",
+				query + " is as clean as a whistle."
 			} ;
 			m.createReply(possibleReplies[random.nextInt(possibleReplies.length)]).send();
 		} else if ((float) 1 == pornometerReading) {
@@ -286,17 +289,24 @@ public class Google extends Module {
 		return boldConvert(re.getTitle()) + "  " + re.getURL() ;
 	}
 		
+	/**
+	 * This is pretty foolish.
+	 * <p/>
+	 * It's a relic of my misunderstanding of getStartIndex() and
+	 * getEndIndex() in the googleAPI
+	 */
 	public GoogleSearchResultElement getElement (GoogleSearchResult r, int i) {
-		if (i < r.getStartIndex())
-			i = r.getStartIndex() ;
-		if (i > r.getEndIndex())
-			i = r.getEndIndex() ;
 		GoogleSearchResultElement [] results = r.getResultElements() ;
 		return results[i] ;
 	}
 
+	/**
+	 * This, too, is foolish.
+	 * <p/>
+	 * And also a relic of a misunderstanding of the googleAPI.
+	 */
 	public GoogleSearchResultElement firstElement (GoogleSearchResult r) {
-		return getElement(r, r.getStartIndex()) ;
+		return getElement(r, 0) ;
 	}
 
 	public GoogleSearchResultElement feelingLucky (String query, boolean safe)
@@ -327,12 +337,18 @@ public class Google extends Module {
 	}
 	
 	/**
-	 * Get the intersection of two GoogleSearchResultElement arrays
+	 * Get the intersection of two GoogleSearchResultElement arrays.
+	 * <p/>
+	 * Results will be incorrect if both a and b contain multiple
+	 * GoogleResultElements, all with the same URL.
+	 * 
+	 * @param a
+	 * @param b		
 	 */
 	public GoogleSearchResultElement [] getResultsIntersection
 		(GoogleSearchResultElement [] a, 
 		 GoogleSearchResultElement [] b) {
-		GoogleSearchResultElement [] intersection = new GoogleSearchResultElement[Math.min(a.length, b.length)] ;
+		GoogleSearchResultElement [] intersection = new GoogleSearchResultElement[a.length] ;
 		if (intersection.length == 0) 
 			return intersection ;
 		int length = 0 ;
