@@ -35,13 +35,7 @@ public class Confessions extends Module {
 		try {
 			URL grouphug = new URL("http://grouphug.us/random");
 			connection = (HttpURLConnection) grouphug.openConnection();
-			/* incompatible with 1.4
-			 * It seems java.net.Socket supports socket timeouts, but URLConnection does not expose the
-			 * underlying socket's timeout ability before j2se1.5. So can either rework this code here to use Socket,
-			 * or leave this commented out till 1.5 is released and more prevalent. Think this latter option is the best
-			 * one (ie the one that involves least work).
-			 */
-			// connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+			connection.setConnectTimeout(7000);  //just 7 seconds, we can't hang around
 			confessions = parseConfession(connection);
 		} catch (IOException e) {
 			e.printStackTrace();
