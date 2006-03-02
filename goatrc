@@ -1,12 +1,12 @@
 #Just add commands you would direct at goat here, and he will execute them on start up.
 # Help is started by Core
 # insmod Help all
-#insmod GoatSay all
+insmod GoatSay all
 insmod More all
-#insmod Confessions all
+insmod Confessions all
 insmod WordGame #wordgame
 insmod Say all
-insmod Uno all
+insmod Uno #wordgame
 insmod Weather all
 insmod RandWords all
 insmod Psychiatrist all
@@ -15,15 +15,16 @@ insmod Define all
 insmod Threat all
 insmod Calc all
 insmod TODO all
-insmod Adventure #adventure
+insmod Adventure #wordgame
 insmod Horoscope all
 insmod Remind all
 insmod CurrencyConverter all
-insmod Sexy all
+#insmod Sexy all
 #insmod Quiz all
+insmod Google all
 insmod Bible all
 insmod BookTitle all
-insmod CountDown all
+insmod CountDown #wordgame
 join #jism
 #join #adventure
 join #wordgame
