@@ -1,6 +1,7 @@
 package goat.module;
 
 import java.lang.Math ;
+import java.util.Random ;
 
 import goat.core.Message ;
 import goat.core.Module ;
@@ -16,12 +17,14 @@ import com.google.soap.search.* ;
  */
 public class Google extends Module {
 
+	private static Random random = new Random() ;
+
 	/* IRC methods
 	 */
 	
 	public String[] getCommands() {
 		return new String[]{"google", "goatle", "googlefight", 
-			"searchcount", "pornometer", "sexiness"};
+			"searchcount", "pornometer", "pronometer", "sexiness"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -40,7 +43,9 @@ public class Google extends Module {
 				ircSearchCount(m) ;
 			} else if ("googlefight".equalsIgnoreCase(m.modCommand)) {
 				ircGoogleFight(m) ;
-//			} else if ("pornometer".equalsIgnoreCase(m.modCommand)) {
+			} else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
+					"pronometer".equalsIgnoreCase(m.modCommand)) {
+				ircPornometer(m) ;
 			} else if ("sexiness".equalsIgnoreCase(m.modCommand)) {
 				ircSexiness(m) ;
 			} else {
@@ -63,12 +68,45 @@ public class Google extends Module {
 
 	private void ircSexiness (Message m) 
 		throws GoogleSearchFault {
-		String query = "\"" + m.modTrailing.trim() + "\"" ;
+		String query = quoteAndClean(m.modTrailing) ;
 		int sexyPercentage = Math.round((float) 100 * sexiness(query)) ;
 		if (sexyPercentage < 0) {
 			m.createReply(query + " does not exist, and therefore can not be appraised for sexiness.").send() ;
 		} else {
 			m.createReply(query + " is " + sexyPercentage + "% sexy.").send() ;
+		}
+	}
+
+	private void ircPornometer(Message m) 
+		throws GoogleSearchFault {
+		String query = quoteAndClean(m.modTrailing) ;
+		if (query.matches("^[\\\"\\s]*$")) {
+			m.createReply("The pornometer is a sophisticated instrument, but it won't do anything unless you give it something to measure.").send() ;
+			return ;
+		}
+		float pornometerReading = pornometer(query) ;
+		int pornPercent = Math.round((float) 100 * pornometerReading) ;
+		if (pornPercent < 0) {
+			m.createReply(query + " could not be measured with the pornometer, due to a lack of actually existing.").send() ;
+		} else if ((float) 0 == pornometerReading) {
+			// a little fun here
+			String [] possibleReplies = {
+				"Even Jesus would approve of " + query + ".",
+				query + " is so fresh and so " + Message.BOLD + "clean!",
+				query + " is safe for church.",
+				query + " is 100% " + Message.BOLD + "BORING."
+			} ;
+			m.createReply(possibleReplies[random.nextInt(possibleReplies.length)]).send();
+		} else if ((float) 1 == pornometerReading) {
+			String [] possibleReplies = {
+				"I totally want to fuck " + query,
+				query + " is so totally going to Hell.",
+				query + " is completely filthy.",
+				query + " is 100% " + Message.BOLD + "HOTTT."
+			} ;
+			m.createReply(possibleReplies[random.nextInt(possibleReplies.length)]).send() ;
+		} else {
+			m.createReply(query + " is " + pornPercent + "% pornographic.").send() ;
 		}
 	}
 
@@ -88,7 +126,7 @@ public class Google extends Module {
 		int [] winners = getWinners(scores) ;
 		switch(winners.length) {
 			case 0 : // no winner
-				m.createReply("There was no winner, only losers.  Try fighting with something that actually exists.") ;
+				m.createReply("There was no winner, only losers.  Try fighting with things that actually exist.") ;
 				break;
 			case 1 : // normal
 				m.createReply("The winner is " + Message.BOLD + contestants[winners[0]] + Message.BOLD + ", with a score of " + scores[winners[0]] + "!").send() ;
@@ -103,6 +141,24 @@ public class Google extends Module {
 	
 	/* Actually-do-stuff methods
 	 */
+	
+	/**
+	 * Put a given string in quotes, and remove irc gunk.
+	 * <p/>
+	 * Also removes spaces between quotes, and reduces multiple quotes
+	 * down to one (so it's safe to pass in a string that's already
+	 * in quotes).
+	 * <p/>
+	 *	This probably belongs in a utility library somewheres, along with
+	 *	all of the convenience methods in goat.core.Message
+	 */
+	public String quoteAndClean(String s) {
+		s = Message.removeFormattingAndColors(s) ;
+		s = "\"" + s + "\"" ;
+		s = s.replaceAll("\\s*\"\\s*", "\"") ; //remove space around quotes
+		s = s.replaceAll("\"+", "\"") ; //strip away multiple quotes
+		return s ;
+	}
 	
 	/**
 	 * Given an array of query strings, return an array of search-result counts.
@@ -123,13 +179,11 @@ public class Google extends Module {
 	/**
 	 * Given an array of int, return an array of int containing the index of the largest element (or elements, in case of a tie).
 	 *
-	 * This might hit an array-out-of-bounds exception if it's fed a no-element
-	 * or uninitialized array.
-	 *
-	 * Why isn't vim syntax-highlighting javadoc here, and hereafter?
 	 */
 	public int [] getWinners(int [] scores) {
 		int[] indices = new int[scores.length] ;
+		if (indices.length == 0) 
+			return indices ;
 		indices[0] = 0 ;
 		int lastIndex = 0 ;
 		for (int i = 1 ; i < scores.length ; i++ ) {
@@ -141,16 +195,22 @@ public class Google extends Module {
 			}
 		}
 		int [] ret = new int[lastIndex + 1] ;
-		for (int i = 0 ; i <= lastIndex ; i++)
-			ret[i] = indices[i] ;
+		System.arraycopy(indices, 0, ret, 0, lastIndex + 1) ;
 		return ret ;
 	}
 				
 	
 	/**
 	 * Return the estimated sexiness of the given string.
-	 *
-	 * You probably want to enclose your query in quotes.  Just sayin'.
+	 * <p>
+	 * You should probably clean up your query and quote it
+	 * before you pass it to this method. Like with quoteAndClean(), say.
+	 * 
+	 * @param 	query	your search string.
+	 * @return			a float between 0 and 1, usually, but sometimes 
+	 * 					more than 1.  -1 if google returns no results for 
+	 * 					your query.
+	 * @see		quoteAndClean()
 	 */
 	public float sexiness (String query) 
 		throws GoogleSearchFault {
@@ -164,8 +224,41 @@ public class Google extends Module {
 		return (float) sexResult.getEstimatedTotalResultsCount() / 
 			(float) plainResult.getEstimatedTotalResultsCount() ;
 	}
+
 	
-	/* General search convenience methods.
+	/**
+	 * Return the estimated pornographicalness of the given string.
+	 * <p/>
+	 * This works by doing two google searches for your query, one
+	 * search with google's SafeSearch(tm) turned on, an one with
+	 * it turned off.  The results are then compared, and turned 
+	 * into a number representing the fraction of the un-"Safe(tm)"
+	 * results which are not in the "Safe(tm)" results; ie, the
+	 * fraction which google considers offensive.
+	 * <p/>
+	 * You should probably clean up your query and quote it
+	 * before you pass it to this method.  Like with quoteAndClean(), say.
+	 * 
+	 * @param 	query	your search string.
+	 * @return			a float between 0 and 1.   0 is totally clean, 1 is completely filthy.  -1 if google returns no results for the query.
+	 * 					your query.
+	 * @see		quoteAndClean()
+	 */
+	public float pornometer(String query)
+		throws GoogleSearchFault {
+		GoogleSearchResult pornoResult = simpleSearch(query, false) ;
+		if (pornoResult.getEstimatedTotalResultsCount() < 1)
+			return (float) -1 ; // no google results
+		GoogleSearchResult cleanResult = simpleSearch(query, true) ;
+		GoogleSearchResultElement [] pornoResultElements = pornoResult.getResultElements() ;
+		GoogleSearchResultElement [] cleanResultElements = cleanResult.getResultElements() ;
+		float totalResults = (float) pornoResultElements.length ;
+		int numIntersect = getResultsIntersection(pornoResultElements, cleanResultElements).length ;
+		return (totalResults - (float) numIntersect) / totalResults ;
+	}
+
+			
+	/* General google api convenience methods.
 	 *
 	 * Most of what follows should probably go in goat.util.GoatGoogle
 	 *
@@ -186,6 +279,9 @@ public class Google extends Module {
 		return simpleSearch(query, false) ;
 	}
 
+	/**
+	 * takes a GoogleSearchResultElement and gives you a simple, irc-friendly string representation of it.
+	 */
 	public String simpleResultString (GoogleSearchResultElement re) {
 		return boldConvert(re.getTitle()) + "  " + re.getURL() ;
 	}
@@ -223,10 +319,36 @@ public class Google extends Module {
 		return luckyString(query, false) ;
 	}
 	
+	/**
+	 * Convert html &lt;b&gt; tags in a string to irc BOLD formatting characters
+	 */
 	public String boldConvert (String s) {
 		return s.replaceAll("<[/ ]*[bB] *>", Message.BOLD) ;
 	}
 	
+	/**
+	 * Get the intersection of two GoogleSearchResultElement arrays
+	 */
+	public GoogleSearchResultElement [] getResultsIntersection
+		(GoogleSearchResultElement [] a, 
+		 GoogleSearchResultElement [] b) {
+		GoogleSearchResultElement [] intersection = new GoogleSearchResultElement[Math.min(a.length, b.length)] ;
+		if (intersection.length == 0) 
+			return intersection ;
+		int length = 0 ;
+		for(int i = 0; i < a.length ; i++)
+			for(int j = 0; j < b.length ; j++)
+				if (a[i].getURL().equals(b[j].getURL())) {
+					intersection[length++] = a[i] ;
+					break ;
+				}
+		GoogleSearchResultElement [] ret = new GoogleSearchResultElement[length] ;
+		if (0 == length)
+			return ret ;
+		System.arraycopy(intersection, 0, ret, 0, length) ;
+		return ret ;
+	}
+
 	public static void main(String[] args) {
 		Google g = new Google() ;
 		try {
