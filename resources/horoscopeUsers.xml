@@ -101,5 +101,25 @@
     </void> 
    </object> 
   </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>alline</string> 
+    </void> 
+    <void property="sign"> 
+     <string>VIRGO</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>joey</string> 
+    </void> 
+    <void property="sign"> 
+     <string>SCORPIO</string> 
+    </void> 
+   </object> 
+  </void> 
  </object> 
 </java> 

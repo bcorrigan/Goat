@@ -286,34 +286,32 @@ public class Google extends Module {
 	 * takes a GoogleSearchResultElement and gives you a simple, irc-friendly string representation of it.
 	 */
 	public String simpleResultString (GoogleSearchResultElement re) {
+		if (null == re)
+			return "No results." ;
 		return boldConvert(re.getTitle()) + "  " + re.getURL() ;
 	}
 		
 	/**
-	 * This is pretty foolish.
-	 * <p/>
-	 * It's a relic of my misunderstanding of getStartIndex() and
-	 * getEndIndex() in the googleAPI
+	 * Return the first google search result.
+	 *
+	 * @param	query	your search string
+	 * @param	safe	true if you want Google SafeSearch on
+	 * @return	the first GoogleSearchResultElement, or null if no results were found.
 	 */
-	public GoogleSearchResultElement getElement (GoogleSearchResult r, int i) {
-		GoogleSearchResultElement [] results = r.getResultElements() ;
-		return results[i] ;
+	public GoogleSearchResultElement feelingLucky (String query, boolean safe)
+		throws GoogleSearchFault {
+		GoogleSearchResult sr = simpleSearch(query, safe) ;
+		if (sr.getResultElements().length < 1)
+			return null ;
+		return sr.getResultElements()[0] ;
 	}
 
 	/**
-	 * This, too, is foolish.
-	 * <p/>
-	 * And also a relic of a misunderstanding of the googleAPI.
+	 * Return the first google search result with SafeSearch off.
+	 *
+	 * @param	query	yer search string
+	 * @return	first un-Safe(tm) search result, or null if no results.
 	 */
-	public GoogleSearchResultElement firstElement (GoogleSearchResult r) {
-		return getElement(r, 0) ;
-	}
-
-	public GoogleSearchResultElement feelingLucky (String query, boolean safe)
-		throws GoogleSearchFault {
-		return firstElement(simpleSearch(query, safe)) ;
-	}
-
 	public GoogleSearchResultElement feelingLucky (String query)
 		throws GoogleSearchFault {
 		return feelingLucky(query, false) ;
@@ -321,7 +319,10 @@ public class Google extends Module {
 
 	public String luckyString (String query, boolean safe)
 		throws GoogleSearchFault {
-		return simpleResultString(feelingLucky(query, safe)) ;
+		GoogleSearchResultElement re = feelingLucky(query, safe) ;
+		if (null == re) 
+			return "No results found for " + Message.BOLD + query ;
+		return simpleResultString(re) ;
 	}
 	
 	public String luckyString (String query)
