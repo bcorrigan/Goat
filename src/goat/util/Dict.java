@@ -3,12 +3,12 @@ package goat.util;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
 /**
+ * A general utility class for accessing a dictionary.
+ * 
  * @author encontrado, bc
- *         <p/>
- *         A general utility class for accessing a dictionary
+ *         
  */
 public class Dict {
 

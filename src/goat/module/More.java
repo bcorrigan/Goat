@@ -2,8 +2,6 @@ package goat.module;
 
 import goat.core.Module;
 import goat.core.Message;
-import goat.core.BotStats;
-import goat.util.Pager;
 
 
 /**

@@ -51,41 +51,41 @@ public class Colours extends Module {
 			String t = m.modTrailing.trim() ;
 			msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark gray, and light gray." ;
 			if (t.equalsIgnoreCase("white")) 
-				msg = m.WHITE + "white: " + m.WHITE.substring(1) ;
+				msg = Message.WHITE + "white: " + Message.WHITE.substring(1) ;
 			else if (t.equalsIgnoreCase("black"))
-				msg = m.BLACK +"black: " + m.BLACK.substring(1) ;
+				msg = Message.BLACK +"black: " + Message.BLACK.substring(1) ;
 			else if (t.equalsIgnoreCase("dark blue"))
-				msg = m.DARK_BLUE + "dark blue: " + m.DARK_BLUE.substring(1) ;
+				msg = Message.DARK_BLUE + "dark blue: " + Message.DARK_BLUE.substring(1) ;
 			else if (t.equalsIgnoreCase("dark green"))
-				msg = m.DARK_GREEN + "dark green: " + m.DARK_GREEN.substring(1) ;
+				msg = Message.DARK_GREEN + "dark green: " + Message.DARK_GREEN.substring(1) ;
 			else if (t.equalsIgnoreCase("red"))
-				msg = m.RED + "red: " + m.RED.substring(1) ;
+				msg = Message.RED + "red: " + Message.RED.substring(1) ;
 			else if (t.equalsIgnoreCase("brown"))
-				msg = m.BROWN + "brown: " + m.BROWN.substring(1) ;
+				msg = Message.BROWN + "brown: " + Message.BROWN.substring(1) ;
 			else if (t.equalsIgnoreCase("purple"))
-				msg = m.PURPLE + "purple: " + m.PURPLE.substring(1) ;
+				msg = Message.PURPLE + "purple: " + Message.PURPLE.substring(1) ;
 			else if (t.equalsIgnoreCase("olive"))
-				msg = m.OLIVE + "olive: " + m.OLIVE.substring(1) ;
+				msg = Message.OLIVE + "olive: " + Message.OLIVE.substring(1) ;
 			else if (t.equalsIgnoreCase("yellow"))
-				msg = m.YELLOW + "yellow: " + m.YELLOW.substring(1) ;
+				msg = Message.YELLOW + "yellow: " + Message.YELLOW.substring(1) ;
 			else if (t.equalsIgnoreCase("green"))
-				msg = m.GREEN + "green: " + m.GREEN.substring(1) ;
+				msg = Message.GREEN + "green: " + Message.GREEN.substring(1) ;
 			else if (t.equalsIgnoreCase("teal"))
-				msg = m.TEAL + "teal: " + m.TEAL.substring(1) ;
+				msg = Message.TEAL + "teal: " + Message.TEAL.substring(1) ;
 			else if (t.equalsIgnoreCase("cyan"))
-				msg = m.CYAN + "cyan: " + m.CYAN.substring(1) ;
+				msg = Message.CYAN + "cyan: " + Message.CYAN.substring(1) ;
 			else if (t.equalsIgnoreCase("blue"))
-				msg = m.BLUE + "blue: " + m.BLUE.substring(1) ;
+				msg = Message.BLUE + "blue: " + Message.BLUE.substring(1) ;
 			else if (t.equalsIgnoreCase("magenta"))
-				msg = m.MAGENTA + "magenta: " + m.MAGENTA.substring(1) ;
+				msg = Message.MAGENTA + "magenta: " + Message.MAGENTA.substring(1) ;
 			else if (t.equalsIgnoreCase("dark gray"))
-				msg = m.DARK_GRAY + "dark gray: " + m.DARK_GRAY.substring(1) ;
+				msg = Message.DARK_GRAY + "dark gray: " + Message.DARK_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("light gray"))
-				msg = m.LIGHT_GRAY + "light gray: " + m.LIGHT_GRAY.substring(1) ;
+				msg = Message.LIGHT_GRAY + "light gray: " + Message.LIGHT_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("communism"))
-				msg = m.RED + "COMMUNISM!" ;
+				msg = Message.RED + "COMMUNISM!" ;
 			else if (t.equalsIgnoreCase("adequacy"))
-				msg = m.LIGHT_GRAY + "adequacy: " + m.LIGHT_GRAY.substring(1) ;
+				msg = Message.LIGHT_GRAY + "adequacy: " + Message.LIGHT_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("homosexuality"))
 				msg = homosexualise("HOMOSEXUALITY!!!!") ;
 			else if (t.equalsIgnoreCase("camouflage"))

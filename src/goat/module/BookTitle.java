@@ -6,7 +6,6 @@ import goat.core.Message;
 import java.io.* ;
 import java.util.Arrays ;
 import java.util.ArrayList ;
-import java.util.Iterator ;
 import java.util.Random ;
 
 /**

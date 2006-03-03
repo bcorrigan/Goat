@@ -3,8 +3,6 @@ package goat;
 import goat.core.*;
 import goat.module.Core;
 import goat.module.ModuleCommands;
-import goat.module.CTCP;
-
 import java.io.*;
 
 public class Goat {

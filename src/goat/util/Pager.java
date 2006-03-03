@@ -1,8 +1,5 @@
 package goat.util ;
 
-// import goat.core.Message ;
-import java.io.* ;
-
 /**
  * A wee IRC pager
  * 
@@ -125,7 +122,7 @@ public class Pager {
 		}
 		System.out.println("\n\nA more synthetic test...\n\n");
 		testString = "B" ;
-		for (int i=2;i<pager.maxMessageLength;i++) {
+		for (int i=2 ; i<Pager.maxMessageLength ; i++) {
 			testString = testString + String.valueOf(i % 10) ;
 		}
 		testString = testString + "E" ;

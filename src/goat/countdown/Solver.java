@@ -3,8 +3,6 @@
  */
 package goat.countdown;
 
-import java.util.*;
-
 /** Solve the CountDown problem */
 public class Solver {
     private static final int N = 6;

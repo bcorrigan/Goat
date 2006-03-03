@@ -1,7 +1,5 @@
 package goat.eliza;
 
-import java.util.Vector;
-import java.lang.*;
 import java.io.*;
 import java.awt.*;
 import java.net.*;

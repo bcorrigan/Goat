@@ -1,7 +1,6 @@
 package goat.jcalc;
 
 import java.math.*;
-import java.util.*;
 
 /**
  *  CalcMachineNumber is a JCalc specific class created for converting machine numbers.

@@ -11,6 +11,7 @@ import goat.core.Module;
 import goat.weather.User;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.NoSuchElementException;
 import java.util.Iterator;
 import java.beans.XMLDecoder;
@@ -191,6 +192,7 @@ public class Weather extends Module {
 				if (m.matches()) {
 					// By way of explanation:  the regexp should yield groups:
 					//  (1) local time zone as "ZZZ"
+					//		note: as far as I've seen, this is always EST --rs
 					report_timezone = m.group(1) ;
 					//  (2) UTC date and time as "yyyy.MM.dd HHmm UTC"
 					//  (3) year as "yyyy"
@@ -303,24 +305,24 @@ public class Weather extends Module {
 	private String sunString(Time t, double longitude, TimeZone tz) {
 		String ret = "" ;
 		GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC")) ;
-		cal.set(cal.HOUR_OF_DAY, t.getHour()) ;
-		cal.set(cal.MINUTE, t.getMinute()) ;
+		cal.set(Calendar.HOUR_OF_DAY, t.getHour()) ;
+		cal.set(Calendar.MINUTE, t.getMinute()) ;
 		if (null == tz) {
 			// Fake time zone conversion
-			cal.add(cal.HOUR_OF_DAY, (int) longitude / 15) ;
+			cal.add(Calendar.HOUR_OF_DAY, (int) longitude / 15) ;
 		} else {
  	   	// Real time zone conversion
 			long tempdate = cal.getTimeInMillis() ;
 			cal = new GregorianCalendar(tz) ;
 			cal.setTimeInMillis(tempdate) ;
 		}
-		ret = ret + cal.get(cal.HOUR) + ":" ;
-		if (10 > cal.get(cal.MINUTE)) {
-			ret = ret + "0" + cal.get(cal.MINUTE) ;
+		ret = ret + cal.get(Calendar.HOUR) + ":" ;
+		if (10 > cal.get(Calendar.MINUTE)) {
+			ret = ret + "0" + cal.get(Calendar.MINUTE) ;
 		} else {
-			ret = ret + cal.get(cal.MINUTE) ;
+			ret = ret + cal.get(Calendar.MINUTE) ;
 		}
-		if ( cal.get(cal.AM_PM) == cal.AM ) {
+		if ( cal.get(Calendar.AM_PM) == Calendar.AM ) {
 			ret += "am" ;
 		} else {
 			ret += "pm" ;

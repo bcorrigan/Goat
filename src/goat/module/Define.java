@@ -3,7 +3,6 @@ package goat.module ;
 import goat.Goat;
 import goat.core.Module;
 import goat.core.Message;
-import goat.core.ModuleController;
 import goat.util.DICTClient;
 import goat.util.Definition;
 import goat.util.CommandParser;
