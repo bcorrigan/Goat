@@ -641,5 +641,15 @@
     </void> 
    </object> 
   </void> 
+  <void method="add"> 
+   <object class="goat.weather.User"> 
+    <void property="location"> 
+     <string>KAUS</string> 
+    </void> 
+    <void property="name"> 
+     <string>zikzak</string> 
+    </void> 
+   </object> 
+  </void> 
  </object> 
 </java> 
