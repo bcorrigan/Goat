@@ -15,7 +15,7 @@ public class Goat {
 
 	public static void main(String[] args) {
         argv=args;
-		Goat goat = new Goat();
+		new Goat();
 	}
 
 	public Goat() {
@@ -33,7 +33,7 @@ public class Goat {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		MessageDispatcher msgDispatch = new MessageDispatcher(modController);
+		new MessageDispatcher(modController);
 	}
 
 	private static void parseArgs(String[] args) {

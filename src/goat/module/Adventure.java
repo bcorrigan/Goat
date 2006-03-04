@@ -34,7 +34,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
     private Thread zmachineTh;
     private Message target;
     private LinkedList input;
-    private boolean playing = false;
+    // private boolean playing = false; // we don't use this anywhere
     private String buffer = new String();
     private boolean running = true;
 
@@ -156,7 +156,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
             Adventure adv = new Adventure();
             adv.target = m;
             adv.input = new LinkedList();
-            adv.playing = true;
+            // adv.playing = true; // we don't use this anywhere
             adv.zgameTh = new Thread(adv);
             adv.gameName = gameImage.getName().replaceAll("\\.z3", "").replaceAll("\\.z5", "");
             adv.gameImage = gameImage;
@@ -169,7 +169,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
                 if (adv.target.channame.equals(m.channame)) {
                     //this channel has a running adventure
                     adventures.remove(adv);
-                    adv.playing = false;
+                    // adv.playing = false;  //we don't use this anywhere
                     adv.running = false;
                     m.createReply("Game stopped!").send();
                     return;
@@ -195,8 +195,8 @@ public class Adventure extends Module implements ZScreen, Runnable {
         m.createReply("The following save slots are taken for this game: ").send();
         File file = new File("resources/adventureData/saves");
         File[] files = file.listFiles();
-        String reply = "";
-        int counter = 0;
+        // String reply = ""; // unused
+        // int counter = 0; //unused
         String slots = "";
         for (int i = 0; i < files.length; i++) {
             String[] parts = files[i].getName().split("\\."); //parts of the file name
@@ -349,7 +349,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
 
     //stop and exit
     public void exit() {
-        playing = false;
+        // playing = false; // we don't use this anywhere
         zgameTh.stop();     //TODO why am I so lazy and keep using stop()'s ??
     }
 

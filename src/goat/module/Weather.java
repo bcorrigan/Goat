@@ -129,10 +129,10 @@ public class Weather extends Module {
 			String temp_c = "";
 			String sky_conditions = "";
 			String weather_type = "";
-			String precipitation = "none";
+			//String precipitation = "none";
 			String humidity = "";
 			long minutes_since_report = 0 ;
-			String report_timezone = "" ;
+			// String report_timezone = "" ;
 			int report_year = 0;
 			int report_month = 0;
 			int report_day = 0;
@@ -193,7 +193,7 @@ public class Weather extends Module {
 					// By way of explanation:  the regexp should yield groups:
 					//  (1) local time zone as "ZZZ"
 					//		note: as far as I've seen, this is always EST --rs
-					report_timezone = m.group(1) ;
+					//report_timezone = m.group(1) ;  //unused
 					//  (2) UTC date and time as "yyyy.MM.dd HHmm UTC"
 					//  (3) year as "yyyy"
 					report_year = Integer.parseInt(m.group(3)) ;
@@ -223,7 +223,8 @@ public class Weather extends Module {
 				// Precipitation
 				m = Pattern.compile("^Precipitation last hour: (.*)").matcher(inputLine) ;
 				if (m.matches()) {
-					precipitation = m.group(1) ;
+					//uncomment if we start using this again
+					// precipitation = m.group(1) ;
 				}
 				// Humidity
 				m = Pattern.compile("^Relative Humidity: (.*)").matcher(inputLine) ;

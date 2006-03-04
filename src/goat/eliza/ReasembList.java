@@ -8,6 +8,11 @@ import java.util.Vector;
 public class ReasembList extends Vector {
 
     /**
+	 * eclipse moans without this.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *  Add an element to the reassembly list.
      */
     public void add(String reasmb) {

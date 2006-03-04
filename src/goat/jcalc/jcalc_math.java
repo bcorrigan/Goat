@@ -4,7 +4,7 @@ import java.math.*;
 import java.util.Vector;
 
 public class jcalc_math {
-    private int scale, safe_scale;
+    private int scale;
     
     public static final BigDecimal ONE = new BigDecimal("1");
 
@@ -29,8 +29,6 @@ public class jcalc_math {
 
     public BigDecimal execute(String function, Vector operans) {
         function = function.toLowerCase();
-        BigDecimal bd = (BigDecimal)operans.elementAt(0);
-        
         if(function.equals("ln")){
             //return this.ln(bd);
         }
@@ -89,8 +87,6 @@ public class jcalc_math {
             return bd;
         }
         
-        
-        int length = num.length()-1;
         
         int dot = num.indexOf('.');
         int last_spot = dot+scl+1;
@@ -174,8 +170,6 @@ public class jcalc_math {
             scl=16;
         
         this.scale = scl;
-        this.safe_scale = scl + 5;
-        
         return scale;
     }
     

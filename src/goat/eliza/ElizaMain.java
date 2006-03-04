@@ -280,21 +280,24 @@ import java.net.*;
     TextField textfield;
 
     public void response(String str) {
-        textarea.appendText(str);
-        textarea.appendText("\n");
+        textarea.append(str);
+        textarea.append("\n");
     }
 
 
     public int readScript(boolean local, String script) {
-        DataInputStream in;
+        // DataInputStream in;
+        BufferedReader in ;
         try {
             if (local) {
-                in = new DataInputStream(new FileInputStream(script));
+                // in = new DataInputStream(new FileInputStream(script));
+            	in = new BufferedReader(new InputStreamReader(new FileInputStream(script))) ;
             } else {
                 try {
                     URL url = new URL(script);
                     URLConnection connection = url.openConnection();
-                    in = new DataInputStream(connection.getInputStream());
+                    // in = new DataInputStream(connection.getInputStream());
+                    in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 } catch (MalformedURLException e) {
                     System.out.println("The URL is malformed: " + script);
                     return 1;

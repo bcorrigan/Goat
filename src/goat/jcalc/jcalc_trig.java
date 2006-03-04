@@ -38,8 +38,9 @@ public class jcalc_trig {
     public jcalc_trig(int scale, jcalc_math jm){
         this.jmath = jm;
         
-        this.scale = scale;
-        this.safe_scale = this.scale + 5;
+        // note that setScale changes class variables... perhaps this
+        // method should be polite, and set them back when it's done?
+        this.setScale(scale) ;
         pi_class = new PI(scale);
         
         for(int i=0; i<funcs.length; i++){
@@ -124,12 +125,20 @@ public class jcalc_trig {
     }    
     
 
+    /**
+     * This method changes class (static) variables.
+     * <p/>
+     * Use with caution.
+     * 
+     * @param scl
+     * @return teh new scale.
+     */
     public int setScale(int scl){
         if(scl<16)
             scl=16;
         
-        this.scale = scl;
-        this.safe_scale = scl + 5;
+        jcalc_trig.scale = scl;
+        jcalc_trig.safe_scale = scl + 5;
         
         return scale;
     }
@@ -159,8 +168,8 @@ public class jcalc_trig {
             BigDecimal iter = new BigDecimal(iteration);
             BigDecimal pow = iter.multiply(TWO).subtract(ONE);
             
-            BigDecimal top    = jmath.pow(bd, pow);
-            BigDecimal bottom = jmath.factorial(pow);
+            BigDecimal top    = jcalc_math.pow(bd, pow);
+            BigDecimal bottom = jcalc_math.factorial(pow);
             
             BigDecimal add_this = top.divide(bottom,safe_scale,BigDecimal.ROUND_HALF_UP);
             
@@ -187,7 +196,6 @@ public class jcalc_trig {
     }
     
     public static void main (String xyz[]){
-        jcalc_trig jm = new jcalc_trig(128, new jcalc_math(128));
     }
         
 }

@@ -8,8 +8,6 @@ public class VariableTable {
 
     //pi and e, others may be added later.
     private Hashtable variable_variables = new Hashtable();
-    private int scale;
-    
     public VariableTable(int scl){
         variables.put("true",  new Boolean(true));
         variables.put("false", new Boolean(false));

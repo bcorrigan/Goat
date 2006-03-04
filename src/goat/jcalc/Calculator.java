@@ -5,8 +5,6 @@ import java.util.StringTokenizer;
 
 import java.util.Stack;
 import java.util.Vector;
-import java.util.Hashtable;
-
 import java.math.*;
 
 import java.util.*;
@@ -212,6 +210,7 @@ public class Calculator {
         int prev = operatorChecker.BEGINNING;
         int cursor_pointer = -1;
         
+        /* this crap is all unused, at least in goat.
         //keeps strack of how many parameters each function has
         //does this by counting commas inside its ()'s
         //delete this...
@@ -224,6 +223,7 @@ public class Calculator {
                 count = i;
             }
         }
+        */
         
         TOKENS: for(int i=0; i<tokens.size(); i++){
 

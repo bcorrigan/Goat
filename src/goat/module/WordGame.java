@@ -166,6 +166,8 @@ public class WordGame extends Module implements Runnable {
 		}
 	}
 
+	//unused
+	/*
 	private String getLongest(ArrayList list) {
 		Iterator it = list.iterator();
 		String longestWord = "";
@@ -178,6 +180,7 @@ public class WordGame extends Module implements Runnable {
 		}
 		return longestWord;
 	}
+	*/
 
 	/**
 	 * Create random letters.

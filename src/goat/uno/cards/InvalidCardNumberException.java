@@ -9,7 +9,12 @@ package goat.uno.cards;
  * @author bc
  */
 public class InvalidCardNumberException extends Exception {
-    public InvalidCardNumberException(String e) {
+    /**
+	 * Eclipse moans if we don't have this.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public InvalidCardNumberException(String e) {
         super(e);
     }
 }

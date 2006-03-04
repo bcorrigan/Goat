@@ -6,7 +6,12 @@ import java.io.*;
 
 public class JMegaHal implements Serializable {
     
-    // These are valid chars for words. Anything else is treated as punctuation.
+    /**
+	 * eclipse moans without this.
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	// These are valid chars for words. Anything else is treated as punctuation.
     public static final String WORD_CHARS = "abcdefghijklmnopqrstuvwxyz" +
                                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
                                             "0123456789";

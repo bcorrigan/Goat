@@ -2,8 +2,6 @@ package goat.module;
 
 import goat.core.Module;
 import goat.core.Message;
-import goat.core.BotStats;
-
 import java.io.*;
 
 
@@ -43,8 +41,6 @@ public class Help extends Module {
 
 	private void printFile(String filename, Message m) {
 		BufferedReader in;
-		boolean isowner = m.prefix.equals(BotStats.owner) ;
-		String towho = m.sender ;
 		int i;
 		String fname;
 		if ((i = filename.indexOf(File.separatorChar)) > -1) {

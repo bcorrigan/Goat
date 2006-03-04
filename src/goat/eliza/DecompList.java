@@ -9,6 +9,11 @@ import java.util.Vector;
 public class DecompList extends Vector {
 
     /**
+	 * eclipse moans if we don't do this.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *  Add another decomp rule to the list.
      */
     public void add(String word, boolean mem, ReasembList reasmb) {

@@ -9,7 +9,12 @@ import java.util.Vector;
  */
 public class PrePostList extends Vector {
 
-    /**
+	/**
+	 * Eclipse moans without this.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *  Add another entry to the list.
      */
     public void add(String src, String dest) {

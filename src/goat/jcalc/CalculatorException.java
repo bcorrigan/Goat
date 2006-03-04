@@ -1,7 +1,11 @@
 package goat.jcalc;
 
 public class CalculatorException extends Exception {
-    public int location = -1;
+    /**
+	 * eclipse whines if this isn't present.
+	 */
+	private static final long serialVersionUID = 1L;
+	public int location = -1;
     
     public CalculatorException(String s){
         super(s);

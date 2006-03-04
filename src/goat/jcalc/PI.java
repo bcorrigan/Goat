@@ -1,7 +1,6 @@
 package goat.jcalc;
 
 import java.math.*;
-import java.lang.Math.*;
 
 public class PI implements variable_interface {
     

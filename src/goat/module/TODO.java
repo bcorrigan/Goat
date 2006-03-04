@@ -10,14 +10,19 @@ import goat.core.Message;
  */
 public class TODO extends Module {
 
-	private String todo = "Things to do as of $version$: fix ctcp #channel response; add option processing to Define; pick up hose from dry cleaners" ;
-
-	public void TODO() {
-		//TODO: implement something
+	private String todo = 
+		"get rid of the Thread.stop()s, " + 
+		"make a go-get-web-page-using thread method somewhere, and use that whenever goat asks the interweb for something" +
+		"clean the fridge";
+	
+	public TODO() {
 	}
 	
 	public void processPrivateMessage(Message m) {
-		m.createPagedReply("Not implemented.").send() ;
+		if (m.command.equalsIgnoreCase("reallytodo"))
+			m.createPagedReply(todo) ;
+		else
+			m.createPagedReply("Not implemented.").send() ;
 	}
 
 	public void processChannelMessage(Message m) {
@@ -29,6 +34,6 @@ public class TODO extends Module {
 	}
 
 	public String[] getCommands() {
-		return new String[]{"TODO", "todo"};
+		return new String[]{"TODO", "todo", "reallytodo"};
 	}
 }

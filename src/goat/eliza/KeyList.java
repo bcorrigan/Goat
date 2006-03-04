@@ -9,6 +9,11 @@ import java.util.Vector;
 public class KeyList extends Vector {
 
     /**
+	 * eclipse complains without this.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *  Add a new key.
      */
     public void add(String key, int rank, DecompList decomp) {

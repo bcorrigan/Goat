@@ -1,6 +1,5 @@
 package goat.jcalc;
 
-import java.util.Stack;
 import java.util.Vector;
 import java.util.Hashtable;
 import java.util.Random;
@@ -372,12 +371,7 @@ public class OperatorControlCenter {
         if(!usingBooleans && (current_operator_type==this.NUM_BOOLEAN)){
             for(int i=0; i<nums.length; i++){
                 if(nums[i].scale()>=scale){
-                    //System.out.println("taking off last element for compare....");
-                    String num_string = nums[i].toString();
-                    //System.out.println(nums[i]);
-                    //nums[i] = new BigDecimal(num_string.substring(0, num_string.length()-2));
-                    nums[i] = jcalc_math.dirtyRound(nums[i], scale-1);
-                    //System.out.println(nums[i]);
+                   nums[i] = jcalc_math.dirtyRound(nums[i], scale-1);
                 }
             }
         }        
@@ -413,7 +407,7 @@ public class OperatorControlCenter {
             return jmath.execute(operator, operans);
         }        
         else if(operator.equals("sqrt")){
-            return jmath.sqrt(nums[0],scale);
+            return jcalc_math.sqrt(nums[0],scale);
         }        
         else if(operator.equals("-")){
             return nums[1].subtract( nums[0] );

@@ -12,8 +12,7 @@ import goat.core.BotStats;
 public class GoatSay extends Module {
 
 	private long mem;
-	private int memRounded;
-
+	
 	private long init = System.currentTimeMillis();
 
 	public int messageType() {
@@ -43,7 +42,6 @@ public class GoatSay extends Module {
 
 		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
-			memRounded = (int) mem;
 			m.createReply(mem + "kb").send();
 		}
 

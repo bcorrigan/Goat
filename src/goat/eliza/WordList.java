@@ -8,6 +8,11 @@ import java.util.Vector;
 public class WordList extends Vector {
 
     /**
+	 * eclipse moans without this.
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      *  Add another word to the list.
      */
     public void add(String word) {

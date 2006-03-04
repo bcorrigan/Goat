@@ -4,7 +4,11 @@ import java.io.Serializable;
 
 public class Quad implements Serializable {
     
-    public Quad(String s1, String s2, String s3, String s4) {
+    /**
+	 * eclipse moans without this.
+	 */
+	private static final long serialVersionUID = 1L;
+	public Quad(String s1, String s2, String s3, String s4) {
         tokens = new String[]{s1, s2, s3, s4};
     }
     

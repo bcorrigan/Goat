@@ -20,7 +20,12 @@ import java.io.Serializable;
 
 public class Reminder implements Serializable, Comparable {
     
-    public Reminder(String channel, String nick, String message, long setTime, long dueTime) {
+    /**
+	 * eclipse moans without this.
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	public Reminder(String channel, String nick, String message, long setTime, long dueTime) {
         this.channel = channel;
         this.nick = nick;
         this.message = message;
