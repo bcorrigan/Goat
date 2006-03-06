@@ -174,7 +174,7 @@
   <void method="add"> 
    <object class="goat.weather.User"> 
     <void property="location"> 
-     <string>EGVP</string> 
+     <string>EGLL</string> 
     </void> 
     <void property="name"> 
      <string>kip</string> 

@@ -15,6 +15,7 @@ import java.io.*;
 public class Auth extends Module {
 
     private String passwordhash;
+	 private static final String passwordFile = "resources/password.txt" ;
 
     public Auth() {
         loadPassword();
@@ -38,6 +39,9 @@ public class Auth extends Module {
     }
 
     private boolean checkPassword(String input) {
+        // next line should make goat pick up password changes
+		  // that happen outside the running goat jvm.
+		  loadPassword() ;
         MessageDigest d;
         try {
             d = MessageDigest.getInstance("MD5");
@@ -62,32 +66,40 @@ public class Auth extends Module {
     private void loadPassword() {
         BufferedReader r;
         try {
-            r = new BufferedReader(new FileReader("resources/password.txt"));
+            r = new BufferedReader(new FileReader(passwordFile));
             passwordhash = r.readLine();
             r.close();
         } catch (IOException e) {
-            System.err.println("Could not open password file \"resources/password.txt\".");
+            System.err.println("Could not open password file \"" + passwordFile + "\".");
             passwordhash = "";
             return;
         }
     }
 
     public void updatePassword(String newpassword, String ownername) {
+		  if (updatePassword(newpassword)) {
+            new Message("", "NOTICE", ownername, "Authentication tokens updated successfully.").send();
+		  } else {
+            new Message("", "NOTICE", ownername, "There was an error updating the authentication tokens;  new password not set.").send();
+		  }
+    }
+	 
+    public boolean updatePassword(String newpassword) {
         PrintWriter w;
         MessageDigest d;
         try {
             d = MessageDigest.getInstance("MD5");
             d.update(newpassword.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            new Message("", "NOTICE", ownername, "Could not open Message Digest algorithm.").send();
-            return;
+            System.out.println("PASSWORD UPDATE for FAILED -- Could not open Message Digest algorithm.") ;
+            return false;
         }
         byte[] digest = d.digest();
         try {
-            w = new PrintWriter(new FileWriter("password.txt"));
+            w = new PrintWriter(new FileWriter(passwordFile));
         } catch (IOException e) {
-            new Message("", "NOTICE", ownername, "Couldn't open file.").send();
-            return;
+            System.out.println("PASSWORD UPDATE FAILED -- Couldn't open file \"" + passwordFile + "\"") ;
+            return false;
         }
         byte current, hibits, lobits;
         String out = "";
@@ -98,11 +110,32 @@ public class Auth extends Module {
             out += Integer.toString((int) hibits, 16);
             out += Integer.toString((int) lobits, 16);
         }
-
         w.println(out);
         w.close();
-
-        new Message("", "NOTICE", ownername, "Authentication tokens updated successfully.").send();
-        passwordhash = out;
+		  passwordhash = out ;
+		  return true ;
     }
+	 
+	/**
+	 * Sets new password.
+	 * <p/>
+	 * goat is running-- goat won't pick up the new password until he restarts.
+	 *
+	 * @param	args[] first cli argument should be the old password, second the new.
+	 */
+	 public static void main (String [] args) {
+		 if (! (2 == args.length)) {
+			 System.out.println("Usage: {command} oldpass newpass") ;
+			 return ;
+		 }
+		 System.out.println("Changing password from " + args[0] + " to " + args[1]) ;
+		 Auth a = new Auth() ;
+		 if (a.checkPassword(args[0])) {
+			 if (a.updatePassword(args[1])) {
+			 	System.out.println("New password set.") ;
+			 }
+		 } else {
+			 System.out.println("Old password does not match, new password not set.") ;
+		 }
+	 }
 }

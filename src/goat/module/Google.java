@@ -17,6 +17,7 @@ import com.google.soap.search.* ;
  */
 public class Google extends Module {
 
+	public static final String noResultString = "No results found" ;
 	private static Random random = new Random() ;
 
 	/* IRC methods
@@ -287,7 +288,7 @@ public class Google extends Module {
 	 */
 	public String simpleResultString (GoogleSearchResultElement re) {
 		if (null == re)
-			return "No results." ;
+			return noResultString ;
 		return boldConvert(re.getTitle()) + "  " + re.getURL() ;
 	}
 		
@@ -321,7 +322,7 @@ public class Google extends Module {
 		throws GoogleSearchFault {
 		GoogleSearchResultElement re = feelingLucky(query, safe) ;
 		if (null == re) 
-			return "No results found for " + Message.BOLD + query ;
+			return noResultString + " for " + Message.BOLD + query ;
 		return simpleResultString(re) ;
 	}
 	
@@ -366,6 +367,9 @@ public class Google extends Module {
 		return ret ;
 	}
 
+/*
+ * replacing main() with junit things
+ * 
 	public static void main(String[] args) {
 		Google g = new Google() ;
 		try {
@@ -377,4 +381,6 @@ public class Google extends Module {
 			System.out.println(f.toString()) ;
 		}
 	}
+	*/
 }
+
