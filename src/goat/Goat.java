@@ -15,7 +15,8 @@ public class Goat {
 
 	public static void main(String[] args) {
         argv=args;
-		new Goat();
+        Runtime.getRuntime().addShutdownHook(new GoatShutdownThread());
+        new Goat() ;
 	}
 
 	public Goat() {
@@ -135,5 +136,11 @@ public class Goat {
 		BotStats.clientName = "goat";
 		BotStats.owner = "rs";
 		BotStats.servername = "irc.slashnet.org";
+	}
+}
+
+class GoatShutdownThread extends Thread {
+	public void run() {
+		System.out.println("Goat is shutting down.") ;
 	}
 }
