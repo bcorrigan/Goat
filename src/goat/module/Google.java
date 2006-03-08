@@ -72,7 +72,7 @@ public class Google extends Module {
 	private void ircSexiness (Message m) 
 		throws GoogleSearchFault {
 		String query = quoteAndClean(m.modTrailing) ;
-		int sexyPercentage = Math.round((float) 100 * sexiness(query)) ;
+		int sexyPercentage = Math.round((float) 100 * GoatGoogle.sexiness(query)) ;
 		if (sexyPercentage < 0) {
 			m.createReply(query + " does not exist, and therefore can not be appraised for sexiness.").send() ;
 		} else {
@@ -87,7 +87,7 @@ public class Google extends Module {
 			m.createReply("The pornometer is a sophisticated instrument, but it won't do anything unless you give it something to measure.").send() ;
 			return ;
 		}
-		float pornometerReading = pornometer(query) ;
+		float pornometerReading = GoatGoogle.pornometer(query) ;
 		int pornPercent = Math.round((float) 100 * pornometerReading) ;
 		if (pornPercent < 0) {
 			m.createReply(query + " could not be measured with the pornometer, due to a lack of actually existing.").send() ;
@@ -174,7 +174,7 @@ public class Google extends Module {
 			if (queries[i].matches("\\s*")) { // if string is empty
 				counts[i] = -1 ;
 			} else {
-				counts[i] = simpleSearch(queries[i]).getEstimatedTotalResultsCount();
+				counts[i] = GoatGoogle.simpleSearch(queries[i]).getEstimatedTotalResultsCount();
 			}
 		}
 		return counts ;
@@ -203,88 +203,12 @@ public class Google extends Module {
 		return ret ;
 	}
 				
-	
-	/**
-	 * Return the estimated sexiness of the given string.
-	 * <p>
-	 * You should probably clean up your query and quote it
-	 * before you pass it to this method. Like with quoteAndClean(), say.
-	 * 
-	 * @param 	query	your search string.
-	 * @return			a float between 0 and 1, usually, but sometimes 
-	 * 					more than 1.  -1 if google returns no results for 
-	 * 					your query.
-	 * @see		quoteAndClean()
-	 */
-	public float sexiness (String query) 
-		throws GoogleSearchFault {
-		GoogleSearchResult plainResult = simpleSearch(query) ;
-		if (plainResult.getEstimatedTotalResultsCount() < 1) 
-			return -1 ;
-		GoogleSearchResult sexResult = simpleSearch(query + " sex");
-		//debug
-		//System.out.println(sexResult.getEstimatedTotalResultsCount()) ;
-		//System.out.println(plainResult.getEstimatedTotalResultsCount()) ;
-		return (float) sexResult.getEstimatedTotalResultsCount() / 
-			(float) plainResult.getEstimatedTotalResultsCount() ;
-	}
-
-	
-	/**
-	 * Return the estimated pornographicalness of the given string.
-	 * <p/>
-	 * This works by doing two google searches for your query, one
-	 * search with google's SafeSearch(tm) turned on, an one with
-	 * it turned off.  The results are then compared, and turned 
-	 * into a number representing the fraction of the un-"Safe(tm)"
-	 * results which are not in the "Safe(tm)" results; ie, the
-	 * fraction which google considers offensive.
-	 * <p/>
-	 * You should probably clean up your query and quote it
-	 * before you pass it to this method.  Like with quoteAndClean(), say.
-	 * 
-	 * @param 	query	your search string.
-	 * @return			a float between 0 and 1.   0 is totally clean, 1 is completely filthy.  -1 if google returns no results for the query.
-	 * 					your query.
-	 * @see		quoteAndClean()
-	 */
-	public float pornometer(String query)
-		throws GoogleSearchFault {
-		GoogleSearchResult pornoResult = simpleSearch(query, false) ;
-		if (pornoResult.getEstimatedTotalResultsCount() < 1)
-			return (float) -1 ; // no google results
-		GoogleSearchResult cleanResult = simpleSearch(query, true) ;
-		GoogleSearchResultElement [] pornoResultElements = pornoResult.getResultElements() ;
-		GoogleSearchResultElement [] cleanResultElements = cleanResult.getResultElements() ;
-		float totalResults = (float) pornoResultElements.length ;
-		int numIntersect = getResultsIntersection(pornoResultElements, cleanResultElements).length ;
-		return (totalResults - (float) numIntersect) / totalResults ;
-	}
-
 			
-	/* General google api convenience methods.
-	 *
-	 * Most of what follows should probably go in goat.util.GoatGoogle
-	 *
-	 * Some methods should ideally be moved into subclasses of the various
-	 * GoogleSearch* classes.
+	/* String-emitting convenience methods.
 	 */
 	
-	public GoogleSearchResult simpleSearch (String query, boolean safe)
-		throws GoogleSearchFault {
-		GoatGoogle gg = new GoatGoogle() ;
-		gg.setSafeSearch(safe) ;
-		gg.setQueryString(query) ;
-		return gg.doSearch() ;
-	}
-
-	public GoogleSearchResult simpleSearch (String query)
-		throws GoogleSearchFault {
-		return simpleSearch(query, false) ;
-	}
-
 	/**
-	 * takes a GoogleSearchResultElement and gives you a simple, irc-friendly string representation of it.
+	 * Takes a GoogleSearchResultElement and gives you a simple, irc-friendly string representation of it.
 	 */
 	public String simpleResultString (GoogleSearchResultElement re) {
 		if (null == re)
@@ -293,34 +217,11 @@ public class Google extends Module {
 	}
 		
 	/**
-	 * Return the first google search result.
-	 *
-	 * @param	query	your search string
-	 * @param	safe	true if you want Google SafeSearch on
-	 * @return	the first GoogleSearchResultElement, or null if no results were found.
+	 * returns an irc-friendly string representation of first search result.
 	 */
-	public GoogleSearchResultElement feelingLucky (String query, boolean safe)
-		throws GoogleSearchFault {
-		GoogleSearchResult sr = simpleSearch(query, safe) ;
-		if (sr.getResultElements().length < 1)
-			return null ;
-		return sr.getResultElements()[0] ;
-	}
-
-	/**
-	 * Return the first google search result with SafeSearch off.
-	 *
-	 * @param	query	yer search string
-	 * @return	first un-Safe(tm) search result, or null if no results.
-	 */
-	public GoogleSearchResultElement feelingLucky (String query)
-		throws GoogleSearchFault {
-		return feelingLucky(query, false) ;
-	}
-
 	public String luckyString (String query, boolean safe)
 		throws GoogleSearchFault {
-		GoogleSearchResultElement re = feelingLucky(query, safe) ;
+		GoogleSearchResultElement re = GoatGoogle.feelingLucky(query, safe) ;
 		if (null == re) 
 			return noResultString + " for " + Message.BOLD + query ;
 		return simpleResultString(re) ;
@@ -338,37 +239,8 @@ public class Google extends Module {
 		return s.replaceAll("<[/ ]*[bB] *>", Message.BOLD) ;
 	}
 	
-	/**
-	 * Get the intersection of two GoogleSearchResultElement arrays.
-	 * <p/>
-	 * Results will be incorrect if both a and b contain multiple
-	 * GoogleResultElements, all with the same URL.
-	 * 
-	 * @param a
-	 * @param b		
-	 */
-	public GoogleSearchResultElement [] getResultsIntersection
-		(GoogleSearchResultElement [] a, 
-		 GoogleSearchResultElement [] b) {
-		GoogleSearchResultElement [] intersection = new GoogleSearchResultElement[a.length] ;
-		if (intersection.length == 0) 
-			return intersection ;
-		int length = 0 ;
-		for(int i = 0; i < a.length ; i++)
-			for(int j = 0; j < b.length ; j++)
-				if (a[i].getURL().equals(b[j].getURL())) {
-					intersection[length++] = a[i] ;
-					break ;
-				}
-		GoogleSearchResultElement [] ret = new GoogleSearchResultElement[length] ;
-		if (0 == length)
-			return ret ;
-		System.arraycopy(intersection, 0, ret, 0, length) ;
-		return ret ;
-	}
-
 /*
- * replacing main() with junit things
+ * main() replaced with junit class in src/goat/test
  * 
 	public static void main(String[] args) {
 		Google g = new Google() ;
