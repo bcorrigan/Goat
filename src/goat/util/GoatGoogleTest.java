@@ -3,9 +3,6 @@ package goat.util;
 import goat.util.GoatGoogle ;
 import com.google.soap.search.* ;
 import junit.framework.* ;
-import static junit.framework.Assert.* ;
-
-import java.util.* ;
 
 /**
  * junit-ness.
