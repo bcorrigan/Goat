@@ -3,6 +3,8 @@ package goat;
 import goat.core.*;
 import goat.module.Core;
 import goat.module.ModuleCommands;
+import goat.util.GoatDB ;
+
 import java.io.*;
 
 public class Goat {
@@ -15,7 +17,8 @@ public class Goat {
 
 	public static void main(String[] args) {
         argv=args;
-        Runtime.getRuntime().addShutdownHook(new GoatShutdownThread());
+        GoatDB.startServer() ;
+        Runtime.getRuntime().addShutdownHook(new GoatDBShutdownThread());
         new Goat() ;
 	}
 
@@ -139,8 +142,8 @@ public class Goat {
 	}
 }
 
-class GoatShutdownThread extends Thread {
+class GoatDBShutdownThread extends Thread {
 	public void run() {
-		System.out.println("Goat is shutting down.") ;
+		GoatDB.safeShutdown() ; 
 	}
 }

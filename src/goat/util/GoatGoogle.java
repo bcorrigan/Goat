@@ -8,11 +8,6 @@ import java.beans.XMLDecoder ;
 import java.beans.XMLEncoder ;
 import java.util.NoSuchElementException ;
 
-import junit.framework.* ;
-import static junit.framework.Assert.* ;
-
-import java.util.* ;
-
 /*  (non-Javadoc)
  *  goat has a gmail address:
  *      uname :  goat.jism
@@ -319,7 +314,7 @@ public class GoatGoogle extends GoogleSearch {
 	 * Main method. 
 	 * <p/>
 	 * For your debugging pleasure.  Note that you should use the junit
-	 * class in src/goat/test if you know what results to expect.
+	 * class goat.util.GoatGoogleTest if you know what results to expect.
 	 *
 	 * @see	goat.util.GoatGoogleTest
 	 */
