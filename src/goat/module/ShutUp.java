@@ -47,7 +47,8 @@ public class ShutUp extends Module {
 	private boolean fires(String target, ArrayList<String> triggers) {
 		Iterator<String> i = triggers.iterator() ;
 		String s ;
-		while ((s = i.next()) != null) {
+		while (i.hasNext()) {
+			s = i.next() ;
 			if(target.toLowerCase().contains(s.toLowerCase()))
 				return true ;
 		}
