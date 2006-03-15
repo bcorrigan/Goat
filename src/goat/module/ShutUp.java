@@ -30,7 +30,14 @@ public class ShutUp extends Module {
 		ArrayList<String> joeyisms = new ArrayList() ;
 		joeyisms.add("dogs are fat") ;
 		joeyisms.add("proliferate") ;
+		joeyisms.add("proliferating") ;
+		joeyisms.add("proliferation") ;
+		joeyisms.add("Erica Campbell") ;
 		joeyisms.add("huge boobs") ;
+		joeyisms.add("regina") ;
+		joeyisms.add("katie") ;
+		joeyisms.add("marge") ;
+		joeyisms.add("true pimp") ;
 		if (fires(m.trailing, joeyisms)) {
 			m.createReply("Shut up, joey.").send() ;
 		}
