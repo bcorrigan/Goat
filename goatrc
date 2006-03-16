@@ -25,6 +25,7 @@ insmod Google all
 insmod Bible all
 insmod BookTitle all
 insmod CountDown #wordgame
+insmod ShutUp all
 join #jism
 #join #adventure
 join #wordgame

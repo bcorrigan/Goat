@@ -4,7 +4,6 @@ import goat.core.Message;
 import goat.core.Module;
 import java.util.*;
 
-
 /**
  * Module to tell people to shut up.
  * 
@@ -13,6 +12,7 @@ import java.util.*;
  */
 public class ShutUp extends Module {
 
+	private Random random = new Random() ;
 	
 	public int messageType() {
 		return WANT_ALL_MESSAGES ;
@@ -38,8 +38,20 @@ public class ShutUp extends Module {
 		joeyisms.add("katie") ;
 		joeyisms.add("marge") ;
 		joeyisms.add("true pimp") ;
+		joeyisms.add("nerd virgin") ;
+		joeyisms.add("melons") ;
+		joeyisms.add("power up") ;
+		joeyisms.add("saiyan") ;
+		joeyisms.add("vegeta") ;
 		if (fires(m.trailing, joeyisms)) {
-			m.createReply("Shut up, joey.").send() ;
+			if(m.sender.equalsIgnoreCase("joey")) {
+				// for now, we'll only respond to joey himself occasionally, 
+				//  since he seems to be getting off on this.
+				if (random.nextInt(100) < 23 )
+					m.createReply("joey, shut the fuck up.").send() ;
+			} else {
+				m.createReply("Shut up, joey.").send() ;
+			}
 		}
 	}
 	
