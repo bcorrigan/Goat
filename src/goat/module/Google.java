@@ -62,6 +62,7 @@ public class Google extends Module {
 
 	private void ircGoogle (Message m) 
 		throws GoogleSearchFault {
+		m.removeFormattingAndColors() ;
 		m.createReply(luckyString(m.modTrailing)).send() ;
 	}
 	
@@ -119,6 +120,7 @@ public class Google extends Module {
 	 */
 	private void ircGoogleFight (Message m)
 		throws GoogleSearchFault {
+		m.removeFormattingAndColors() ;
 		String [] contestants = m.modTrailing.split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
 			m.createReply("Usage:  \"googlefight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
