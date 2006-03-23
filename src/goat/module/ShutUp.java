@@ -44,13 +44,13 @@ public class ShutUp extends Module {
 		joeyisms.add("saiyan") ;
 		joeyisms.add("vegeta") ;
 		if (fires(m.trailing, joeyisms)) {
-			if(m.prefix.matches("Joseph@.*.dsl.skt2ca.pacbell.net")) {
+			if(m.prefix.matches(".*Joseph@.*\\.dsl.skt2ca\\.pacbell.net.*")) {
 				// for now, we'll only respond to joey himself occasionally, 
 				//  since he seems to be getting off on this.
 				if (random.nextInt(100) < 34 )
 					m.createReply("joey, shut the fuck up.").send() ;
 				// debug
-				System.out.println("JOEYism detected!") ;
+				System.out.println("JOEY detected!") ;
 			} else {
 				m.createReply("Shut up, joey.").send() ;
 			}
