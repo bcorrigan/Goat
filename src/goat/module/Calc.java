@@ -74,7 +74,7 @@ public class Calc extends Module {
 		}
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"calc"};
 	}
 }

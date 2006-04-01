@@ -65,7 +65,7 @@ public class Core extends Module {
 		processPrivateMessage(m);
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"part", "join", "nick", "quit", "charset", "showcharset"};
 	}
 }

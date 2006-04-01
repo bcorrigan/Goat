@@ -195,7 +195,7 @@ public class Uno extends Module implements Output, Runnable {
         return WANT_COMMAND_MESSAGES;
     }
 
-    public String[] getCommands() {
+    public static String[] getCommands() {
         return new String[]{"red", "blue", "green", "yellow", "play", "draw", "pass", "uno", "join", "hand", "show", "stopgame", "remove", "leave", "order", "unoscore", "p", "<", ">", "r", "g", "b", "y", "h", "s", "botjoin"};
     }
 

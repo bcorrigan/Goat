@@ -4,6 +4,8 @@ import java.sql.*;
 import java.util.Date ;
 import org.hsqldb.Server;
 import org.hsqldb.ServerConstants;
+import org.hsqldb.util.SqlTool;
+import org.hsqldb.util.SqlTool.SqlToolException ;
 
 /**
  * Some convenience methods for teh Goat DB Server. <p/>
@@ -25,30 +27,51 @@ import org.hsqldb.ServerConstants;
  */
 public class GoatDB {
 
-	/**
-	 * Change this to true for testing if you're mucking about with the DB.
+	/*
+	 * Change this to true for TESTING if you're working on major DB changes and don't want
+	 * to screw up the real db.  Note that junit tests written by subclassing goat.GoatTest
+	 * will always use a fresh test DB; you can probably just use that for your testing 
+	 * needs without changing this.  If you do set this to true, you will want to be
+	 * careful about running your test goat and running junit tests at the same time,
+	 * as they will share the test database, and one process will most likely
+	 * step on the other, resulting in bolloxed unit tests, or a bolloxed test-goat.
+	 * 
+	 * If this arrangement isn't flexible enough, we'll have to set up a method
+	 * that lets you specify your own db name, file location, etc.
 	 */
-	private static final boolean testing = true ;
+	private static final boolean TESTING = true ;
+	
+	/*
+	 * If TESTING (above) is true, then setting this to true will cause the test db
+	 * to be wiped and a new schema set up every time the server is started.  Caveats
+	 * above for TESTING apply here, too.
+	 */
+	private static final boolean RECREATE_TEST_SCHEMA_ON_START = true ;
 	
 	// some constants
-	private static final String testDbName = "goat";
-	private static final String testDbPath = "db/test.db/test";
-	private static final String testDbUser = "sa";
-	private static final String testDbPass = "";
+	private static final String TEST_DB_NAME = "test";
+	private static final String TEST_DB_PATH = "db/test.db/test";
+	private static final String TEST_DB_USER = "sa";
+	private static final String TEST_DB_PASS = "";
 
-	private static final String realDbName = "goat";
-	private static final String realDbPath = "db/goat.db/goat";
-	private static final String realDbUser = "sa";
-	private static final String realDbPass = "dumpluff3323";
-
+	private static final String REAL_DB_NAME = "goat";
+	private static final String REAL_DB_PATH = "db/goat.db/goat";
+	private static final String REAL_DB_USER = "sa";
+	private static final String REAL_DB_PASS = "dumpluff3323";
+	private static final String REAL_DB_INIT_FILE = "db/sql/setup-goat.db.sql";
+	
+	private static final String SCHEMA_NAME = "goat" ;
+	private static final String SCHEMA_DEFINITION_FILE = "db/sql/schema.sql" ;
+	
+	private static final String SQLTOOL_RCFILE = "db/sqltool.rc" ;
 	/**
 	 * DB server address.
 	 */
-	private static final String serverAddress = "127.0.0.1";
+	private static final String SERVER_ADDRESS = "127.0.0.1";
 	/**
 	 * DB server port.
 	 */
-	private static final int serverPort = 2232;
+	private static final int SERVER_PORT = 2232;
 	
 	/**
 	 * DB server silent. <p/>
@@ -56,7 +79,7 @@ public class GoatDB {
 	 * The hsqldb server is *very* chatty. You probably want this off unless
 	 * you're debugging. And maybe even then, too.
 	 */
-	private static final boolean serverSilent = true ;
+	private static final boolean SERVER_SILENT = true ;
 	
 	/**
 	 * SQL command to shut down server.
@@ -64,17 +87,30 @@ public class GoatDB {
 	 * This should be "SHUTDOWN COMPACT" to maintain tidy db files,
 	 * or just "SHUTDOWN" for quick DB shutdown.
 	 */
-	private static final String sqlShutdownCommand = "SHUTDOWN COMPACT" ;
+	private static final String SQL_SHUTDOWN_COMMAND = "SHUTDOWN COMPACT" ;
 	
+	/**
+	 * HSQLDB SQL statement to retrieve last value inserted automatically 
+	 * into an identity column by the current connection
+	 */
+	private static final String HSQLDB_IDENTITY_QUERY = "CALL IDENTITY() ;" ;
+
+	/** 
+	 * The dummy IRC network name.  Avoid using this if you can.
+	 * 
+	 * This should match the name inserted into table networks in db/sql/schema.sql
+	 */
+	public static final String DUMMY_NETWORK_NAME = "" ;	
+
 	/**
 	 * Maximim time to wait for the db to shut down, in seconds.
 	 */
-	private static final long maxShutdownWait = 180 ;
+	private static final long MAX_SHUTDOWN_WAIT = 180 ;
 	
-	private static String dbName = testDbName;
-	private static String dbPath = testDbPath;
-	private static String dbUser = testDbUser;
-	private static String dbPass = testDbPass;
+	private static String dbName = TEST_DB_NAME;
+	private static String dbPath = TEST_DB_PATH;
+	private static String dbUser = TEST_DB_USER;
+	private static String dbPass = TEST_DB_PASS;
 	private static Server hsqldbServer = new Server();
 
 	/**
@@ -99,25 +135,27 @@ public class GoatDB {
 			System.out.println("Initiating Goat DB Server startup.") ;
 			if (! isATest)
 				setDbReal();
-			hsqldbServer.setSilent(serverSilent);
+			hsqldbServer.setSilent(SERVER_SILENT);
 			hsqldbServer.setNoSystemExit(true);
 			hsqldbServer.setRestartOnShutdown(false);
 			hsqldbServer.setDatabaseName(0, dbName);
 			hsqldbServer.setDatabasePath(0, dbPath);
-			hsqldbServer.setAddress(serverAddress);
-			hsqldbServer.setPort(serverPort);
+			hsqldbServer.setAddress(SERVER_ADDRESS);
+			hsqldbServer.setPort(SERVER_PORT);
 			hsqldbServer.start();
+			if (isATest && RECREATE_TEST_SCHEMA_ON_START) 
+				recreateTestSchema() ;
 		}
 	}
 	
 	/**
 	 * Start the test or the real db, depending on the value of the static class
-	 * variable "testing".
+	 * variable "TESTING".
 	 * 
 	 * @see startServer(boolean).
 	 */
 	public static void startServer() {
-		startServer(testing);
+		startServer(TESTING);
 	}
 	
 	/**
@@ -132,17 +170,17 @@ public class GoatDB {
 		if (GoatDB.serverRunning()) {
 			System.out.println("Initiating Goat DB Server shutdown");
 			try {
-				GoatDB.executeUpdate(sqlShutdownCommand) ;
+				GoatDB.executeUpdate(SQL_SHUTDOWN_COMMAND) ;
 			} catch (GoatDBConnectionException e) {
 				System.err.println("ERROR: Couldn't connect to goat db, reverting to direct shutdown");
 				hsqldbServer.shutdown();
 				return ;
 			} catch (SQLException e) {
 				if(GoatDB.serverRunning()) {
-					System.err.println("ERROR: Problem with SQL command\"" + sqlShutdownCommand + "\", reverting to direct shutdown") ;
+					System.err.println("ERROR: Problem with SQL command\"" + SQL_SHUTDOWN_COMMAND + "\", reverting to direct shutdown") ;
 					hsqldbServer.shutdown() ;
 				} else {
-					System.err.println("ERROR: Problem with SQL command \"" + sqlShutdownCommand + "\", but server appears to have shut down successfully") ;
+					System.err.println("ERROR: Problem with SQL command \"" + SQL_SHUTDOWN_COMMAND + "\", but server appears to have shut down successfully") ;
 				}
 				return ;
 			}
@@ -187,18 +225,29 @@ public class GoatDB {
 			throw gdbe ;
 		}
 		try {
-			c = DriverManager.getConnection("jdbc:hsqldb:hsql://"
-					+ serverAddress + ":" + serverPort + "/" + dbName, dbUser, dbPass);
+			c = DriverManager.getConnection(connectionUrl(), dbUser, dbPass);
 		} catch (SQLException e) {
 			System.err.println("ERROR: couldn't connect to the goat db");
 			e.printStackTrace() ;
 			GoatDBConnectionException gdbe = new GoatDBConnectionException() ;
 			gdbe.initCause(e) ;
 			throw gdbe ;
+		} 
+		try {
+			if (hasSchema(SCHEMA_NAME, c))
+				c.createStatement().executeUpdate("SET SCHEMA " + SCHEMA_NAME + " ;");
+		} catch (SQLException e) {
+			System.err.println("WARNING: Schema " + SCHEMA_NAME + " not found while creating goat connection; we'll assume you know what you're doing.") ;
+			//e.printStackTrace() ;
 		}
 		return c;
 	}
 	
+	public static String connectionUrl() {
+		return "jdbc:hsqldb:hsql://" + SERVER_ADDRESS + ":" + SERVER_PORT + "/" + dbName ;
+	}
+	
+	/* This is pretty useless; might as well ditch it.
 	public static Statement getStatement () 
 		throws GoatDBConnectionException {
 		Connection c = GoatDB.getConnection();
@@ -213,6 +262,7 @@ public class GoatDB {
 		}
 		return st ;
 	}
+	*/
 	
 	/**
 	 * "Convenience" method to do a query on teh goat DB.<p/>
@@ -263,7 +313,7 @@ public class GoatDB {
 	 */
 	public static ResultSet executeQuery(String statement)
 			throws GoatDBConnectionException, SQLException {
-		Statement st = GoatDB.getStatement() ;
+		Statement st = GoatDB.getConnection().createStatement() ;
 		return st.executeQuery(statement) ;
 	}
 	
@@ -292,7 +342,7 @@ public class GoatDB {
 	 */
 	public static int executeUpdate(String statement)
 			throws GoatDBConnectionException, SQLException {
-		Statement st = GoatDB.getStatement();
+		Statement st = GoatDB.getConnection().createStatement();
 		int ret = st.executeUpdate(statement);
 		st.getConnection().close();
 		return ret;
@@ -301,10 +351,10 @@ public class GoatDB {
 	/**
 	 * Shut the DB down and wait to make sure the shutdown completed.
 	 * 
-	 * @return true if shutdown was successful, false if maxShutdownWait time
+	 * @return true if shutdown was successful, false if MAX_SHUTDOWN_WAIT time
 	 *         was exceeded.
 	 * 
-	 * @see GoatDB.maxShutdownWait
+	 * @see GoatDB.MAX_SHUTDOWN_WAIT
 	 */
 	public static boolean safeShutdown() {
 		long started = (new Date()).getTime();
@@ -315,7 +365,7 @@ public class GoatDB {
 					+ ((new Date()).getTime() - started) + " ms.");
 		else
 			System.err.println("Goat DB Server shutdown timed out afer "
-					+ maxShutdownWait + " seconds.");
+					+ MAX_SHUTDOWN_WAIT + " seconds.");
 		return ret;
 	}
 	
@@ -330,26 +380,160 @@ public class GoatDB {
 				Thread.sleep(100L);
 			} catch (InterruptedException e) {
 			}
-			if ((new Date()).getTime() - started > maxShutdownWait * 1000L) {
+			if ((new Date()).getTime() - started > MAX_SHUTDOWN_WAIT * 1000L) {
 				System.err
 						.println("ERROR: Exceeded max DB shutdown wait time of "
-								+ maxShutdownWait
+								+ MAX_SHUTDOWN_WAIT
 								+ " seconds.  Not waiting around any more.");
 				return false;
 			}
 		}
 		return true;
 	}
+	
+	public static boolean deleteTestSchema() {
+		System.out.println("DESTROYING goat schema in test DB") ;
+		boolean success = false ;
+		// stop server restart with test db if it's running and not serving the test db
+		if(serverRunning() && (! dbName.equals("test")))
+			GoatDB.safeShutdown() ;
+		if(! serverRunning()) {
+			GoatDB.startServer(true) ;
+		}
+			
+		// Drop the goat schema
+		try {
+			if (GoatDB.hasSchema(SCHEMA_NAME))
+				GoatDB.executeUpdate("DROP SCHEMA " + SCHEMA_NAME + " CASCADE") ;
+			success = true ;
+		} catch (SQLException e) {
+			e.printStackTrace() ;
+			success = false ;
+		}
+		System.out.println("DESTROYED goat schema in test DB") ;
+		return success ;
+	}
+	
+	/**
+	 * This pains me.
+	 * 
+	 * @param s name of the schema you want to check for.
+	 * @param c connection to the db you want to check
+	 * @return
+	 * @throws SQLException
+	 */
+	private static boolean hasSchema(String s, Connection c) {
+		boolean found = false ;
+		try {
+			ResultSet rs = c.getMetaData().getSchemas() ;
+			while (rs.next()) {
+				if (rs.getString(1).equalsIgnoreCase(s)) {
+					found = true ;
+					break ;
+				}
+			}
+		} catch (SQLException e) {
+			System.err.println("WARNING:  Couldn't retrieve schema list from goat db") ;
+		}
+		return found ;
+	}
+	
+	private static boolean hasSchema(String s) throws GoatDBConnectionException {
+		return hasSchema(s, GoatDB.getConnection()) ;
+	}
+	
+	public static boolean recreateTestSchema() {
+		if(! serverRunning())
+			GoatDB.startServer(true) ;
+		boolean success = GoatDB.deleteTestSchema() ;
+		if (success)
+			success = loadSchema(true) ;
+		return success ;
+	}
+	
+	/**
+	 * Method to load the goat schema into a database.
+	 * 
+	 * goat.util.GoatDB is set up to not allow you to initialize the deployment
+	 * db. If you want to do that, you can make a method that calls this one
+	 * with isTest == false, or you can change this to a public method and call
+	 * it in the aforesaid manner, or you can use hsqldb's SqlTool to manually
+	 * load db/sql/setup-goat.db.sql and then db/sql/schema.sql (recommended).
+	 * 
+	 * @param isTest
+	 * @return
+	 */
+	private static boolean loadSchema(boolean isTest) {
+		boolean success = false ;
+		if (serverRunning()) {
+			if (isTest && (dbName.equals("test")))
+				success = loadFile(SCHEMA_DEFINITION_FILE) ;
+			else if (dbName.equals("goat")) {  
+				System.err.println("someone called loadSchema() on the deployment db with the server already running;  naughty, naughty.  DB not altered.") ;
+			}
+		} else {
+			GoatDB.startServer(isTest) ;
+			if(dbName.equals("goat")) {
+				success = loadFile(REAL_DB_INIT_FILE) ;
+				if (success) 
+					success = loadFile(SCHEMA_DEFINITION_FILE) ;
+			} else {
+				success = loadFile(SCHEMA_DEFINITION_FILE) ;
+			}
+		}
+		return success ;
+	}
+	
+	/**
+	 * Load a file of valid sql into the running db.
+	 * 
+	 * Does nothing if the db server has not been started.
+	 * 
+	 * @param filename
+	 * @return true if file is successfully loaded
+	 */
+	public static boolean loadFile(String filename) {
+		boolean success = false ;
+		if (! serverRunning() ) {
+			System.err.println("Someone tried to load a file with no db server running") ;
+			return success ;
+		}
+		String args [] = {"--rcfile", SQLTOOL_RCFILE, dbName, filename} ;
+		try {
+			System.setProperty("sqltool.noexit", "true") ;
+			if(null == System.getProperty("sqltool.noexit"))
+				System.err.println("system property not set: sqltool.noexit");
+			SqlTool.main(args) ;
+			success = true ;
+		} catch (SqlToolException e) {
+			e.printStackTrace() ;
+			success = false ;
+		}
+		return success ;
+	}
 
 	private static void setDbReal() {
-		dbName = realDbName;
-		dbPath = realDbPath;
-		dbUser = realDbUser;
-		dbPass = realDbPass;
+		dbName = REAL_DB_NAME;
+		dbPath = REAL_DB_PATH;
+		dbUser = REAL_DB_USER;
+		dbPass = REAL_DB_PASS;
 	}
+	
+	public static int getIdentity(Connection c) {
+		int ret = -1 ;
+		try {
+			ResultSet rs = c.createStatement().executeQuery(HSQLDB_IDENTITY_QUERY) ;
+			if (rs.next()) 
+				ret = rs.getInt(1) ;
+		} catch (SQLException e) {
+			System.err.println("Problem retrieving identity via \"" + HSQLDB_IDENTITY_QUERY + "\"") ; ;
+		}
+		return ret ;
+	}
+
 }
 
-class GoatDBConnectionException extends Exception {
+class GoatDBConnectionException extends SQLException {
 	// eclipse complains without this.
 	private static final long serialVersionUID = 1L;
 }

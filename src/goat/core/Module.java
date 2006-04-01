@@ -2,6 +2,7 @@ package goat.core;
 
 
 import java.util.ArrayList;
+import java.lang.reflect.*;
 
 /**
  * The superclass of all Goat modules.
@@ -63,27 +64,76 @@ public abstract class Module {
 	}
 
     /**
-     * <p>Returns an array of commands that the module is interested in. </p>
-	 *
-	 * <p>This is only ever checked if <code>messageType()</code> returns <code>WANT_COMMAND_MESSAGES</code>,
-	 * which it does by default. Implementing modules just need to define here what commands their module
-	 * is interested in. That is, if someone in an irc channel says..</p>
-	 *
-	 * <p><code>&lt;qpt&gt; goat, eat it.</code><p>
-	 *
-	 * <p>..then the modCommand (Message.modCommand) would be "eat", and any module that had <code>getCommands()</code>
-	 * return "eat" would receive this line in <code>processChannelMessage()</code> or <code>processPublicMessage()</code>
-	 * but not otherwise.</p>
-	 *
-	 * <p>If "goat, eat it" is privately messaged to the bot, then Message.modCommand will be "eat" as well. However, if
-	 * "eat it" is sent as a private message, then Message.modCommand will also be "eat". That is, in the case of private
-	 * messages if the bot's name is at the start it is ignored, along with any additional punctuation.</p>
-	 *
-     * @return An array of commands that the module wants to know about.
-     */
-    public String[] getCommands() {
+	 * <p>
+	 * Returns an array of commands that the module is interested in.
+	 * </p>
+	 * 
+	 * <p>
+	 * This is only ever checked if <code>messageType()</code> returns
+	 * <code>WANT_COMMAND_MESSAGES</code>, which it does by default.
+	 * Implementing modules just need to define here what commands their module
+	 * is interested in. That is, if someone in an irc channel says..
+	 * </p>
+	 * 
+	 * <p>
+	 * <code>&lt;qpt&gt; goat, eat it.</code>
+	 * <p>
+	 * 
+	 * <p>
+	 * ..then the modCommand (Message.modCommand) would be "eat", and any module
+	 * that had <code>getCommands()</code> return "eat" would receive this
+	 * line in <code>processChannelMessage()</code> or
+	 * <code>processPublicMessage()</code> but not otherwise.
+	 * </p>
+	 * 
+	 * <p>
+	 * If "goat, eat it" is privately messaged to the bot, then
+	 * Message.modCommand will be "eat" as well. However, if "eat it" is sent as
+	 * a private message, then Message.modCommand will also be "eat". That is,
+	 * in the case of private messages if the bot's name is at the start it is
+	 * ignored, along with any additional punctuation.
+	 * </p>
+	 * 
+	 * <p>
+	 * NOTE NOTE NOTE: This is almost certainly *not* the method you want. Since
+	 * we changed it to a static method, java's (crackheaded) early binding of
+	 * static methods mean that if you try to call this in a non-static way on a subclass
+	 * of goat.core.Module, <i>you will get the superclass's version</i>.  Use
+	 * goat.core.Module.getCommands(Class) instead, e.g., for some module myModule do:
+	 * <code>String [] myCommands = Module.getCommands(myModule.getClass()) ;</code>
+	 * instead of <code>myCommands = myModule.getCommands() ; </code>
+	 * </p>
+	 * 
+	 * @return An array of commands that the module wants to know about.
+	 * @see goat.core.Module.getCommands(Class)
+	 */
+    public static String[] getCommands() {
 		return new String[0];
 	}
+    
+    /**
+     * The method you want to use to get a list of commands that a module will to respond to.
+     * 
+     * @param c the class of the module you want to query
+     * @return the list of commands the module wants to process
+     * @see goat.core.Module.getCommands()
+     */
+    public static String[] getCommands(Class c) {
+    	String [] commands = new String[0] ;
+    	try {
+    		commands = (String []) c.getMethod("getCommands").invoke(c) ;
+    	} catch (NoSuchMethodException e) {
+    		System.err.println("ERROR: getCommands() not found for class \"" + c.getName() + "\", perhaps not a subclass of goat.core.Module?  Continuing.") ;
+    		// e.printStackTrace() ;
+    	} catch (InvocationTargetException e) {
+    		System.err.println("ERROR: getCommands() could not be called as a class (static) method on class \"" + c.getName() + "\", perhaps not a subclass of goat.core.Module?  Continuing.") ;
+    		// e.printStackTrace() ;
+    	} catch (IllegalAccessException e) {
+    		System.err.println("ERROR: rs is an inept programmer.  He screwed up the reflection crap in goat.Module.getCommands(Class) .  Continuing.") ;
+    		// e.printStackTrace() ;
+    	}
+    	return commands ;
+    }
 
 	/**
 	 * Called when the bot receives a message which is not a PRIVMSG. Many modules may not need to override the default

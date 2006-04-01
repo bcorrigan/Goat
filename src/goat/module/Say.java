@@ -25,7 +25,7 @@ public class Say extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"say"};
 	}
 }

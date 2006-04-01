@@ -20,6 +20,27 @@ public class Goat {
         GoatDB.startServer() ;
         Runtime.getRuntime().addShutdownHook(new GoatDBShutdownThread());
         new Goat() ;
+        /*
+         *  The following was all used to test new modController stuff, it should be 
+         *  refuctored into a junit thingy.  Some day.
+         *
+        ModuleController mc = modController ;
+        try {
+        	mc.load("Say") ;
+        	System.out.println(Arrays.toString(mc.lsmod())) ;
+        	mc.load("Core") ;
+        	mc.load("Weather") ;
+        	System.out.println(Arrays.toString(mc.lsmod())) ;
+        	System.out.println(Arrays.toString(mc.getLoadedCommands())) ;
+        	System.out.println() ;
+        	System.out.println(Arrays.toString(mc.getAllModules())) ;
+        	System.out.println(Arrays.toString(mc.getAllCommands())) ;
+        } catch (Exception e) {
+        	System.err.println("Oops.") ;
+        	e.printStackTrace() ;
+        }
+        */
+        System.exit(0) ;
 	}
 
 	public Goat() {

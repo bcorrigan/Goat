@@ -134,7 +134,7 @@ public class ModuleCommands extends Module {
 
 
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"lsmod", "rmmod", "insmod", "chans"};
 	}
 

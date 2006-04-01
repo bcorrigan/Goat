@@ -45,7 +45,7 @@ public class NickServ extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"This"};
 	}
 

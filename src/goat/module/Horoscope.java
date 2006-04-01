@@ -90,7 +90,7 @@ public class Horoscope extends Module {
         }
     }
 
-    public String[] getCommands() {
+    public static String[] getCommands() {
         return new String[]{"horoscope"};
     }
 

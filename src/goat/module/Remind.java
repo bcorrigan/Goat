@@ -76,7 +76,7 @@ public class Remind extends Module implements Runnable {
         processChannelMessage(m);
     }
 
-    public String[] getCommands() {
+    public static String[] getCommands() {
         return new String[]{"remind"};
     }
 

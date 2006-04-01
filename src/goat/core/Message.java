@@ -566,7 +566,7 @@ public class Message {
 						modTrailing += st.nextToken() + ' ';         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
 				}
 			} else {
-				modCommand = removeColors(firstWord);
+				modCommand = removeFormattingAndColors(firstWord);
 				while (st.hasMoreTokens())
 					modTrailing += st.nextToken() + ' ';
 			}
@@ -582,7 +582,7 @@ public class Message {
 				if (st.hasMoreTokens())
 					modCommand = st.nextToken();
 			} else {
-				modCommand = removeColors(firstWord);
+				modCommand = removeFormattingAndColors(firstWord);
 			}
 
 			while (st.hasMoreTokens()) {
@@ -835,7 +835,7 @@ public class Message {
 	 */
 	public void send() {
 		// copy to console
-		System.out.println("(goat): " + this.trailing) ;
+		// System.out.println("(goat): " + this.trailing) ;
 		outqueue.enqueue(this);
 	}
 }

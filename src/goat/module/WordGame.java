@@ -79,7 +79,7 @@ public class WordGame extends Module implements Runnable {
 			return WANT_UNCLAIMED_MESSAGES;
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"wordgame", "nerdgame", "scores", "matchscores"};
 	}
 

@@ -52,17 +52,17 @@ public class MessageDispatcher {
 	 *
 	 */
     private void processMessage(Message msg) {
-        Iterator it = modController.iterator();
-        ArrayList modulesWantingAll = new ArrayList(),
-				  modulesWantingSome = new ArrayList(),
-				  modulesWantingOne = new ArrayList();
+        Iterator<Module> it = modController.iterator();
+        ArrayList<Module> modulesWantingAll = new ArrayList<Module>(),
+				  modulesWantingSome = new ArrayList<Module>(),
+				  modulesWantingOne = new ArrayList<Module>();
 		Module mod;
         //if(msg.isAuthorised)
 			//System.out.println("Inbuffer: prefix: " + msg.prefix + " params: " + msg.params + " trailing:" + msg.trailing + " command:" + msg.command + " sender: " + msg.sender +
 			//					           "\n    " + "isCTCP:" + msg.isCTCP + " isPrivate:" + msg.isPrivate + " CTCPCommand:" + msg.CTCPCommand + " CTCPMessage:" + msg.CTCPMessage);
 
 		while(it.hasNext()) {
-			mod = (Module) it.next();
+			mod = it.next();
 			if(mod.messageType() == Module.WANT_ALL_MESSAGES)
 				modulesWantingAll.add(mod);
 			else if(mod.messageType() == Module.WANT_UNCLAIMED_MESSAGES)
@@ -73,15 +73,15 @@ public class MessageDispatcher {
 
 		it = modulesWantingAll.iterator();
 		while(it.hasNext()) {
-			mod = (Module) it.next();
+			mod = it.next();
 			sendIfChannelsMatch(msg, mod);
 		}
 
 		it = modulesWantingOne.iterator();
 		boolean used = false;
 		while(it.hasNext()) {
-			mod = (Module) it.next();
-			String[] commands = mod.getCommands();
+			mod = it.next();
+			String [] commands = Module.getCommands(mod.getClass()) ;
 			for (int j = 0; j < commands.length; j++)
 				if (commands[j].equalsIgnoreCase(msg.modCommand)) {
 					sendIfChannelsMatch(msg, mod);
@@ -92,7 +92,7 @@ public class MessageDispatcher {
 		if (!used) {
 			it = modulesWantingSome.iterator();
 			while(it.hasNext()) {
-				mod = (Module) it.next();
+				mod = it.next();
 				sendIfChannelsMatch(msg, mod);
 			}
 		}
@@ -111,7 +111,6 @@ public class MessageDispatcher {
 					sendMessage(msg, mod);
 			}
 		}
-
     }
 
 	private void sendMessage(Message msg, Module mod) {

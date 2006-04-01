@@ -244,7 +244,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
         processPrivateMessage(m);
     }
 
-    public String[] getCommands() {
+    public static String[] getCommands() {
         return new String[]{"adv", "startadv", "stopadv", "lsgames", "lssaves"};
     }
 

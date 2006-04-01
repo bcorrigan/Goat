@@ -33,7 +33,7 @@ public class BookTitle extends Module {
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
-   public String[] getCommands() {
+   public static String[] getCommands() {
 		return new String[]{"title", "titleadjectives", "titlenouns"};
    }
 	

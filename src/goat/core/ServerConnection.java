@@ -1,10 +1,12 @@
 package goat.core;
 
 import goat.Goat;
+import goat.module.Logger;
 
 import java.net.*;
 import java.nio.charset.Charset;
 import java.io.*;
+import java.sql.SQLException;
 
 /**
  * Maintains the connection with the server. A seperate thread, this.
@@ -195,29 +197,57 @@ public class ServerConnection extends Thread {
 
         int bufused;
 
-        //should block until posting won't flood us off
-        public void sendMessage(Message m) {
-            byte[] outbuffer;
-            synchronized (out) {
-                System.out.println("outbuffer:" + String.valueOf( m.toString() ));
-                outbuffer = m.toByteArray();
-                if (bufused + outbuffer.length > 1024) {
-                    //hope that sleeping for two seconds will empty the buffer.
-                	System.out.println(2000 + bufused * 3);
-                    try {
-                        sleep(2000 + bufused * 3);
-                    } catch (InterruptedException e) {
-                    }
+        // should block until posting won't flood us off
+		public void sendMessage(Message m) {
+			byte[] outbuffer;
+			synchronized (out) {
+				// System.out.println("outbuffer:" + String.valueOf(
+				// m.toString() ));
+				outbuffer = m.toByteArray();
+				if (bufused + outbuffer.length > 1024) {
+					// hope that sleeping for two seconds will empty the buffer.
+					System.out.println(2000 + bufused * 3);
+					try {
+						sleep(2000 + bufused * 3);
+					} catch (InterruptedException e) {
+					}
 
-                    bufused >>= 1;
-                }
+					bufused >>= 1;
+				}
 
-                out.println(m.toString());
-                //System.out.println("Outbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing);
+				out.println(m.toString());
+				// System.out.println("Outbuffer: prefix: " + m.prefix + "
+				// params: " + m.params + " trailing:" + m.trailing);
 
-                bufused += outbuffer.length;
-            }
-        }
+				bufused += outbuffer.length;
+			}
+
+			/*
+			 * Log the message, if the Logger module is loaded. Doing DB stuff
+			 * in a blocking subroutine might be a little short-sighted, but
+			 * this is the only point in the goat code that I'm sure will
+			 * capture all outgoing goat messages. There might be a better spot
+			 * for this in goat.core.Message, but my eyes go all swimmy when I
+			 * try to read that file. --rs
+			 */
+			Logger lm = (Logger) Goat.modController.get("Logger");
+			int id;
+			if (null != lm) {
+				try {
+					// TODO "slashnet" should not be hard-coded here.
+					id = lm.logger.logOutgoingMessage(m, "slashnet");
+
+					// uncomment the next line if you want everything you log
+					// retrieved from the db and echoed to the console.
+					lm.logger.printResultSet(lm.logger.getMessage(id));
+				} catch (SQLException e) {
+					System.out.println("ERROR -- DB problem while trying to log outgoing message");
+					e.printStackTrace();
+				}
+			} else {
+				System.err.println("Couldn't find Logger module for outgoing message, skipping.");
+			}
+		}
         
         protected void setOSW( PrintWriter pw) {
         	out = pw;
@@ -232,7 +262,6 @@ public class ServerConnection extends Thread {
 			oh.setOSW(pw);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-        
+		}   
     }
 }

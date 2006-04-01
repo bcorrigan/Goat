@@ -23,7 +23,7 @@ public class Google extends Module {
 	/* IRC methods
 	 */
 	
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"google", "goatle", "googlefight", 
 			"searchcount", "pornometer", "pronometer", "pr0nometer",
 			"sexiness"};

@@ -1,0 +1,9 @@
+urlid test
+url jdbc:hsqldb:hsql://127.0.0.1:2232/test
+username sa
+password
+
+urlid goat
+url jdbc:hsqldb:hsql://127.0.0.1:2232/goat
+username sa
+password NOT_A_REAL_PASSWORD

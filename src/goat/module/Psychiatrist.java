@@ -21,7 +21,7 @@ public class Psychiatrist extends Module {
 		processChannelMessage(m);
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"psychiatrist", "psy"};
 	}
 

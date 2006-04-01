@@ -17,7 +17,7 @@ public class Help extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"help"} ;
 	}
 

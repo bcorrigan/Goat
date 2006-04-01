@@ -163,7 +163,7 @@ public class Weather extends Module {
 				// Coordinates
 				m = Pattern.compile(".* (\\d+)-(\\d+)(?:-\\d+)*([NS]) (\\d+)-(\\d+)(?:-\\d+)*([EW]).*").matcher(inputLine) ;
 				if (m.matches()) {
-					System.out.println("matched: " + m.group()) ;
+					//System.out.println("matched: " + m.group()) ;
 					latitude = Double.parseDouble(m.group(1)) + Double.parseDouble(m.group(2)) / 60L ;
 					if ((m.group(3) != null) && (m.group(3).equals("S"))) {
 						latitude = - latitude ;
@@ -172,7 +172,7 @@ public class Weather extends Module {
 					if ((m.group(6) != null) && (m.group(6).equals("W"))) {
 						longitude = - longitude ;
 					}
-					System.out.println("coordinates (lat/long): " + latitude + "/" + longitude) ;
+					//System.out.println("coordinates (lat/long): " + latitude + "/" + longitude) ;
 				}
 
 				// Sky conditions
@@ -332,7 +332,7 @@ public class Weather extends Module {
 	}
 		
 
-	public String[] getCommands() {
+	public static String[] getCommands() {
 		return new String[]{"weather", "fullweather"};
 	}
 
