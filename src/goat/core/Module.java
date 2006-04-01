@@ -121,7 +121,7 @@ public abstract class Module {
     public static String[] getCommands(Class c) {
     	String [] commands = new String[0] ;
     	try {
-    		commands = (String []) c.getMethod("getCommands").invoke(c) ;
+    		commands = (String []) c.getMethod("getCommands").invoke(null) ;
     	} catch (NoSuchMethodException e) {
     		System.err.println("ERROR: getCommands() not found for class \"" + c.getName() + "\", perhaps not a subclass of goat.core.Module?  Continuing.") ;
     		// e.printStackTrace() ;
