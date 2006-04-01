@@ -206,7 +206,7 @@ public class ServerConnection extends Thread {
 				outbuffer = m.toByteArray();
 				if (bufused + outbuffer.length > 1024) {
 					// hope that sleeping for two seconds will empty the buffer.
-					System.out.println(2000 + bufused * 3);
+					// System.out.println(2000 + bufused * 3);
 					try {
 						sleep(2000 + bufused * 3);
 					} catch (InterruptedException e) {

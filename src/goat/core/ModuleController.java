@@ -126,7 +126,8 @@ public class ModuleController  {
         		// System.out.println(je.toString()) ;
         		try {
         			Class modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
-        			allModules.add(modClass.getCanonicalName()) ;
+        			if(modClass.getSuperclass().getName().equals("goat.core.Module"))
+        				allModules.add(modClass.getCanonicalName()) ;
         		} catch (ClassNotFoundException e) {
         			System.err.println("Error while building goat modules list, jar entry: \"" + je.getName() + "\", skipping") ;
         		}
