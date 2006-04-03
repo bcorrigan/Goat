@@ -227,11 +227,17 @@ public class GoatDB {
 		try {
 			c = DriverManager.getConnection(connectionUrl(), dbUser, dbPass);
 		} catch (SQLException e) {
-			System.err.println("ERROR: couldn't connect to the goat db");
-			e.printStackTrace() ;
-			GoatDBConnectionException gdbe = new GoatDBConnectionException() ;
-			gdbe.initCause(e) ;
-			throw gdbe ;
+			System.err.println("Couldn't get connection to DB server; attempting to start in-process server...") ;
+			try {
+				startServer() ;
+				c = DriverManager.getConnection(connectionUrl(), dbUser, dbPass);
+			} catch (SQLException e2) {
+				System.err.println("ERROR: couldn't connect to the goat db (or couldn't start in-process server)");
+				e2.printStackTrace() ;
+				GoatDBConnectionException gdbe = new GoatDBConnectionException() ;
+				gdbe.initCause(e2) ;
+				throw gdbe ;
+			}
 		} 
 		try {
 			if (hasSchema(SCHEMA_NAME, c))

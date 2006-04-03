@@ -65,6 +65,8 @@ public class IRCLogger {
 		"SELECT id FROM ctcp_commands WHERE name = ?" ;
 	private static String botCommandByName = 
 		"SELECT id FROM bot_commands WHERE name = ?" ;
+	private static String lastHostmaskByNick =
+		"SELECT hostmasks.hostmask FROM nicks, hostmasks WHERE nicks.name = ? AND nicks.last_hostmask = hostmasks.id ;" ;
 	
 	private static String allMessages = 
 		"SELECT * FROM messages_view ;" ;
@@ -73,7 +75,8 @@ public class IRCLogger {
 	
 	private static String nickTimestampUpdate = 
 		"UPDATE nicks SET seen = ? WHERE id = ? ;" ;
-
+	private static String nickLastHostmaskUpdate =
+		"UPDATE nicks SET nicks.last_hostmask = (SELECT id FROM hostmasks WHERE hostmasks.hostmask = ?) WHERE nicks.name = ? ;"  ;
 	private static String msgTotalCount = 
 		"SELECT COUNT(*) FROM messages ;" ;
 	private static String msgChannelCount =
@@ -92,6 +95,7 @@ public class IRCLogger {
 	private HashMap<String, Integer> ircCommandIdCache = new HashMap<String, Integer>();
 	private HashMap<String, Integer> ctcpCommandIdCache = new HashMap<String, Integer>();
 	private HashMap<String, Integer> botCommandIdCache = new HashMap<String, Integer>();
+	private HashMap<String, String> hostmaskCache = new HashMap<String, String>() ;
 	
 	// TODO : do something to flush these caches once in a while?
 	
@@ -155,8 +159,11 @@ public class IRCLogger {
 			int ircCommandID = getID(ircCommand, ircCommandByName, ircCommandIdCache) ;
 			int ctcpCommandID = getID(ctcpCommand, ctcpCommandByName, ctcpCommandIdCache) ;
 			int botCommandID = getID(botCommand, botCommandByName, botCommandIdCache) ;
-			if (-1 == hostmaskID) 
-				hostmaskID = addHostmask(hostmask) ;
+			if (-1 == hostmaskID)
+				if ((null != hostmask) && ("" != hostmask))
+					hostmaskID = addHostmask(hostmask) ;
+				else
+					hostmaskID = 0 ;
 			if (-1 == senderID) 
 				senderID = addNick(sender, hostmaskID, network) ;
 			if (-1 == channelID) 
@@ -183,8 +190,16 @@ public class IRCLogger {
 			msgInsertPS.setString(8, message) ;
 			msgInsertPS.execute() ;
 			messageID = GoatDB.getIdentity(conn) ;
+			//  These next two operations might screw things up if
+			//  you're logging from a live connection and from some other
+			//  source at the same time.  Since we're not likely to be doing
+			//  anything like that, we'll just leave things as they are.
+			//  also, as written, these operations should be done in the 
+			//  db via triggers and stored procedures and all that good stuff.
 			updateNickTimestamp(senderID) ;
-			
+			if (0 != hostmaskID) {
+				updateLastHostmask(sender, hostmask) ;
+			}
 			return messageID ;
 	}
 	
@@ -218,38 +233,72 @@ public class IRCLogger {
 	}
 	
 	public int logIncomingMessage(Message m, String network) throws SQLException {
-		if("" == m.sender) {
-			System.err.println("No sender for incoming \"" + m.command + "\" message; not logging") ;
+		if((null == m.sender) || m.sender.equals("")) {
+			// System.err.println("No sender for incoming \"" + m.command + "\" message; not logging") ;
 			return -1 ;
 		}
-		return logMessage(m, network) ;
+		int id = -1 ;
+		// long start = System.currentTimeMillis() ;
+		id = logMessage(m, m.sender, network);
+		// System.out.println("Incoming message logged in " + (System.currentTimeMillis() - start) + "ms") ;
+		return id ;
 	}
 	
 	public int logOutgoingMessage(Message m, String network)
 			throws SQLException {
-		return logMessage(m, BotStats.botname, network);
+		int id = -1 ;
+		// long start = System.currentTimeMillis() ;
+		id = logMessage(m, BotStats.botname, network);
+		// System.out.println("Outgoing message logged in " + (System.currentTimeMillis() - start) + "ms") ;
+		return id ;
 	}
 	
 	public int logMessage(Message m, String sender, String network)
 			throws SQLException {
 		// the javaWank(tm) way to do this would be to have Message implement
 		// the SQLData interface. Needless to say, we're not going to do that.
+		if (null == sender || sender.equals("")) {
+			// refuse to log message with no sender
+			System.err.println("logMessage() called with null sender; message not logged.") ;
+			return -1 ;
+		}
+		if (m.command.equals("MODE")) {
+			// don't log MODE commands
+			return -1 ;
+		}
+		if (m.command.equals("PONG") || m.CTCPCommand.equals("PING")) {
+			// don't log PING or PONG commands
+			return -1 ;
+		}
+		if (m.sender.equalsIgnoreCase("NickServ")) {
+			// don't log messages from NickServ
+			return -1 ;
+		}
 		String ctcpCommand = null;
 		String body = m.trailing;
-		if ("" == body) {
-			System.err.println("No body found for \"" + m.command + "\" message, using \"" + m.command + " " + m.params + "\" for logging purposes") ;
-			body = m.command + " " + m.params;
-			body = body.trim() ;
+		if (body.equals("")) {
+			if (m.params.equals(""))
+				body = m.command ;
+			else
+				body = m.params ;
+			// System.err.println("No body found for \"" + m.command + "\" message, using \"" + body + "\" for logging purposes") ;
 		}
 		if (m.isCTCP) {
 			ctcpCommand = m.CTCPCommand;
-			body = m.CTCPCommand + " " + m.CTCPMessage;
+			if (m.CTCPMessage.equals(""))
+				body = m.CTCPCommand;
+			else
+				body = m.CTCPMessage ;
 		}
 		String ircCommand = m.command;
-		String hostmask = m.prefix;
-		int offset = m.prefix.indexOf('!');
-		if (offset > -1) {
-			hostmask = m.prefix.substring(offset + 1);
+		String hostmask = m.hostmask;
+		if ((null == hostmask) || (hostmask.equals(""))) { 
+			// no hostmask passed in;  
+			// this will be the case on all outgoing messages, 
+			// and who knows, maybe some weird incoming irc messages, too.
+			
+			// try to set hostmask to last known hostmask for sender;
+			hostmask = getLastHostmask(sender) ;
 		}
 		String botCommand = null;
 		if (Goat.modController.isLoadedCommand(m.modCommand))
@@ -347,6 +396,16 @@ public class IRCLogger {
 		return millis ;
 	}
 	
+	public void updateLastHostmask(String nick, String hostmask) throws SQLException {
+		if (hostmaskCache.containsKey(nick) && (hostmaskCache.get(nick).equals(hostmask)))
+			return ;
+		PreparedStatement ps = conn.prepareStatement(nickLastHostmaskUpdate) ;
+		ps.setString(1, hostmask) ;
+		ps.setString(2, nick) ;
+		ps.execute() ;
+		hostmaskCache.put(nick, hostmask) ;
+	}
+	
 	private int getID(String key, String preparedQuery, HashMap<String, Integer> cache) 
 		throws SQLException {
 		int id = -1 ;
@@ -385,6 +444,22 @@ public class IRCLogger {
 			}
 		}
 		return id ;
+	}
+	
+	public String getLastHostmask(String nick) throws SQLException {
+		String ret = ""  ;
+		if (hostmaskCache.containsKey(nick))
+			ret = hostmaskCache.get(nick) ;
+		else {
+			PreparedStatement ps = conn.prepareStatement(lastHostmaskByNick) ;
+			ps.setString(1, nick) ;
+			ps.execute() ;
+			ResultSet rs = ps.getResultSet() ;
+			if (rs.next()) 
+				ret = rs.getString(1) ;
+			hostmaskCache.put(nick, ret) ;
+		}
+		return ret ;
 	}
 	
 	public int numTotalMessages() throws SQLException {

@@ -71,12 +71,19 @@ public class Message {
 	public String params = "";
 
 	/**
-	 * The nickname part of the sending hostmask.
+	 * The nickname part of the sending prefix.
 	 * <p/>
-	 * This is the nick of the person who sent the message. Not to be confused with the hostname, which contains further
+	 * This is the nick of the person who sent the message. Not to be confused with the hostmask, which contains other
 	 * details.
 	 */
 	public String sender = "";
+	
+	/**
+	 * The hostmask of the sending prefix.
+	 * <p/>
+	 * This is the hostmask of the person who sent the message.  Not to be confused with the nick, which is the other part of the prefix.
+	 */
+	public String hostmask = "";
 
 	/**
 	 * Whether this message was sent one to one. False if sent to a channel, true if only to one user.
@@ -436,7 +443,17 @@ public class Message {
 	 * @param CTCPparams  The parameters of the CTCP command. With an ACTION, this is the action.
 	 */
 	public static Message createCTCP(String to, String command, String CTCPcommand, String CTCPparams) {
-		return new Message("", command, to, (char) 0x01 + CTCPcommand + ' ' + CTCPparams + (char) 0x01);
+		String payload = "" ;
+		if ((null != CTCPparams) && (! CTCPparams.equals("")))
+			payload = CTCPcommand + ' ' + CTCPparams ;
+		Message m = new Message("", command, to, (char) 0x01 + payload + (char) 0x01);
+		m.CTCPCommand = CTCPcommand ;
+		if (null != CTCPparams) 
+			m.CTCPMessage = CTCPparams ;
+		else
+			m.CTCPMessage = "" ;
+		m.isCTCP = true ;
+		return m;
 	}
 
 	/**
@@ -536,8 +553,10 @@ public class Message {
 		}
 		if (prefix != null) {
 			j = prefix.indexOf('!');
-			if (j > -1) 
+			if (j > -1) { 
 				sender = prefix.substring(0, j);
+				hostmask = prefix.substring(j + 1) ;
+			}
 		}
 		if (command.equals("PRIVMSG")) {
 			if (params.equals(BotStats.botname)) {
@@ -545,12 +564,25 @@ public class Message {
 				replyTo = sender;
 			} else 
 				replyTo = channame = params ;
+		} else if(command.equals("PART")) {
+			channame = params ;
+		} else if (command.equals("JOIN")) {
+			channame = trailing ;
+		} else if(command.equals("NOTICE")) {
+			if (params.equals(BotStats.botname)) {
+				isPrivate = true;
+				replyTo = "" ; // never reply to a NOTICE
+			} else 
+				channame = params ;
+				replyTo = "" ; // never reply to a NOTICE
 		}
 
+		/* this ain't right.  --rs.
 		if (isPrivate)
 			replyTo = sender ;
 		else
 			replyTo = channame ;
+		*/
 		if (isPrivate) {  //if private, set modTrailing (everything after command), modCommand (first word) and ignore "goat"
 			String words = trailing;
 			StringTokenizer st = new StringTokenizer(words);
@@ -827,6 +859,16 @@ public class Message {
 	 * Sends a generic message using the current connection.
 	 */
 	public static void send(Message m) {
+		// Do a little sanity checking and final adjusting before we queue this outgoing message
+		if (m.command.equalsIgnoreCase("PRIVMSG") || m.command.equalsIgnoreCase("NOTICE")) {
+			if (0 == m.params.indexOf("#"))
+				m.channame = m.params ;
+			else if (m.params.equals("")) {
+				System.err.println(m.command + " message has no valid recipient; not sending:") ;
+				System.err.println("   " + m.command + " " + m.params + " | " + m.trailing) ;
+				return ;
+			}
+		}
 		outqueue.enqueue(m);
 	}
 
@@ -836,6 +878,6 @@ public class Message {
 	public void send() {
 		// copy to console
 		// System.out.println("(goat): " + this.trailing) ;
-		outqueue.enqueue(this);
+		Message.send(this);
 	}
 }

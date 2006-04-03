@@ -91,24 +91,36 @@ public class ModuleCommands extends Module {
 	}
 
 	private void insmod(String moduleName, ArrayList chans) {
+		String response = "" ;
 		try {
 			Module mod = modControl.load(moduleName);
 			if(mod!=null) {
 				setChans(chans, mod);
-				m.createReply("Module '" + mod.getClass().getName() + "' successfully loaded.").send();
+				response = "Module '" + mod.getClass().getName() + "' successfully loaded.";
 			} else
-				m.createReply("Module '" + moduleName + "' is already loaded!").send();
+				response = "Module '" + moduleName + "' is already loaded!";
 		} catch (IllegalAccessException e) {
-			m.createReply("IllegalAccessException: Module " + moduleName + " could not be loaded.").send();
+			response = "IllegalAccessException: Module " + moduleName + " could not be loaded.";
 		} catch (InstantiationException e) {
-			m.createReply("InstantiationException: Module " + moduleName + " could not be instantiated.").send();
+			response = "InstantiationException: Module " + moduleName + " could not be instantiated.";
 		} catch (ClassNotFoundException e) {
-			m.createReply("ClassNotFoundException: Module " + moduleName + " could not be found.").send();
+			response = "ClassNotFoundException: Module " + moduleName + " could not be found.";
 		} catch (ClassCastException e) {
-			m.createReply("ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + '.').send();
+			response = "ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + '.';
 		} catch (NoClassDefFoundError e) {
-			m.createReply("NoClassDefFoundError: Module " + moduleName + " not found.").send();
+			response = "NoClassDefFoundError: Module " + moduleName + " not found.";
 		}
+		
+		/*We check the message before sending a response because insmod() is called many times
+		 *  from within the goat when goat starts up, and those calls are via a Message object
+		 *  that does not have a valid replyTo field.  So goat was sending messages to the IRC
+		 *  server addressed to "", and the server was sending back error messages, wasting 
+		 *  everyone's time and precious computational fluids.
+		 */  
+		if (m.replyTo.equals(""))
+			System.out.println(response) ;
+		else
+			m.createReply(response).send() ;
 	}
 
 	private void rmmod(Message m) {

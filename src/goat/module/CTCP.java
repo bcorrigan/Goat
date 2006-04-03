@@ -45,25 +45,25 @@ public class CTCP extends Module {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP && m.CTCPCommand.equals("VERSION")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "VERSION " + Message.BOLD + BotStats.version + Message.BOLD
+				Message.createCTCP(name, "NOTICE", "VERSION", Message.BOLD + BotStats.version + Message.BOLD
 						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
 						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
-						+ ')' + (char) 0x01).send();
+						+ ')').send() ;
 			} else if (m.isCTCP && m.CTCPCommand.equals("PING")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "PING " + m.CTCPMessage + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "PING", m.CTCPMessage).send() ;
 			} else if (m.isCTCP && m.CTCPCommand.equals("TIME")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "TIME :" + (new Date()).toString() + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()).send() ;
 			} else if (m.isCTCP && m.CTCPCommand.equals("CLIENTINFO")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "CLIENTINFO ACTION VERSION PING TIME CLIENTINFO SOURCE" + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE").send() ;
 			} else if (m.isCTCP && m.CTCPCommand.equals("SOURCE")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "SOURCE You're not getting my source, hippy." + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.").send() ;
 			} else if (m.isCTCP && m.CTCPCommand.equals("USERINFO")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "USERINFO I am goat. All things goat." + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.").send() ;
 			} else if (m.isCTCP && m.CTCPCommand.equals("ERRMSG")) {
-				new Message("", "NOTICE", name, (char) 0x01 + "ERRMSG " + m.CTCPMessage + " :No error" + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.CTCPMessage + " : No Error").send() ;
 			} else if (m.isCTCP && !m.CTCPCommand.equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
 			{
-				new Message("", "NOTICE", name, (char) 0x01 + "ERRMSG " + m.CTCPCommand + " :Unsupported CTCP command" + (char) 0x01).send();
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.CTCPCommand + " : Unsupported CTCP command").send() ;
 			}
 		} else if (m.command.equals("KICK")) {
 			String[] words = m.params.split(" ");
@@ -97,9 +97,11 @@ public class CTCP extends Module {
 		}
 	}
 
+/*  This shouldn't be necessary, and it gums up the logging.
 	public static String[] getCommands() {
 		return new String[]{"ALL"};
 	}
+*/
 
 	public int messageType() {
 		return WANT_ALL_MESSAGES;

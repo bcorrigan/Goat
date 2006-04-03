@@ -45,7 +45,9 @@ public class ServerConnection extends Thread {
 
         ih.start();
         oh.start();
+        /*  wtf  --rs
         new Message("", "PASS", "foo", "").send();
+        */
         new Message("", "NICK", BotStats.botname, "").send();
         new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.version).send();
         //we sleep until we are connected, don't want to send these next messages too soon
@@ -237,15 +239,28 @@ public class ServerConnection extends Thread {
 					// TODO "slashnet" should not be hard-coded here.
 					id = lm.logger.logOutgoingMessage(m, "slashnet");
 
-					// uncomment the next line if you want everything you log
-					// retrieved from the db and echoed to the console.
-					lm.logger.printResultSet(lm.logger.getMessage(id));
+					// uncomment the next bit if you want everything you log
+					// retrieved from the db and echoed to the console for debuggo.
+					/*
+					if (id > -1) 
+						lm.logger.printResultSet(lm.logger.getMessage(id));
+					else
+						if (m.isCTCP) 
+							System.out.println("(Did not log outgoing CTCP " + m.CTCPCommand + " message)") ;
+						else
+							System.out.println("(Did not log outgoing " + m.command + " message)") ;
+					*/
 				} catch (SQLException e) {
 					System.out.println("ERROR -- DB problem while trying to log outgoing message");
 					e.printStackTrace();
 				}
 			} else {
-				System.err.println("Couldn't find Logger module for outgoing message, skipping.");
+				// uncomment below to console-view messages sent before the Logger is loaded
+				// security note:  passwords.
+				/*
+				System.err.println("Couldn't find Logger module for outgoing message, skipping:");
+				System.err.println("   " + m.toString()) ;
+				*/
 			}
 		}
         

@@ -36,10 +36,11 @@ public class GoatSay extends Module {
 			moo(m);
 		}
 
+		/* 
 		if (m.isPrivate)
 			System.out.print("PRIVATE: ");
 		System.out.println(m.sender + ": " + m.trailing);
-
+		*/	
 		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
 			m.createReply(mem + "kb").send();

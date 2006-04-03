@@ -30,7 +30,12 @@ public class Core extends Module {
 			else if (m.modCommand.toLowerCase().equals("join"))
 				if (BotStats.isValidChannelName(m.modTrailing)) {
 					new Message("", "JOIN", m.modTrailing, "").send();
-					m.createReply("Channel " + m.modTrailing + " joined!").send();
+					String response = "Channel " + m.modTrailing + " joined!" ;
+					// we do this next dodge to avoid sending messages to nobody on startup
+					if (m.replyTo.equals(""))
+						System.out.println(response) ;
+					else
+						m.createReply(response).send();
 					BotStats.addChannel(m.modTrailing);
 				} else
 					m.createReply("Sorry, that's not a valid channel name!").send();
