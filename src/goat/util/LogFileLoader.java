@@ -195,6 +195,8 @@ public class LogFileLoader {
 			ircCommand = "JOIN" ;
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
+			// nick can contain ] and [, ouch.
+			subline = subline.substring(subline.indexOf(" ") + 1) ;
 			hostmask = line.substring(line.indexOf("[") + 1, line.indexOf("]")) ;
 			body = channel ;
 			//System.out.println("  JOIN by " + nick + "[" + hostmask + "]") ;
@@ -203,6 +205,7 @@ public class LogFileLoader {
 			ircCommand = "PART" ;
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
+			subline = subline.substring(subline.indexOf(" ") + 1) ;
 			hostmask = line.substring(line.indexOf("[") + 1, line.indexOf("]")) ;
 			body = channel ;
 			// System.out.println("  PART by " + nick + "[" + hostmask + "]") ;
@@ -211,6 +214,7 @@ public class LogFileLoader {
 			ircCommand = "QUIT" ;
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
+			subline = subline.substring(subline.indexOf(" ") + 1) ;
 			hostmask = line.substring(line.indexOf("[") + 1, line.indexOf("]")) ;
 			//TODO body should be quit message
 			body = ircCommand ;
