@@ -89,13 +89,21 @@ public class IRCLogger {
 	 * Also IDs for irc, ctcp, and bot commans.
 	 */
 	private HashMap<String, Integer> networkIdCache = new HashMap<String, Integer>();
-	private HashMap<String [], Integer> channelIdCache = new HashMap<String [], Integer>();
+	private HashMap<String, Integer> channelIdCache = new HashMap<String, Integer>();
 	private HashMap<String, Integer> hostmaskIdCache = new HashMap<String, Integer>();
-	private HashMap<String [], Integer> nickIdCache = new HashMap<String [], Integer>();
+	private HashMap<String, Integer> nickIdCache = new HashMap<String, Integer>();
 	private HashMap<String, Integer> ircCommandIdCache = new HashMap<String, Integer>();
 	private HashMap<String, Integer> ctcpCommandIdCache = new HashMap<String, Integer>();
 	private HashMap<String, Integer> botCommandIdCache = new HashMap<String, Integer>();
 	private HashMap<String, String> hostmaskCache = new HashMap<String, String>() ;
+	
+	/*
+	 * A more or less arbitrary unicode character.
+	 * 
+	 * This character (latin letter thorn, lower case) is used as a separator in the
+	 * keys for some of the cache hashes.
+	 */
+	private final char SEPARATOR = '\u00FE' ;
 	
 	// TODO : do something to flush these caches once in a while?
 	
@@ -313,7 +321,7 @@ public class IRCLogger {
 		ps.setInt(2, getID(network, networkIdByName, networkIdCache)) ;
 		ps.execute() ;
 		int id = GoatDB.getIdentity(conn) ;
-		String [] key = {channel, network} ;
+		String key = getKey(channel, network) ;
 		channelIdCache.put(key, id) ;
 		return id ;
 	}
@@ -326,7 +334,7 @@ public class IRCLogger {
 		ps.setInt(4, hostmaskId) ;
 		ps.execute() ;
 		int id = GoatDB.getIdentity(conn) ;
-		String [] key = {nick, network} ;
+		String key = getKey(nick, network) ;
 		nickIdCache.put(key, id) ;
 		return id ;
 	}
@@ -425,10 +433,10 @@ public class IRCLogger {
 		return id ;
 	}
 	
-	private int getID(String name, String network, String preparedQuery, HashMap<String [], Integer> cache) 
+	private int getID(String name, String network, String preparedQuery, HashMap<String, Integer> cache) 
 		throws SQLException {
 		int id = -1 ;
-		String [] key = {name, network} ;
+		String key = getKey(name, network) ;
 		if(cache.containsKey(key)) {
 			id = cache.get(key) ;
 		} else {
@@ -444,6 +452,10 @@ public class IRCLogger {
 			}
 		}
 		return id ;
+	}
+	
+	private String getKey(String s1, String s2) {
+		return s1 + SEPARATOR + s2 ;
 	}
 	
 	public String getLastHostmask(String nick) throws SQLException {
