@@ -42,8 +42,9 @@ public class ShutUp extends Module {
 		joeyisms.add("melons") ;
 		joeyisms.add("power up") ;
 		joeyisms.add("saiyan") ;
-		joeyisms.add("vegeta") ;
+		joeyisms.add("vegeta ") ;
 		if (fires(m.trailing, joeyisms)) {
+			System.out.println("JOEYISM detected from umask: " + m.prefix) ;
 			if(m.prefix.matches(".*Joseph@.*\\.dsl.skt2ca\\.pacbell.net.*")) {
 				// for now, we'll only respond to joey himself occasionally, 
 				//  since he seems to be getting off on this.

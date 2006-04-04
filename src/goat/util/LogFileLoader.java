@@ -35,6 +35,7 @@ public class LogFileLoader {
 	private static long START_TIME = 0 ;
 	private static final String BOT_NICK = "goat" ;
 	private static SimpleDateFormat headerDateFormat ;
+	private static SimpleDateFormat daychangeDateFormat ;
 	private static IRCLogger logger ;
 	private static ModuleController modController = Goat.modController ;
 	
@@ -43,6 +44,8 @@ public class LogFileLoader {
 	private static Date logDate = new Date(0) ;
 	private static String self_nick = "" ;
 	private static String self_hostmask = "" ;
+	private static String lastLine = "" ;
+	private static String lastSeenMillisLine = "";
 	
 	/**
 	 * @param args
@@ -52,6 +55,7 @@ public class LogFileLoader {
 		System.out.println("Starting logfile reader") ;
 		START_TIME = System.currentTimeMillis() ;
 		headerDateFormat = new SimpleDateFormat("MMM d HH:mm:ss yyyy") ;
+		daychangeDateFormat = new SimpleDateFormat("MMM d yyyy") ;
 		//logger = new IRCLogger() ;
 		System.out.println("Starting logfile reading at " + (new Date(START_TIME)).toString()) ;
 		for(int i = 0; i < args.length; i++) {
@@ -119,15 +123,17 @@ public class LogFileLoader {
 			System.out.println("  Unrecognized logfile header, skipping file.");
 			return;
 		}
-		System.out.println("  Time in log header: " + logDate.toString());
+		//System.out.println("  Time in log header: " + logDate.toString());
 		int fails = 0 ;
 		try {
 			while(null != (line = br.readLine())) {
 				processLine(line, channel) ;
 			}
 			br.close() ;
-			logger.hsqldbCheckpoint();
-			System.out.println("Cached items: " + logger.cacheSize()) ;
+			// it turns out this next is a really bad idea, once your database
+			// gets to be fairly large.
+			//logger.hsqldbCheckpoint();
+			//System.out.println("Cached items: " + logger.cacheSize()) ;
 		} catch (IOException e) {
 			if (fails > 10) {
 				System.out.println("  Too many read failures, aborting file \"" + filename + "\"") ;
@@ -159,10 +165,10 @@ public class LogFileLoader {
 			hour = line.substring(0,2) ;
 			minute = line.substring(3,5) ;
 		} else if (line.startsWith(DAY_CHANGE_PREFIX)) {
-			updateLogDate(DAY_CHANGE_PREFIX, line) ;
+			updateLogDate(DAY_CHANGE_PREFIX, line, daychangeDateFormat) ;
 			return id;
 		} else if (line.startsWith(HEADER_PREFIX)) {
-			updateLogDate(HEADER_PREFIX, line) ;
+			updateLogDate(HEADER_PREFIX, line, headerDateFormat) ;
 			return id;
 		} else if (line.startsWith(FOOTER_PREFIX)) {
 			//ignore log close messages
@@ -304,12 +310,16 @@ public class LogFileLoader {
 		long thisMillis = cal.getTimeInMillis() ;
 		if (thisMillis > lastSeenMillis) {
 			lastSeenMillis = thisMillis ;
+			lastSeenMillisLine = line ;
 			millisOffset = 0 ;
 		} else if(thisMillis == lastSeenMillis) {
 			millisOffset += 100 ;
 			thisMillis += millisOffset ;
 		} else {
 			System.err.println("  Warning: time going backwards, aborting file.") ;
+			System.err.println("    last w/distinct time: " + lastSeenMillisLine) ;
+			System.err.println("                    last: " + lastLine) ;
+			System.err.println("                    this: " + line) ;
 			return id ;
 		}
 		if (thisMillis < START_TIME) {
@@ -331,15 +341,16 @@ public class LogFileLoader {
 				System.err.println("    body        : " + body ) ;
 			}
 		} else {
-			System.out.println("  log line is more recent than start of script, skipping.") ;
+			System.out.println("  log line is more recent than start of script, skipping line.") ;
 		}
+		lastLine = line ;	
 		return id ;
 	}
 	
-	private static void updateLogDate(String prefix, String line) {
+	private static void updateLogDate(String prefix, String line, SimpleDateFormat df) {
 		Date d = new Date(0) ;
 		try {
-			d = headerDateFormat.parse(line.substring(prefix.length() + 5));
+			d = df.parse(line.substring(prefix.length() + 5));
 		} catch (ParseException e) {
 		}
 		if (0 == d.getTime()) { 
@@ -349,6 +360,8 @@ public class LogFileLoader {
 			System.exit(1) ;
 		}
 		logDate = d ;
+		millisOffset = d.getTime() % (60 * 1000) ;
+		lastSeenMillis = d.getTime() - millisOffset ;
 	}
 	
 	private static String getLastHostmask(String nick) {

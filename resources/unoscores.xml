@@ -4,10 +4,10 @@
   <void method="add"> 
    <object class="goat.uno.Record"> 
     <void property="gamesEntered"> 
-     <int>127</int> 
+     <int>130</int> 
     </void> 
     <void property="gamesWon"> 
-     <int>58</int> 
+     <int>60</int> 
     </void> 
     <void property="hiScore"> 
      <int>210</int> 
@@ -16,7 +16,7 @@
      <string>bc</string> 
     </void> 
     <void property="totalScore"> 
-     <int>3565</int> 
+     <int>3868</int> 
     </void> 
    </object> 
   </void> 
@@ -169,6 +169,25 @@
     </void> 
     <void property="totalScore"> 
      <int>400</int> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.uno.Record"> 
+    <void property="gamesEntered"> 
+     <int>10</int> 
+    </void> 
+    <void property="gamesWon"> 
+     <int>4</int> 
+    </void> 
+    <void property="hiScore"> 
+     <int>118</int> 
+    </void> 
+    <void property="name"> 
+     <string>dreamisle</string> 
+    </void> 
+    <void property="totalScore"> 
+     <int>214</int> 
     </void> 
    </object> 
   </void> 

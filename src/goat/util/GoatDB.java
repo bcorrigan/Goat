@@ -39,14 +39,14 @@ public class GoatDB {
 	 * If this arrangement isn't flexible enough, we'll have to set up a method
 	 * that lets you specify your own db name, file location, etc.
 	 */
-	private static final boolean TESTING = true ;
+	private static final boolean TESTING = false ;
 	
 	/*
 	 * If TESTING (above) is true, then setting this to true will cause the test db
 	 * to be wiped and a new schema set up every time the server is started.  Caveats
 	 * above for TESTING apply here, too.
 	 */
-	private static final boolean RECREATE_TEST_SCHEMA_ON_START = true ;
+	private static final boolean RECREATE_TEST_SCHEMA_ON_START = false ;
 	
 	// some constants
 	private static final String TEST_DB_NAME = "test";
@@ -57,7 +57,7 @@ public class GoatDB {
 	private static final String REAL_DB_NAME = "goat";
 	private static final String REAL_DB_PATH = "db/goat.db/goat";
 	private static final String REAL_DB_USER = "sa";
-	private static final String REAL_DB_PASS = "dumpluff3323";
+	private static final String REAL_DB_PASS = "grumpus323";
 	private static final String REAL_DB_INIT_FILE = "db/sql/setup-goat.db.sql";
 	
 	private static final String SCHEMA_NAME = "goat" ;

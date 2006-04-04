@@ -252,7 +252,8 @@ public class IRCLogger {
 		// the SQLData interface. Needless to say, we're not going to do that.
 		if ((null == m)||(null == m.sender)|| m.sender.equals("")) {
 			// refuse to log message with no sender
-			System.err.println("logMessage() called with null sender; message not logged.") ;
+			//System.err.println("logMessage() called with null sender; message not logged: ") ;
+			//System.err.println("   " + m.toString()) ;
 			return -1 ;
 		}
 		if (m.command.equals("MODE")) {
@@ -267,7 +268,7 @@ public class IRCLogger {
 			// don't log messages from NickServ or ChanServ
 			return -1 ;
 		}
-		String ctcpCommand = null;
+		String ctcpCommand = "";
 		String body = m.trailing;
 		if (body.equals("")) {
 			if (m.params.equals(""))
@@ -293,7 +294,7 @@ public class IRCLogger {
 			// try to set hostmask to last known hostmask for sender;
 			hostmask = getLastHostmask(m.sender) ;
 		}
-		String botCommand = null;
+		String botCommand = "";
 		if (Goat.modController.isLoadedCommand(m.modCommand))
 			botCommand = m.modCommand;
 		return logMessage(m.sender, hostmask, m.channame, network, ircCommand,

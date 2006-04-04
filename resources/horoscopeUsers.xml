@@ -121,5 +121,35 @@
     </void> 
    </object> 
   </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>genderqueerdeathsquad</string> 
+    </void> 
+    <void property="sign"> 
+     <string>GEMINI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>mjl</string> 
+    </void> 
+    <void property="sign"> 
+     <string>TAURUS</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="add"> 
+   <object class="goat.module.Horoscope$HoroscopeUser"> 
+    <void property="name"> 
+     <string>pj</string> 
+    </void> 
+    <void property="sign"> 
+     <string>AQUARIUS</string> 
+    </void> 
+   </object> 
+  </void> 
  </object> 
 </java> 

@@ -121,6 +121,7 @@ public abstract class Module {
     public static String[] getCommands(Class c) {
     	String [] commands = new String[0] ;
     	try {
+			Module dummy = null ;
     		commands = (String []) c.getMethod("getCommands").invoke(null) ;
     	} catch (NoSuchMethodException e) {
     		System.err.println("ERROR: getCommands() not found for class \"" + c.getName() + "\", perhaps not a subclass of goat.core.Module?  Continuing.") ;
@@ -131,7 +132,7 @@ public abstract class Module {
     	} catch (IllegalAccessException e) {
     		System.err.println("ERROR: rs is an inept programmer.  He screwed up the reflection crap in goat.Module.getCommands(Class) .  Continuing.") ;
     		// e.printStackTrace() ;
-    	}
+		}
     	return commands ;
     }
 
