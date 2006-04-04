@@ -282,9 +282,9 @@ public class LogFileLoader {
 			ircCommand = "TOPIC" ;
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
-			subline = subline.substring(subline.indexOf(" " + 1)) ; // move past the nick
+			subline = subline.substring(subline.indexOf(" ") + 1) ; // move past the nick
 			subline = subline.substring(subline.indexOf("#")) ; // move past the filler
-			body = subline.substring(subline.indexOf(" " + 5)) ; // move past "#channel to: "
+			body = subline.substring(subline.indexOf(" ") + 5) ; // move past "#channel to: "
 			//hostmask = getLastHostmask(nick) ;
  		} else {
 			// ???
