@@ -30,6 +30,7 @@ public class LogFileLoader {
 	public static TimeZone goatTimeZone = TimeZone.getTimeZone("PST") ;
 	private static final String HEADER_PREFIX = "--- Log opened" ;
 	private static final String FOOTER_PREFIX = "--- Log closed" ;
+	private static final String DAY_CHANGE_PREFIX = "--- Day changed" ;
 	private static final String NETWORK = "slashnet" ;
 	private static long START_TIME = 0 ;
 	private static final String BOT_NICK = "goat" ;
@@ -39,6 +40,9 @@ public class LogFileLoader {
 	
 	private static long lastSeenMillis ;
 	private static long millisOffset ;
+	private static Date logDate = new Date(0) ;
+	private static String self_nick = "" ;
+	private static String self_hostmask = "" ;
 	
 	/**
 	 * @param args
@@ -72,7 +76,7 @@ public class LogFileLoader {
 	private static void processFile(String filename) {
 		System.out.println("FILE: " + filename);
 		
-		Date logDate = new Date(START_TIME + 1) ;
+		logDate = new Date(START_TIME + 1) ;
 		lastSeenMillis = 0 ;
 		millisOffset = 0 ;
 		String channel = "" ;
@@ -119,7 +123,7 @@ public class LogFileLoader {
 		int fails = 0 ;
 		try {
 			while(null != (line = br.readLine())) {
-				processLine(line, channel, logDate) ;
+				processLine(line, channel) ;
 			}
 			br.close() ;
 			logger.hsqldbCheckpoint();
@@ -141,7 +145,7 @@ public class LogFileLoader {
 		}
 	}
 	
-	private static int processLine(String line, String channel, Date logDate) {
+	private static int processLine(String line, String channel) {
 		int id = -1 ;
 		String hour = "" ;
 		String minute = "" ;
@@ -154,9 +158,15 @@ public class LogFileLoader {
 		if (2 == line.indexOf(":")) {
 			hour = line.substring(0,2) ;
 			minute = line.substring(3,5) ;
-		} else if(line.startsWith(HEADER_PREFIX) || line.startsWith(FOOTER_PREFIX)) {
-			// ignore log open and close messages beyond first line of file
+		} else if (line.startsWith(DAY_CHANGE_PREFIX)) {
+			updateLogDate(DAY_CHANGE_PREFIX, line) ;
 			return id;
+		} else if (line.startsWith(HEADER_PREFIX)) {
+			updateLogDate(HEADER_PREFIX, line) ;
+			return id;
+		} else if (line.startsWith(FOOTER_PREFIX)) {
+			//ignore log close messages
+			return id ;
 		} else {
 			System.out.println("  Um, found line without timestamp? -- " + line) ;
 			return id;
@@ -166,7 +176,7 @@ public class LogFileLoader {
 			// PRIVMSG (normal message)
 			ircCommand = "PRIVMSG" ;
 			nick = line.substring(8, line.indexOf(">")) ;
-			hostmask = getLastHostmask(nick) ;
+			//hostmask = getLastHostmask(nick) ;
 			body = line.substring(line.indexOf(">") + 2) ;
 			StringTokenizer st = new StringTokenizer(body);
 			String firstWord = "";
@@ -194,7 +204,7 @@ public class LogFileLoader {
 			ctcpCommand = "ACTION" ;
 			subline = line.substring(9) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
-			hostmask = getLastHostmask(nick) ;
+			//hostmask = getLastHostmask(nick) ;
 			body = subline.substring(subline.indexOf(" ") + 1) ;
 			// System.out.println("  ACTION by " + nick + " ! " + body) ;
 		} else if (line.contains("] has joined #")) {
@@ -232,11 +242,14 @@ public class LogFileLoader {
 			String phrase = " is now known as " ;
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
-			hostmask = getLastHostmask(nick) ;
+			//hostmask = getLastHostmask(nick) ;
 			body = line.substring(line.indexOf(phrase) + phrase.length()) ;
 			//System.out.println("  NICK from " + nick + " to " + body) ;
 		} else if (line.contains(" -!- mode/")){
 			// mode command, ignore.
+			return id;
+		} else if (line.contains(" -!- ServerMode")) {
+			// servermode command, ignore.
 			return id;
 		} else if (line.contains(" -!- Irssi: ")) {
 			// irssi client command or message, ignore.
@@ -247,13 +260,43 @@ public class LogFileLoader {
 		} else if (line.contains(" was kicked from #")) {
 			// ignore kick messages
 			return id;
-		} else {
+		} else if (line.contains(" -!- You're now known as ")) {
+			//self NICK messages.
+			//  this is a little strange, because we don't know who we are when we open a log file.
+			ircCommand = "NICK" ;
+			String phrase = "You're now known as " ;
+			String new_nick = line.substring(10 + phrase.length()) ;
+			body = new_nick ;
+			if (self_nick.equals(""))
+				nick = new_nick;
+			else  
+				nick = self_nick;
+			if (self_hostmask.equals(""))
+				self_hostmask = getLastHostmask(self_nick) ;
+			if (self_hostmask.equals(""))
+				self_hostmask = getLastHostmask(new_nick) ;
+			self_nick = new_nick ;
+			hostmask = self_hostmask ;
+		} else if (line.contains(" changed the topic of #")) {
+			//TOPIC message
+			ircCommand = "TOPIC" ;
+			subline = line.substring(10) ;
+			nick = subline.substring(0, subline.indexOf(" ")) ;
+			subline = subline.substring(subline.indexOf(" " + 1)) ; // move past the nick
+			subline = subline.substring(subline.indexOf("#")) ; // move past the filler
+			body = subline.substring(subline.indexOf(" " + 5)) ; // move past "#channel to: "
+			//hostmask = getLastHostmask(nick) ;
+ 		} else {
 			// ???
-			// self NICK messages, and probably other things.
+			// other things.
 			// ignore, even though we should probably do something.
 			System.err.println("  ignoring OTHER message: " + line) ;
 			return id;
 		}
+		if (nick.equals(""))
+			return id;  // don't log if we don't have a sender
+		if (hostmask.equals("")) 
+			hostmask = getLastHostmask(nick) ; // try to set hostmask if we don't already have it
 		Calendar cal = Calendar.getInstance() ;
 		cal.setTime(logDate) ;
 		cal.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hour)) ;
@@ -291,6 +334,21 @@ public class LogFileLoader {
 			System.out.println("  log line is more recent than start of script, skipping.") ;
 		}
 		return id ;
+	}
+	
+	private static void updateLogDate(String prefix, String line) {
+		Date d = new Date(0) ;
+		try {
+			d = headerDateFormat.parse(line.substring(prefix.length() + 5));
+		} catch (ParseException e) {
+		}
+		if (0 == d.getTime()) { 
+			System.out.println("  Could not parse date in day change, \""
+					+ line.substring(prefix.length() + 5)
+					+ "\", aborting entire clambake.");
+			System.exit(1) ;
+		}
+		logDate = d ;
 	}
 	
 	private static String getLastHostmask(String nick) {
