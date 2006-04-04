@@ -869,6 +869,9 @@ public class Message {
 				return ;
 			}
 		}
+		if (m.sender.equals("")) {
+			m.sender = BotStats.botname ;
+		}
 		outqueue.enqueue(m);
 	}
 

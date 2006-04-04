@@ -164,9 +164,9 @@ public class IRCLogger {
 			int senderID = getID(sender, network, nickIdByNameAndNetwork, nickIdCache) ;
 			int hostmaskID = getID(hostmask, hostmaskIdByName, hostmaskIdCache) ;
 			int channelID = getID(channel, network, channelIdByNameAndNetwork, channelIdCache) ;
-			int ircCommandID = getID(ircCommand, ircCommandByName, ircCommandIdCache) ;
-			int ctcpCommandID = getID(ctcpCommand, ctcpCommandByName, ctcpCommandIdCache) ;
-			int botCommandID = getID(botCommand, botCommandByName, botCommandIdCache) ;
+			int ircCommandID = getID(ircCommand.toUpperCase(), ircCommandByName, ircCommandIdCache) ;
+			int ctcpCommandID = getID(ctcpCommand.toUpperCase(), ctcpCommandByName, ctcpCommandIdCache) ;
+			int botCommandID = getID(botCommand.toUpperCase(), botCommandByName, botCommandIdCache) ;
 			if (-1 == hostmaskID)
 				if ((null != hostmask) && ("" != hostmask))
 					hostmaskID = addHostmask(hostmask) ;
@@ -187,7 +187,10 @@ public class IRCLogger {
 				if ((null != botCommand) && ("" != botCommand))
 					botCommandID = addBotCommand(botCommand) ;
 				else
-					botCommandID = 0 ;				
+					botCommandID = 0 ;
+			//TODO: Some messages (NICK and QUIT, notably) can show up in more
+			//  than one channel, which can generate duplicate inserts.  We should
+			//  try to avoid those duplicates here.
 			msgInsertPS.setTimestamp(1, timestamp) ;
 			msgInsertPS.setInt(2, senderID) ;
 			msgInsertPS.setInt(3, hostmaskID) ;
@@ -226,46 +229,28 @@ public class IRCLogger {
 				ctcpCommand, botCommand, message) ;
 	}
 
+	
+	public int logIncomingMessage(Message m, String network) throws SQLException {
+		return logMessage(m, network);
+	}
+	
+	public int logOutgoingMessage(Message m, String network) throws SQLException {
+		return logMessage(m, network);
+	}
+	
 	/**
 	 * Log and index a goat Message, with timestamp set to "now".
 	 * 
-	 * You probably want logIncomingMessage() or logOutgoingMessage() instead; 
-	 * this method does not filter out error messages or fill in empty
-	 * message bodies for JOINs and PARTs and so forth.
+	 * You may want logIncomingMessage() or logOutgoingMessage() instead.
 	 * 
 	 * @param m
 	 *            a Message object to log and index
 	 */
-	public int logMessage(Message m, String network) throws SQLException {
-		return logMessage(m, m.sender, network);
-	}
-	
-	public int logIncomingMessage(Message m, String network) throws SQLException {
-		if((null == m.sender) || m.sender.equals("")) {
-			// System.err.println("No sender for incoming \"" + m.command + "\" message; not logging") ;
-			return -1 ;
-		}
-		int id = -1 ;
-		// long start = System.currentTimeMillis() ;
-		id = logMessage(m, m.sender, network);
-		// System.out.println("Incoming message logged in " + (System.currentTimeMillis() - start) + "ms") ;
-		return id ;
-	}
-	
-	public int logOutgoingMessage(Message m, String network)
-			throws SQLException {
-		int id = -1 ;
-		// long start = System.currentTimeMillis() ;
-		id = logMessage(m, BotStats.botname, network);
-		// System.out.println("Outgoing message logged in " + (System.currentTimeMillis() - start) + "ms") ;
-		return id ;
-	}
-	
-	public int logMessage(Message m, String sender, String network)
+	public int logMessage(Message m, String network)
 			throws SQLException {
 		// the javaWank(tm) way to do this would be to have Message implement
 		// the SQLData interface. Needless to say, we're not going to do that.
-		if (null == sender || sender.equals("")) {
+		if ((null == m)||(null == m.sender)|| m.sender.equals("")) {
 			// refuse to log message with no sender
 			System.err.println("logMessage() called with null sender; message not logged.") ;
 			return -1 ;
@@ -278,8 +263,8 @@ public class IRCLogger {
 			// don't log PING or PONG commands
 			return -1 ;
 		}
-		if (m.sender.equalsIgnoreCase("NickServ")) {
-			// don't log messages from NickServ
+		if (m.sender.equalsIgnoreCase("NickServ") || m.sender.equalsIgnoreCase("ChanServ")) {
+			// don't log messages from NickServ or ChanServ
 			return -1 ;
 		}
 		String ctcpCommand = null;
@@ -306,12 +291,12 @@ public class IRCLogger {
 			// and who knows, maybe some weird incoming irc messages, too.
 			
 			// try to set hostmask to last known hostmask for sender;
-			hostmask = getLastHostmask(sender) ;
+			hostmask = getLastHostmask(m.sender) ;
 		}
 		String botCommand = null;
 		if (Goat.modController.isLoadedCommand(m.modCommand))
 			botCommand = m.modCommand;
-		return logMessage(sender, hostmask, m.channame, network, ircCommand,
+		return logMessage(m.sender, hostmask, m.channame, network, ircCommand,
 				ctcpCommand, botCommand, body);
 	}
 	
@@ -370,15 +355,15 @@ public class IRCLogger {
 	}
 	
 	public int addIrcCommand(String command) throws SQLException {
-		return insertString(command, ircCommandInsert) ;
+		return insertString(command.toUpperCase(), ircCommandInsert) ;
 	}
 	
 	public int addCtcpCommand(String command) throws SQLException {
-		return insertString(command, ctcpCommandInsert) ;
+		return insertString(command.toUpperCase(), ctcpCommandInsert) ;
 	}
 	
 	public int addBotCommand(String command) throws SQLException {
-		return insertString(command, botCommandInsert) ;
+		return insertString(command.toUpperCase(), botCommandInsert) ;
 	}
 	
 	public int addHostmask(String hostmask) throws SQLException {
