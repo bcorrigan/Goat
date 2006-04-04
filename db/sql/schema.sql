@@ -149,3 +149,13 @@ CREATE VIEW messages_view (
 		AND messages.ctcp_command = ctcp_commands.id
 		AND messages.bot_command = bot_commands.id
 ;
+
+-- The next statement is necessary to force hsqldb's sqltool in
+--  in-process persistent connection (ie, :file:) mode to commit 
+--  everything on setup.   If you don't have it, and run this script
+--  via sqltool, it will give you every indication that things have
+--  gone smoothly, and then not save the changes to the db on exit.
+
+--  hsqldb is annoying.
+
+CHECKPOINT ;

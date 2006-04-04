@@ -527,4 +527,29 @@ public class IRCLogger {
 			System.out.println() ;
 		}
 	}
+	
+	public int cacheSize() {
+		HashMap [] caches = {networkIdCache, channelIdCache, nickIdCache, 
+			hostmaskIdCache, hostmaskCache, ircCommandIdCache, 
+			ctcpCommandIdCache, botCommandIdCache} ;
+		int ret = 0;
+		for (int i=0; i<caches.length; i++) {
+			ret += caches[i].size() ;
+		}
+		return ret;
+	}
+		
+	
+	public void hsqldbCheckpoint() {
+		try {
+			conn.createStatement().executeUpdate("CHECKPOINT;") ;
+			//conn = GoatDB.getConnection() ;
+		} catch (SQLException e) {
+			System.err.println("ERROR -- hsqldb CHECKPOINT failed:") ;
+			e.printStackTrace() ;
+		}
+		//Runtime r = Runtime.getRuntime() ;
+		//r.gc() ;
+		//System.out.println("Memory:  " + r.totalMemory() + ", " + r.freeMemory() + " free.") ;
+	}
 }

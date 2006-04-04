@@ -121,6 +121,9 @@ public class LogFileLoader {
 			while(null != (line = br.readLine())) {
 				processLine(line, channel, logDate) ;
 			}
+			br.close() ;
+			logger.hsqldbCheckpoint();
+			System.out.println("Cached items: " + logger.cacheSize()) ;
 		} catch (IOException e) {
 			if (fails > 10) {
 				System.out.println("  Too many read failures, aborting file \"" + filename + "\"") ;
@@ -176,6 +179,10 @@ public class LogFileLoader {
 					firstWord = st.nextToken();
 				}
 			}
+			if(firstWord.equals("")) {
+				// don't log blank user messages
+				return id ;
+			}
 			firstWord = Message.removeFormattingAndColors(firstWord);
 			if (modController.isCommand(firstWord)) {
 				botCommand = firstWord ;
@@ -197,7 +204,7 @@ public class LogFileLoader {
 			nick = subline.substring(0, subline.indexOf(" ")) ;
 			// nick can contain ] and [, ouch.
 			subline = subline.substring(subline.indexOf(" ") + 1) ;
-			hostmask = line.substring(line.indexOf("[") + 1, line.indexOf("]")) ;
+			hostmask = subline.substring(subline.indexOf("[") + 1, subline.indexOf("]")) ;
 			body = channel ;
 			//System.out.println("  JOIN by " + nick + "[" + hostmask + "]") ;
 		} else if(line.contains("] has left #")) {
@@ -206,7 +213,7 @@ public class LogFileLoader {
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
 			subline = subline.substring(subline.indexOf(" ") + 1) ;
-			hostmask = line.substring(line.indexOf("[") + 1, line.indexOf("]")) ;
+			hostmask = subline.substring(subline.indexOf("[") + 1, subline.indexOf("]")) ;
 			body = channel ;
 			// System.out.println("  PART by " + nick + "[" + hostmask + "]") ;
 		} else if(line.contains("] has quit [")) {
@@ -215,7 +222,7 @@ public class LogFileLoader {
 			subline = line.substring(10) ;
 			nick = subline.substring(0, subline.indexOf(" ")) ;
 			subline = subline.substring(subline.indexOf(" ") + 1) ;
-			hostmask = line.substring(line.indexOf("[") + 1, line.indexOf("]")) ;
+			hostmask = subline.substring(subline.indexOf("[") + 1, subline.indexOf("]")) ;
 			//TODO body should be quit message
 			body = ircCommand ;
 			//System.out.println("  QUIT by " + nick + "[" + hostmask + "]") ;
@@ -233,6 +240,12 @@ public class LogFileLoader {
 			return id;
 		} else if (line.contains(" -!- Irssi: ")) {
 			// irssi client command or message, ignore.
+			return id;
+		} else if (line.contains(" -!- Netsplit ")) {
+			// ignore netsplit crap
+			return id;
+		} else if (line.contains(" was kicked from #")) {
+			// ignore kick messages
 			return id;
 		} else {
 			// ???

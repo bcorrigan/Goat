@@ -7,3 +7,13 @@ urlid goat
 url jdbc:hsqldb:hsql://127.0.0.1:2232/goat
 username sa
 password NOT_A_REAL_PASSWORD
+
+urlid test-noserver
+url jdbc:hsqldb:file:db/test.db/test
+username sa
+password
+
+urlid goat-noserver
+url jdbc:hsqldb:file:db/goat.db/goat
+username sa
+password NOT_A_REAL_PASSWORD
