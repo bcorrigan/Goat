@@ -1,8 +1,9 @@
 package goat.util;
 
+
 import java.sql.* ;
 
-import goat.GoatTest ;
+import goat.GoatTest;
 import goat.util.GoatDB ;
 import goat.util.Dict ;
 
