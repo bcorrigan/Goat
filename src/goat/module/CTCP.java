@@ -17,6 +17,8 @@ import java.io.IOException;
  */
 public class CTCP extends Module {
 
+	private static final String CONFIG_FILE = "config/goatrc" ;
+	
 	private boolean alreadySeenMOTD = false;
 
 	public CTCP() {
@@ -109,7 +111,7 @@ public class CTCP extends Module {
 
 	private void readConfFile() {
 		try {
-			BufferedReader in = new BufferedReader(new FileReader("goatrc"));
+			BufferedReader in = new BufferedReader(new FileReader(CONFIG_FILE));
 			String lineIn;
 
 			while ((lineIn = in.readLine()) != null) {
