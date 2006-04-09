@@ -1,9 +1,8 @@
 -- Goat schema definition file.
 
 -- Setup type stuff
-SET PROPERTY "hsqldb.default_table_type" 'cached' ;
-CREATE SCHEMA goat AUTHORIZATION DBA;
-SET SCHEMA goat ;
+CREATE SCHEMA goat AUTHORIZATION uname;
+SET search_path TO goat ;
 
 --
 -- Table Definitions.  Add stuff for your new widget below.
@@ -43,6 +42,8 @@ CREATE TABLE channels (
 	UNIQUE (id),
 	UNIQUE (name, network)
 ) ;
+-- a message without a channel would be a message without a recipeient; 
+--   we should never see such an animal; for future use?
 INSERT INTO channels (name) VALUES ('') ;
 
 CREATE TABLE hostmasks (
@@ -50,6 +51,8 @@ CREATE TABLE hostmasks (
 	hostmask VARCHAR NOT NULL,
 	UNIQUE (hostmask)
 ) ;
+-- Note the 0 hostmask should only be used for messages loaded from logs, 
+--   when the hostmask can not be determined.
 INSERT INTO hostmasks (hostmask) VALUES ('') ;
 
 CREATE TABLE nicks (
@@ -110,7 +113,9 @@ CREATE TABLE messages (
 	FOREIGN KEY (irc_command) REFERENCES irc_commands (id),
 	FOREIGN KEY (ctcp_command) REFERENCES ctcp_commands (id),
 	FOREIGN KEY (bot_command) REFERENCES bot_commands (id),
-	CHECK (text <> '')
+	CHECK (text <> ''),
+	CHECK (sender <> 0),
+	CHECK (channel <> 0)
 );
 
 
@@ -150,12 +155,3 @@ CREATE VIEW messages_view (
 		AND messages.bot_command = bot_commands.id
 ;
 
--- The next statement is necessary to force hsqldb's sqltool in
---  in-process persistent connection (ie, :file:) mode to commit 
---  everything on setup.   If you don't have it, and run this script
---  via sqltool, it will give you every indication that things have
---  gone smoothly, and then not save the changes to the db on exit.
-
---  hsqldb is annoying.
-
-CHECKPOINT ;
