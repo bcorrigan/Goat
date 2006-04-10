@@ -11,7 +11,7 @@ CREATE TABLE networks (
 	id SERIAL,
 	name VARCHAR NOT NULL,
 	primary_server VARCHAR NOT NULL,
-	PRIMARY_KEY (id),
+	PRIMARY KEY (id),
 	UNIQUE (name)
 ) ;
 -- insert a dummy value to use as a default
@@ -46,7 +46,7 @@ INSERT INTO channels (name) VALUES ('') ;
 CREATE TABLE hostmasks (
 	id SERIAL,
 	hostmask VARCHAR NOT NULL,
-	PRIMARY_KEY (id),
+	PRIMARY KEY (id),
 	UNIQUE (hostmask)
 ) ;
 -- Note the empty hostmask should only be used for messages loaded from logs, 
