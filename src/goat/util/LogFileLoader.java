@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import goat.Goat;
 import goat.core.ModuleController;
 import goat.core.Message;
-import goat.util.IRCLogger;
+import goat.db.IRCLogger;
 
 /**
  * Class to parse irssi logfiles and cram them into the goat db.
