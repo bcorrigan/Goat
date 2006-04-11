@@ -1,9 +1,9 @@
-package goat.util;
+package goat.db;
 
 import goat.Goat;
-import goat.util.GoatDB ;
 import goat.core.Message ;
-import goat.core.BotStats ;
+import goat.db.GoatDB;
+
 import java.sql.* ;
 import java.util.HashMap ;
 
@@ -21,8 +21,10 @@ public class IRCLogger {
 	 * keep a prepared statement in an instance variable, like we
 	 * do with our DB connection.
 	 */
-	private Connection conn ;
-	private PreparedStatement msgInsertPS ;
+
+	private GoatDB db = null ;
+	private Connection conn = null;
+	private PreparedStatement msgInsertPS = null;
 	
 	/*
 	 * Masses of dull SQL, let's try to keep it all in one place here.
@@ -30,8 +32,10 @@ public class IRCLogger {
 	 * We'll do everything with prepared statements, for that proper 
 	 * whips and chains feeling, and to make it slightly easier to keep
 	 * all of our SQL in this ugly heap of constants.
-	 * 
 	 */
+	
+	public static final String DUMMY_NETWORK_NAME = "" ; 
+	
 	private static String msgInsert = 
 		"INSERT INTO messages (timestamp, sender, hostmask, channel, irc_command, ctcp_command, bot_command, text) " +
 		"VALUES (?, ?, ?, ?, ?, ?, ?, ?) ;" ;
@@ -116,10 +120,22 @@ public class IRCLogger {
 	 * @throws SQLException
 	 */
 	public IRCLogger() {
+		init() ;
+	}
+	
+	/*
+	public IRCLogger(int type) {
+		super(type) ;
+		init() ;
+	}
+	*/
+	
+	private void init() {
 		try {
-			conn = GoatDB.getConnection() ;
+			db = new GoatDB() ;
+			conn = db.getConnection() ;
 			msgInsertPS = conn.prepareStatement(msgInsert);
-		} catch (GoatDBConnectionException e) {
+		} catch (GoatDB.GoatDBConnectionException e) {
 			System.err.println("ERROR -- logger could not connect to Goat DB") ;
 			e.printStackTrace() ;
 		} catch (SQLException e) {

@@ -2,7 +2,7 @@ package goat.module;
 
 import goat.core.Message;
 import goat.core.Module;
-import goat.util.IRCLogger;
+import goat.db.IRCLogger;
 
 public class Logger extends Module {
 

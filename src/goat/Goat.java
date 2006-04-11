@@ -3,9 +3,9 @@ package goat;
 import goat.core.*;
 import goat.module.Core;
 import goat.module.ModuleCommands;
-import goat.util.GoatDB ;
 
 import java.io.*;
+import java.util.Properties;
 
 public class Goat {
 	private static boolean showhelp;
@@ -14,11 +14,12 @@ public class Goat {
 	public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};
     public static ServerConnection sc;
+    
+    public static final String GOAT_PROPS_FILE = "config/goat.properties" ;
+    public static final String GOAT_PASSWORDS_FILE = "config/passwords.properties" ;
 
 	public static void main(String[] args) {
         argv=args;
-        GoatDB.startServer() ;
-        Runtime.getRuntime().addShutdownHook(new GoatDBShutdownThread());
         new Goat() ;
         /*
          *  The following was all used to test new modController stuff, it should be 
@@ -161,10 +162,23 @@ public class Goat {
 		BotStats.owner = "rs";
 		BotStats.servername = "irc.slashnet.org";
 	}
-}
-
-class GoatDBShutdownThread extends Thread {
-	public void run() {
-		GoatDB.safeShutdown() ; 
+	
+	public static Properties getProps() {
+		return getPropsFromFile(GOAT_PROPS_FILE) ;
+	}
+	
+	public static Properties getPasswords() {
+		return getPropsFromFile(GOAT_PASSWORDS_FILE) ;
+	}
+	
+	private static Properties getPropsFromFile(String filename) {
+		Properties props = new Properties();
+		try {
+			props.load(new FileInputStream(filename));
+		} catch (IOException e) {
+			System.err.println("WARNING:  Could not load properties from file \"" + filename + "\"") ;
+			e.printStackTrace() ;
+		}
+		return props;
 	}
 }
