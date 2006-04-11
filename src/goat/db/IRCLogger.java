@@ -80,7 +80,7 @@ public class IRCLogger {
 	private static String nickTimestampUpdate = 
 		"UPDATE nicks SET seen = ? WHERE id = ? ;" ;
 	private static String nickLastHostmaskUpdate =
-		"UPDATE nicks SET nicks.last_hostmask = (SELECT id FROM hostmasks WHERE hostmasks.hostmask = ?) WHERE nicks.name = ? ;"  ;
+		"UPDATE nicks SET last_hostmask = (SELECT id FROM hostmasks WHERE hostmasks.hostmask = ?) FROM hostmasks WHERE nicks.name = ? ;"  ;
 	private static String msgTotalCount = 
 		"SELECT COUNT(*) FROM messages ;" ;
 	private static String msgChannelCount =
