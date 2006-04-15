@@ -3,7 +3,7 @@ package goat;
 
 import junit.framework.TestCase;
 
-import goat.util.GoatDB ;
+import goat.db.GoatDB ;
 
 /** 
  * Superclass for all goaty testing.
@@ -25,16 +25,33 @@ import goat.util.GoatDB ;
  * <li>Shut down test DB</li>
  * </ol>
  * 
+ * @author rs
+ *
+ */
+/**
+ * @author Ed
+ *
+ */
+/**
  * @author Ed
  *
  */
 public class GoatTest extends TestCase {
+	
+	protected GoatDB db = null;
 
 	protected void setUp() {
 		System.out.println(this.getName() + ": entering setUp()") ;
 		
 		//start db init
-		assertTrue(GoatDB.recreateTestSchema()) ;
+		GoatDB.setDefaultDbType(GoatDB.DB_TYPE_JUNIT) ;
+		GoatDB.setIgnoreConfigFileDbType(true) ;
+		try {
+			db = new GoatDB(GoatDB.DB_TYPE_JUNIT) ;
+		} catch (GoatDB.GoatDBConnectionException e) {
+			e.printStackTrace() ;
+		}
+		assertTrue((null != db) && db.recreateSchema()) ;
 		//end db init
 		
 		System.out.println(this.getName() + ": exiting setUp()") ;
@@ -44,10 +61,14 @@ public class GoatTest extends TestCase {
 		System.out.println(this.getName() + ": entering tearDown()") ;
 		
 		//start db cleanup
-		assertTrue(GoatDB.deleteTestSchema()) ;
-		assertTrue(GoatDB.safeShutdown()) ;
+		assertTrue(db.eraseSchema()) ;
 		//end db cleanup
 		
 		System.out.println(this.getName() + ": exiting tearDown()") ;
 	}
+	
+	public void testNothing() {
+		// to avoid the dreaded "no tests defined" error.
+	}
+
 }

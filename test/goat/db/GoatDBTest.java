@@ -1,12 +1,10 @@
-package goat.util;
-
+package goat.db;
 
 import java.sql.* ;
+import java.util.Date;
 
 import goat.GoatTest;
-import goat.util.GoatDB ;
 import goat.util.Dict ;
-
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -40,35 +38,50 @@ public class GoatDBTest extends GoatTest {
 		boolean failed = false ;
 		String table = "crumpets" ;
 		//set inserts to something like 1000000 to give the db a proper working-over
-		int inserts = 100000 ;
+		int inserts = 10000 ;
 		int rows = 0;
 		try {
 			
-			Connection c = GoatDB.getConnection() ;
-			GoatDB.executeUpdate("DROP TABLE " + table + " IF EXISTS;");
-			GoatDB.executeUpdate("CREATE TABLE " + table +  " ("
-					+ "id INTEGER IDENTITY, " + "bandname VARCHAR NOT NULL );");
-			c.close() ;
+			Connection c = db.getConnection() ;
+			if(db.hasTable(table, c))
+				db.executeUpdate("DROP TABLE " + table);
+			
+			db.executeUpdate("CREATE TABLE " + table +  " ("
+					+ "id SERIAL, " + "bandname VARCHAR NOT NULL );");
 			
 			// GoatDB.executeUpdate fails reliably after 3800 or so inserts,
 			//   so we use a single Connection or Statement for bulk insert
-			Statement st = GoatDB.getConnection().createStatement() ;
+			PreparedStatement ps = c.prepareStatement("INSERT INTO " + table + " (bandname) VALUES (?);") ;
+			Date startTime = new Date() ;
+			System.out.println("Starting " + inserts + " test inserts at " + startTime.toString()) ;
 			for (int i = 0; i < inserts; i++) {
-				st.executeUpdate("INSERT INTO " + table + " (bandname) VALUES ('"
-						+ dict.getRandomWord() + " " + dict.getRandomWord()
-						+ "');");
+				ps.setString(1, dict.getRandomWord() + " " + dict.getRandomWord()) ;
+				ps.execute() ;
+				if (0 == (i % 250))
+					System.out.print(i + "...") ;
+				if (0 == (i % 2500))
+					System.out.println();
 			}
-			st.getConnection().close() ;
+			Date finishTime = new Date() ;
+			long elapsed = finishTime.getTime() - startTime.getTime() ;
+			long min = elapsed / (1000*60) ;
+			long sec = (elapsed/1000) - (min * 60) ;
+			System.out.println() ;
+			System.out.println(inserts + " inserts finished in " + min + "min, " + sec + "s") ;
+			ps.getConnection().close() ;
 			
-			ResultSet rs = GoatDB.executeQuery("SELECT count(*) FROM " + table + " ;") ;
+			ResultSet rs = db.executeQuery("SELECT count(*) FROM " + table + " ;") ;
 			rs.next() ;
 			rows = rs.getInt(1) ;
 			rs.getStatement().getConnection().close() ;  //be polite, close yer connections
 			System.out.println(rows + " rows in table \"" + table + "\"");
 			
 			//  uncomment if you don't want to leave the table in the test db.
-			// GoatDB.executeUpdate("DROP TABLE " + table + " IF EXISTS;");
-		} catch (GoatDBConnectionException e) {
+			/*
+			if(db.hasTable(table, c))
+				db.executeUpdate("DROP TABLE " + table);
+			*/
+		} catch (GoatDB.GoatDBConnectionException e) {
 			e.printStackTrace();
 			failed = true;
 		} catch (SQLException e) {

@@ -1,10 +1,10 @@
-package goat.util;
+package goat.db;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import goat.GoatTest;
 import goat.core.Message;
-import goat.util.IRCLogger;
+import goat.db.IRCLogger;
 import java.sql.SQLException;
 
 public class IRCLoggerTest extends GoatTest {
@@ -22,8 +22,9 @@ public class IRCLoggerTest extends GoatTest {
 		ok = true ;
 		assertTrue(null != logger) ;
 		Message m = Message.createPrivmsg("#jism", "Shut up, joey.") ;
+		m.sender = "everybody" ;
 		try {
-			logger.logMessage(m, GoatDB.DUMMY_NETWORK_NAME) ;
+			logger.logMessage(m, IRCLogger.DUMMY_NETWORK_NAME) ;
 			count = logger.numTotalMessages() ;
 			assertTrue(1 == logger.numTotalMessages()) ;
 		} catch (SQLException e) {
