@@ -259,29 +259,34 @@ public class Define extends Module {
       String word;
       String definition;
       String example = "";
+		int defNumber = -1 ;
       Matcher matcher ;
       
-      Pattern wordPattern = Pattern.compile("^\\s*<td class=\"word\">[0-9. ]*(.*)+?</td>\\s*$") ;
-      Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"definition\">(.*)") ;
-      Pattern exampleStartPattern = Pattern.compile("^\\s*<div class=\"example\">(.*)") ;
-      Pattern endPattern = Pattern.compile("(.*)</div>\\s*$") ;
+		Pattern def_numberPattern = Pattern.compile("^\\s*<td class=\"def_number\">([0-9]+)\\.</td>\\s*$") ;
+		Pattern def_wordPattern = Pattern.compile("^\\s*<td class=\"def_word\">(.+)\\.</td>\\s*$") ;
+      Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$") ;
+		Pattern definitionBodyPattern = Pattern.compile("\\s*<p>(.*)</p>\\s*$");
+      Pattern exampleStartPattern = Pattern.compile("^\\s*<p style=\"font-style: italic\">&quot;(.*)<(br /|/p)>\\s*$") ;
+
+		Pattern startPattern = def_numberPattern ;
+      Pattern endPattern = Pattern.compile("^\\s*<div id=\"fold\" style=\"display: none\">\\s*$") ;
       
 		while ((inputLine = br.readLine()) != null) {
          // Do stuff...
-         matcher = wordPattern.matcher(inputLine) ;
+         matcher = startPattern.matcher(inputLine) ;
          if (matcher.find()) { // word found 
-            // parse out word
+            // parse out word number ;
+				defNumber = Integer.parseInt(matcher.group(1)) ;
+				// parse out word
+				matcher = def_wordPattern.matcher(br.readLine()) ;
+				while(! matcher.find())
+					matcher = def_wordPattern.matcher(br.readLine()) ;
             word = matcher.group(1) ;
             // parse out definition
             matcher = definitionStartPattern.matcher(br.readLine()) ;
             while (! matcher.find()) 
                matcher = definitionStartPattern.matcher(br.readLine()) ;
-            definition = matcher.group(1) ;
-            matcher = endPattern.matcher(definition) ;
-            while (! matcher.find()) {
-               definition += br.readLine() ;
-               matcher = endPattern.matcher(definition) ;
-            }
+				matcher = definitionBodyPattern.matcher(br.readLine()) ;
             definition = matcher.group(1) ;
             // and example
             matcher = exampleStartPattern.matcher(br.readLine()) ;
@@ -293,7 +298,6 @@ public class Define extends Module {
                example += br.readLine() ;
                matcher = endPattern.matcher(example) ;
             }
-            example = matcher.group(1) ;
             // massage our definition into one line of readable ascii
             if (! example.equals(""))
                definition += Message.BOLD + " Ex:" + Message.NORMAL + " \"" + example + "\"" ;
