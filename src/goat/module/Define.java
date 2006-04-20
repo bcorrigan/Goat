@@ -50,7 +50,8 @@ public class Define extends Module {
 	public void processChannelMessage(Message m) {
 		//parse out args
 
-		System.out.println("processing command: " + m.modCommand) ;
+		if(debug)
+			System.out.println("processing command: " + m.modCommand) ;
 		if (m.modCommand.equalsIgnoreCase("define")) {
 			define(m) ;
 		} else if (m.modCommand.equalsIgnoreCase("randef")) { 
@@ -272,7 +273,7 @@ public class Define extends Module {
 		Pattern def_pStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$");
 		Pattern def_pBodyStartPattern = Pattern.compile("^\\s*<p>(.+?)(</p>)*\\s*$");
 		Pattern def_pBodyEndPattern = Pattern.compile("(.*)</p>\\s*$") ;
-		Pattern exampleStartPattern = Pattern.compile("^\\s*<p style=\"font-style: italic\">&quot;(.*)(&quot;<[brp/ ]+>)*\\s*$");
+		Pattern exampleStartPattern = Pattern.compile("^\\s*<p style=\"font-style: italic\">(.*)(<br />\\s*|</p>.*)$");
 		Pattern exampleEndPattern = Pattern.compile("(.*)</p>.*$") ;
 		
 		Pattern startPattern = def_numberPattern;
@@ -335,11 +336,9 @@ public class Define extends Module {
 				boolean definitionDone = false ;
 				while (true) {
 					if (matcher.find()) {
-						System.out.println("  broke -- example start") ;
 						break ;
 					}
 					if (endMatcher.find()) {
-						System.out.println("  broke --  end of def") ;
 						definitionDone = true ;
 						break ;
 					}
@@ -354,7 +353,7 @@ public class Define extends Module {
 					multiline = false ;
 					while(!matcher.find()) {
 						if (multiline)
-						example += tempLine ;
+							example += tempLine ;
 						tempLine = br.readLine() ;
 						matcher = exampleEndPattern.matcher(tempLine) ;
 						multiline = true ;
