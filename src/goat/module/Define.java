@@ -30,6 +30,7 @@ public class Define extends Module {
 	
 	private static String host = "dict.org" ;
 	private static String urbandictionaryDescription = "The somewhat spotty slang dictionary at urbandictionary.com" ;
+	public boolean debug = false ;
    
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
@@ -225,7 +226,7 @@ public class Define extends Module {
 		return "http://www.urbandictionary.com/define.php?term=" + word.replaceAll(" ", "%20") ;
 	}
         
-	private Vector getUrbanDefinitions(String word) {
+	public Vector getUrbanDefinitions(String word) {
       Vector definitionList = null;
       HttpURLConnection connection = null;
       try {
@@ -242,8 +243,12 @@ public class Define extends Module {
             System.out.println("Fuckup at urbandictionary, HTTP Response code: " + connection.getResponseCode());
             return null ;
          }
+         if(debug)
+        	 System.out.println("Page retrieved from urbandictionary for word \"" + word + "\"") ;
          definitionList = parseUrbanPage(new BufferedReader(new InputStreamReader(connection.getInputStream())));
       } catch (IOException e) {
+    	  if(debug)
+    		  System.err.println("IOException caught.") ;
          e.printStackTrace();
           return null ;
       } finally {
@@ -253,66 +258,131 @@ public class Define extends Module {
    }   
    
    private Vector parseUrbanPage(BufferedReader br) throws IOException {
-      // In which we use java regexps, the painful way
-      Vector definitionList = new Vector();
-      String inputLine;
-      String word;
-      String definition;
-      String example = "";
-		int defNumber = -1 ;
-      Matcher matcher ;
-      
-		Pattern def_numberPattern = Pattern.compile("^\\s*<td class=\"def_number\">([0-9]+)\\.</td>\\s*$") ;
-		Pattern def_wordPattern = Pattern.compile("^\\s*<td class=\"def_word\">(.+)\\.</td>\\s*$") ;
-      Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$") ;
-		Pattern definitionBodyPattern = Pattern.compile("\\s*<p>(.*)</p>\\s*$");
-      Pattern exampleStartPattern = Pattern.compile("^\\s*<p style=\"font-style: italic\">&quot;(.*)<(br /|/p)>\\s*$") ;
+		// In which we use java regexps, the painful way
+		Vector definitionList = new Vector();
+		String inputLine;
+		String word;
+		String definition;
+		String example = "";
+		int defNumber = -1;
+		Matcher matcher;
 
-		Pattern startPattern = def_numberPattern ;
-      Pattern endPattern = Pattern.compile("^\\s*<div id=\"fold\" style=\"display: none\">\\s*$") ;
-      
+		Pattern def_numberPattern = Pattern.compile("^\\s*<td class=\"def_number\" width=\"20\">([0-9]+)\\.</td>\\s*$");
+		Pattern def_wordPattern = Pattern.compile("^\\s*<td class=\"def_word\">(.+)</td>\\s*$");
+		Pattern def_pStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$");
+		Pattern def_pBodyStartPattern = Pattern.compile("^\\s*<p>(.+?)(</p>)*\\s*$");
+		Pattern def_pBodyEndPattern = Pattern.compile("(.*)</p>\\s*$") ;
+		Pattern exampleStartPattern = Pattern.compile("^\\s*<p style=\"font-style: italic\">&quot;(.*)(&quot;<[brp/ ]+>)*\\s*$");
+		Pattern exampleEndPattern = Pattern.compile("(.*)</p>.*$") ;
+		
+		Pattern startPattern = def_numberPattern;
+		Pattern endPattern = Pattern.compile("^\\s*</div>\\s*$");
+
+		// this has grown and grown, and now it is completely ludicrous.
 		while ((inputLine = br.readLine()) != null) {
-         // Do stuff...
-         matcher = startPattern.matcher(inputLine) ;
-         if (matcher.find()) { // word found 
-            // parse out word number ;
-				defNumber = Integer.parseInt(matcher.group(1)) ;
+			// Do stuff...
+			matcher = startPattern.matcher(inputLine);
+			if (!matcher.find()) {
+				continue ;
+			} else { // word found
+				if(debug)
+					System.out.println("Start of definition block located.") ;
+				// parse out word number ;
+				defNumber = Integer.parseInt(matcher.group(1));
+				if(debug)
+					System.out.println("  definition #" + defNumber) ;
 				// parse out word
-				matcher = def_wordPattern.matcher(br.readLine()) ;
-				while(! matcher.find())
-					matcher = def_wordPattern.matcher(br.readLine()) ;
-            word = matcher.group(1) ;
-            // parse out definition
-            matcher = definitionStartPattern.matcher(br.readLine()) ;
-            while (! matcher.find()) 
-               matcher = definitionStartPattern.matcher(br.readLine()) ;
-				matcher = definitionBodyPattern.matcher(br.readLine()) ;
-            definition = matcher.group(1) ;
-            // and example
-            matcher = exampleStartPattern.matcher(br.readLine()) ;
-            while (! matcher.find()) 
-               matcher = exampleStartPattern.matcher(br.readLine()) ;
-            example = matcher.group(1) ; 
-            matcher = endPattern.matcher(example) ;
-            while (! matcher.find()) {
-               example += br.readLine() ;
-               matcher = endPattern.matcher(example) ;
-            }
-            // massage our definition into one line of readable ascii
-            if (! example.equals(""))
-               definition += Message.BOLD + " Ex:" + Message.NORMAL + " \"" + example + "\"" ;
-            definition = definition.replaceAll("\\n", " ") ;
-            definition = definition.replaceAll("&quot;", "\"");
-            definition = definition.replaceAll("&amp;", "&");
-            definition = definition.replaceAll("<br />", " ") ;
-            definition = definition.replaceAll("<a .*?>", Message.UNDERLINE) ;
-            definition = definition.replaceAll("</a>", Message.NORMAL) ;
-            // insert new Definition object into definitionList
-            definitionList.addElement(new Definition("urban", urbandictionaryDescription, word, definition)) ;
-         }
-      }
-      return definitionList ;
-   }
+				matcher = def_wordPattern.matcher(br.readLine());
+				while (!matcher.find())
+					matcher = def_wordPattern.matcher(br.readLine());
+				word = matcher.group(1);
+				if(debug)
+					System.out.println("  word found: " + word) ;
+				// parse out definition
+				String tempLine = br.readLine() ;
+				matcher = def_pStartPattern.matcher(tempLine);
+				while (!matcher.find()) {
+					tempLine = br.readLine() ;
+					matcher = def_pStartPattern.matcher(tempLine);
+				}
+				matcher = def_pBodyStartPattern.matcher(tempLine);
+				while(!matcher.find()) {
+					tempLine = br.readLine() ;
+					matcher = def_pBodyStartPattern.matcher(tempLine);
+				}
+				definition = matcher.group(1) ;
+				matcher = def_pBodyEndPattern.matcher(tempLine) ;
+				boolean multiline = false ;
+				while(!matcher.find()) {
+					if(multiline)
+						definition += tempLine ;
+					tempLine = br.readLine() ;
+					matcher = def_pBodyEndPattern.matcher(tempLine) ;
+					multiline = true ;
+				}
+				if(multiline)
+					definition += matcher.group(1);
+				if(debug)
+					System.out.println("  raw definition: " + definition);
+				
+				// and example. 
+				// this is ugly, as we don't want to run through to the next
+				// definition's examples, or EOF, if there are no examples for this def.
+				// 
+				
+				matcher = exampleStartPattern.matcher(tempLine) ;
+				Matcher endMatcher = endPattern.matcher(tempLine) ;
+				boolean definitionDone = false ;
+				while (true) {
+					if (matcher.find()) {
+						System.out.println("  broke -- example start") ;
+						break ;
+					}
+					if (endMatcher.find()) {
+						System.out.println("  broke --  end of def") ;
+						definitionDone = true ;
+						break ;
+					}
+					tempLine = br.readLine() ;
+					matcher = exampleStartPattern.matcher(tempLine) ;
+					endMatcher = endPattern.matcher(tempLine) ;
+				}
+				
+				if (!definitionDone) {					
+					example = matcher.group(1);				
+					matcher = exampleEndPattern.matcher(tempLine) ;
+					multiline = false ;
+					while(!matcher.find()) {
+						if (multiline)
+						example += tempLine ;
+						tempLine = br.readLine() ;
+						matcher = exampleEndPattern.matcher(tempLine) ;
+						multiline = true ;
+					}
+					if(multiline)
+						example += matcher.group(1);
+					if(debug)
+						System.out.println("  raw example: " + example);
+				}
+
+				// massage our definition into one line of readable ascii
+				if (!example.equals(""))
+					definition += Message.BOLD + " Ex:" + Message.NORMAL
+							+ " \"" + example + "\"";
+				definition = definition.replaceAll("\\n", " ");
+				definition = definition.replaceAll("&quot;", "\"");
+				definition = definition.replaceAll("&amp;", "&");
+				definition = definition.replaceAll("<br />", " ");
+				definition = definition
+						.replaceAll("<a .*?>", Message.UNDERLINE);
+				definition = definition.replaceAll("</a>", Message.NORMAL);
+				// insert new Definition object into definitionList
+				definitionList.addElement(new Definition("urban",
+						urbandictionaryDescription, word, definition));
+			}
+		}
+		return definitionList;
+	}
 	
 	private void dictionaries(Message m) {
 		DICTClient dc = getDICTClient(m) ;
