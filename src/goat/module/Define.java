@@ -107,9 +107,9 @@ public class Define extends Module {
       // This next block is thuggish.  If we keep tacking dictionaries onto the project,
       // we might want to rearrange stuff here and elsewhere to do things consistently
       if (dictionary.equalsIgnoreCase("urban")) {
-         definitionList = getUrbanDefinitions(word) ;
+         definitionList = getUrbanDefinitions(word, m) ;
          // this next is ugly, but urbandictionary.com doesn't have a guess-mis-spelt-word feature
-         if (definitionList.isEmpty())
+         if ((null == definitionList) || definitionList.isEmpty())
             matchList =  new String[0][0];
          else {
             matchList = new String[1][1] ;
@@ -227,7 +227,7 @@ public class Define extends Module {
 		return "http://www.urbandictionary.com/define.php?term=" + word.replaceAll(" ", "%20") ;
 	}
         
-	public Vector getUrbanDefinitions(String word) {
+	public Vector getUrbanDefinitions(String word, Message m) {
       Vector definitionList = null;
       HttpURLConnection connection = null;
       try {
@@ -247,6 +247,10 @@ public class Define extends Module {
          if(debug)
         	 System.out.println("Page retrieved from urbandictionary for word \"" + word + "\"") ;
          definitionList = parseUrbanPage(new BufferedReader(new InputStreamReader(connection.getInputStream())));
+		} catch (SocketTimeoutException e) {
+			m.createReply("Connection to urbandictionary timed out.").send() ;
+			System.err.println("Connection to urbandictionary timed out.") ;
+			return null ;
       } catch (IOException e) {
     	  if(debug)
     		  System.err.println("IOException caught.") ;

@@ -2,6 +2,10 @@ package goat.module;
 
 import java.lang.Math ;
 import java.util.Random ;
+//import java.net.URL ;
+//import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
 
 import goat.core.Message ;
 import goat.core.Module ;
@@ -26,7 +30,7 @@ public class Google extends Module {
 	public static String[] getCommands() {
 		return new String[]{"google", "goatle", "googlefight", 
 			"searchcount", "pornometer", "pronometer", "pr0nometer",
-			"sexiness"};
+			"sexiness", "gis", "yis", "wikipedia", "youtube"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -51,6 +55,14 @@ public class Google extends Module {
 				ircPornometer(m) ;
 			} else if ("sexiness".equalsIgnoreCase(m.modCommand)) {
 				ircSexiness(m) ;
+			} else if ("gis".equalsIgnoreCase(m.modCommand)) {
+				m.createReply(imageGoogleUrl(m.modTrailing)).send() ;
+			} else if ("yis".equalsIgnoreCase(m.modCommand)) {
+				m.createReply(imageYahooUrl(m.modTrailing)).send() ;
+			} else if ("wikipedia".equalsIgnoreCase(m.modCommand)) {
+				m.createReply(wikipediaUrl(m.modTrailing)).send() ;
+			} else if ("youtube".equalsIgnoreCase(m.modCommand)) {
+				m.createReply(youtubeUrl(m.modTrailing)).send() ;
 			} else {
 				m.createReply(m.modCommand + " not yet implemented.").send() ;
 			}
@@ -164,6 +176,52 @@ public class Google extends Module {
 		s = s.replaceAll("\\s*\"\\s*", "\"") ; //remove space around quotes
 		s = s.replaceAll("\"+", "\"") ; //strip away multiple quotes
 		return s ;
+	}
+
+	public String imageGoogleUrl(String s) {
+		try {
+			return "http://images.google.com/images?safe=off&q=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		/*
+		s = Message.removeFormattingAndColors(s) ;
+		URL u;
+		try {
+			u = new URL("http://images.google.com/images?safe=off&q=" + s) ;
+			return u.toString();
+		} catch(MalformedURLException e) {
+			e.printStackTrace() ;
+		}
+		*/
+		return "";
+	}
+	
+	public String imageYahooUrl(String s) {
+		try {
+			return "http://images.search.yahoo.com/search/images?&p=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	public String wikipediaUrl(String s) {
+		try {
+			return "http://www.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	public String youtubeUrl(String s) {
+		try {
+			return "http://youtube.com/results?search=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 	
 	/**
