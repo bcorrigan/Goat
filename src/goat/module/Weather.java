@@ -257,8 +257,7 @@ public class Weather extends Module {
 			String sun_report = "Sunrise " + sunrise_string + ", sunset " + sunset_string;
 
             double score = getScore(wind_mph, wind_gust,temp_c,sky_conditions,weather_type,humidity,sunrise_UTC,sunset_UTC);
-            double scoreRounded = ((int) score*100)/100.0;
-
+            double scoreRounded = Math.round(score*100)/100d;
             String short_response = temp_f + "F/" + temp_c + "C";
 			if (! sky_conditions.equals("")) {
 				short_response += ", " + sky_conditions ;
