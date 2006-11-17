@@ -95,8 +95,9 @@ public class Weather extends Module {
 					break ;
 				}
 			}
-			String report = getReport(user, m.modCommand, location) ;
-			if (report.matches(".*[ (]" + location + "[).].*")) {
+			String report = getReport(user, m.modCommand, location);
+            System.out.println("report:" + report + ":");
+            if (report.matches(".*[ (]" + location + "[).].*")) {
 				if (user_found) {
 					user.setLocation(location);
 				} else {
@@ -129,7 +130,8 @@ public class Weather extends Module {
 			String response = "" ;
 			String wind_direction = "";
 			String wind_mph = "";
-			String wind_gust = "";
+            String precipitation = "";
+            String wind_gust = "";
 			String temp_f = "";
 			String temp_c = "";
 			String sky_conditions = "";
@@ -165,7 +167,9 @@ public class Weather extends Module {
 					}
 				}
 
-				// Coordinates
+
+
+                // Coordinates
 				m = Pattern.compile(".* (\\d+)-(\\d+)(?:-\\d+)*([NS]) (\\d+)-(\\d+)(?:-\\d+)*([EW]).*").matcher(inputLine) ;
 				if (m.matches()) {
 					//System.out.println("matched: " + m.group()) ;
@@ -229,7 +233,7 @@ public class Weather extends Module {
 				m = Pattern.compile("^Precipitation last hour: (.*)").matcher(inputLine) ;
 				if (m.matches()) {
 					//uncomment if we start using this again
-					// precipitation = m.group(1) ;
+					precipitation = m.group(1) ;
 				}
 				// Humidity
 				m = Pattern.compile("^Relative Humidity: (.*)").matcher(inputLine) ;
@@ -251,7 +255,11 @@ public class Weather extends Module {
 			sunrise_string = sunString(sunrise_UTC, longitude, null) ;
 			sunset_string = sunString(sunset_UTC, longitude, null) ;
 			String sun_report = "Sunrise " + sunrise_string + ", sunset " + sunset_string;
-			String short_response = temp_f + "F/" + temp_c + "C";
+
+            double score = getScore(wind_mph, wind_gust,temp_c,sky_conditions,weather_type,humidity,sunrise_UTC,sunset_UTC);
+            double scoreRounded = ((int) score*100)/100.0;
+
+            String short_response = temp_f + "F/" + temp_c + "C";
 			if (! sky_conditions.equals("")) {
 				short_response += ", " + sky_conditions ;
 			}
@@ -277,7 +285,10 @@ public class Weather extends Module {
 			if (0 != minutes_since_report) {
 				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station + "." ;
 			}
-			if (command.equalsIgnoreCase("fullweather")) {
+            if( 0 != scoreRounded ) {
+                short_response += " Score:" + scoreRounded + ".";               
+            }
+            if (command.equalsIgnoreCase("fullweather")) {
 				return response;
 			} else {
 				return short_response ;
@@ -298,7 +309,96 @@ public class Weather extends Module {
 		return null;
 	}
 
-	private void commit() {
+    private double getScore(String wind_mph, String wind_gust,String temp_c,String sky_conditions, String weather_type,String humidity,Time sunrise_UTC,Time sunset_UTC) {
+        double wind_mph_d=0, temp_c_d=0, wind_gust_d=0,humidity_d=0,bonus=0,sunHours=0;
+        try {
+            if(!wind_mph.equals(""))
+                wind_mph_d = Integer.parseInt(wind_mph);
+            if(!wind_gust.equals(""))
+                wind_gust_d = Integer.parseInt(wind_gust);
+            temp_c_d = Double.parseDouble(temp_c);
+            if(!humidity.equals(""))
+                humidity_d = Integer.parseInt(humidity.substring(0, humidity.length()-1));
+            if( sunset_UTC.getFractionalHours()>sunrise_UTC.getFractionalHours() )
+                sunHours = sunset_UTC.getFractionalHours() - sunrise_UTC.getFractionalHours();
+            else
+                sunHours = sunset_UTC.getFractionalHours() + 24 - sunrise_UTC.getFractionalHours();
+            System.out.println("sunHours:" + sunHours);
+            if( sky_conditions.contains("overcast") )
+                bonus+=5;
+            if( sky_conditions.contains("cloudy") )
+                bonus+=5;
+
+            if( sky_conditions.contains("partly cloudy") )
+                bonus+=2;
+            else if( sky_conditions.contains("cloudy") )
+                bonus+=5;
+
+            if( weather_type.contains("light rain"))
+                bonus+=5;
+            else if( weather_type.contains("heavy rain"))
+                bonus+=15;
+            else if( weather_type.contains("rain"))
+                bonus+=10;
+
+            if( weather_type.contains("light fog"))
+                bonus+=5;
+            else if( weather_type.contains("heavy fog"))
+                bonus+=15;
+            else if( weather_type.contains("ice fog"))
+                bonus+=20;
+            else if( weather_type.contains("ground fog"))
+                bonus+=15;
+            else if( weather_type.contains("fog"))
+                bonus+=10;
+
+            if(weather_type.contains("freezing"))
+                bonus+=15;
+
+            if(weather_type.contains("tornado"))
+                bonus+=100;
+
+            if(weather_type.contains("lightning"))
+                bonus+=30;
+
+            if(weather_type.contains("thunder"))
+                bonus+=30;
+
+            if( weather_type.contains("light hail"))
+                bonus+=10;
+            else if( weather_type.contains("heavy hail"))
+                bonus+=20;
+            else if( weather_type.contains("hail"))
+                bonus+=15;
+
+            if( weather_type.contains("light ice crystals"))
+                bonus+=20;
+            else if( weather_type.contains("heavy ice crystals"))
+                bonus+=30;
+            else if( weather_type.contains("ice crystals"))
+                bonus+=25;
+
+            if( weather_type.contains("light sleet"))
+                bonus+=10;
+            else if( weather_type.contains("heavy sleet"))
+                bonus+=20;
+            else if( weather_type.contains("sleet"))
+                bonus+=15;
+
+            if( weather_type.contains("light snow"))
+                bonus+=15;
+            else if( weather_type.contains("heavy snow"))
+                bonus+=25;
+            else if( weather_type.contains("snow"))
+                bonus+=20;
+        } catch(NumberFormatException nfe) {
+            System.out.println("oh no!");
+            return 0;
+        }
+        return wind_mph_d + Math.abs(15-temp_c_d) + wind_gust_d/2 + Math.abs(50-humidity_d)/3 + Math.abs(12-sunHours)*3 + bonus;
+    }
+
+    private void commit() {
         XMLEncoder XMLenc = null;
 		try {
 			XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/weatherUsers.xml")));
