@@ -39,19 +39,35 @@ public class ShutUp extends Module {
 		joeyisms.add("marge") ;
 		joeyisms.add("true pimp") ;
 		joeyisms.add("nerd virgin") ;
+		joeyisms.add("nergin") ;
 		joeyisms.add("melons") ;
 		joeyisms.add("power up") ;
 		joeyisms.add("saiyan") ;
 		joeyisms.add("vegeta ") ;
+		joeyisms.add("freethinking athiests");
+		joeyisms.add("totally gay");
+	
+		ArrayList<String> joeyResponses = new ArrayList() ;
+		joeyResponses.add("joey, shut the fuck up.") ;
+		joeyResponses.add("joey, give it a fucking rest.") ;
+		joeyResponses.add("joey, you're getting fucking boring again.") ;
+		joeyResponses.add("joey: fuck off.  Now.") ;
+		joeyResponses.add("joey, please shut the fuck up already.") ;
+		joeyResponses.add("joey: shut up.") ;
+		joeyResponses.add("joey, get your greasy little fingers away from the fucking computer.") ;
+		joeyResponses.add("joey: fucking shut up.") ;
+		joeyResponses.add("joey, have you stopped taking your medicine again?") ;
+
 		if (fires(m.trailing, joeyisms)) {
-			System.out.println("JOEYISM detected from umask: " + m.prefix) ;
-			if(m.prefix.matches(".*Joseph@.*\\.dsl.skt2ca\\.pacbell.net.*")) {
+			// debug
+			// System.out.println("JOEYISM detected from umask: " + m.prefix) ;
+			if(m.prefix.matches(".*\\.pacbell.net.*")) {
 				// for now, we'll only respond to joey himself occasionally, 
 				//  since he seems to be getting off on this.
 				if (random.nextInt(100) < 34 )
-					m.createReply("joey, shut the fuck up.").send() ;
+					m.createReply(pickRandom(joeyResponses)).send() ;
 				// debug
-				System.out.println("JOEY detected!") ;
+				//System.out.println("JOEY detected!") ;
 			} else {
 				m.createReply("Shut up, joey.").send() ;
 			}
@@ -75,5 +91,9 @@ public class ShutUp extends Module {
 				return true ;
 		}
 		return false ;
+	}
+
+	private String pickRandom(ArrayList<String> strings) {
+		return strings.get(random.nextInt(strings.size())) ;
 	}
 }

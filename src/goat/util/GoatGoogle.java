@@ -189,6 +189,16 @@ public class GoatGoogle extends GoogleSearch {
          (float) plainResult.getEstimatedTotalResultsCount() ;
    }
 
+   public static float gayness (String query)
+      throws GoogleSearchFault {
+      GoogleSearchResult plainResult = simpleSearch(query) ;
+      if (plainResult.getEstimatedTotalResultsCount() < 1)
+         return -1 ;
+      GoogleSearchResult gayResult = simpleSearch(query + " gay");
+      return (float) gayResult.getEstimatedTotalResultsCount() /
+         (float) plainResult.getEstimatedTotalResultsCount() ;
+   }
+
    /**
     * Return the estimated pornographicalness of the given string.
     * <p/>

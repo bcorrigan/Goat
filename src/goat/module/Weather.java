@@ -19,6 +19,7 @@ import java.beans.XMLEncoder;
 import java.io.*;
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.util.regex.* ;
 import java.util.Date ;
 import java.text.SimpleDateFormat ;
@@ -281,6 +282,8 @@ public class Weather extends Module {
 			} else {
 				return short_response ;
 			}
+		} catch  (SocketTimeoutException e) {
+			return "I got bored waiting for the weather report for " + station ;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

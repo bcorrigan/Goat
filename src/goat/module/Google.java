@@ -30,7 +30,8 @@ public class Google extends Module {
 	public static String[] getCommands() {
 		return new String[]{"google", "goatle", "googlefight", 
 			"searchcount", "pornometer", "pronometer", "pr0nometer",
-			"sexiness", "gis", "yis", "wikipedia", "youtube"};
+			"sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
+			"gayness"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -55,6 +56,8 @@ public class Google extends Module {
 				ircPornometer(m) ;
 			} else if ("sexiness".equalsIgnoreCase(m.modCommand)) {
 				ircSexiness(m) ;
+			} else if ("gayness".equalsIgnoreCase(m.modCommand)) {
+				ircGayness(m) ;
 			} else if ("gis".equalsIgnoreCase(m.modCommand)) {
 				m.createReply(imageGoogleUrl(m.modTrailing)).send() ;
 			} else if ("yis".equalsIgnoreCase(m.modCommand)) {
@@ -63,6 +66,8 @@ public class Google extends Module {
 				m.createReply(wikipediaUrl(m.modTrailing)).send() ;
 			} else if ("youtube".equalsIgnoreCase(m.modCommand)) {
 				m.createReply(youtubeUrl(m.modTrailing)).send() ;
+			} else if ("imdb".equalsIgnoreCase(m.modCommand)) {
+				m.createReply(imdbUrl(m.modTrailing)).send() ;
 			} else {
 				m.createReply(m.modCommand + " not yet implemented.").send() ;
 			}
@@ -90,6 +95,17 @@ public class Google extends Module {
 			m.createReply(query + " does not exist, and therefore can not be appraised for sexiness.").send() ;
 		} else {
 			m.createReply(query + " is " + sexyPercentage + "% sexy.").send() ;
+		}
+	}
+
+	private void ircGayness (Message m) 
+		throws GoogleSearchFault {
+		String query = quoteAndClean(m.modTrailing) ;
+		int sexyPercentage = Math.round((float) 100 * GoatGoogle.gayness(query)) ;
+		if (sexyPercentage < 0) {
+			m.createReply(query + " does not exist, and therefore can not be appraised for faggotry.").send() ;
+		} else {
+			m.createReply(query + " is " + sexyPercentage + "% homosexual.").send() ;
 		}
 	}
 
@@ -217,7 +233,16 @@ public class Google extends Module {
 	
 	public String youtubeUrl(String s) {
 		try {
-			return "http://youtube.com/results?search=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+			return "http://youtube.com/results?search_query=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	public String imdbUrl(String s) {
+		try {
+			return "http://imdb.com/find?s=all&q=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
