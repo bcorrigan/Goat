@@ -309,7 +309,7 @@ public class Weather extends Module {
 	}
 
     private double getScore(String wind_mph, String wind_gust,String temp_c,String sky_conditions, String weather_type,String humidity,Time sunrise_UTC,Time sunset_UTC) {
-        double wind_mph_d=0, temp_c_d=0, wind_gust_d=0,humidity_d=0,bonus=0,sunHours=0;
+        double wind_mph_d=0, temp_c_d=0, wind_gust_d=0,humidity_d=50,bonus=0,sunHours=0;
         try {
             if(!wind_mph.equals(""))
                 wind_mph_d = Integer.parseInt(wind_mph);
@@ -394,7 +394,7 @@ public class Weather extends Module {
             System.out.println("oh no!");
             return 0;
         }
-        //System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):" + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":Math.abs(50-humidity_d)/3:" + Math.abs(50-humidity_d)/3 + ":Math.abs(12-sunHours)*3:" + Math.abs(12-sunHours)*2 + ":bonus:" + bonus);
+        System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):" + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":Math.abs(50-humidity_d)/3:" + Math.abs(50-humidity_d)/3 + ":Math.abs(12-sunHours)*3:" + Math.abs(12-sunHours)*2 + ":bonus:" + bonus);
         return wind_mph_d + Math.abs(15-temp_c_d) + wind_gust_d/2 + Math.abs(50-humidity_d)/3 + Math.abs(12-sunHours)*2 + bonus;
     }
 
