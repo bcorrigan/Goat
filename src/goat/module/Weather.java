@@ -340,6 +340,18 @@ public class Weather extends Module {
             else if( weather_type.contains("rain"))
                 bonus+=10;
 
+            if( weather_type.contains("haze"))
+                bonus+=5;
+
+            if( weather_type.contains("drizzle"))
+                bonus+=5;
+            if( weather_type.contains("freezing drizzle"))
+                bonus+=10;
+            if( weather_type.contains("ice pellets"))
+                bonus+=5;
+            if( weather_type.contains("blowing dust"))
+                bonus+=10;
+
             if( weather_type.contains("light fog"))
                 bonus+=5;
             else if( weather_type.contains("heavy fog"))
@@ -351,11 +363,21 @@ public class Weather extends Module {
             else if( weather_type.contains("fog"))
                 bonus+=10;
 
-            if(weather_type.contains("freezing"))
+            if(weather_type.contains("freezing spray"))
+                bonus+=20;
+            else if(weather_type.contains("freezing"))
                 bonus+=15;
 
             if(weather_type.contains("tornado"))
                 bonus+=100;
+            if(weather_type.contains("volcanic ash"))
+                bonus+=100;
+            if(weather_type.contains("water spouts"))
+                bonus+=50;
+            if(weather_type.contains("blowing sand"))
+                bonus+=50;
+            if(weather_type.contains("frost"))
+                bonus+=15;
 
             if(weather_type.contains("lightning"))
                 bonus+=30;
@@ -363,11 +385,11 @@ public class Weather extends Module {
             if(weather_type.contains("thunder"))
                 bonus+=30;
 
-            if( weather_type.contains("light hail"))
+            if( weather_type.contains("light ice pellets"))
                 bonus+=10;
-            else if( weather_type.contains("heavy hail"))
+            else if( weather_type.contains("heavy ice pellets"))
                 bonus+=20;
-            else if( weather_type.contains("hail"))
+            else if( weather_type.contains("ice pellets"))
                 bonus+=15;
 
             if( weather_type.contains("light ice crystals"))
