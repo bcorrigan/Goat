@@ -395,7 +395,7 @@ public class Weather extends Module {
             return 0;
         }
         System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):" + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":Math.abs(50-humidity_d)/3:" + Math.abs(50-humidity_d)/3 + ":Math.abs(12-sunHours)*3:" + Math.abs(12-sunHours)*2 + ":bonus:" + bonus);
-        return wind_mph_d + Math.abs(15-temp_c_d) + wind_gust_d/2 + Math.abs(50-humidity_d)/3 + Math.abs(12-sunHours)*2 + bonus;
+        return (wind_mph_d/2) + Math.abs(15-temp_c_d) + wind_gust_d/3 + Math.abs(50-humidity_d)/3 + Math.abs(12-sunHours) + bonus;
     }
 
     private void commit() {
