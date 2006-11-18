@@ -325,11 +325,11 @@ public class Weather extends Module {
             System.out.println("sunHours:" + sunHours);
             if( sky_conditions.contains("overcast") )
                 bonus+=5;
-            if( sky_conditions.contains("cloudy") )
-                bonus+=5;
 
             if( sky_conditions.contains("partly cloudy") )
-                bonus+=2;
+                bonus+=1.5;
+            else if( sky_conditions.contains("mostly cloudy") )
+                bonus+=3;
             else if( sky_conditions.contains("cloudy") )
                 bonus+=5;
 
