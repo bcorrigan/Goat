@@ -282,7 +282,7 @@ public class Weather extends Module {
 				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station + "." ;
 			}
             if( 0 != scoreRounded ) {
-                short_response += " Score:" + scoreRounded + ".";               
+                short_response += "  Score: " + scoreRounded + ".";               
             }
             if (command.equalsIgnoreCase("fullweather")) {
 				return response;
@@ -319,7 +319,8 @@ public class Weather extends Module {
                 sunHours = sunset_UTC.getFractionalHours() - sunrise_UTC.getFractionalHours();
             else
                 sunHours = sunset_UTC.getFractionalHours() + 24 - sunrise_UTC.getFractionalHours();
-            System.out.println("sunHours:" + sunHours);
+            // debug
+				// System.out.println("sunHours:" + sunHours);
             if( sky_conditions.contains("overcast") )
                 bonus+=5;
 
@@ -415,12 +416,8 @@ public class Weather extends Module {
         }
        if( humidity_d<50 )
             humidity_d += 2*(50-humidity_d);
-        humidity_d = humidity_d/100;
+		  humidity_d = humidity_d/100;
         humidity_d -= 0.5;
-        System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):"
-                + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":humidity_d*Math.abs(temp_c_d)/2:"
-                + humidity_d*Math.abs(temp_c_d)/2 + ":Math.abs(12-sunHours):" + Math.abs(12-sunHours)
-                + ":bonus:" + bonus);
         return (wind_mph_d/2) + Math.abs(15-temp_c_d) + wind_gust_d/3 + humidity_d*Math.abs(temp_c_d)/2 + Math.abs(12-sunHours) + bonus;
     }
 
@@ -431,7 +428,7 @@ public class Weather extends Module {
 		cal.set(Calendar.MINUTE, t.getMinute()) ;
 		if (null == tz) {
 			// Fake time zone conversion
-			cal.add(Calendar.HOUR_OF_DAY, (int) longitude / 15) ;
+			// cal.add(Calendar.HOUR_OF_DAY, (int) longitude / 15) ;
 		} else {
  	   	// Real time zone conversion
 			long tempdate = cal.getTimeInMillis() ;
