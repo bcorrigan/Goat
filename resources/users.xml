@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<java version="1.5.0-p3" class="java.beans.XMLDecoder"> 
+ <object class="java.util.HashMap"> 
+  <void method="put"> 
+   <string>bc</string> 
+   <object class="goat.core.User"> 
+    <void property="name"> 
+     <string>bc</string> 
+    </void> 
+    <void property="timeZone"> 
+     <string>GMT</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>EGPN</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>rs_</string> 
+   <object class="goat.core.User"> 
+    <void property="name"> 
+     <string>rs_</string> 
+    </void> 
+    <void property="timeZone"> 
+     <string>America/Los_Angeles</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KBFI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>sunrise</string> 
+   <object class="goat.core.User"> 
+    <void property="name"> 
+     <string>sunrise</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KNYC</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>mjl</string> 
+   <object class="goat.core.User"> 
+    <void property="name"> 
+     <string>mjl</string> 
+    </void> 
+    <void property="timeZone"> 
+     <string>Pacific/Auckland</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>NZAA</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>rs</string> 
+   <object class="goat.core.User"> 
+    <void property="name"> 
+     <string>rs</string> 
+    </void> 
+    <void property="timeZone"> 
+     <string>America/Los_Angeles</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KBFI</string> 
+    </void> 
+   </object> 
+  </void> 
+ </object> 
+</java> 
