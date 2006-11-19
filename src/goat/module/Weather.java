@@ -413,8 +413,8 @@ public class Weather extends Module {
             return 0;
         }
        if( humidity_d<50 )
-            humidity_d += 50-humidity_d;
-        humidity_d = humidity_d/10;
+            humidity_d += 2*(50-humidity_d);
+        humidity_d = humidity_d/100;
         System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):"
                 + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":humidity_d*Math.abs(temp_c_d)/2:"
                 + humidity_d*Math.abs(temp_c_d)/2 + ":Math.abs(12-sunHours):" + Math.abs(12-sunHours)
