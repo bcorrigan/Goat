@@ -33,10 +33,11 @@ import java.io.IOException;
  */
 public class Weather extends Module {
 
-	private static Users users = goat.Goat.users;	//all the users of this weather module
+	private static Users users;	//all the users of this weather module
 	private String codes_url = "https://pilotweb.nas.faa.gov/qryhtml/icao/" ;
 
 	public Weather() {
+		users = goat.Goat.getUsers() ;
 	}
 
 	/* (non-Javadoc)
@@ -245,8 +246,8 @@ public class Weather extends Module {
 				e.printStackTrace() ;
 			}
 			TimeZone tz = null ;
-			if (! user.getTimezone().equals("")) {
-				tz = TimeZone.getTimeZone(user.getTimezone()) ;
+			if (! user.getTimeZone().equals("")) {
+				tz = TimeZone.getTimeZone(user.getTimeZone()) ;
 			}
 			sunrise_string = sunString(sunrise_UTC, longitude, tz) ;
 			sunset_string = sunString(sunset_UTC, longitude, tz) ;
