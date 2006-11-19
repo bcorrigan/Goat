@@ -8,15 +8,11 @@ package goat.module;
 
 import goat.core.Message;
 import goat.core.Module;
-import goat.weather.User;
+import goat.core.User;
+import goat.core.Users;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.NoSuchElementException;
-import java.util.Iterator;
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.*;
+
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -26,6 +22,9 @@ import java.text.SimpleDateFormat ;
 import com.web_tomorrow.utils.suntimes.*;
 import java.util.GregorianCalendar ;
 import java.util.TimeZone ;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  * @author bc
@@ -34,25 +33,10 @@ import java.util.TimeZone ;
  */
 public class Weather extends Module {
 
-	ArrayList users;	//all the users of this weather module
+	private static Users users = goat.Goat.users;	//all the users of this weather module
 	private String codes_url = "https://pilotweb.nas.faa.gov/qryhtml/icao/" ;
 
 	public Weather() {
-        XMLDecoder XMLdec = null;
-		try {
-			XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/weatherUsers.xml")));
-			users = (ArrayList) XMLdec.readObject();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			users = new ArrayList();
-		} catch (NoSuchElementException e) {
-			users = new ArrayList();
-			e.printStackTrace();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			e.printStackTrace();
-		} finally {
-            if(XMLdec!=null) XMLdec.close();
-        }
 	}
 
 	/* (non-Javadoc)
@@ -66,15 +50,20 @@ public class Weather extends Module {
 	 * @see goat.core.Module#processChannelMessage(goat.core.Message)
 	 */
 	public void processChannelMessage(Message m) {
+		User user ;
+		if (users.hasUser(m.sender)) {
+			user = users.getUser(m.sender) ;
+		} else {
+			user = new User(m.sender) ;
+		}
 		if (m.modTrailing.matches("\\s*")) {     //if just whitespace
-			Iterator it = users.iterator();
-			while (it.hasNext()) {
-				User user = (User) it.next();
-				if (user.getName().equals(m.sender.toLowerCase())) {
-					m.createReply(getReport(user, m.modCommand, user.getLocation())).send();
-					return;
-				}
+			
+
+			if (! user.getWeatherStation().equals("")) {
+				m.createReply(getReport(user, m.modCommand, user.getWeatherStation())).send();
+				return;
 			}
+			
 			if(m.prefix.trim().matches(".*\\.nyc\\.res\\.rr\\.com$")) {
 				m.createReply("I'm sorry, qpt, but I can't help you until you start to help yourself.").send();
 			} else {
@@ -83,27 +72,30 @@ public class Weather extends Module {
 					"and telling me where you are.").send();
 			}
 		} else if (m.modTrailing.matches("\\s*[a-zA-Z0-9]{4}\\s*")) { //if 4 letter code is supplied
-			String location = m.modTrailing.trim().toUpperCase() ;
-			boolean user_found = false ;
-			User user = new User(m.sender.toLowerCase(), location) ;
-			Iterator it = users.iterator();
-			while (it.hasNext()) {
+			String station = m.modTrailing.trim().toUpperCase() ;
+			//boolean user_found = false ;
+			//User user = new User(m.sender.toLowerCase(), station) ;
+			//Iterator it = users.iterator();
+			/*while (it.hasNext()) {
 				User temp = (User) it.next();
 				if (temp.getName().equals(m.sender.toLowerCase())) {
 					user = temp ;
 					user_found = true ;
 					break ;
 				}
-			}
-			String report = getReport(user, m.modCommand, location);
-            System.out.println("report:" + report + ":");
-            if (report.matches(".*[ (]" + location + "[).].*")) {
-				if (user_found) {
-					user.setLocation(location);
-				} else {
-					users.add(user);
+			} */
+			String report = getReport(user, m.modCommand, station);
+			//debug
+            //System.out.println("report:" + report + ":");
+            if (report.matches(".*[ (]" + station + "[).].*")) {
+            	
+				if (! users.hasUser(user)) {
+					users.addUser(user);
 				}
-				commit();
+				if (! user.getWeatherStation().equals(station)) {
+					user.setWeatherStation(station);
+					users.save();
+				}
 			}
 			m.createReply(report).send();
 		}
@@ -252,8 +244,12 @@ public class Weather extends Module {
 			} catch (SunTimesException e) {
 				e.printStackTrace() ;
 			}
-			sunrise_string = sunString(sunrise_UTC, longitude, null) ;
-			sunset_string = sunString(sunset_UTC, longitude, null) ;
+			TimeZone tz = null ;
+			if (! user.getTimezone().equals("")) {
+				tz = TimeZone.getTimeZone(user.getTimezone()) ;
+			}
+			sunrise_string = sunString(sunrise_UTC, longitude, tz) ;
+			sunset_string = sunString(sunset_UTC, longitude, tz) ;
 			String sun_report = "Sunrise " + sunrise_string + ", sunset " + sunset_string;
 
             double score = getScore(wind_mph, wind_gust,temp_c,sky_conditions,weather_type,humidity,sunrise_UTC,sunset_UTC);
@@ -420,18 +416,6 @@ public class Weather extends Module {
         return (wind_mph_d/2) + Math.abs(15-temp_c_d) + wind_gust_d/3 + Math.abs(50-humidity_d)/3 + Math.abs(12-sunHours) + bonus;
     }
 
-    private void commit() {
-        XMLEncoder XMLenc = null;
-		try {
-			XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/weatherUsers.xml")));
-			XMLenc.writeObject(users);
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
-		} finally {
-            if(XMLenc!=null) XMLenc.close();
-        }
-	}
-
 	private String sunString(Time t, double longitude, TimeZone tz) {
 		String ret = "" ;
 		GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC")) ;
@@ -457,10 +441,12 @@ public class Weather extends Module {
 		} else {
 			ret += "pm" ;
 		}
+		if (null == tz) {
+			ret += " GMT" ;
+		}
 		return ret ;
 	}
 		
-
 	public static String[] getCommands() {
 		return new String[]{"weather", "fullweather"};
 	}

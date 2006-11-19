@@ -14,6 +14,7 @@ public class Goat {
 	public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};
     public static ServerConnection sc;
+    public static Users users = new Users() ;
     
     public static final String GOAT_PROPS_FILE = "config/goat.properties" ;
     public static final String GOAT_PASSWORDS_FILE = "config/passwords.properties" ;
@@ -131,6 +132,9 @@ public class Goat {
 			modController.load("Core");
 			Core core = (Core) modController.get(5);
 			core.inAllChannels = true;
+			modController.load("Users");
+			if (modController.get("Users") != null)
+				modController.get("Users").inAllChannels = true ;
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {

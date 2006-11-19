@@ -27,7 +27,7 @@ public class ShutUp extends Module {
 	public void processChannelMessage(Message m) {
 		// TODO make this general, right now it's just a quick hack to fill a pressing need.
 		
-		ArrayList<String> joeyisms = new ArrayList() ;
+		ArrayList<String> joeyisms = new ArrayList<String>() ;
 		joeyisms.add("dogs are fat") ;
 		joeyisms.add("proliferate") ;
 		joeyisms.add("proliferating") ;
@@ -47,7 +47,7 @@ public class ShutUp extends Module {
 		joeyisms.add("freethinking athiests");
 		joeyisms.add("totally gay");
 	
-		ArrayList<String> joeyResponses = new ArrayList() ;
+		ArrayList<String> joeyResponses = new ArrayList<String>() ;
 		joeyResponses.add("joey, shut the fuck up.") ;
 		joeyResponses.add("joey, give it a fucking rest.") ;
 		joeyResponses.add("joey, you're getting fucking boring again.") ;
@@ -61,7 +61,7 @@ public class ShutUp extends Module {
 		if (fires(m.trailing, joeyisms)) {
 			// debug
 			// System.out.println("JOEYISM detected from umask: " + m.prefix) ;
-			if(m.prefix.matches(".*\\.pacbell.net.*")) {
+			if(m.prefix.matches(".*\\.pacbell\\.net.*")) {
 				// for now, we'll only respond to joey himself occasionally, 
 				//  since he seems to be getting off on this.
 				if (random.nextInt(100) < 34 )
