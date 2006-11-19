@@ -14,7 +14,7 @@ public class Goat {
 	public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};
     public static ServerConnection sc;
-    public static Users users = new Users() ;
+    private static Users users = new Users() ;
     
     public static final String GOAT_PROPS_FILE = "config/goat.properties" ;
     public static final String GOAT_PASSWORDS_FILE = "config/passwords.properties" ;
@@ -184,5 +184,14 @@ public class Goat {
 			e.printStackTrace() ;
 		}
 		return props;
+	}
+	
+	public static Users getUsers() {
+		if (null == users) {
+			users = new Users() ;
+			return users ;
+		} else {
+			return users;
+		}
 	}
 }

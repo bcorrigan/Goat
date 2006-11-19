@@ -9,30 +9,30 @@ public class User {
 
 	private String name;
 	private String weatherStation;
-	private String timezone;
+	private String timeZone;
 
 	public User() {
 		name = "";
 		weatherStation = "";
-		timezone = "" ;
+		timeZone = "" ;
 	}
 	
 	public User(String uname) {
 		name = uname ;
 		weatherStation = "" ;
-		timezone = "" ;
+		timeZone = "" ;
 	}
 
 	public User(String name, String weatherStation) {
 		this.name = name;
 		this.weatherStation = weatherStation;
-		this.timezone = "";
+		this.timeZone = "";
 	}
 	
 	public User(String name, String location, String tz) {
 		this.name = name;
 		this.weatherStation = location;
-		this.timezone = TimeZone.getTimeZone(tz).getID();
+		this.timeZone = TimeZone.getTimeZone(tz).getID();
 	}
 
 	public String getName() {
@@ -51,11 +51,15 @@ public class User {
 		this.weatherStation = station;
 	}
 	
-	public String getTimezone() {
-		return timezone ;
+	public String getTimeZone() {
+		return timeZone ;
 	}
 	
 	public void setTimeZone(String tz) {
+		if (tz.equalsIgnoreCase("unset")) {
+			this.timeZone = "" ;
+			return ;
+		}
 		// this is more complicated than it has to be thanks to 
 		// java's TimeZone.getTimeZone() returning GMT if it can't
 		// figure out the string it's given.
@@ -67,15 +71,15 @@ public class User {
 					|| tz.equalsIgnoreCase("UTC")
 					|| tz.equalsIgnoreCase("UCT")
 					|| tz.equalsIgnoreCase("Universal")) {
-				this.timezone = newTZ.getID() ;
+				this.timeZone = newTZ.getID() ;
 			}
 		} else {
-			this.timezone = newTZ.getID();
+			this.timeZone = newTZ.getID();
 		}
 				
 	}
 	
 	public void setTimeZone(TimeZone tz) {
-		this.timezone = tz.getID() ;
+		this.timeZone = tz.getID() ;
 	}
 }

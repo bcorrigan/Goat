@@ -19,10 +19,14 @@ import java.util.NoSuchElementException;
 public class Users {
 	private HashMap<String,User> usersHash = new HashMap<String,User>() ;
 
-	private String usersFilename = "resources/weatherUsers_new.xml";
+	private String usersFilename = "resources/users.xml";
 	
 	public Users() {
-		usersHash = readFromDisk(usersFilename) ;
+		try {
+			usersHash = readFromDisk(usersFilename) ;
+		} catch (Exception e) {
+			usersHash = new HashMap<String, User>();
+		}
 	}
 
 	public void save() {

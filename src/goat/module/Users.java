@@ -8,7 +8,11 @@ import java.util.TimeZone ;
 
 public class Users extends Module {
 
-	private goat.core.Users users = goat.Goat.users ;
+	private goat.core.Users users ;
+
+	public Users() {
+		users = goat.Goat.getUsers() ;
+	}
 	
 	public void processChannelMessage(Message m) {
 		User user;
@@ -19,23 +23,28 @@ public class Users extends Module {
 		}
 		if (m.modCommand.equalsIgnoreCase("timezone")) {
 			if (m.modTrailing.matches("\\s*")) { // no code given
-				if (user.getTimezone().equals("")) {
+				if (user.getTimeZone().equals("")) {
 					m.createReply(user.getName() + ", your time zone is not set.  Instructions in /msg.").send();
 				} else {
-					m.createReply(user.getName() + ", your time zone is " + user.getTimezone() + " (" + TimeZone.getTimeZone(user.getTimezone()).getDisplayName() + ").  To change it, see instructions in /msg").send();
+					m.createReply(user.getName() + ", your time zone is \"" + user.getTimeZone() + "\" (" + TimeZone.getTimeZone(user.getTimeZone()).getDisplayName() + ").  To change it, see instructions in /msg").send();
 				}
-		        Message.createPagedPrivmsg(m.sender, "To set your timezone, type 'timezone [code]'.  A list of valid codes follows, but you will probably find it easier to locate yours via a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html .   Valid codes are:").send();
+		        Message.createPagedPrivmsg(m.sender, "To set your timezone, type 'timezone [code]', or 'timezone unset' to erase your setting.  A list of valid codes follows, but you will probably find it easier to locate yours via a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html .   Valid codes are:").send();
 			} else {
 				String tz = m.modTrailing.trim();
+				String id = TimeZone.getTimeZone(tz).getID() ;
 				user.setTimeZone(tz) ;
-				if (user.getTimezone().equals("")) {
+				if (tz.equalsIgnoreCase("unset")) {
+					users.save() ;
+					m.createReply("Time zone unset for user " + user.getName()).send() ;
+				} else if (! user.getTimeZone().equals(id)) {
 					m.createReply(user.getName() + ", java couldn't parse \"" + tz + "\" as a time zone.  I'm very sorry.").send() ;
 				} else {
 					if(! users.hasUser(user.getName())) {
 						users.addUser(user) ;
 					}
+					System.out.println("Saving users info...");
 					users.save();
-					m.createReply(user.getName() + "'s time zone set to " + user.getTimezone() + " (" + TimeZone.getTimeZone(user.getTimezone()).getDisplayName() + ")").send();
+					m.createReply(user.getName() + "'s time zone set to \"" + user.getTimeZone() + "\" (" + TimeZone.getTimeZone(user.getTimeZone()).getDisplayName() + ")").send();
 				}
 			}
 		}
