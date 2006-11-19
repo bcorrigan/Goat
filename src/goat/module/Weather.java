@@ -412,8 +412,14 @@ public class Weather extends Module {
             System.out.println("oh no!");
             return 0;
         }
-        System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):" + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":Math.abs(50-humidity_d)/3:" + Math.abs(50-humidity_d)/3 + ":Math.abs(12-sunHours)*3:" + Math.abs(12-sunHours)*2 + ":bonus:" + bonus);
-        return (wind_mph_d/2) + Math.abs(15-temp_c_d) + wind_gust_d/3 + Math.abs(50-humidity_d)/3 + Math.abs(12-sunHours) + bonus;
+       if( humidity_d<50 )
+            humidity_d += 50-humidity_d;
+        humidity_d = humidity_d/10;
+        System.out.println("breakdown:" + "wind_mph_d:" + wind_mph_d + ":Math.abs(15-temp_c_d):"
+                + Math.abs(15-temp_c_d) + ":wind_gust_d:" + wind_gust_d + ":humidity_d*Math.abs(temp_c_d)/2:"
+                + humidity_d*Math.abs(temp_c_d)/2 + ":Math.abs(12-sunHours):" + Math.abs(12-sunHours)
+                + ":bonus:" + bonus);
+        return (wind_mph_d/2) + Math.abs(15-temp_c_d) + wind_gust_d/3 + humidity_d*Math.abs(temp_c_d)/2 + Math.abs(12-sunHours) + bonus;
     }
 
 	private String sunString(Time t, double longitude, TimeZone tz) {
