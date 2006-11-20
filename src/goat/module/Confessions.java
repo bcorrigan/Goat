@@ -100,12 +100,26 @@ public class Confessions extends Module {
 		if (m.modCommand.equalsIgnoreCase("confess")) {
 			noConfessions++;
 			if(m.modTrailing.toLowerCase().startsWith("about ")) {
-				String searchReply = m.modTrailing.toLowerCase().substring(6);
-				String confession = searchConfessions(searchReply, m);
+				// grab query string
+				String query = m.modTrailing.substring(6);
+				// strip away any irc gunk and leading/trailing whitespace
+				query = Message.removeFormattingAndColors(query).trim();
+				// remove quote marks, we'll put them back later if we need them
+				query = query.replaceAll("\"", "") ;
+				// condense whitespace.  This can change search results, so you might not want to do it
+				//query = query.replaceAll("\\s+", " ") ;
+				String confession = null;
+				// stick quotes around queries with whitespace in them.
+				//   we should change this up if grouphug ever implements any 
+				//   sort of boolean or otherwise advanced search options.
+				if (query.matches(".*\\s+.*"))
+					confession = searchConfessions("\"" + query + "\"", m);
+				else
+					confession = searchConfessions(query, m) ;
 				if(confession!=null)
 					m.createPagedReply(confession).send();
 				else
-					m.createReply("I'm afraid I just don't feel guilty about " + searchReply + ".").send();
+					m.createReply("I'm afraid I just don't feel guilty about " + query + ".").send();
 			} else if(confessions.isEmpty()) {
 				if(getConfessions(m))
 					m.createPagedReply(confessions.removeFirst().toString()).send();
