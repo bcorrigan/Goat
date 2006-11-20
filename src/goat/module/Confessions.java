@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 import java.util.ListIterator;
@@ -20,37 +21,45 @@ import java.util.ListIterator;
 
 public class Confessions extends Module {
 
-	private LinkedList confessions = new LinkedList();
+	private LinkedList<String> confessions = new LinkedList<String>();
 	//Document document;
     private int noConfessions = 0;
 	private int hits = 0;
 	public Confessions() {
-		getConfessions();
+		getConfessions(null);
 	}
 
 
 	//TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using a simple xml decoder or something
-	private boolean getConfessions() {
+	private boolean getConfessions(Message m) {
         HttpURLConnection connection = null;
 		try {
 			URL grouphug = new URL("http://grouphug.us/random");
 			connection = (HttpURLConnection) grouphug.openConnection();
-			connection.setConnectTimeout(7000);  //just 7 seconds, we can't hang around
+			connection.setConnectTimeout(5000);  //just 5 seconds, we can't hang around
 			confessions = parseConfession(connection);
+		} catch (SocketTimeoutException e) {
+			if (null != m)
+				m.createReply("Timed out trying to extract confessions").send() ;
+			e.printStackTrace() ;
+			return false ;
 		} catch (IOException e) {
+			if (m != null)
+				m.createReply("I/O problem while trying to extract confessions").send() ;
 			e.printStackTrace();
 			return false;
 		} finally {
             if(connection!=null) connection.disconnect();
         }
+		// why we risk a recursion blowout here, I'm not sure.
 		if (confessions.isEmpty())
-			getConfessions();
+			getConfessions(m);
 		return true;
 	}
 
-	private LinkedList parseConfession(HttpURLConnection connection) throws IOException {
+	private LinkedList<String> parseConfession(HttpURLConnection connection) throws SocketTimeoutException, IOException {
 		String confession = "";
-		LinkedList confessions = new LinkedList();
+		LinkedList<String> confessions = new LinkedList<String>();
 		connection.connect();
 		hits++;
 		if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
@@ -92,21 +101,23 @@ public class Confessions extends Module {
 			noConfessions++;
 			if(m.modTrailing.toLowerCase().startsWith("about ")) {
 				String searchReply = m.modTrailing.toLowerCase().substring(6);
-				String confession = searchConfessions(searchReply);
+				String confession = searchConfessions(searchReply, m);
 				if(confession!=null)
 					m.createPagedReply(confession).send();
 				else
-					m.createReply("I'm afraid I just don't feel guilty about that.").send();
-			} else 
+					m.createReply("I'm afraid I just don't feel guilty about " + searchReply + ".").send();
+			} else if(confessions.isEmpty()) {
+				if(getConfessions(m))
+					m.createPagedReply(confessions.removeFirst().toString()).send();
+				else
+					m.createReply("I don't have anything to confess about right now.") ;
+			} else {
 				m.createPagedReply(confessions.removeFirst().toString()).send();
+			}
 		} else if(m.modCommand.equalsIgnoreCase("csize"))
 			m.createReply("Number of confessions cached: " + confessions.size() + 
 						  ". Number of confessions asked for: " + noConfessions + 
 						  " Number of page requests sent: " + hits).send();
-
-		if (confessions.isEmpty())
-			if(!getConfessions())
-				m.createPagedReply("I don't feel like confessing anymore, sorry.").send();
 		
 		//if cache is getting a bit on the big side, lets delete the 100 oldest
 		if(confessions.size()>500)
@@ -118,12 +129,12 @@ public class Confessions extends Module {
 		processPrivateMessage(m);
 	}
 	
-	private String searchConfessions(String searchString) {
+	private String searchConfessions(String searchString, Message m) {
 		//first search all the confessions stored for the search string
 		String confession = searchStoredConfessions(searchString);
 		if(confession!=null)
 			return confession;
-		LinkedList searchedConfessions = new LinkedList();
+		LinkedList<String> searchedConfessions = new LinkedList<String>();
         HttpURLConnection connection = null;
 		try {
 			for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
@@ -131,12 +142,13 @@ public class Confessions extends Module {
 				searchString = searchString.replaceAll(" ", "%20");
 				URL grouphug = new URL("http://grouphug.us/search/" + searchString + "/" + i*15 + "/n");
 				connection = (HttpURLConnection) grouphug.openConnection();
+				connection.setConnectTimeout(5000) ;
 				searchedConfessions = parseConfession(connection);
 				if(!searchedConfessions.isEmpty()) {
 					confession = searchedConfessions.remove((int) (Math.random()*searchedConfessions.size())).toString();
 					//might as well add the rest to cache
 					while(searchedConfessions.size()>0) {
-						Object storeConfession = searchedConfessions.removeFirst();
+						String storeConfession = searchedConfessions.removeFirst();
 						if(!confessions.contains(storeConfession))
 							confessions.addFirst(storeConfession);
 					}
@@ -144,7 +156,14 @@ public class Confessions extends Module {
 				}
 			}
 			return null;
+		} catch (SocketTimeoutException e) {
+			if (null != m)
+				m.createReply("Timed out while trying to extract confessions about " + searchString).send();
+			e.printStackTrace() ;
+			return null ;
 		} catch (IOException e) {
+			if (null != m)
+				m.createReply("I/O problem while trying to extract confessions about " + searchString).send();
 			e.printStackTrace();
             if(connection!=null) connection.disconnect();
 		}
