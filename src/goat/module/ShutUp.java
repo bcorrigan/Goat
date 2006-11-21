@@ -68,26 +68,47 @@ public class ShutUp extends Module {
 	} ;
 	
 	// ideally, these should be in order of increasing severity, and not look
-	//   odd when prefixed with "[uname], "
+	//   odd when prefixed with "[uname], " or appended with ", uname." or "."
 	public static final String[] responses = {
-			"shut up.",
-			"shut the fuck up.",
-			"fucking shut up.",
-			"fuck off.  Now.",
-			"give it a fucking rest.",
-			"please shut the fuck up.",
-			"you're being fucking boring.",
-			"you're fucking boring us.  " + Message.BOLD + "Again.",
-			"have you forgotten to take your fucking medicine?", 
-			"get your greasy little fingers away from the fucking computer.",
-			} ;
+			"shut up",
+			"shut the fuck up",
+			"fucking shut up",
+			"fuck off.  Now",
+			"give it a fucking rest",
+			"please shut the fuck up",
+			"you're being fucking boring",
+			"you're fucking boring us.  " + Message.BOLD + "Again" + Message.NORMAL,
+			"I think you've forgotten to take your fucking medicine", 
+			"get your greasy little fingers away from the fucking computer",
+	} ;
 
+	// see caveats for responses[] above; they apply to this, too
+	public static final String[] overworkWhinges = {
+		"my feet hurt",
+		"you're making me work too hard",
+		"give me a break",
+		"stop bothering me",
+		"stop it.  STOP IT",
+		"please let someone else have a turn",
+		"the other people in this channel are starting to hate you",
+		"what a dull life you must lead",
+		"I'm starting to hate you",
+		"don't be such a goddamned ballbuster",
+		"you're getting on my nerves",
+		"you're " + Message.BOLD + "really" + Message.NORMAL + " getting on my nerves",
+		"you're being a little compulsive",
+		"you must get sexually aroused, pushing me around like this"
+	} ;
+	
 	private Random random = new Random() ;
 	
 	private String blatherer = "";     // who is blathering?
 	private int blatherCount = 0;      // how long have they been blathering?
 	private int blatherThreshold = 4 ; // how much of this blather will we put up with?
 	private int kipismCount = 0;       // and is it that bastard kip again?
+	
+	private int commandCount = 0;                        // has someone been bossing goat around?		
+	private int commandThreshold = 2*blatherThreshold ;  // and how much will goat tolerate?
 	
 	public ShutUp() {
 	}
@@ -113,7 +134,7 @@ public class ShutUp extends Module {
 				// for now, we'll only respond to joey himself occasionally, 
 				//  since he seems to be getting off on this.
 				if (random.nextInt(100) < (30 + 5*joeyscore) )
-					m.createReply("joey, " + pickRandom(responses)).send() ;
+					randomReply(responses, m) ;
 				// debug
 				//System.out.println("JOEY detected!") ;
 			} else {
@@ -124,18 +145,28 @@ public class ShutUp extends Module {
 		// blather monitor housekeeping
 		if (blatherer.equalsIgnoreCase(m.sender)) {
 			kipismCount += score(m.trailing, kipisms) ;
-			blatherCount++;
 		} else {
 			blatherer = m.sender ;
-			blatherCount = 1;
+			blatherCount = 0;
+			commandCount = 0;
 			kipismCount = 0;
-		}		
+		}
+		if(goat.Goat.modController.isLoadedCommand(m.modCommand)) 
+			commandCount++;
+		else
+			blatherCount++;
 		// blatherer shutting-up
 		if (blatherCount >= blatherThreshold) {
 			// feel free to tweak the formula below
-			if (random.nextInt(100) < 20 + (blatherCount - blatherThreshold)*15 + kipismCount*30)
-				m.createReply(m.sender + ", " + pickRandom(responses)).send();
+			if (random.nextInt(100) < 20 + (blatherCount - blatherThreshold)*10 + kipismCount*20 + commandCount*5)
+				randomReply(responses, m);
+		// commands-abuser whinging	
+		} else if(commandCount >= commandThreshold) {
+			if (random.nextInt(100) < 20 + (commandCount - commandThreshold)*5)
+				randomReply(overworkWhinges, m) ;
 		}
+		//debug
+		//System.out.println("blatherer: " + blatherer + "  count: " + blatherCount + "  commands: " + commandCount + "  kipisms: " + kipismCount) ;
 	}
 
 	private int score(String target, String[] triggers) {
@@ -149,5 +180,28 @@ public class ShutUp extends Module {
 
 	private String pickRandom(String[] strings) {
 		return strings[random.nextInt(strings.length)] ;
+	}
+	
+	public void randomReply(String[] replies, Message m) {
+		String reply = pickRandom(replies) ;
+		int rand = random.nextInt(100) ;
+		if (rand < 60) 
+			reply = m.sender + ", " + reply + "." ;
+		else if(rand < 80)
+			reply = m.sender + ": " + reply + "." ;
+		else if(rand < 90)
+			reply = capitalise(reply) + ", " + m.sender + "." ;
+		else 
+			reply = capitalise(reply) + "." ;
+		m.createReply(reply).send();
+	}
+	
+	public String capitalise(String in) {
+		if(in.length() < 1)
+			return in;
+		else if (1 == in.length())
+			return in.toUpperCase() ;
+		else
+			return in.substring(0, 1).toUpperCase() + in.substring(1) ;
 	}
 }
