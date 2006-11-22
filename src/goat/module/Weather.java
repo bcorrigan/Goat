@@ -418,7 +418,7 @@ public class Weather extends Module {
             humidity_d += 2*(50-humidity_d);
 		  humidity_d = humidity_d/100;
         humidity_d -= 0.5;
-        return (wind_mph_d/2) + Math.abs(15-temp_c_d) + wind_gust_d/3 + humidity_d*Math.abs(temp_c_d)/2 + Math.abs(12-sunHours) + bonus;
+        return (wind_mph_d/2) + Math.abs(15-temp_c_d) + ((wind_gust_d-wind_mph_d)/3) + humidity_d*Math.abs(temp_c_d)/2 + Math.abs(12-sunHours) + bonus;
     }
 
 	private String sunString(Time t, double longitude, TimeZone tz) {
