@@ -59,8 +59,7 @@ public class ServerConnection extends Thread {
             }
         }
         String[] channels = BotStats.getChannels();
-        for (int i = 0; i < channels.length; i++)
-            new Message("", "JOIN", channels[i], "").send();
+        for (String channel : channels) new Message("", "JOIN", channel, "").send();
     }
 
     private void reconnect() {
