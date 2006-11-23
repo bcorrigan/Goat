@@ -98,7 +98,7 @@ public class Pager {
 			ret = buffer.substring(0, num) ;
 			buffer = buffer.substring(num) ;
 		} else {
-			ret = buffer.toString() ;
+			ret = buffer ;
 			buffer = "" ;
 		}
 		return ret ;
