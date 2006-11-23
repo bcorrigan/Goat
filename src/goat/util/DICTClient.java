@@ -473,12 +473,8 @@ public class DICTClient {
             // add new results to the existing ones
             int totalMatches = finalResult.length + subResult.length;
             String[][] tempResult = new String[totalMatches][2];
-            for (int j = 0; j < finalResult.length; j++) {
-                tempResult[j] = finalResult[j];
-            }
-            for (int j = 0; j < subResult.length; j++) {
-                tempResult[finalResult.length + j] = subResult[j];
-            }
+            System.arraycopy(finalResult, 0, tempResult, 0, finalResult.length);
+            System.arraycopy(subResult, 0, tempResult, finalResult.length, subResult.length);
             finalResult = tempResult;
         }
         return finalResult;
