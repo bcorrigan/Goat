@@ -35,7 +35,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
     private Message target;
     private LinkedList input;
     // private boolean playing = false; // we don't use this anywhere
-    private String buffer = new String();
+    private String buffer = "";
     private boolean running = true;
 
     private int saveSlot;
@@ -285,7 +285,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
                     e.printStackTrace();
                 }
             target.createPagedReply(buffer).send();
-            buffer = new String();
+            buffer = "";
 
             //for gracefully exiting the threads. No stop()s, for once.
             if (!running) {

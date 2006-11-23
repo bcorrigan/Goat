@@ -112,13 +112,13 @@ public class BookTitle extends Module {
 			String word ;
 			BufferedReader br = new BufferedReader(new FileReader(NOUN_FILE));
 				while (((word = br.readLine()) != null) && num_nouns < WORD_LIMIT) {
-					nouns[num_nouns] = new String(word.trim()) ;
+					nouns[num_nouns] = word.trim() ;
 					++num_nouns;
 				}
 			br.close();
 			br = new BufferedReader(new FileReader(ADJ_FILE));
 				while (((word = br.readLine()) != null) && num_adjs < WORD_LIMIT) {
-					adjectives[num_adjs] = new String(word.trim()) ;
+					adjectives[num_adjs] = word.trim() ;
 					++num_adjs;
 				}
 			br.close();
