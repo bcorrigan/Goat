@@ -25,12 +25,13 @@ public class Reminder implements Serializable, Comparable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public Reminder(String channel, String nick, String message, long setTime, long dueTime) {
+	public Reminder(String channel, String nick, String reminder, String message, long setTime, long dueTime) {
         this.channel = channel;
         this.nick = nick;
         this.message = message;
         this.setTime = setTime;
         this.dueTime = dueTime;
+        this.reminder = reminder;
     }
     
     public String getChannel() {
@@ -39,6 +40,10 @@ public class Reminder implements Serializable, Comparable {
     
     public String getNick() {
         return nick;
+    }
+
+    public String getReminder() {
+        return reminder;
     }
     
     public String getMessage() {
@@ -69,6 +74,7 @@ public class Reminder implements Serializable, Comparable {
     private String channel;
     private String nick;
     private String message;
+    private String reminder;
     private long setTime;
     private long dueTime;
     

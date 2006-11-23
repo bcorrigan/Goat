@@ -38,7 +38,7 @@ public class Remind extends Module implements Runnable {
     
     public void processChannelMessage(Message m) {
 
-        Pattern messagePattern = Pattern.compile("^\\s*me\\s+in\\s+(((\\d+\\.?\\d*|\\.\\d+)\\s+(weeks?|days?|hours?|hrs?|minutes?|mins?|seconds?|secs?)[\\s,]*(and)?\\s+)+)(.*)\\s*$");
+        Pattern messagePattern = Pattern.compile("^\\s*\\w*\\s+in\\s+(((\\d+\\.?\\d*|\\.\\d+)\\s+(weeks?|days?|hours?|hrs?|minutes?|mins?|seconds?|secs?)[\\s,]*(and)?\\s+)+)(.*)\\s*$");
         Matcher matcher = messagePattern.matcher(m.modTrailing);
         if (matcher.matches()) {
             String reminderMessage = matcher.group(6);
@@ -46,7 +46,7 @@ public class Remind extends Module implements Runnable {
             
             long set = System.currentTimeMillis();
             long due = set;
-            
+
             try {
                 double weeks = getPeriod(periods, "weeks|week");
                 double days = getPeriod(periods, "days|day");
@@ -65,11 +65,24 @@ public class Remind extends Module implements Runnable {
                 return;
             }
 
-            Reminder reminder = new Reminder(m.channame, m.sender, reminderMessage, set, due);
-            m.createReply(m.sender + ": Okay, I'll remind you about that on " + new Date(reminder.getDueTime())).send();
+            Reminder reminder = new Reminder(m.channame, getName(m), m.sender, reminderMessage, set, due);
+            String name = getName(m);
+            String replyName = null;
+            if(name.equals(m.sender))
+                replyName = "you";
+            else
+                replyName = name;
+            m.createReply(m.sender + ": Okay, I'll remind " + replyName + " about that on " + new Date(reminder.getDueTime())).send();
             reminders.add(reminder);
             dispatchThread.interrupt();
         }
+    }
+
+    private String getName(Message m) {
+        String[] words = m.modTrailing.split(" ");
+        if(words[0].equals("me"))
+            return m.sender;
+        return words[0];
     }
 
     public void processPrivateMessage(Message m) {
@@ -121,8 +134,11 @@ public class Remind extends Module implements Runnable {
                 }
             }
             else {
+                String replyName = reminder.getReminder();
 
-                Message.createPrivmsg(reminder.getChannel(), reminder.getNick() + ": You asked me to remind you " + reminder.getMessage()).send();
+                if(replyName==null || replyName.equals(reminder.getNick()))
+                    replyName = "You";
+                Message.createPrivmsg(reminder.getChannel(), reminder.getNick() + ": " + replyName + " asked me to remind you " + reminder.getMessage()).send();
                 reminders.removeFirst();
                 saveReminders();
             }
