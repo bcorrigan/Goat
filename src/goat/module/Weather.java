@@ -234,6 +234,11 @@ public class Weather extends Module {
 					humidity = m.group(1) ;
 				}
 			}
+			double windchill = 666.0;
+			if ("" != temp_f)
+				windchill = Double.parseDouble(temp_f) ;
+			if ("" != wind_mph)
+				windchill = windchill(Double.parseDouble(temp_f),Double.parseDouble(wind_mph)) ;
 			String sunrise_string = "" ;
 			String sunset_string = "" ;
 			//  Note: crappily named class Time is bundled in with the suntimes lib
@@ -274,16 +279,21 @@ public class Weather extends Module {
 			//if (! precipitation.equals("none")) {
 			//	short_response += ".  Precip last hour: " + precipitation ;
 			//}
+			String windchillString = "" ;
+			if (windchill != 666.0) {
+				windchillString = ".  Windchill " + String.format("%2.1fF/%2.1fC", new Object[] {windchill, fToC(windchill)}) ;
+				response += windchillString ;
+				if ((Double.parseDouble(temp_f) - windchill) > 5)
+					short_response += windchillString ;
+			}
 			if (! (sunrise_string.equals("") || sunset_string.equals(""))) {
 				short_response +=  ".  " + sun_report ;
 				response += ".  " + sun_report ;
 			}
 			if (0 != minutes_since_report) {
-				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station + "." ;
+				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station ;
 			}
-            if( 0 != scoreRounded ) {
-                short_response += "  Score: " + scoreRounded + ".";               
-            }
+            short_response += ".  Score " + scoreRounded + ".";               
             if (command.equalsIgnoreCase("fullweather")) {
 				return response;
 			} else {
@@ -451,11 +461,19 @@ public class Weather extends Module {
 		}
 		return ret ;
 	}
+	
+	public double windchill(double t, double v) {
+		return 35.74 + 0.6215*t - 35.75*(Math.pow(v, 0.16)) + 0.4275*t*(Math.pow(v,0.16)) ;
+	}
+	
+	public double fToC (double f) {
+		return (f - 32)*5/9;
+	}
 		
 	public static String[] getCommands() {
 		return new String[]{"weather", "fullweather"};
 	}
-
+	
 	public static void main(String[] args) {
 	}
 
