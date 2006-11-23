@@ -114,9 +114,9 @@ public class RandWords extends Module {
 			String returnpoop = "" ;
 			ArrayList words = getWords(num) ;
 			Iterator it = words.iterator() ;
-			while(it.hasNext()) {
-				returnpoop += it.next() + " " ;
-			}
+            for (Object word : words) {
+                returnpoop += word + " ";
+            }
 			return returnpoop.trim() ;
 		}
 	}

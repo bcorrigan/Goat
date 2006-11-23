@@ -55,8 +55,8 @@ public class SimpleAI implements AI {
     private boolean play(Player botPlayer, Game game) {
         ArrayList hand = botPlayer.getHand();
         Iterator it = hand.iterator();
-        while (it.hasNext()) {
-            Card card = (Card) it.next();
+        for (Object aHand : hand) {
+            Card card = (Card) aHand;
             if (card.canPlay(game)) {
                 game.play(botPlayer, card);
                 return true;

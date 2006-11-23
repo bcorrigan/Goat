@@ -53,8 +53,8 @@ public class Horoscope extends Module {
     public void processChannelMessage(Message m) {
         if (m.modTrailing.matches("\\s*")) {     //if just whitespace
             Iterator it = users.iterator();
-            while (it.hasNext()) {
-                HoroscopeUser user = (HoroscopeUser) it.next();
+            for (Object user1 : users) {
+                HoroscopeUser user = (HoroscopeUser) user1;
                 if (user.getName().equals(m.sender.toLowerCase())) {
                     m.createReply(user.getSign() + ": " + getReport(user)).send();
                     return;
@@ -74,8 +74,8 @@ public class Horoscope extends Module {
                 m.modTrailing.trim().toLowerCase().matches("aquarius") ||
                 m.modTrailing.trim().toLowerCase().matches("pisces")) {
             Iterator it = users.iterator();
-            while (it.hasNext()) {
-                HoroscopeUser user = (HoroscopeUser) it.next();
+            for (Object user1 : users) {
+                HoroscopeUser user = (HoroscopeUser) user1;
                 if (user.getName().equals(m.sender.toLowerCase())) {
                     user.setSign(m.modTrailing.split(" ")[0].toUpperCase());
                     commit();

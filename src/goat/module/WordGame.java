@@ -49,9 +49,9 @@ public class WordGame extends Module implements Runnable {
 				initGame();
 				String letterString = " ";
 				Iterator it = letters.iterator();
-				while (it.hasNext()) {
-					letterString += ((Character) it.next()).charValue() + " ";
-				}
+                for (Object letter : letters) {
+                    letterString += ((Character) letter).charValue() + " ";
+                }
 				m.createReply(Message.REVERSE + "***" + Message.REVERSE
 						+ " New Letters:" + Message.BOLD
 						+ letterString.toUpperCase()).send();
@@ -151,11 +151,11 @@ public class WordGame extends Module implements Runnable {
 
 	private boolean wordIsValid(String word) {
 		Iterator it = validWords.iterator();
-		while (it.hasNext()) {
-			String word2 = (String) it.next();
-			if (word2.toLowerCase().equals(word.toLowerCase()))
-				return true;
-		}
+        for (Object validWord : validWords) {
+            String word2 = (String) validWord;
+            if (word2.toLowerCase().equals(word.toLowerCase()))
+                return true;
+        }
 		return false;
 	}
 

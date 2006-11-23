@@ -205,8 +205,8 @@ public class Uno extends Module implements Output, Runnable {
         }
         LinkedList players = game.players;
         Iterator it = players.iterator();
-        while (it.hasNext()) {
-            Player player = (Player) it.next();
+        for (Object player1 : players) {
+            Player player = (Player) player1;
             if (player.getName().equals(name))
                 return player;
         }
@@ -219,8 +219,8 @@ public class Uno extends Module implements Output, Runnable {
             return null;
         ArrayList cards = player.getHand();
         Iterator it = cards.iterator();
-        while (it.hasNext()) {
-            Card playerCard = (Card) it.next();
+        for (Object card1 : cards) {
+            Card playerCard = (Card) card1;
             if (card.getColour() == playerCard.getColour() && card.getNumber() == playerCard.getNumber() && card.getType() == playerCard.getType())
                 return playerCard;
         }

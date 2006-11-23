@@ -45,8 +45,8 @@ public class Player {
     public int getScore() {
         score = 0;
         Iterator it = hand.iterator();
-        while (it.hasNext()) {
-            Card card = (Card) it.next();
+        for (Object aHand : hand) {
+            Card card = (Card) aHand;
             switch (card.getType()) {
                 case Card.NORMALCARD:
                     score += card.getNumber();

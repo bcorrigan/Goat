@@ -51,8 +51,8 @@ public class Adventure extends Module implements ZScreen, Runnable {
     public void processPrivateMessage(Message m) {
         if (m.modCommand.equals("adv")) {
             Iterator it = adventures.iterator();
-            while (it.hasNext()) {
-                Adventure adv = (Adventure) it.next();
+            for (Object adventure : adventures) {
+                Adventure adv = (Adventure) adventure;
                 if (adv.target.channame.equals(m.channame)) {
                     //this channel has a running adventure
                     //first we check for "save" and "restore" commands, because they are going to be treated specially
@@ -128,8 +128,8 @@ public class Adventure extends Module implements ZScreen, Runnable {
             }
         } else if (m.modCommand.equals("startadv")) {
             Iterator it = adventures.iterator();
-            while (it.hasNext()) {
-                Adventure adv = (Adventure) it.next();
+            for (Object adventure : adventures) {
+                Adventure adv = (Adventure) adventure;
                 if (adv.target.channame.equals(m.channame)) {
                     m.createReply("Umm, we seem to be already playing an Adventure game in here.").send();
                     return; //this channel already has a running adventure
@@ -164,8 +164,8 @@ public class Adventure extends Module implements ZScreen, Runnable {
             adv.zgameTh.start();
         } else if (m.modCommand.equals("stopadv")) {
             Iterator it = adventures.iterator();
-            while (it.hasNext()) {
-                Adventure adv = (Adventure) it.next();
+            for (Object adventure : adventures) {
+                Adventure adv = (Adventure) adventure;
                 if (adv.target.channame.equals(m.channame)) {
                     //this channel has a running adventure
                     adventures.remove(adv);
@@ -179,8 +179,8 @@ public class Adventure extends Module implements ZScreen, Runnable {
             listFiles(m);
         } else if (m.modCommand.equals("lssaves")) {
             Iterator it = adventures.iterator();
-            while (it.hasNext()) {
-                Adventure adv = (Adventure) it.next();
+            for (Object adventure : adventures) {
+                Adventure adv = (Adventure) adventure;
                 if (adv.target.channame.equals(m.channame)) {
                     listSaves(m, adv);
                     return;
