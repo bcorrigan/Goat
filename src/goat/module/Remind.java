@@ -55,11 +55,14 @@ public class Remind extends Module implements Runnable {
 
 
             GregorianCalendar cal;
+            String timeZone;
             if (! user.getTimeZone().equals("")) {
                 TimeZone tz = TimeZone.getTimeZone(user.getTimeZone());
                 cal = new GregorianCalendar(tz);
+                timeZone = user.getTimeZone();
             } else {
-                cal = new GregorianCalendar(TimeZone.getTimeZone("UTC")) ;
+                cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+                timeZone = "GMT";
             }
 
 
@@ -92,8 +95,8 @@ public class Remind extends Module implements Runnable {
 
             cal.setTimeInMillis( reminder.getDueTime() );
             
-            String date = String.format(Locale.UK, "%tc", cal);
-            m.createReply(m.sender + ": Okay, I'll remind " + replyName + " about that on " + date ).send();
+            String date = String.format(Locale.UK, "%1$td/%1$tm/%1$ty %1$tR", cal);
+            m.createReply(m.sender + ": Okay, I'll remind " + replyName + " about that on " + date + " " + timeZone).send();
             reminders.add(reminder);
             dispatchThread.interrupt();
         }
