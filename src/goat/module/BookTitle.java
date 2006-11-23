@@ -54,7 +54,7 @@ public class BookTitle extends Module {
 			String noun2 = getRandomNoun() ;
 			String adj = getRandomAdjective() ;
 			boolean noArg = false ;
-			if (arg.equals("") || arg.equals(null)) {
+			if (arg.equals("") || arg == null ) {
 				noArg = true ;
 			} else {
 				if (random.nextBoolean()) {

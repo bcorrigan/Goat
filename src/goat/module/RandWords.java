@@ -70,7 +70,7 @@ public class RandWords extends Module {
 		} else if (m.modCommand.equalsIgnoreCase("bandname")) {
 			String arg = m.modTrailing.trim() ;
 			String reply;
-			if (arg.equals("") || arg.equals(null)) {
+			if (arg.equals("") || arg == null ) {
 				reply = randWordString(2) ;
 			} else {
 				if (random.nextBoolean()) {
