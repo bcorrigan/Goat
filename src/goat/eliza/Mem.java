@@ -23,8 +23,7 @@ public class Mem {
     public String get() {
         if (memTop == 0) return null;
         String m = memory[0];
-        for (int i = 0; i < memTop-1; i++)
-            memory[i] = memory[i+1];
+        System.arraycopy(memory, 1, memory, 0, memTop - 1);
         memTop--;
         return m;
     }
