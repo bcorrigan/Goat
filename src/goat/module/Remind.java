@@ -117,7 +117,7 @@ public class Remind extends Module implements Runnable {
         return new String[]{"remind"};
     }
 
-    public double getPeriod(String periods, String regex) throws NumberFormatException {
+    private double getPeriod(String periods, String regex) throws NumberFormatException {
         Pattern pattern = Pattern.compile("^.*?([\\d\\.]+)\\s*(?i:(" + regex + ")).*$");
         Matcher m = pattern.matcher(periods);
         m = pattern.matcher(periods);
@@ -133,7 +133,7 @@ public class Remind extends Module implements Runnable {
     
     public synchronized void run() {
         boolean running = true;
-        while (running) {
+        while (true) {
 
             // If the list is empty, wait until something gets added.
             if (reminders.size() == 0) {
