@@ -36,27 +36,27 @@ public class Bible extends Module {
         
     
     public Bible() {
-        bibles.put("KJV", new Integer(9));      //King James Version
-        bibles.put("NIV", new Integer(31));     //New International Version
-        bibles.put("NASB", new Integer(49));    //New American Standard Bible
-        bibles.put("MSG", new Integer(65));     //The Message
-        bibles.put("AMP", new Integer(45));     //Amplified Bible
-        bibles.put("NLT", new Integer(51));     //New Living Translation
-        bibles.put("ESV", new Integer(47));     //English Standard Version
-        bibles.put("CEV", new Integer(46));     //Contemporary English Version
-        bibles.put("NKJV", new Integer(50));    //New King James Version
-        bibles.put("KJ21", new Integer(48));    //21st Century King James Version
-        bibles.put("ASV", new Integer(8));      //American Standard Version
-        bibles.put("YLT", new Integer(15));     //Young's Literal Translation
-        bibles.put("DARBY", new Integer(16));   //Darby Translation
-        bibles.put("NLV", new Integer(74));     //New Life Version
-        bibles.put("HCSB", new Integer(77));    //Holman Christian Standard Bible
-        bibles.put("NIRV", new Integer(76));    //New International Reader's Version
-        bibles.put("WNT", new Integer(53));     //Wycliffe New Testament
-        bibles.put("WE", new Integer(73));      //World English (New Testament)
-        bibles.put("NIVUK", new Integer(64));   //New International Version - UK
-        bibles.put("HCV", new Integer(23));     //Haitian Creole Version
-        bibles.put("LUTH1545", new Integer(10));//Martin Luther version
+        bibles.put("KJV", 9);      //King James Version
+        bibles.put("NIV", 31);     //New International Version
+        bibles.put("NASB", 49);    //New American Standard Bible
+        bibles.put("MSG", 65);     //The Message
+        bibles.put("AMP", 45);     //Amplified Bible
+        bibles.put("NLT", 51);     //New Living Translation
+        bibles.put("ESV", 47);     //English Standard Version
+        bibles.put("CEV", 46);     //Contemporary English Version
+        bibles.put("NKJV", 50);    //New King James Version
+        bibles.put("KJ21", 48);    //21st Century King James Version
+        bibles.put("ASV", 8);      //American Standard Version
+        bibles.put("YLT", 15);     //Young's Literal Translation
+        bibles.put("DARBY", 16);   //Darby Translation
+        bibles.put("NLV", 74);     //New Life Version
+        bibles.put("HCSB", 77);    //Holman Christian Standard Bible
+        bibles.put("NIRV", 76);    //New International Reader's Version
+        bibles.put("WNT", 53);     //Wycliffe New Testament
+        bibles.put("WE", 73);      //World English (New Testament)
+        bibles.put("NIVUK", 64);   //New International Version - UK
+        bibles.put("HCV", 23);     //Haitian Creole Version
+        bibles.put("LUTH1545", 10);//Martin Luther version
     }
     
     public int messageType() {

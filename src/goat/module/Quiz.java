@@ -92,7 +92,7 @@ public class Quiz extends Module implements Runnable {
             tip = new ArrayList(answer.length());
             for (int i = 0; i < answer.length(); i++) {
                 if (Character.isLetter(answer.charAt(i)))
-                    tip.add(new Integer(i));
+                    tip.add(i);
             }
             Collections.shuffle(tip);
         }

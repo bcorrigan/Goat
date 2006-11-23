@@ -169,10 +169,10 @@ public class CountDown extends Module implements Runnable {
         int[] bigPoolInts = {25, 50, 75, 100};
         int[] smallPoolInts = {1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10};
         for(int i=0; i<bigPoolInts.length; i++) {
-            bigPool.add( new Integer(bigPoolInts[i]));
+            bigPool.add(bigPoolInts[i]);
         }
         for(int i=0; i<smallPoolInts.length; i++) {
-            smallPool.add( new Integer(smallPoolInts[i]));
+            smallPool.add(smallPoolInts[i]);
         }
         //mix them up
         Collections.shuffle( bigPool );
@@ -250,7 +250,7 @@ public class CountDown extends Module implements Runnable {
         //first, create an ArrayList from sourceNumbers
         ArrayList sourceNumList = new ArrayList();
         for( int i=0; i<sourceNumbers.length; i++) {
-            sourceNumList.add( new Integer( sourceNumbers[i] ));
+            sourceNumList.add(sourceNumbers[i]);
         }
         for(int i=0; i<num.length;i++) {
             boolean removed = sourceNumList.remove( new Integer( num[i] ) );

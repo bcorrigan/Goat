@@ -197,7 +197,7 @@ public class WordGame extends Module implements Runnable {
 			longestPossible = word.length();
 			letters = new ArrayList(word.length());
 			for (int i = 0; i < word.length(); i++) {
-				letters.add(new Character(word.charAt(i)));
+				letters.add(word.charAt(i));
 			}
 			break;
 		}
