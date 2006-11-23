@@ -184,7 +184,7 @@ public class IRCLogger {
 			int ctcpCommandID = getID(ctcpCommand.toUpperCase(), ctcpCommandByName, ctcpCommandIdCache) ;
 			int botCommandID = getID(botCommand.toUpperCase(), botCommandByName, botCommandIdCache) ;
 			if (-1 == hostmaskID)
-				if ((null != hostmask) && ("" != hostmask))
+				if ((null != hostmask) && (!"".equals(hostmask)))
 					hostmaskID = addHostmask(hostmask) ;
 				else
 					hostmaskID = 0 ;
@@ -195,12 +195,12 @@ public class IRCLogger {
 			if (-1 == ircCommandID) 
 				ircCommandID = addIrcCommand(ircCommand) ;
 			if (-1 == ctcpCommandID)
-				if ((null != ctcpCommand) && ("" != ctcpCommand))
+				if ((null != ctcpCommand) && (!"".equals(ctcpCommand)))
 					ctcpCommandID = addCtcpCommand(ctcpCommand) ;
 				else
 					ctcpCommandID = 0 ;
 			if (-1 == botCommandID) 
-				if ((null != botCommand) && ("" != botCommand))
+				if ((null != botCommand) && (!"".equals(botCommand)))
 					botCommandID = addBotCommand(botCommand) ;
 				else
 					botCommandID = 0 ;
