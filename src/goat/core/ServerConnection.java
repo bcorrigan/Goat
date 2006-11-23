@@ -232,7 +232,7 @@ public class ServerConnection extends Thread {
 			 * for this in goat.core.Message, but my eyes go all swimmy when I
 			 * try to read that file. --rs
 			 */
-			/*Logger lm = (Logger) Goat.modController.get("Logger");
+			Logger lm = (Logger) Goat.modController.get("Logger");
 			int id;
 			if (null != lm) {
 				try {
@@ -250,7 +250,7 @@ public class ServerConnection extends Thread {
 						else
 							System.out.println("(Did not log outgoing " + m.command + " message)") ;
 					*/
-				/*} catch (SQLException e) {
+				} catch (SQLException e) {
 					System.out.println("ERROR -- DB problem while trying to log outgoing message");
 					e.printStackTrace();
 				}
@@ -261,7 +261,7 @@ public class ServerConnection extends Thread {
 				System.err.println("Couldn't find Logger module for outgoing message, skipping:");
 				System.err.println("   " + m.toString()) ;
 				
-			} */
+			}
 		}
         
         protected void setOSW( PrintWriter pw) {
