@@ -109,8 +109,8 @@ public class CurrencyConverter extends Module {
                 final List cubes = cubeTime.getChildren();
                 Element cube;
 
-                for (int i = 0; i < cubes.size(); i++) {
-                    cube = (Element) cubes.get(i);
+                for (Object cube1 : cubes) {
+                    cube = (Element) cube1;
                     EXCHANGE_RATES.put(cube.getAttribute("currency").getValue(), cube.getAttribute("rate").getValue());
                 }
 

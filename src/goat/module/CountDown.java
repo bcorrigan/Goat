@@ -168,11 +168,11 @@ public class CountDown extends Module implements Runnable {
         smallPool = new ArrayList();
         int[] bigPoolInts = {25, 50, 75, 100};
         int[] smallPoolInts = {1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10};
-        for(int i=0; i<bigPoolInts.length; i++) {
-            bigPool.add(bigPoolInts[i]);
+        for (int bigPoolInt : bigPoolInts) {
+            bigPool.add(bigPoolInt);
         }
-        for(int i=0; i<smallPoolInts.length; i++) {
-            smallPool.add(smallPoolInts[i]);
+        for (int smallPoolInt : smallPoolInts) {
+            smallPool.add(smallPoolInt);
         }
         //mix them up
         Collections.shuffle( bigPool );
@@ -240,8 +240,8 @@ public class CountDown extends Module implements Runnable {
     //TODO move to some sort of goat-wide util class?
     private String formatNumbers(int[] numbers) {
         String formattedResponse = "";
-        for( int i=0; i<numbers.length; i++) {
-            formattedResponse += numbers[i] + " ";
+        for (int number : numbers) {
+            formattedResponse += number + " ";
         }
         return formattedResponse;
     }
@@ -249,12 +249,12 @@ public class CountDown extends Module implements Runnable {
     private boolean numbersCorrect( int[] num ) {
         //first, create an ArrayList from sourceNumbers
         ArrayList sourceNumList = new ArrayList();
-        for( int i=0; i<sourceNumbers.length; i++) {
-            sourceNumList.add(sourceNumbers[i]);
+        for (int sourceNumber : sourceNumbers) {
+            sourceNumList.add(sourceNumber);
         }
-        for(int i=0; i<num.length;i++) {
-            boolean removed = sourceNumList.remove( new Integer( num[i] ) );
-            if(!removed)
+        for (int aNum : num) {
+            boolean removed = sourceNumList.remove(new Integer(aNum));
+            if (!removed)
                 return false;
         }
         return true;

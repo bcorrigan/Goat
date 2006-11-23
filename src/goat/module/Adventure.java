@@ -198,8 +198,8 @@ public class Adventure extends Module implements ZScreen, Runnable {
         // String reply = ""; // unused
         // int counter = 0; //unused
         String slots = "";
-        for (int i = 0; i < files.length; i++) {
-            String[] parts = files[i].getName().split("\\."); //parts of the file name
+        for (File file1 : files) {
+            String[] parts = file1.getName().split("\\."); //parts of the file name
             if (parts[0].equals(adv.gameName))
                 if (parts[1].equals(m.channame))
                     slots += " " + parts[3] + ")" + parts[2];
@@ -213,11 +213,11 @@ public class Adventure extends Module implements ZScreen, Runnable {
         File[] files = file.listFiles();
         String reply = "";
         int counter = 0;
-        for (int i = 0; i < files.length; i++)
-            if (!files[i].isDirectory())
-                if (files[i].getName().endsWith(".z3") || files[i].getName().endsWith(".z5")) {
+        for (File file1 : files)
+            if (!file1.isDirectory())
+                if (file1.getName().endsWith(".z3") || file1.getName().endsWith(".z5")) {
                     counter++;
-                    String fileName = files[i].getName().replaceAll("\\.z3", "").replaceAll("\\.z5", "");
+                    String fileName = file1.getName().replaceAll("\\.z3", "").replaceAll("\\.z5", "");
                     fileName = fileName.replaceAll("_", " ");
                     reply += counter + ") " + fileName + " ";
                 }
@@ -230,12 +230,12 @@ public class Adventure extends Module implements ZScreen, Runnable {
         File file = new File("resources/adventureData");
         File[] files = file.listFiles();
         int counter = 0;
-        for (int i = 0; i < files.length; i++)
-            if (!files[i].isDirectory())
-                if (files[i].getName().endsWith(".z3") || files[i].getName().endsWith(".z5")) {
+        for (File file1 : files)
+            if (!file1.isDirectory())
+                if (file1.getName().endsWith(".z3") || file1.getName().endsWith(".z5")) {
                     counter++;
                     if (counter == zmNum)
-                        return files[i];
+                        return file1;
                 }
         return null;
     }
@@ -386,12 +386,12 @@ public class Adventure extends Module implements ZScreen, Runnable {
     public boolean Save(byte state[]) {
         File file = new File("resources/adventureData/saves");
         File[] files = file.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            String[] parts = files[i].getName().split("\\."); //parts of the file name
+        for (File file1 : files) {
+            String[] parts = file1.getName().split("\\."); //parts of the file name
             if (parts[0].equals(gameName))
                 if (parts[1].equals(target.channame))
                     if (parts[3].equals(Integer.toString(saveSlot))) {
-                        file = files[i];                             //slot is taken! delete old occupant of slot
+                        file = file1;                             //slot is taken! delete old occupant of slot
                         file.delete();
                     }
         }
@@ -414,12 +414,12 @@ public class Adventure extends Module implements ZScreen, Runnable {
 
         File file = new File("resources/adventureData/saves");
         File[] files = file.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            String[] parts = files[i].getName().split("\\."); //parts of the file name
+        for (File file1 : files) {
+            String[] parts = file1.getName().split("\\."); //parts of the file name
             if (parts[0].equals(gameName))
                 if (parts[1].equals(target.channame))
                     if (parts[3].equals(Integer.toString(loadSlot)))
-                        file = files[i];
+                        file = file1;
         }
 
 //File file = new File("resources/adventureData/saves/" + gameName + "." + target.channame + "." + loadSlot);

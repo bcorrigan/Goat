@@ -171,11 +171,11 @@ public class ShutUp extends Module {
 
 	private int score(String target, String[] triggers) {
 		int ret = 0;
-		for(int i=0;i<triggers.length;i++) {
-			if (target.toLowerCase().contains(triggers[i].toLowerCase()))
-				ret++ ;
-		}
-		return ret;
+        for (String trigger : triggers) {
+            if (target.toLowerCase().contains(trigger.toLowerCase()))
+                ret++;
+        }
+        return ret;
 	}
 
 	private String pickRandom(String[] strings) {

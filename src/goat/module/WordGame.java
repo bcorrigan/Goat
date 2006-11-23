@@ -119,35 +119,35 @@ public class WordGame extends Module implements Runnable {
 		//tokenise message into an array of words
 		String[] words = m.trailing.split("[\\s,.;]+");
 		ArrayList correctWords = new ArrayList();
-		for (int i = 0; i < words.length; i++) {
-			if (dict.contains(words[i].toLowerCase())) {
-				if (wordIsValid(words[i])) {
-					correctWords.add(words[i].toLowerCase());
-					if (currentWinning != null) {
-						if (currentWinning[ANSWER].length() < words[i].length()) {
-							currentWinning[NAME] = m.sender;
-							currentWinning[ANSWER] = words[i].toLowerCase();
-							score();
-							m.createReply(m.sender + " steals the lead with " + words[i].toLowerCase()
-									+ ". score: " + score).send();
-						}
-					} else {
-						currentWinning = new String[3];
-						currentWinning[NAME] = m.sender;
-						currentWinning[ANSWER] = words[i].toLowerCase();
-						score();
-						m.createReply(m.sender + " sets the pace with " + words[i].toLowerCase()
-								+ ". score:" + score).send();
-					}
-					if (words[i].length() == longestPossible) {
-						//We have a winner!
-						m.createReply(m.sender + " WINS IT!!").send();
-						finaliseGame(m);
-					}
-				}
-			}
-		}
-	}
+        for (String word : words) {
+            if (dict.contains(word.toLowerCase())) {
+                if (wordIsValid(word)) {
+                    correctWords.add(word.toLowerCase());
+                    if (currentWinning != null) {
+                        if (currentWinning[ANSWER].length() < word.length()) {
+                            currentWinning[NAME] = m.sender;
+                            currentWinning[ANSWER] = word.toLowerCase();
+                            score();
+                            m.createReply(m.sender + " steals the lead with " + word.toLowerCase()
+                                    + ". score: " + score).send();
+                        }
+                    } else {
+                        currentWinning = new String[3];
+                        currentWinning[NAME] = m.sender;
+                        currentWinning[ANSWER] = word.toLowerCase();
+                        score();
+                        m.createReply(m.sender + " sets the pace with " + word.toLowerCase()
+                                + ". score:" + score).send();
+                    }
+                    if (word.length() == longestPossible) {
+                        //We have a winner!
+                        m.createReply(m.sender + " WINS IT!!").send();
+                        finaliseGame(m);
+                    }
+                }
+            }
+        }
+    }
 
 	private boolean wordIsValid(String word) {
 		Iterator it = validWords.iterator();

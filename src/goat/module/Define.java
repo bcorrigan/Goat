@@ -134,13 +134,13 @@ public class Define extends Module {
    			// Check to see if we were given a valid dictionary
    			if(! dictionary.equals("*")) {
    				boolean found = false ;
-             for (int i=0; i<dbList.length ;i++) {
-                if (dictionary.equals(dbList[i][0])) {
-                   found = true ;
-                   break ;
-                }
-             }
-   				if( ! found ) {
+                   for (String[] aDbList : dbList) {
+                       if (dictionary.equals(aDbList[0])) {
+                           found = true;
+                           break;
+                       }
+                   }
+                   if( ! found ) {
    					m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
    					dictionaries(m) ;
    					return ;
@@ -172,9 +172,8 @@ public class Define extends Module {
 				m.createPagedReply(reply + "  Couldn't find any alternate spelling suggestions.").send() ;
 			} else {
 				String suggestions = "" ;
-				for(int i=0;i<matchList.length;i++) 
-					suggestions += " " + matchList[i][1] ;
-				suggestions = suggestions.replaceAll("\"", "") ;
+                for (String[] aMatchList : matchList) suggestions += " " + aMatchList[1];
+                suggestions = suggestions.replaceAll("\"", "") ;
 				suggestions = suggestions.trim() ;
 				m.createPagedReply(reply + "  Suggestions: " + suggestions).send() ;
 			}
@@ -200,17 +199,17 @@ public class Define extends Module {
 			Definition thisDef = (Definition) definitionList.get(0) ;
 			String thisDict = thisDef.getDatabaseShort() ;
 			String msg = "Definitions available: " + thisDict + "(" ;
-			for(int i=0;i<definitionList.size();i++) {
-				thisDef = (Definition) definitionList.get(i) ;
-				if (! thisDict.equals(thisDef.getDatabaseShort())) {
-					thisDict = thisDef.getDatabaseShort() ;
-					msg += perDict + ") " + thisDict + "(" ;
-					perDict = 1 ;
-				} else {
-					perDict++ ;
-				}
-			}
-			msg += perDict + ")" ;
+            for (Object aDefinitionList : definitionList) {
+                thisDef = (Definition) aDefinitionList;
+                if (!thisDict.equals(thisDef.getDatabaseShort())) {
+                    thisDict = thisDef.getDatabaseShort();
+                    msg += perDict + ") " + thisDict + "(";
+                    perDict = 1;
+                } else {
+                    perDict++;
+                }
+            }
+            msg += perDict + ")" ;
 			m.createReply(msg).send() ;
 		}
 	}
@@ -392,13 +391,13 @@ public class Define extends Module {
 		String[][] dbList = dc.getDatabases() ;
 		dc.close() ;
 		String line = "" ;
-		for (int i = 0; i < dbList.length ; i++) {
-			if (line.equals(""))
-				line = dbList[i][0] ;
-			else
-				line = line + ", " + dbList[i][0] ;
-		}
-      line += ", urban, oed" ;
+        for (String[] aDbList : dbList) {
+            if (line.equals(""))
+                line = aDbList[0];
+            else
+                line = line + ", " + aDbList[0];
+        }
+        line += ", urban, oed" ;
 		m.createPagedReply(line).send() ;
 	}
 	
@@ -418,18 +417,18 @@ public class Define extends Module {
          found = true ;
       }
       else {
-         for (int i = 0; i < dbList.length ; i++ ) {
-            if (dbList[i][0].equals(code)) {
-               found = true ;
-               line = code + ": " + dbList[i][1] ;
-            	break ;
-   			}
-      		if (line.equals(""))
-         		line = dbList[i][0] ;
-   			else
-      			line = line + ", " + dbList[i][0] ;
-         	line = line.trim() ;
-         }
+          for (String[] aDbList : dbList) {
+              if (aDbList[0].equals(code)) {
+                  found = true;
+                  line = code + ": " + aDbList[1];
+                  break;
+              }
+              if (line.equals(""))
+                  line = aDbList[0];
+              else
+                  line = line + ", " + aDbList[0];
+              line = line.trim();
+          }
       }
 		if (! found) 
 			line = "Dictionary \"" + code + "\" not found; available dictionaries: " + line ;
@@ -457,10 +456,10 @@ public class Define extends Module {
 		System.out.println("Starting main()") ;
 		String[][] dbList = dc.getDatabases() ;
 		String line = "" ;
-		for (int i = 0 ; i < dbList.length ; i++) {
-			line = line + " " + dbList[i][0] ;
-		}
-		line = line.trim() ;
+        for (String[] aDbList : dbList) {
+            line = line + " " + aDbList[0];
+        }
+        line = line.trim() ;
 		System.out.println(line) ;
 		dc.close() ;
 	}

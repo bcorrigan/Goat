@@ -53,8 +53,8 @@ public class Auth extends Module {
         byte[] digest = d.digest();
         byte current, hibits, lobits;
         String out = "";
-        for (int i = 0; i < digest.length; i++) {
-            current = digest[i];
+        for (byte aDigest : digest) {
+            current = aDigest;
             hibits = (byte) ((current & 0xf0) >> 4);
             lobits = (byte) (current & 0x0f);
             out += Integer.toString((int) hibits, 16);
@@ -103,8 +103,8 @@ public class Auth extends Module {
         }
         byte current, hibits, lobits;
         String out = "";
-        for (int i = 0; i < digest.length; i++) {
-            current = digest[i];
+        for (byte aDigest : digest) {
+            current = aDigest;
             hibits = (byte) ((current & 0xf0) >> 4);
             lobits = (byte) (current & 0x0f);
             out += Integer.toString((int) hibits, 16);

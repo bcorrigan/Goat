@@ -42,15 +42,15 @@ public class Uno extends Module implements Output, Runnable {
         if (waiting || playing)
             if (m.modCommand.equals("botjoin")) {
                 String[] botNames = m.modTrailing.split(" ");
-                for (int i = 0; i < botNames.length; i++) { 
-                    if (getPlayer(botNames[i]) == null) {
+                for (String botName : botNames) {
+                    if (getPlayer(botName) == null) {
                         if (game.players.size() > 10) {
                             m.createReply("Fuck off, we're full. ").send();
                             return;
                         }
-						if(botNames[i].trim().length() == 0) 
-							continue;
-                        game.join(botNames[i], true);
+                        if (botName.trim().length() == 0)
+                            continue;
+                        game.join(botName, true);
                         hasJoined = true;
                     }
                 }
@@ -380,14 +380,14 @@ public class Uno extends Module implements Output, Runnable {
         target.createReply(Message.BOLD + player.getName() + Message.YELLOW + " has won Uno!!!").send();
         target.createReply(Message.BOLD + player.getName() + Message.YELLOW + " got " + score + " points.").send();
         target.createReply("This is everybody's hand: ").send();
-        for (int i = 0; i < players.length; i++) {
-            ArrayList hand = players[i].getHand();
+        for (Player player1 : players) {
+            ArrayList hand = player1.getHand();
             Iterator it = hand.iterator();
             String cards = "";
             while (it.hasNext()) {
                 cards += getStringForCard((Card) it.next()) + ' ';
             }
-            target.createReply(NORMAL + Message.BOLD + players[i].getName() + Message.BOLD + ": " + cards).send();
+            target.createReply(NORMAL + Message.BOLD + player1.getName() + Message.BOLD + ": " + cards).send();
         }
         playing = false;
     }
@@ -468,8 +468,7 @@ public class Uno extends Module implements Output, Runnable {
             longReply += Message.BOLD + player.getName() + Message.BOLD + " draws " + cards.length + " cards. ";
         if(player.isABot)
             return;
-        for (int i = 0; i < cards.length; i++)
-            reply += ' ' + getStringForCard(cards[i]);
+        for (Card card : cards) reply += ' ' + getStringForCard(card);
         new Message("", "NOTICE", player.getName(), NORMAL + "You drew:" + reply).send();
     }
 
