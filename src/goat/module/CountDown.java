@@ -156,11 +156,9 @@ public class CountDown extends Module implements Runnable {
         attempt = attempt.replaceAll("\\)", "");  //strip )
         attempt = attempt.replaceAll("\\(", "");  //strip (
         attempt = attempt.replaceAll(" ", "");  //zap spaces
-        
-        if(attempt.length()>0)
-            return false;
-        return true;
-    }
+
+        return attempt.length() <= 0;
+        }
     
     /**
      * Fill each ArrayList with Integers representing the pools of big and small numbers

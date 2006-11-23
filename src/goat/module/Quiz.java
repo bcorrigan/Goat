@@ -116,10 +116,8 @@ public class Quiz extends Module implements Runnable {
     }
 
     private boolean canTip() {
-        if (tip == null || tip.size() == 0)
-            return false;
-        return true;
-    }
+        return !(tip == null || tip.size() == 0);
+        }
 
     private String getNewQuestion() {
         try {
