@@ -56,17 +56,12 @@ public class BotStats {
 	}
 
 	public static synchronized boolean containsChannel(String chan) {
-		if (channels.contains(chan))
-			return true;
-		return false;
-	}
+        return channels.contains(chan);
+		}
 
 	public static boolean isValidChannelName(String chan) {
-		if ((chan.startsWith("#") || chan.startsWith("+") || chan.startsWith("&")) && !(chan.matches(":") || chan.matches(",") || chan.matches("\u0007") || chan.matches(" "))) {
-			return true;
+        return (chan.startsWith("#") || chan.startsWith("+") || chan.startsWith("&")) && !(chan.matches(":") || chan.matches(",") || chan.matches("\u0007") || chan.matches(" "));
 		}
-		return false;
-	}
 
 	/**
 	 * Call to set the charset in use by goat
