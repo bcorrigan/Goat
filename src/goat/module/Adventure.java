@@ -305,8 +305,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
     //convert data to a String, send it out
     public void Print(char data[], int len) {
         char[] outData = new char[len];
-        for (int i = 0; i < len; i++)
-            outData[i] = data[i];
+        System.arraycopy(data, 0, outData, 0, len);
         String m = new String(outData);
         if (!m.startsWith(">"))
             buffer += m;
@@ -342,8 +341,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
             }
         String line = (String) input.removeFirst();
         char[] newBuffer = line.toCharArray();
-        for (int i = 0; i < newBuffer.length; i++)
-            buffer[i] = newBuffer[i];
+        System.arraycopy(newBuffer, 0, buffer, 0, newBuffer.length);
         return line.length();
     }
 
