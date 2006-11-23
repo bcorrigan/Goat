@@ -20,13 +20,13 @@ import java.util.*;
 import java.util.regex.*;
 import java.io.*;
 
-import goat.core.Module;
-import goat.core.Message;
+import goat.core.*;
 import goat.util.Reminder;
 
 public class Remind extends Module implements Runnable {
 
     private static final String REMINDER_FILE = "resources/reminders";
+    private static goat.core.Users users;	//all the users
     
     public Remind() {
         loadReminders();
@@ -34,10 +34,16 @@ public class Remind extends Module implements Runnable {
         //setAutoNickChange(true);
         dispatchThread = new Thread(this);
         dispatchThread.start();
+        users = goat.Goat.getUsers() ;
     }
     
     public void processChannelMessage(Message m) {
-
+        User user ;
+		if (users.hasUser(m.sender)) {
+			user = users.getUser(m.sender) ;
+		} else {
+			user = new User(m.sender) ;
+		}
         Pattern messagePattern = Pattern.compile("^\\s*\\w*\\s+in\\s+(((\\d+\\.?\\d*|\\.\\d+)\\s+(weeks?|days?|hours?|hrs?|minutes?|mins?|seconds?|secs?)[\\s,]*(and)?\\s+)+)(.*)\\s*$");
         Matcher matcher = messagePattern.matcher(m.modTrailing);
         if (matcher.matches()) {
@@ -46,6 +52,17 @@ public class Remind extends Module implements Runnable {
             
             long set = System.currentTimeMillis();
             long due = set;
+
+
+            GregorianCalendar cal;
+            if (! user.getTimeZone().equals("")) {
+                TimeZone tz = TimeZone.getTimeZone(user.getTimeZone());
+                cal = new GregorianCalendar(tz);
+            } else {
+                cal = new GregorianCalendar(TimeZone.getTimeZone("UTC")) ;
+            }
+
+
 
             try {
                 double weeks = getPeriod(periods, "weeks|week");
@@ -72,7 +89,11 @@ public class Remind extends Module implements Runnable {
                 replyName = "you";
             else
                 replyName = name;
-            m.createReply(m.sender + ": Okay, I'll remind " + replyName + " about that on " + new Date(reminder.getDueTime())).send();
+
+            cal.setTimeInMillis( reminder.getDueTime() );
+            
+            String date = String.format(Locale.UK, "%tc", cal);
+            m.createReply(m.sender + ": Okay, I'll remind " + replyName + " about that on " + date ).send();
             reminders.add(reminder);
             dispatchThread.interrupt();
         }
