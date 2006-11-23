@@ -547,10 +547,10 @@ public class IRCLogger {
 			hostmaskIdCache, hostmaskCache, ircCommandIdCache, 
 			ctcpCommandIdCache, botCommandIdCache} ;
 		int ret = 0;
-		for (int i=0; i<caches.length; i++) {
-			ret += caches[i].size() ;
-		}
-		return ret;
+        for (HashMap cache : caches) {
+            ret += cache.size();
+        }
+        return ret;
 	}
 		
 	

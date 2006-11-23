@@ -376,8 +376,8 @@ public class DICTClient {
         String buf;
         
         word = removeQuotationMarks(word);
-        for (int i = 0; i < databases.length; i++) {
-            send(DEFINE_COMMAND + " " + databases[i] + " \"" + word + "\"");
+        for (String database : databases) {
+            send(DEFINE_COMMAND + " " + database + " \"" + word + "\"");
             buf = receive();
             if (buf == null) {
                 connect();
@@ -385,9 +385,9 @@ public class DICTClient {
             } else if (buf.startsWith(NO_MATCH_RESPONSE)) {
                 continue;
             } else if (buf.startsWith(DEFINITIONS_FOUND_RESPONSE)) {
-                for (buf = receive(); 
-                        !buf.startsWith(COMMAND_COMPLETED_RESPONSE); 
-                        buf = receive()) {
+                for (buf = receive();
+                     !buf.startsWith(COMMAND_COMPLETED_RESPONSE);
+                     buf = receive()) {
                     StringBuffer def = new StringBuffer();
                     Definition completeDef;
                     String returnedWord, dict, description;
@@ -397,7 +397,7 @@ public class DICTClient {
                     dict = buf.substring(0, buf.indexOf(" ")).trim();
                     buf = buf.substring(buf.indexOf(" ")).trim();
                     description = buf.trim();
-                    for (buf = receive(); !buf.startsWith(".") || 
+                    for (buf = receive(); !buf.startsWith(".") ||
                             buf.startsWith(".."); buf = receive()) {
                         if (buf.startsWith("..")) {
                             buf = buf.substring(1);
@@ -405,17 +405,17 @@ public class DICTClient {
                         def.append(buf + "\n");
                     }
                     def = removeEndNewlines(def);
-                    completeDef = new Definition(dict, description, 
+                    completeDef = new Definition(dict, description,
                             returnedWord, def.toString());
                     result.add(completeDef);
                 }
             } else if (buf.startsWith(INVALID_DATABASE_RESPONSE)) {
-                throw new IllegalArgumentException("Invalid database: " + 
-                        databases[i]);
+                throw new IllegalArgumentException("Invalid database: " +
+                        database);
             } else {
                 throw new ConnectException(
-                    "Error connecting to server, following response received: " 
-                    + buf);
+                        "Error connecting to server, following response received: "
+                                + buf);
             }
         }
         return result;
@@ -428,8 +428,8 @@ public class DICTClient {
         String buf;
         
         word = removeQuotationMarks(word);
-        for (int i = 0; i < databases.length; i++) {
-            send(MATCH_COMMAND + " " + databases[i] + " " + strategy + " \"" + 
+        for (String database : databases) {
+            send(MATCH_COMMAND + " " + database + " " + strategy + " \"" +
                     word + "\"");
             buf = receive();
             if (buf == null) {
@@ -437,7 +437,7 @@ public class DICTClient {
                 return receiveMatches(databases, strategy, word);
             } else if (buf.startsWith(MATCHES_FOUND_RESPONSE)) {
                 buf = buf.substring(buf.indexOf(" ")).trim();
-                int numMatches = Integer.parseInt(buf.substring(0, 
+                int numMatches = Integer.parseInt(buf.substring(0,
                         buf.indexOf(" ")));
                 subResult = new String[numMatches][2];
                 for (int j = 0; j < numMatches; j++) {
@@ -445,31 +445,31 @@ public class DICTClient {
                     subResult[j][0] = buf.substring(0, buf.indexOf(" "));
                     subResult[j][1] = buf.substring(buf.indexOf(" ")).trim();
                 }
-                
+
                 // next line should be "." to signify end
                 buf = receive();
                 if (!buf.equals(".")) {
-                    throw new RuntimeException("Supposed to be " + numMatches + 
+                    throw new RuntimeException("Supposed to be " + numMatches +
                             " matches only, but server returns more");
                 }
-                
+
                 // next line should be return code 250
                 buf = receive();
-                
+
             } else if (buf.startsWith(NO_MATCH_RESPONSE)) {
                 continue;
             } else if (buf.startsWith(INVALID_DATABASE_RESPONSE)) {
-                throw new IllegalArgumentException("Invalid database: " + 
-                        databases[i]);
+                throw new IllegalArgumentException("Invalid database: " +
+                        database);
             } else if (buf.startsWith(INVALID_STRATEGY_REPONSE)) {
-                throw new IllegalArgumentException("Invalid strategy: " + 
+                throw new IllegalArgumentException("Invalid strategy: " +
                         strategy);
             } else {
                 throw new ConnectException(
-                    "Error connecting to server, following response received: "
-                    + buf);
+                        "Error connecting to server, following response received: "
+                                + buf);
             }
-            
+
             // add new results to the existing ones
             int totalMatches = finalResult.length + subResult.length;
             String[][] tempResult = new String[totalMatches][2];

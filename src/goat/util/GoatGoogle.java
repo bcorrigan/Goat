@@ -247,13 +247,13 @@ public class GoatGoogle extends GoogleSearch {
       if (intersection.length == 0)
          return intersection ;
       int length = 0 ;
-      for(int i = 0; i < a.length ; i++)
-         for(int j = 0; j < b.length ; j++)
-            if (a[i].getURL().equals(b[j].getURL())) {
-               intersection[length++] = a[i] ;
-               break ;
-            }
-      GoogleSearchResultElement [] ret = new GoogleSearchResultElement[length] ;
+       for (GoogleSearchResultElement anA : a)
+           for (int j = 0; j < b.length; j++)
+               if (anA.getURL().equals(b[j].getURL())) {
+                   intersection[length++] = anA;
+                   break;
+               }
+       GoogleSearchResultElement [] ret = new GoogleSearchResultElement[length] ;
       if (0 == length)
          return ret ;
       System.arraycopy(intersection, 0, ret, 0, length) ;

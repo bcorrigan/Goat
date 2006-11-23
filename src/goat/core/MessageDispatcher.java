@@ -82,12 +82,12 @@ public class MessageDispatcher {
 		while(it.hasNext()) {
 			mod = it.next();
 			String [] commands = Module.getCommands(mod.getClass()) ;
-			for (int j = 0; j < commands.length; j++)
-				if (commands[j].equalsIgnoreCase(msg.modCommand)) {
-					sendIfChannelsMatch(msg, mod);
-					used = true;
-				}
-		}
+            for (String command : commands)
+                if (command.equalsIgnoreCase(msg.modCommand)) {
+                    sendIfChannelsMatch(msg, mod);
+                    used = true;
+                }
+        }
 
 		if (!used) {
 			it = modulesWantingSome.iterator();

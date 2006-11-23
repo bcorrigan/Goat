@@ -380,9 +380,8 @@ public class GoatDB {
 				*/
 				
 				System.out.print("Dropping tables:  ") ;
-				for(int i=0; i < tables.length; i++) 
-					System.out.print(tables[i] + " ") ;
-				System.out.println() ;
+                for (String table1 : tables) System.out.print(table1 + " ");
+                System.out.println() ;
 				
 				/*
 				 * This block is a big ol' debugging dump, for getting a handle on 
@@ -437,9 +436,8 @@ public class GoatDB {
 				}
 				*/
 
-				for (int i=0; i<tables.length; i++)
-					st.addBatch(dropTableSQL(tables[i])) ;
-				st.executeBatch() ;
+                for (String table : tables) st.addBatch(dropTableSQL(table));
+                st.executeBatch() ;
 				conn.commit() ;
 				conn.setAutoCommit(true) ;
 				success = true ;
@@ -496,12 +494,12 @@ public class GoatDB {
 	public boolean hasTable(String table, Connection c) {
 		boolean found = false ;
 		String [] tables = getTableNames() ;
-		for (int i=0; i<tables.length; i++)
-			if (table.equalsIgnoreCase(tables[i])) {
-				found = true;
-				break;
-			}
-		return found;
+        for (String table1 : tables)
+            if (table.equalsIgnoreCase(table1)) {
+                found = true;
+                break;
+            }
+        return found;
 	}
 	
 	public String [] getProcNames() {
@@ -620,10 +618,9 @@ public class GoatDB {
 			Statement st = conn.createStatement() ;
 			//PreparedStatement ps = conn.prepareStatement(sqlblock) ;
 			//ps.execute() ;
-			
-			for (int i=0; i<statements.length; i++)
-				st.addBatch(statements[i]) ;
-			st.executeBatch() ;
+
+            for (String statement : statements) st.addBatch(statement);
+            st.executeBatch() ;
 			//st.execute(sqlblock) ;
 			conn.commit() ;
 			conn.setAutoCommit(true) ;

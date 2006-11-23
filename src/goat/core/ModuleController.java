@@ -134,9 +134,9 @@ public class ModuleController  {
         	}
         }
         Collections.sort(allModules) ;
-        System.out.println("Available Modules: ") ; 
-        for(int i=0; i<allModules.size(); i++) {
-        	System.out.println("   " + allModules.get(i)) ;
+        System.out.println("Available Modules: ") ;
+        for (String allModule : allModules) {
+            System.out.println("   " + allModule);
         }
         System.out.println() ;
 	}
@@ -153,33 +153,33 @@ public class ModuleController  {
 		//this has to be called after the allModules list it built.  With buildAllModulesList().
 		HashMap<String, String> commands = new HashMap<String, String>() ;
 		boolean collisions = false ;
-		for(int i=0; i<allModules.size(); i++ ) {
-			Class modClass ;
-			try {
-				modClass = Class.forName(allModules.get(i)) ;
-			} catch (ClassNotFoundException e) {
-				System.err.println("Couldn't find module class: " + allModules.get(i)) ;
-				e.printStackTrace() ;
-				continue ;
-			}
-    		String [] modCommands = Module.getCommands(modClass) ;
-    		for(int j=0; j<modCommands.length; j++) {
-    			if(commands.containsKey(modCommands[j])) {
-    				commands.put(modCommands[j], commands.get(modCommands[j]) + ", " + allModules.get(i)) ;
-    				collisions = true ;
-    			} else {
-    				commands.put(modCommands[j], allModules.get(i)) ;
-    			}
-    		}
-		}
-		allCommands.addAll(commands.keySet()) ;
+        for (String allModule : allModules) {
+            Class modClass;
+            try {
+                modClass = Class.forName(allModule);
+            } catch (ClassNotFoundException e) {
+                System.err.println("Couldn't find module class: " + allModule);
+                e.printStackTrace();
+                continue;
+            }
+            String[] modCommands = Module.getCommands(modClass);
+            for (String modCommand : modCommands) {
+                if (commands.containsKey(modCommand)) {
+                    commands.put(modCommand, commands.get(modCommand) + ", " + allModule);
+                    collisions = true;
+                } else {
+                    commands.put(modCommand, allModule);
+                }
+            }
+        }
+        allCommands.addAll(commands.keySet()) ;
 		Collections.sort(allCommands) ;
 		if (collisions) {
 			System.out.println("WARNING: multiple modules with same command detected: ") ;
-			for(int i=0; i<allCommands.size(); i++) 
-				if(commands.get(allCommands.get(i)).contains(","))
-					System.out.println("   \"" + allCommands.get(i) + "\" :  " + commands.get(allCommands.get(i))) ;
-			System.out.println() ;
+            for (String allCommand : allCommands)
+                if (commands.get(allCommand).contains(","))
+                    System.out.println("   \"" + allCommand + "\" :  " + commands.get(allCommand));
+            System.out.println() ;
 		}
 	}
 	
@@ -206,13 +206,13 @@ public class ModuleController  {
 	
 	public boolean stringInArray(String s, String [] array) {
 		boolean found = false ;
-		for (int i = 0; i < array.length; i++) {
-			if(s.equalsIgnoreCase(array[i])) {
-				found = true ;
-				break ;
-			}
-		}
-		return found ;
+        for (String anArray : array) {
+            if (s.equalsIgnoreCase(anArray)) {
+                found = true;
+                break;
+            }
+        }
+        return found ;
 	}
 	
 	public boolean isCommand(String s) {

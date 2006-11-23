@@ -66,42 +66,42 @@ public class Goat {
 	private static void parseArgs(String[] args) {
 		int state = 0;
 
-		for (int i = 0; i < args.length; i++) {
-			switch (state) {
-				//start case
-				case 0:
-					if (args[i].equals("-name")) {
-						state = 1;
-					} else if (args[i].equals("-channel")) {
-						state = 2;
-					} else if (args[i].equals("-host")) {
-						state = 3;
-					} else if (args[i].equals("-help")) {
-						showhelp = true;
-					} else {
-						System.out.println("Illegal argument.");
-						showhelp = true;
-					}
-					break;
+        for (String arg : args) {
+            switch (state) {
+                //start case
+                case 0:
+                    if (arg.equals("-name")) {
+                        state = 1;
+                    } else if (arg.equals("-channel")) {
+                        state = 2;
+                    } else if (arg.equals("-host")) {
+                        state = 3;
+                    } else if (arg.equals("-help")) {
+                        showhelp = true;
+                    } else {
+                        System.out.println("Illegal argument.");
+                        showhelp = true;
+                    }
+                    break;
 
-				case 1:
-					BotStats.botname = args[i];
-					state = 0;
-					break;
+                case 1:
+                    BotStats.botname = arg;
+                    state = 0;
+                    break;
 
-				case 2:
-					BotStats.addChannel(args[i]);
-					state = 0;
-					break;
+                case 2:
+                    BotStats.addChannel(arg);
+                    state = 0;
+                    break;
 
-				case 3:
-					BotStats.servername = args[i];
-					state = 0;
-					break;
-			}
-		}
+                case 3:
+                    BotStats.servername = arg;
+                    state = 0;
+                    break;
+            }
+        }
 
-		//if we are still waiting for an argument
+        //if we are still waiting for an argument
 		if (state != 0) {
 			System.out.println("Missing argument.");
 			showhelp = true;

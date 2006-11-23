@@ -47,9 +47,8 @@ public abstract class Module {
 	 */
 	public final void setChannels(String[] channelsArray) {
 		channels = new ArrayList();
-		for(int i=0; i<channelsArray.length; i++)
-			channels.add(channelsArray[i]);
-	}
+        for (String aChannelsArray : channelsArray) channels.add(aChannelsArray);
+    }
 
 	/**
 	 * <p>Gets all the channel names the module receives messages from.</p>

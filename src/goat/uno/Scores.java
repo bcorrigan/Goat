@@ -35,17 +35,17 @@ public class Scores implements Comparator {
 
     public void commit(Player winningPlayer, int score, Player[] players) {
         boolean winMatch = false;
-        for (int i = 0; i < players.length; i++) {
+        for (Player player : players) {
             Iterator it = records.iterator();
             boolean match = false;
             while (it.hasNext()) {
                 Record record = (Record) it.next();
-                if(!players[i].isABot)
-                    if (record.getName().equals(players[i].getName())) { //we already have a record of this player
+                if (!player.isABot)
+                    if (record.getName().equals(player.getName())) { //we already have a record of this player
                         record.setGamesEntered(record.getGamesEntered() + 1);
                         match = true;
                     }
-                if(!winningPlayer.isABot)
+                if (!winningPlayer.isABot)
                     if (record.getName().equals(winningPlayer.getName()) && !winMatch) {
                         record.setGamesEntered(record.getGamesEntered() + 1);
                         record.setGamesWon(record.getGamesWon() + 1);
@@ -55,10 +55,10 @@ public class Scores implements Comparator {
                         winMatch = true;
                     }
             }
-            if(!players[i].isABot)
+            if (!player.isABot)
                 if (!match) {
                     Record newRecord = new Record();
-                    newRecord.setName(players[i].getName());
+                    newRecord.setName(player.getName());
                     newRecord.setGamesEntered(1);
 
                     records.add(newRecord);

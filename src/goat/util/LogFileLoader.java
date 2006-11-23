@@ -58,10 +58,10 @@ public class LogFileLoader {
 		daychangeDateFormat = new SimpleDateFormat("MMM d yyyy") ;
 		//logger = new IRCLogger() ;
 		System.out.println("Starting logfile reading at " + (new Date(START_TIME)).toString()) ;
-		for(int i = 0; i < args.length; i++) {
-			processFile(args[i]) ;
-		}
-		try {
+        for (String arg : args) {
+            processFile(arg);
+        }
+        try {
 			//logger.printResultSet(logger.getAllMessages()) ;
 			System.out.println() ;
 			System.out.println(logger.numTotalMessages() + " messages in db.") ;

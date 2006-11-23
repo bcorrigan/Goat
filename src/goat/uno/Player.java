@@ -26,8 +26,8 @@ public class Player {
             System.out.println("hand init fuckup");
             System.exit(0);
         } else {
-            for (int i = 0; i < cards.length; i++) {
-                hand.add(cards[i]);
+            for (Card card : cards) {
+                hand.add(card);
             }
         }
         this.name = name;
