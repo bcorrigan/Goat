@@ -122,11 +122,11 @@ public class Confessions extends Module {
 					m.createReply("I'm afraid I just don't feel guilty about " + query + ".").send();
 			} else if(confessions.isEmpty()) {
 				if(getConfessions(m))
-					m.createPagedReply(confessions.removeFirst().toString()).send();
+					m.createPagedReply(confessions.removeFirst()).send();
 				else
 					m.createReply("I don't have anything to confess about right now.") ;
 			} else {
-				m.createPagedReply(confessions.removeFirst().toString()).send();
+				m.createPagedReply(confessions.removeFirst()).send();
 			}
 		} else if(m.modCommand.equalsIgnoreCase("csize"))
 			m.createReply("Number of confessions cached: " + confessions.size() + 
@@ -159,7 +159,7 @@ public class Confessions extends Module {
 				connection.setConnectTimeout(5000) ;
 				searchedConfessions = parseConfession(connection);
 				if(!searchedConfessions.isEmpty()) {
-					confession = searchedConfessions.remove((int) (Math.random()*searchedConfessions.size())).toString();
+					confession = searchedConfessions.remove((int) (Math.random() * searchedConfessions.size()));
 					//might as well add the rest to cache
 					while(searchedConfessions.size()>0) {
 						String storeConfession = searchedConfessions.removeFirst();
