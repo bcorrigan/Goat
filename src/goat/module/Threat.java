@@ -113,7 +113,9 @@ public class Threat extends Module implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-            connection.disconnect();
+            if (connection != null) {
+                connection.disconnect();
+            }
             try {
                 if(in!=null) in.close();
             } catch(IOException ioe) {
