@@ -134,7 +134,7 @@ public class Threat extends Module implements Runnable {
 	private void commitThreat(int newThreat) {
 		if (newThreat == UNKNOWN)
 			return;
-		else if (firstTime == true) {
+		else if (firstTime) {
 			firstTime = false;
 			threatLevel = newThreat;
 			return;
