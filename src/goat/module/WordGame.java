@@ -50,7 +50,7 @@ public class WordGame extends Module implements Runnable {
 				String letterString = " ";
 				Iterator it = letters.iterator();
                 for (Object letter : letters) {
-                    letterString += ((Character) letter).charValue() + " ";
+                    letterString += (Character) letter + " ";
                 }
 				m.createReply(Message.REVERSE + "***" + Message.REVERSE
 						+ " New Letters:" + Message.BOLD

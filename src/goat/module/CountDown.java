@@ -191,16 +191,16 @@ public class CountDown extends Module implements Runnable {
         sourceNumbers = new int[6];
         if(choice<0.8) {
             //one big number, 5 small.
-            sourceNumbers[0] = ((Integer) bigPool.remove(0)).intValue();
+            sourceNumbers[0] = (Integer) bigPool.remove(0);
             for( int i=1; i<6; i++) {
-                sourceNumbers[i] = ((Integer) smallPool.remove(0)).intValue();
+                sourceNumbers[i] = (Integer) smallPool.remove(0);
             }
         } else {
             //two big numbers, 5 small
-            sourceNumbers[0] = ((Integer) bigPool.remove(0)).intValue();
-            sourceNumbers[1] = ((Integer) bigPool.remove(0)).intValue();
+            sourceNumbers[0] = (Integer) bigPool.remove(0);
+            sourceNumbers[1] = (Integer) bigPool.remove(0);
             for( int i=2; i<6; i++) {
-                sourceNumbers[i] = ((Integer) smallPool.remove(0)).intValue();
+                sourceNumbers[i] = (Integer) smallPool.remove(0);
             }
         }
         
