@@ -235,9 +235,9 @@ public class Weather extends Module {
 				}
 			}
 			double windchill = 666.0;
-			if ("" != temp_f)
+			if (!"".equals(temp_f))
 				windchill = Double.parseDouble(temp_f) ;
-			if ("" != wind_mph)
+			if (!"".equals(wind_mph))
 				windchill = windchill(Double.parseDouble(temp_f),Double.parseDouble(wind_mph)) ;
 			String sunrise_string = "" ;
 			String sunset_string = "" ;
