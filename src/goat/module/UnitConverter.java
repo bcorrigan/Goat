@@ -357,7 +357,7 @@ public class UnitConverter extends Module {
 		Double intempvalue = in_value * p_unit_scale[current_in_unit] * Math.pow(p_multiplier_value[in_multiplier], p_unit_power[current_in_unit]);
 		Double outtempvalue = p_unit_scale[current_out_unit];
 		Double outvalue = ((intempvalue + p_unit_offset[current_in_unit] - p_unit_offset[current_out_unit]) / (outtempvalue * Math.pow(p_multiplier_value[out_multiplier], p_unit_power[current_out_unit])));
-		return outvalue.toString();
+		return Double.toString( roundNumber(outvalue,10) );
     }
 
 
