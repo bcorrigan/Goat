@@ -1,0 +1,31 @@
+Angles
+Area
+Binary data
+Density
+Dielectric Movement
+Electric Capacitance
+Electric Charge, Quantity of Electricity
+Electric Conductance
+Electric Current
+Electric permettivity (dielectric constant)
+Electric Potential Difference
+Electric Resistance
+Energy
+Force
+Inductance
+Length or Distance
+Magnetic Field Intensity
+Magnetic Flux
+Magnetic Flux Density
+Magnetic Permeability
+Magnetic Reluctance
+Mass or Weight
+Polarizability
+Power
+Pressure or Stress
+Speed
+Time
+Temperature
+Typography
+Volume or Capacity
+Wine and Spirits

@@ -126,7 +126,7 @@ public class CurrencyConverter extends Module {
         System.out.println("1");
         m.modTrailing = m.modTrailing.toLowerCase();
         if (!EXCHANGE_RATES.isEmpty()) {
-            if (m.modTrailing.matches(".*\\d+([,\\d]+)?(\\.\\d+)? [a-z]{3}+ to [a-z]{3}+.*")) {
+            if (m.modTrailing.matches(".*\\d+([,\\d]+)?(\\.\\d+)? [a-z]{3} to [a-z]{3}.*")) {
                 final String[] cmds = m.modTrailing.split(" ");
 
                 if (cmds.length == 4) {
@@ -149,7 +149,7 @@ public class CurrencyConverter extends Module {
                         }
                     }
                 }
-            } else if (m.modTrailing.equals(RATES_KEYWORD)) {
+            } else if (m.modTrailing.trim().toLowerCase().equals(RATES_KEYWORD)) {
                 m.createReply("Last Update: " + s_date).send();
 
                 final Iterator it = EXCHANGE_RATES.keySet().iterator();

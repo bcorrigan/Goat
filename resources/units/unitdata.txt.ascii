@@ -1,0 +1,580 @@
+0	rad	radiants	1	0	1	radiants
+0	°	degrees	P/180	0	1	degrees
+0	'	minutes	P/10800	0	1	minutes (1 degree = 60 minutes)
+0	"	seconds	P/648000	0	1	seconds (1 minute = 60 seconds)
+0	grad	grad	0.0157079000	0	1	grad
+0	mils	mils (EU)	P/3000	0	1	mils (EU) 1 circle = 6000 mils
+0	mils	mils (US)	P/3200	0	1	mils (US) 1 circle = 6400 mils
+0	points	points	0.19635	0	1	points
+0	rad	radiants	1	0	1	radiants
+0	circle	full circle	2*P	0	1	full circle
+0	1/2 circle	1/2 circle	P	0	1	1/2 circle
+0	1/3 circle	1/3 circle	2*P/3	0	1	1/3 circle
+0	1/4 circle	1/4 circle	P/2	0	1	1/4 circle
+0	1/5 circle	1/5 circle	2*P/5	0	1	1/5 circle
+0	1/6 circle	1/6 circle	P/3	0	1	1/6 circle
+0	1/7 circle	1/7 circle	2*P/7	0	1	1/7 circle
+0	1/8 circle	1/8 circle	P/4	0	1	1/8 circle
+0	1/9 circle	1/9 circle	2*P/9	0	1	1/9 circle
+0	1/10 circle	1/10 circle	P/5	0	1	1/10 circle
+0	1/16 circle	1/16 circle	P/8	0	1	1/16 circle
+0	----------------------------------------------------------		1	0	1	
+1	m²	square meters	1	0	2	square meters
+1	acaena	acaena (Greece)	9.19744	0	1	acaena (Greece)
+1	acre	acres	4046.8564224	0	1	acres
+1	acre	chesire acre	8561.97632	0	1	chesire acre
+1	acre	irish acre	6555.26312	0	1	irish acre
+1	acre	scottish acre	5142.20257	0	1	scottish acre
+1	alen²	square alen (Denmark)	0.38121	0	1	square alen (Denmark)
+1	ares	ares	100	0	1	ares
+1	arpent	arpent	3433.35804	0	1	arpent
+1	barony	barony	16187486.47094	0	1	barony
+1	circular inch	circular inches	0.000506707479	0	2	circular inches
+1	donum	donum (Yugoslavia)	699.99992	0	1	donum (Yugoslavia)
+1	fall	fall	31.79618	0	1	fall
+1	ferfet	ferfet (Iceland)	0.09848	0	1	ferfet (Iceland)
+1	flag	flag	2.32258	0	1	flag, pace
+1	ft²	square feet (UK & US)	0.09290304	0	2	square feet (UK & US)
+1	ha	hectares	1E4	0	2	hectares
+1	hide	hides	40468.71618	0	2	hides
+1	inch²	square inches	0.00064516	0	2	square inches
+1	jock	jock	5746.5577	0	1	jock, yoke
+1	labor	labor (Texas)	716862.83837	0	1	labor (Texas)
+1	m²	square meters	1	0	2	square meters
+1	mi²	square miles	2589988.110336	0	2	square miles
+1	pace	pace	2.32258	0	1	pace, flag
+1	pes²)	square pes (Roman Empire)	0.08741	0	2	square pes (Roman Empire)
+1	plethron	plethron (Greece)	951.01483	0	1	plethron (Greece)
+1	quadra	quadra (Paraguay)	7486.71249	0	1	quadra (Paraguay)
+1	quarter section	quarter section	647499.45884	0	1	quarter section
+1	rd²	square rods (or poles)	25.29285264	0	2	square rods (or poles)
+1	roll	roll (wallpaper)	2.7871	0	1	one roll of wallpaper
+1	rood	roods	1011.7141056	0	2	roods
+1	sahme	sahme (Egypt)	7.29106	0	1	sahme (Egypt)
+1	scottish ell²	square scottish ell	0.88323	0	2	square scottish ell
+1	sft²	square feet (US survey)	0.092903411613	0	2	square feet (US survey)
+1	shaku	shaku (Japan)	0.09179	0	1	shaku (Japan)
+1	square	squares (of timber)	9.290304	0	2	squares of timber
+1	tavola	tavola (Italy)	37.62587	0	1	tavola (Italy)
+1	township	townships	93239571.972	0	1	townships
+1	vara²	square vara (Spain)	0.59418	0	1	square vara (Spain)
+1	yd²	square yards	25.29285264	0	2	square yards
+1	yoke	yoke	5746.5577	0	1	yoke, jock
+2	b	bit	1	0	1	Single basic unit of information that can take on one of two values, such as true and false or 0 and 1. A bit is said to be 'set' if its value is true or 1, and 'reset' or 'clear' if its value is false or 0. To toggle or 'invert' a bit is to change it, either from 0 to 1 or from 1 to 0.
+2	B	byte 8b	8	0	1	/bi:t/ n. A unit of computer memory or data equal to the amount used to represent one character. The term was coined by Werner Buchholz in 1956 during the early design phase for the IBM Stretch computer; originally it was described as 1 to 6 bits (typical I/O equipment of the period used 6-bit chunks of information). The move to an 8-bit byte happened in late 1956, and this size was later adopted and promulgated as a standard by the System/360. The word was coined by mutating the word 'bite' so it would not be accidentally misspelled as bit. Syn. octet.
+2	chawmp	chawmp 16b	16	0	1	[University of Florida] 16 bits on a 32-bit machine (half of a machine word). This term was used by FORTH hackers during the late 1970s/early 1980s; it is said to have been archaic then, and may now be obsolete. It was coined in revolt against the promiscuous use of 'word' for anything between 16 and 32 bits; 'word' has an additional special meaning for FORTH hacks that made the overloading intolerable.
+2	chawmp	chawmp 18b	18	0	1	n. [University of Florida] 18 bits on a 36-bit machine (half of a machine word). This term was used by FORTH hackers during the late 1970s/early 1980s; it is said to have been archaic then, and may now be obsolete. It was coined in revolt against the promiscuous use of 'word' for anything between 16 and 32 bits; 'word' has an additional special meaning for FORTH hacks that made the overloading intolerable.
+2	crumb	crumb 2b	2	0	1	Two binary digits. Syn. quad, quarter, tayste, tydbit
+2	deckle	deckle 10b	10	0	1	/dek'l/ [from dec- and nybble; the original spelling seems to have been 'decle'] Two nickles; 10 bits. Reported among developers for Mattel's GI 1600 (the Intellivision games processor), a chip with 16-bit-wide RAM but 10-bit-wide ROM.
+2	double word	double word 64b	64	0	1	double word on a 32-bit machine; word is the natural data size of a computer, depending on the CPU.
+2	dynner	dynner 32b	32	0	1	dynner
+2	gawble	gawble 32b	32	0	1	/gaw'bl/ n. [University of Florida] (spelled 'gawble' or possibly 'gawbul') was in use as a term for 32 or 48 bits (presumably a full machine word).
+2	gawble	gawble 48b	48	0	1	/gaw'bl/ n. [University of Florida] (spelled 'gawble' or possibly 'gawbul') was in use as a term for 32 or 48 bits (presumably a full machine word).
+2	half-word	half-word 16b	16	0	1	half-word on a 32-bit machine; word is the natural data size of a computer, depending on the CPU.
+2	half-word	half-word 18b	18	0	1	half-word on a 36-bit machine; word is the natural data size of a computer, depending on the CPU.
+2	longword	longword 32b	32	0	1	longword (on a 16-bit machine)
+2	nickle	nickle 5b	5	0	1	/ni'kl/ [from 'nickel', common name for the U.S. 5-cent coin] A nybble + 1; 5 bits. Reported among developers for Mattel's GI 1600 (the Intellivision games processor), a chip with 16-bit-wide RAM but 10-bit-wide ROM.
+2	nybble	nybble 4b	4	0	1	/nib'l/ (alt. 'nibble') [from v. 'nibble' by analogy with 'bite' => 'byte'] Four bits; one hex digit; a half-byte.
+2	playte	playte 16b	16	0	1	playte
+2	quad	quad 2b	2	0	1	n. Two binary digits. Syn. crumb, quarter, tayste, tydbit
+2	quarter	quarter 2b	2	0	1	Two binary digits. This in turn comes from the 'pieces of eight' famed in pirate movies. Syn. crumb, quad, tayste, tydbit
+2	tayste	tayste 2b	2	0	1	/tayst/ Two binary digits; also as taste. Syn. crumb, quad, quarter, tydbit
+2	tydbit	tydbit 2b	2	0	1	n. Two binary digits. Syn. crumb, quad, quarter, tayste
+2	word	word 16b	16	0	1	word on a 16-bit machine; word is the natural data size of a computer, depending on the CPU.
+2	word	word 32b	32	0	1	word on a 32-bit machine; word is the natural data size of a computer, depending on the CPU.
+2	word	word 36b	36	0	1	word on a 36-bit machine; word is the natural data size of a computer, depending on the CPU.
+3	g/cm³	grams/cubic centimeters	1	0	1	grams/cubic centimeters
+3	g/cl	grams/centiliter	1E-1	0	1	grams/centiliter
+3	g/dal	grams/dekaliters	1E-4	0	1	grams/dekaliters
+3	g/dam³	grams/cubic dekameters	1E-9	0	1	grams/cubic dekameters
+3	g/dl	grams/deciliter	1E-2	0	1	grams/deciliter
+3	g/dm³	grams/cubic decimeters	1E-3	0	1	grams/cubic decimeters
+3	g/hl	grams/hectoliter	1E-5	0	1	grams/hectoliter
+3	g/hm³	grams/cubic hectometers	1E-12	0	1	grams/cubic hectometers
+3	g/kl	grams/kiloliter	1E-6	0	1	grams/kiloliter
+3	g/km³	grams/cubic kilometers	1E-15	0	1	grams/cubic kilometers
+3	g/l	grams/liter	1E-3	0	1	grams/liter
+3	g/ml	grams/milliliters	1	0	1	grams/milliliters
+3	g/mm³	grams/cubic millimeters	1E3	0	1	grams/cubic millimeters
+3	g/m³	grams/cubic meters	1E-6	0	1	grams/cubic meters
+3	gr/gal	grains/gallon (UK)	0.000014253948343691203	0	1	grains/gallon (UK)
+3	gr/gal	grains/gallon (US)	0.000017118011571775823	0	1	grains/gallon (US)
+3	lb/ft³	pounds/cubic foot	0.016018463	0	1	pounds/cubic foot
+3	lb/gal	pounds/gallon (UK)	0.099776373	0	1	pounds/gallon (UK)
+3	lb/gal	pounds/gallon (US)	0.119826427	0	1	pounds/gallon (US)
+3	lb/in³	pounds/cubic inch	27.679904	0	1	pounds/cubic inch
+3	oz/gal	ounces/gallon (UK)	0.006236023	0	1	ounces/gallon (UK)
+3	oz/gal	ounces/gallon (US)	0.007489152	0	1	ounces/gallon (US)
+3	oz/in³	ounces/cubic inch	1.729994044	0	1	ounces/cubic inch
+3	slug/ft³	slugs/cubic foot	0.51531788206	0	1	slugs/cubic foot
+3	ton/m³	tonnes/cubic meter	1	0	1	tonnes/cubic meter
+3	tons/yard³	tons (UK)/cubic yard	1.328939184	0	1	tons (UK)/cubic yard
+3	tons/yard³	tons (US)/cubic yard	1.186552843	0	1	tons (US)/cubic yard
+4	Coulomb/m²	Coulomb/square meter	1	0	1	Coulomb/square meter
+4	abC/cm²	abC/square centimeter	1E5	0	1	abC/square centimeter
+4	statC/cm²	statC/square centimeter	1E-6/3	0	1	statC/square centimeter
+5	F	Farad	1	0	1	Farad
+5	abF	abFarad	1E9	0	1	abFarad
+5	statF	statFarad	10E-12/9	0	1	statFarad
+6	C	Coulomb	1	0	1	Coulomb
+6	abC	abCoulomb	10	0	1	abCoulomb
+6	statC	statCoulomb	10E-10/3	0	1	statCoulomb
+7	abS/cm	abS/centimeter	1E11	0	1	abS/centimeter
+7	S/m	siemens/meter	1	0	1	siemens/meter
+7	statS/cm	statS/centimeter	10E-10/9	0	1	statS/centimeter
+8	A	Ampere	1	0	1	The ampere is that constant current which, if maintained in two straight parallel conductors of infinite length, of negligible circular cross-section, and placed 1 meter apart in vacuum, would produce between these conductors a force equal to 2 x 10-7 newton per meter of length.
+8	abA	abAmpere	10	0	1	abAmpere
+8	statA	statAmpere	10E-10/3	0	1	statAmpere
+9	F/m	Farad/meter	1	0	1	Farad/meter
+9	abF/cm	abFarad/centimeter	1E11	0	1	abFarad/centimeter
+9	statF/cm	statFarad/centimeter	10E-10/9	0	1	statFarad/centimeter
+10	V	Volt	1	0	1	Volt
+10	abV	abVolt	1E-8	0	1	abVolt
+10	statV	statVolt	300	0	1	statVolt
+11	Ohm	Ohm	1	0	1	Ohm
+11	abOhm	abOhm	1E-9	0	1	abOhm
+11	statOhm	statOhm	9E11	0	1	statOhm
+12	J	joules	1	0	1	joules = newton * meter = watt * second
+12	Btu	Btu (IT)	1055.056	0	1	Btu (IT)
+12	Btu	Btu (th)	1054.350	0	1	Btu (th)
+12	Btu (mean)	Btu (mean)	1055.87	0	1	Btu (mean)
+12	Nm	newton meters	1	0	1	newton meters = watt* seconds = Joule
+12	Wh	watt hours	3600	0	1	watt hours
+12	Ws	watt seconds	1	0	1	watt seconds = newton * meter = Joule
+12	cal	calories (15C)	4.18580	0	1	calories (15C)
+12	cal	calories (20C)	4.18190	0	1	calories (20C)
+12	cal	calories (IT)	4.1868	0	1	calories (IT)
+12	cal	calories (food)	4186	0	1	calories (food)
+12	cal	calories (mean)	4.19002	0	1	calories (mean)
+12	cal	calories (th)	4.184	0	1	calories (th)
+12	chu	centigrade heat units	1900.4	0	1	centigrade heat units
+12	eV	elettronVolt	1.6025641E-19	0	1	elettronVolt
+12	erg	ergs	1E-7	0	1	ergs
+12	ft poundals	foot poundals	0.042140	0	1	foot poundals
+12	ft lbf	foot pounds-force	1.355817	0	1	foot pounds-force
+12	horsepower hours	horsepower hours	2684520	0	1	horsepower hours
+12	J	joules	1	0	1	joules = newton * meter = watt * second
+12	gf m	gram-force meters	9.80665E3	0	1	gram-force meters
+12	therm	therms	105500000	0	1	therms
+13	N	newton	1	0	1	newtons
+13	dyne	dynes	1E-5	0	1	dynes
+13	gf	grams force	0.00980665	0	1	grams force
+13	kip	kips	4448.222	0	1	kips
+13	lbf	pounds force	4.448222	0	1	pounds force
+13	poundals	poundals	0.138255	0	1	poundals
+13	sthene	sthene	1000	0	1	sthenes = kN 0 kilo newton
+13	tonnes force	tonnes force	9806.65	0	1	tonnes force
+13	tons force	tons force (UK)	9964.016	0	1	tons force (UK)
+13	tons force	tons force (US)	8896.443	0	1	tons force (US)
+14	H	Henry	1	0	1	Henry
+14	abH	abHenry	1E-9	0	1	abHenry
+14	statH	statHenry	9E11	0	1	statHenry
+15	m	meter	1	0	1	The meter is the length of the path travelled by light in vacuum during a time interval of 1/299 792 458 of a second.
+15	AU	astronomical unit	1.4959855E11	0	1	astronomical unit
+15	Å	Angstrom	1E-10	0	1	Angstrom
+15	assyrian foot	assyrian foot	2.63042	0	1	assyrian foot
+15	barleycorns	barleycorns	8.467E-3	0	1	barleycorns
+15	cable lenghts	cable lenghts	219.456	0	1	cable lenghts
+15	cables	cables	1.8288E2	0	1	cables
+15	chain	surveyors chains	20.1168	0	1	chains (surveyors')
+15	cubit	cubit	0.4318	0	1	cubit; theoretically the distance between the elbow and the middle finger
+15	earth diameter	earth diameter	1.274263E7	0	1	earth diameter
+15	ell	ell (UK)	0.875	0	1	ell (UK)
+15	ems	ems (pica)	4.2333E-3	0	1	ems (pica)
+15	fathoms	fathoms	1.8288	0	1	fathom; finger-tip to finger-tip with arms outstreched
+15	ft	feet (UK and US)	0.3048	0	1	feet (UK and US)
+15	ft	feet (US survey)	0.3048006096	0	1	feet (US survey)
+15	furlongs	furlongs	2.01168E2	0	1	furlongs
+15	hand	hand	0.106	0	1	hands
+15	inch	inch	0.0254	0	1	inch (width of the thumb)
+15	league	league (US survey)	4.828042E3	0	1	league (US survey)
+15	light second	light second	2.99792458E8	0	1	light second
+15	light year	light year	9.4605E15	0	1	light years
+15	light year	light year	9.460753090819E15	0	1	light year
+15	link	link	0.20117	0	1	links
+15	m	meter	1	0	1	The meter is the length of the path travelled by light in vacuum during a time interval of 1/299 792 458 of a second.
+15	mile	mile (UK and US)	1609.344	0	1	miles (UK and US)
+15	mile	mile (nautical)	1852	0	1	miles (nautical)
+15	nautical league	nautical league (US&Int)	5556	0	1	nautical league (US and International)
+15	parsecs	parsecs	3.085677E16	0	1	parsecs
+15	perche	perche	5.0292	0	1	rods, perches, poles
+15	pole	pole	5.0292	0	1	rods, perches, poles
+15	rod	rod	5.0292	0	1	rods, perches, poles
+15	solar diameter	solar diameter	1.3919E9	0	1	solar diameter
+15	span	span	0.2286	0	1	spans
+15	yard	yard	0.9144	0	1	yard
+15	--- Foreign ---		1	0	1	
+15	arabian foot	arabian foot	0.31919	0	1	arabian foot
+15	assbaa	assbaa (Arabia)	0.02	0	1	assbaa (Arabia)
+15	covado	covado (Brazil)	0.68479	0	1	covado (Brazil)
+15	cubit	cubit (India)	0.64161	0	1	hasta, cubit (India); theoretically the distance between the elbow and the middle finger
+15	fet	fet (Iceland)	0.31394	0	1	fet (Iceland)
+15	fod	fod (Denmark)	0.31369	0	1	fod (Denmark)
+15	fot	fot (Sweden)	0.29667	0	1	fot (Sweden)
+15	fuss	fuss (Switzerland)	0.3	0	1	fuss, shun, pied (Switzerland)
+15	shun	shun (Switzerland)	0.3	0	1	fuss, shun, pied (Switzerland)
+15	pied	pied (Switzerland)	0.3	0	1	fuss, shun, pied (Switzerland)
+15	ghalva	ghalva (Arabia)	230.42925	0	1	ghalva (Arabia)
+15	guz	guz (India)	0.9144	0	1	guz (India)
+15	hasta	hasta (India)	0.64161	0	1	hasta, cubit (India)
+15	kassabah	kassabah (Egypt)	3.55007	0	1	kassabah (Egypt)
+15	keup	keup (Thailand)	0.25	0	1	keup (Thailand)
+15	khvat	khvat (Yugoslavia)	1.89611	0	1	khvat (Yugoslavia)
+15	klafter	klafter (Argentina)	1.89281	0	1	klafter (Argentina)
+15	ligne	ligne (Switzerland)	0.00208	0	1	ligne (Switzerland)
+15	linje	linje (Sweden)	0.02078	0	1	linje (Sweden)
+15	mile	mile (Sweden)	10E3	0	1	Swedish mile
+15	new ch'in	new ch'in (China)	0.35814	0	1	new ch'in (China)
+15	new li #1	new li #1 (China)	0.001	0	1	new li #1 (China)
+15	new li #2	new li #2 (China)	1000	0	1	new li #2 (China)
+15	old li	old li (China)	644.6401	0	1	old li (China)
+15	palaz	palaz (Yugoslavia)	0.03631	0	1	palaz (Yugoslavia)
+15	pe	pe (Brazil)	0.32918	0	1	pe (Brazil)
+15	pie	pie (Spain)	0.27871	0	1	pie (Spain)
+15	pulgada	pulgada (Spain)	0.02323	0	1	pulgada (Spain)
+15	rif	rif (Yugoslavia)	0.77699	0	1	rig (Yugoslavia)
+15	sen	sen (Thailand)	335.24	0	1	sen (Thailand)
+15	stopa	stopa (Poland)	0.28804	0	1	stopa (Polonia)
+15	theb	theb (Egypt)	0.01875	0	1	theb (Egypt)
+15	vara	vara (Argentina)	0.86624	0	1	vara (Argentina)
+15	varas	varas (Texas)	0.84667	0	1	varas (Texas)
+15	verst	verst (Russia)	1.0652752E3	0	1	verst (Russia)
+15	--- Ancient Egypt ---		1	0	1	
+15	cubit	royal cubit (Egypt)	0.524	0	1	meh, cubit (Egypt); theoretically the distance between the elbow and the middle finger
+15	remen	remen (Egypt)	0.371	0	1	remen (Egypt); was essentially used for land measure.
+15	digit	digit (Egypt)	0.0187	0	1	digit, zebo (Egypt)
+15	zebo	zebo (Egypt)	0.0187	0	1	digit, zebo (Egypt)
+15	palm	palm (Egypt)	0.075	0	1	palm, shep (Egypt)
+15	shep	shep (Egypt)	0.075	0	1	palm, shep (Egypt)
+15	khet	khet (Egypt)	52.4	0	1	khet (Egypt) = 100 royal cubit
+15	ater	ater (Egypt)	6288	0	1	ater, skhoinos (Egypt) = 120 khet
+15	--- Ancient Greece ---		1	0	1	
+15	cubit	cubit (Greece)	0.46269	0	1	pechya, cubit (Greece); theoretically the distance between the elbow and the middle finger
+15	pechya	pechya (Greece)	0.46269	0	1	pechya, cubit (Greece)
+15	stadion	stadion (Greece)	185.4	0	1	stadion (Greece) = 600 feet = 6 plethra
+15	digit	digit(Greece)	0.0193	0	1	digit, daktylos (Greece)
+15	daktylos	daktylos (Greece)	0.0193	0	1	digit, daktylos (Greece)
+15	condylos	condylos (Greece)	0.0386	0	1	condylos (Greece) = 2 digits
+15	palaiste	palaiste (Greece)	0.0772	0	1	palaiste (Greece) = 4 digits
+15	dichas	dichas (Greece)	0.1544	0	1	dichas (Greece) = 8 digits
+15	spithame	spithame (Greece)	0.2316	0	1	spithame (Greece) = 12 digits
+15	pous	pous (Greece)	0.3088	0	1	pous, foot (Greece) = 16 digits
+15	pygon	pygon (Greece)	0.386	0	1	pygon (Greece) = 20 digits
+15	pechya	pechya (Greece)	0.4632	0	1	pechya, small cubit (Greece) = 24 digits
+15	bema	bema (Greece)	0.772	0	1	bema (Greece) = 40 digits
+15	xylon	xylon (Greece)	1.3896	0	1	xylon (Greece) = 72 digits
+15	orgyia	orgyia(Greece)	1854	0	1	orgyia, fathom (Greece) = 6 feet
+15	fathom	fathom (Greece)	1854	0	1	orgyia, fathom (Greece) = 6 feet
+15	akaina	akaina (Greece)	3.088	0	1	akaina (Greece) = 10 feet
+15	plethron	plethron (Greece)	30.88	0	1	plethron (Greece) = 100 feet
+15	diaulos	diaulos (Greece)	370.8	0	1	diaulos (Greece) = 2 stadia
+15	dolichos	dolichos (Greece)	2224.8	0	1	dolichos (Greece) = 
+15	stathmos	stathmos (Greece)	25.8E3	0	1	stathmos (Greece); poorly defined - estimated by some authors as 25.8 km (16 miles) - is it another name for "mansion" ?
+15	--- Ancient Mesopotamia ---		1	0	1	
+15	digit	digit (Mesopotamia)	0.01767	0	1	digit, shusi, uban (Mesopotamia)
+15	shusi	shusi (Mesopotamia)	0.01767	0	1	digit, shusi, uban (Mesopotamia)
+15	uban	uban (Mesopotamia)	0.01767	0	1	digit, shusi, uban (Mesopotamia)
+15	qat	qat (Mesopotamia)	3.18	0	1	qat (Mesopotamia) = 5 uban
+15	ammat	ammat (Mesopotamia)	0.53	0	1	ammat, kus (Mesopotamia) = 6 qat
+15	kus	kus (Mesopotamia)	0.53	0	1	ammat, kus (Mesopotamia) = 6 qat
+15	qanu	qanu (Mesopotamia)	3.18	0	1	qanu (Mesopotamia) = 6 ammat
+15	sos	sos (Mesopotamia)	191	0	1	sos (Mesopotamia) = 60 qanu
+15	parasang	parasang (Mesopotamia)	5724	0	1	parasang (Mesopotamia) = 30 sos; seems to represent the distance walked in 1 hour
+15	kapsu	kapsu (Mesopotamia)	5724	0	1	kapsu (Mesopotamia) = 2 parasang
+15	--- Ancient Persia ---		1	0	1	
+15	vitasti	vitasti (Persia) min	0.260	0	1	vitasti, charac (Persia) = 1/2 cubit; min estimated value
+15	vitasti	vitasti (Persia) max	0.2715	0	1	vitasti, charac (Persia) = 1/2 cubit; max estimated value
+15	charac	charac (Persia) min	0.260	0	1	vitasti, charac (Persia) = 1/2 cubit; min estimated value
+15	charac	charac (Persia) max	0.2715	0	1	vitasti, charac (Persia) = 1/2 cubit; max estimated value
+15	chebel	chebel (Persia)	21.03124	0	1	chebel (Persia)
+15	cubit	cubit (Persia) min	0.520	0	1	cubit, arasni (Persia); min estimated value
+15	cubit	cubit (Persia) max	0.543	0	1	cubit, arasni (Persia); max estimated value
+15	arasni	arasni (Persia) min	0.520	0	1	cubit, arasni (Persia); min estimated value
+15	arasni	arasni (Persia) max	0.543	0	1	cubit, arasni (Persia); max estimated value
+15	guz	guz (Persia) (min)	1.04	0	1	guz (Persia) = 2 cubits; min estimated value
+15	guz	guz (Persia) (max)	1.086	0	1	guz (Persia) = 2 cubits; max estimated value
+15	stadion	stadion (Persia) min	187	0	1	stadion, asparsa (Persia) = 360 cubits; min estimated value
+15	stadion	stadion (Persia) max	195	0	1	stadion, asparsa (Persia) = 360 cubits; min estimated value
+15	asparsa	asparsa (Persia) min	187	0	1	stadion, asparsa (Persia) = 360 cubits; min estimated value
+15	asparsa	asparsa (Persia) max	195	0	1	stadion, asparsa (Persia) = 360 cubits; min estimated value
+15	parathanka	parathanka (Persia) min	5610	0	1	parathanka, parasang (Persia) = 30 stadions; min estimated value
+15	parathanka	parathanka (Persia) max	5850	0	1	parathanka, parasang (Persia) = 30 stadions; max estimated value
+15	parasang	parasang (Persia) min	5610	0	1	parathanka, parasang (Persia) = 30 stadions; min estimated value
+15	parasang	parasang (Persia) max	5850	0	1	parathanka, parasang (Persia) = 30 stadions; max estimated value
+15	mansion	mansion (Persia)	25.6E3	0	1	mansion (Persia) = 80 000 Assyrian feet 
+15	cane	cane (Persia)	3.84049	0	1	cane (Persia)
+15	--- Ancient Roman Empire ---		1	0	1	
+15	digitus	digitus (Roman Empire)	0.01844	0	1	digit, digitus (Roman Empire)
+15	uncia	uncia (Roman Empire)	0.02458	0	1	inch, uncia (Roman Empire)
+15	minor palmus	minor palmus (Roman Empire)	0.07376	0	1	small palm, minor palmus (Roman Empire) = 4 digits or 3 inches
+15	major palmus	major palmus (Roman Empire)	0.22128	0	1	large palm, major palmus (Roman Empire) = 12 digits or 9 inches
+15	pes	pes(Roman Empire)	0.29504	0	1	pes, foot (Roman Empire) = 16 digits or 12 inches
+15	cubitus	cubitus (Roman Empire)	0.44256	0	1	cubit, cubitus (Roman Empire) = 24 digits or 18 inches; theoretically the distance between the elbow and the middle finger
+15	passus	passus (Roman Empire)	1.4752	0	1	pace, passus (Roman Empire) = 5 feet
+15	gradus	gradus (Roman Empire)	0.7376	0	1	gradus (Roman Empire) = 1/2 passus
+15	palmites	palmites (Roman Empire)	0.3688	0	1	palmites (Roman Empire) = 1/2 gradus
+15	decempeda	decempeda (Roman Empire)	2.9504	0	1	decempeda (Roman Empire) = 10 feet or 2 paces
+15	actus	actus (Roman Empire)	35.4048	0	1	actus (Roman Empire) = 120 feet or 24 paces
+15	stadium	stadium (Roman Empire)	184.4	0	1	stadium (Roman Empire) = 625 feet or 125 paces
+15	milliarium	milliarium (Roman Empire)	1475.2	0	1	milliarium, mille passus (Roman Empire) = 1000 paces or 8 stadia
+15	mille passus	mille passus (Roman Empire)	1475.2	0	1	milliarium, mille passus (Roman Empire) = 1000 paces or 8 stadia
+15	--- Units from Bible ---		1	0	1	
+15	esba	esba (Bible)	0.01875	0	1	digit, esba (Bible)
+15	tophah	tophah (Bible)	0.075	0	1	palm, tophah (Bible) = 4 digits
+15	zeret	zeret (Bible)	0.225	0	1	zeret (Bible) = 12 digits or 3 palms 
+15	amma	amma (Bible)	0.45	0	1	small cubit, amma (Bible) = 24 digits or 6 palms
+15	old cubit	old cubit (Bible)	0.525	0	1	old cubit (Bible) = 7 palms
+16	A/m	Ampere/meter	1	0	1	Ampere/meter
+16	Oe	Oersted	79.6	0	1	Oersted
+16	statA/cm	statA/centimeter	2.6E-9	0	1	statA/centimeter
+17	Wb	Weber	1	0	1	Weber
+17	Mx	Maxwell	1E-8	0	1	Maxwell
+17	statWb	statWeber	300	0	1	statWeber
+18	T	Tesla	1	0	1	Tesla
+18	Gs	Gauss	1E-4	0	1	Gauss
+18	statT	statTesla	3E16	0	1	statTesla
+19	H/m	Henry/meter	1	0	1	Henry/meter
+19	Gs/Oe	Gauss/Oersted	12.56637061E-7	0	1	Gauss/Oersted
+19	statH/cm	statHenry/centimeter	10E15/9	0	1	statH/centimeter
+20	1/H	1/Henry	1	0	1	1/Henry
+20	1/abH	1/abHenry	1E9	0	1	1/abHenry
+20	1/statH	1/statHenry	10E-12/9	0	1	1/statHenry
+21	g	gram	1	0	1	The kilogram (1000 grams) is the unit of mass; it is equal to the mass of the international prototype of the kilogram. 
+21	100 weights	100 weights (US cwt.)	45.359237E3	0	1	100 weights (US cwt.)
+21	carats	carats (metric)	0.2	0	1	carats (metric)
+21	dram	dram (apothecaries)	3.88793	0	1	dram (apothecaries)
+21	dram	dram (avoirdupois)	1.77185	0	1	dram (avoirdupois)
+21	earth masses	earth masses	5.980E27	0	1	earth masses
+21	g	gram	1	0	1	The kilogram (1000 grams) is the unit of mass; it is equal to the mass of the international prototype of the kilogram. 
+21	grain	grain	0.06479891	0	1	grains
+21	hudredweights	hudredweights (long)	50.80234544E3	0	1	hudredweights (long)
+21	hudredweights	hudredweights (short)	45.359237E3	0	1	hudredweights (short)
+21	lb	pounds (avoirdupois)	453.59237	0	1	pounds (avoirdupois)
+21	lb	pounds (troy)	373.2417216	0	1	pounds (troy)
+21	oz	ounces (avoirdupois)	28.349523125	0	1	ounces (avoirdupois)
+21	oz	ounces (troy)	31.1034768	0	1	ounces (troy)
+21	pennyweight	pennyweight	1.55517	0	1	pennyweight
+21	poundal	poundal	14.08672	0	1	poundals
+21	quarter	quarter (US)	11.33980925E3	0	1	quarter (US)
+21	scruples	scruples (apothecaries)	1.29598	0	1	scruples (apothecaries)
+21	slugs	slugs (g-pounds)	1.4593903E4	0	1	slugs (g-pounds)
+21	solar masses	solar masses	1.989E33	0	1	solar masses
+21	stone	stones	6.35029318E3	0	1	stones
+21	tonne	tonne	1E6	0	1	tonne
+21	tons	tons (UK or long)	1.0160469088E6	0	1	tons (UK or long)
+21	tons	tons (US or short)	9.0718474E5	0	1	tons (US or short)
+21	um	um	9.8E3	0	1	um
+21	--- Foreign ---		1	0	1	
+21	catty	catty (Asia)	604.77471	0	1	catty (Asia)
+21	footweight	footweight (France)	28.3152769E3	0	1	footweight (France)
+21	niyo	niyo (Japan)	14	0	1	niyo (Japan)
+21	hiyaku-ne	hiyaku-ne (Japan)	374.985	0	1	hiyaku-ne (Japan)
+21	pond	pond (Netherlands)	499.944	0	1	pond (Netherlands)
+21	funt	funt (Poland)	405.511	0	1	funt (Poland)
+21	libra	libra (Portugal)	459.09	0	1	libra (Portugal)
+21	funt	funt (Russia)	411.24	0	1	funt (Russia)
+21	marco	marco (Spain)	230.04	0	1	marco (Spain)
+21	libra	libra (Spain)	460.1241	0	1	libra (Spain)
+21	skalpund	skalpund (Sweden)	425.101	0	1	skalpund,pund (Sweden)
+21	pund (Sweden)	pund (Sweden)	425.101	0	1	skalpund,pund (Sweden)
+21	oka	oka (Yugoslavia)	1280	0	1	oka,oke (Yugoslavia)
+21	oke	oke (Yugoslavia)	1280	0	1	oka,oke (Yugoslavia)
+21	wagon	wagon (Yugoslavia)	10E3	0	1	wagon (Yugoslavia)
+21	--- Ancient ---		1	0	1	
+21	mancus	mancus (Bri)	62.20695	0	1	mancus (Bri)
+21	merchants pound	merchants pound (Bri)	497.65563	0	1	merchants pound (Bri)
+21	mast	mast (Bri)	933.1043	0	1	mast (Bri)
+21	talent	talent (Heb)	26.332E3	0	1	talent (Heb)
+21	kona	kona (India)	6.99828	0	1	kona (India)
+21	pala	pala (India)	47.173	0	1	pala (India)
+21	uncia	uncia (Roman Empire)	27.164	0	1	uncia (Roman Empire)
+21	kerat	kerat (Egypt)	0.19504	0	1	kerat (Egypt)
+21	kat	kat (Egypt)	9.331	0	1	kat (Egypt)
+21	okia	okia (Egypt)	37.44027	0	1	okia (Egypt)
+21	oka	oka (Egypt)	1248	0	1	oka (Egypt)
+21	oka	oka (Greece)	1279.9	0	1	oka (Greece)
+21	talanton	talanton (Greece)	149.9985E3	0	1	talanton (Greece)
+22	F m²	Farad * square meter	1	0	1	Farad * square meter
+22	statF cm²	statFarad * square centimeter	10E-16/9	0	1	statFarad * square centimeter
+22	abFcm²	abFarad * square centimeter	1E5	0	1	abFarad * square centimeter
+23	W	watt	1	0	1	watt = joule/second
+23	Btu/hour	Btu/hour	0.293071	0	1	Btu/hour
+23	Btu/min	Btu/minute	17.584267	0	1	Btu/minute
+23	Btu/sec	Btu/second	1055.056	0	1	Btu/second
+23	J/hour	joules/hour	1/3600	0	1	joules/hour
+23	J/s	joules/second	1	0	1	joules/second = watt
+23	Joules/min	joules/minute	1/60	0	1	joules/minute
+23	W	watt	1	0	1	watt = joule/second
+23	cal/hour	calories/hour	0.001639	0	1	calories/hour
+23	cal/min	calories/minute	0.06978	0	1	calories/minute
+23	cal/sec	calories/second	4.1868	0	1	calories/second
+23	ergs/sec	ergs/second	1E-7	0	1	ergs/second
+23	ft lbf/min	foot pounds-force/minute	0.022597	0	1	foot pounds-force/minute
+23	ft lbf/sec	foot pounds-force/second	1.35582	0	1	foot pounds-force/second
+23	hp	horsepowers (electric)	745.7	0	1	horsepowers (electric)
+23	hp	horsepowers (metric)	735.499	0	1	horsepowers (metric)
+23	gf m/hour	gram-force meters/hour	2.724	0	1	gram-force meters/hour
+23	gf m/min	gram-force meters/minute	163.444	0	1	gram-force meters/minute
+24	Pa	pascal	1	0	1	pascal = N/m²
+24	N/cm²	newtons/sq.centimeter	1E4	0	1	newtons/sq.centimeter
+24	N/mm²	newtons/sq.millimeter	1E6	0	1	newtons/sq.millimeter
+24	N/m²	newtons/sq.meter	1	0	1	newtons/sq.meter
+24	Pa	pascal	1	0	1	pascal = N/m²
+24	atm	atmosphere	101325	0	1	atmospheres
+24	bar	bar	1E5	0	1	bars
+24	dyn/cm²	dyne/sq.centimeter	0.1	0	1	dyn/sq.centimeter
+24	ft of water	feet of water	2989.06692	0	1	feet of water
+24	gf/cm²	gram-forces/sq.centimeter	9.80665E7	0	1	gram-forces/sq.centimeter
+24	gf/m²	gram-forces/sq.meter	9.80665E3	0	1	gram-forces/sq.meter
+24	inches of mercury	inches of mercury	3386.388	0	1	inches of mercury
+24	inches of water	inches of water	249.08891	0	1	inches of water
+24	kips/inch²	kips/sq.inch	6894760	0	1	kips/sq.inch
+24	lbf/ft²	pounds-force/sq.foot	47.880	0	1	pounds-force/sq.foot
+24	lbf/inch²	pounds-force/sq.inch	6894.757	0	1	pounds-force/sq.inch
+24	m mercury	meters mercury (0°C)	1.33322E2	0	1	meters mercury
+24	m water	meters water	9.80665E-1	0	1	meters water
+24	poundals/ft²	poundals/sq.foot	1.44816	0	1	poundals/sq.foot
+24	tonnes-force/cm²	tonnes-force/sq.cm	98066500	0	1	tonnes-force/sq.cm
+24	tons-force/ft²	tons (UK)-force/sq.foot	107251	0	1	tons (UK)-force/sq.foot
+24	tons-force/ft²	tons (US)-force/sq.foot	95760	0	1	tons (US)-force/sq.foot
+24	tons-force/inch²	tons (UK)-force/sq.inch	1544256	0	1	tons (UK)-force/sq.inch
+24	tons-force/inch²	tons (US)-force/sq.inch	13789500	0	1	tons (US)-force/sq.inch
+24	torr	torr (0°C)	133.322	0	1	torr
+25	m/s	meters/second	1	0	1	meters/second
+25	ft/hour	feet/hour	0.3048/3600	0	1	feet/hour
+25	ft/min	feet/minute	0.3048/60	0	1	feet/minute
+25	ft/s	feet/second	0.3048	0	1	feet/second
+25	furlongs/hour	furlongs/hour	0.05588	0	1	furlongs/hour
+25	furlongs/min	furlongs/minute	3.3528	0	1	furlongs/minute
+25	furlongs/sec	furlongs/second	201.168	0	1	furlongs/second
+25	inches/hour	inches/hour	0.0254/3600	0	1	inches/hour
+25	inches/min	inches/minute	0.0254/60	0	1	inches/minute
+25	inches/s	inches/second	0.0254	0	1	inches/second
+25	knots	knots	0.514444	0	1	knots
+25	leagues/day	leagues/day	0.05588	0	1	leagues/day
+25	m/hour	meters/hour	1/3600	0	1	meters/hour
+25	m/min	meters/minute	1/60	0	1	meters/minute
+25	m/s	meters/second	1	0	1	meters/second
+25	mach	Mach number (ISA/SL)	340.2933	0	1	Mach number (ISA/SL)
+25	miles/hour	miles/hour	1609.344/3600	0	1	miles/hour
+25	miles/min	miles/minute	1609.344/60	0	1	miles/minute
+25	miles/s	miles/second	1609.344	0	1	miles/second
+25	speed of light	speed of light	2.99792458E8	0	1	speed of light
+25	yd/hour	yards/hour	0.9144/3600	0	1	yards/hour
+25	yd/min	yards/minute	0.9144/60	0	1	yards/minute
+25	yd/s	yards/second	0.9144	0	1	yards/second
+26	s	seconds	1	0	1	The second is the duration of 9 192 631 770 periods of the radiation corresponding to the transition between the two hyperfine levels of the ground state of the cesium 133 atom.
+26	min	minutes	60	0	1	minute
+26	hour	hours	3600	0	1	hour
+26	day	days	86400	0	1	day
+26	month	months	2592000	0	1	stadard month (30 days)
+26	year	years	31536000	0	1	stadard year (365 days)
+26	century	century	3153600000	0	1	period of one hundred years
+27	°C	Celsius	1	273.15	1	The Celsius temperature scale is still sometimes referred to as the 'centigrade' scale. Centigrade means 'consisting of or divided into 100 degrees' the Celsius scale, devised by Swedish Astronomer Andres Celsius (1701-1744) for scientific purposes, has 100 degrees between the freezing point of 0 degrees and boiling point of 100 degrees of pure water at sea level and standard air pressure (1 atmosphere = 29.92 inches of mercury). The term Celsius was adopted in 1948 by an international conference on weights and measures. This is the most widely used scale in the world.
+27	°F	Fahrenheit	5/9	2298.35/9	1	On the Fahrenheit scale, used primarily in the United States, the freezing point of water is 32 degrees and the boiling point is 212 degrees while measured at standard pressure. Zero degrees Fahrenheit was the coldest temperature that the German born scientist Gabriel Daniel Fahrenheit could create with a mixture of ice and ordinary salt. He is credited with the invention of the mercury thermometer and introduced it and his scale in 1714 in Holland, where he lived most of his life. His thermometer was based on the original design papers by Galileo for a temperature and pressure measuring device.
+27	K	Kelvin	1	0	1	The kelvin, unit of thermodynamic temperature, is the fraction 1/273.16 of the thermodynamic temperature of the triple point of water. The Kelvin scale (or absolute scale) was invented by William Thomson, also know as Lord Kelvin, a British scientist who made important discoveries about heat in the 1800's. Scientists have determined that the coldest it can get, in theory, is minus 273.15 degrees Celsius. This temperature has never actually been reached, though scientists have come close. The value, minus 273.15 °C, is called absolute zero. At this temperature scientists believe that molecular motion would stop. You can't get any colder than that. The Kelvin scale uses this number as zero.
+27	°Re	Réaumure	5/4	273.15	1	The Réamur scale (now obsolete) was created by R. A. F. de Réamur (1683-1757) a French scientist. He knew nothing of Fahrenheit's work and did not use mercury, but did produce a good working thermometer. He used the freezing point of water as his zero mark, and put the boiling point at 80 degrees. This scale was widely used in the 18th and 19th centuries, especially in France, in scientific communities. He has a greater claim to fame for much of the other scientific work he did.
+27	°Rr	Rankine	5/9	0	1	The Rankine scale was created by W. J. M. Rankine (1820-1872), a Scottish engineer. This scale was merely the Kelvin scale using the Fahrenheit degree instead of the Celsius. It has also had some wide use in scientific communities but is of no practical use in other areas of measurement.
+28	m	meters	72/0.254	0	1	meters
+28	inch	inches	72	0	1	inches
+28	point	points	1	0	1	points
+28	excelsior	excelsior	3	0	1	excelsior
+28	brilliant	brilliant	3.5	0	1	brilliant
+28	ciceros	ciceros	72*4.55/25.4	0	1	ciceros
+28	diamond	diamond	4	0	1	diamond
+28	pearl	pearl	5	0	1	pearl
+28	agate	agate	5.5	0	1	agate
+28	nonpareil	nonpareil	6	0	1	nonpareil
+28	mignonette	mignonette	6.5	0	1	mignonette
+28	mignon	mignon	7	0	1	mignon
+28	brevier	brevier	8	0	1	brevier
+28	borgeois	borgeois	9	0	1	borgeois
+28	long primer	long primer	10	0	1	long primer
+28	small pica	small pica	11	0	1	small pica
+28	pica	pica	12	0	1	pica
+28	english	english	14	0	1	english
+28	columbian	columbian	16	0	1	columbian
+28	great primer	great primer	18	0	1	great primer
+28	paragon	paragon	20	0	1	paragon
+28	meridian	meridian	44	0	1	meridian
+28	canon	canon	48	0	1	canon
+28	stick	stick	144	0	1	stick
+29	m³	cubic meter	1	0	3	cubic meter
+29	barrels	barrels (oil)	1.58987294928E-1	0	1	barrels (oil)
+29	bushel	bushels (UK)	3.636872E-2	0	1	bushels (UK)
+29	bushel	bushels (US)	3.523907016688E-2	0	1	bushels (US)
+29	cofee spoon	cofee spoon	1.23223E-6	0	1	cofee spoon
+29	cup	cup (US)	2.3658825E-4	0	1	cup (US)
+29	dash	dash	3.0806E-7	0	1	dash
+29	drop	drop	6.485E-8	0	1	drop
+29	fluid dram	fluid dram	3.69669E-6	0	1	fluid dram
+29	fluid ounce	fluid ounce (UK)	2.841308E-5	0	1	fluid ounce (UK)
+29	fluid ounce	fluid ounce (US)	2.957353E-5	0	1	fluid ounce (US)
+29	fluid oz	fluid ounces (UK)	2.84130625E-5	0	1	fluid ounces (UK)
+29	fluid oz	fluid ounces (US)	2.95735295625E-5	0	1	fluid ounces (US)
+29	ft³	cubic feet	2.8316846592E-2	0	3	cubic feet
+29	gallon	gallon (UK)	4.54609E-3	0	1	gallons (UK)
+29	gallon	gallons, dry (US)	4.40488377086E-3	0	1	gallons, dry (US)
+29	gallon	gallons, liquid (US)	3.785411784E-3	0	1	gallons, liquid (US)
+29	gill	gill (UK)	1.420654E-4	0	1	gill (UK)
+29	gill	gill (US)	1.182941E-4	0	1	gill (US)
+29	inch³	cubic inch	1.6387064E-5	0	3	cubic inch
+29	l	liter	1E-3	0	1	liters = 1 dm³
+29	l	liter (1901-1964)	1.000028E-3	0	1	liters (1901-1964)
+29	m³	cubic meter	1	0	3	cubic meter
+29	peck	peck	8.809768E-3	0	1	peck
+29	pinch	pinch	6.1612E-7	0	1	pinch
+29	pint	pint (UK)	5.6826125E-4	0	1	pints (UK)
+29	pint	pint, dry (US)	5.506104713575E-4	0	1	pints, dry (US)
+29	pint	pints, liquid (US)	4.73176473E-4	0	1	pints, liquid (US)
+29	quart	quart (UK)	1.1365225E-3	0	1	quarts (UK)
+29	quart	quart (US dry)	1.101221E-3	0	1	quart (US dry)
+29	quart	quart, dry (US)	1.101220942715E-3	0	1	quarts, dry (US)
+29	quart	quarts, liquid (US)	9.46352946E-4	0	1	quarts, liquid (US)
+29	tablespoon	tablespoon (UK)	1.848294E-5	0	1	tablespoon (UK)
+29	tablespoon	tablespoon (US)	1.478677E-5	0	1	tablespoon (US)
+29	teaspoon	teaspoon (UK)	4.62073E-6	0	1	teaspoon (UK)
+29	teaspoon	teaspoon (US)	4.92892E-6	0	1	teaspoon (US)
+29	yd³	cubic yard	7.64554857984E-1	0	3	cubic yards
+30	liter	liters	1000	0	1	liter
+30	anker	anker	45460.662	0	1	anker
+30	arroba	arroba	16125.8644	0	1	arroba
+30	aum	aum	113559.1680	0	1	aum
+30	balthazar	balthazar	12000	0	1	balthazar
+30	barn gallon	barn gallon	11365.1663	0	1	barn gallon
+30	beer barrel	beer barrel	136271.0016	0	1	beer barrel
+30	beer/ale butt/pipe	beer/ale butt/pipe	490981.6934	0	1	beer/ale butt/pipe
+30	beer/ale hogshead (UK)	beer/ale hogshead (UK)	245490.8467	0	1	beer/ale hogshead (UK)
+30	beer/ale puncheon	beer/ale puncheon	272542.0032	0	1	beer/ale puncheon
+30	beer/ale tun(UK)	beer/ale tun(UK)	981963.3868	0	1	beer/ale tun(UK)
+30	british bottle	british bottle	95467.3969	0	1	british bottle
+30	cantaro	cantaro	13521.1108	0	1	cantaro
+30	double	double	59.1454	0	1	double
+30	english beer barrel	english beer barrel	163650	0	1	english beer barrel
+30	fifth	fifth	757.0611	0	1	fifth
+30	firkin	firkin	34067.75	0	1	firkin
+30	gallon (US liq)	gallon (US liq)	3785.3056	0	1	gallon (US liq)
+30	gallon (ale/beer)	gallon (ale/beer)	4620	0	1	gallon (ale/beer)
+30	jeroboam	jeroboam	3000	0	1	jeroboam
+30	jigger	jigger	44.35905	0	1	jigger
+30	keg	keg	37853.056	0	1	keg
+30	liters	liters	1000	0	1	liters
+30	magnum	magnum	1500	0	1	magnum
+30	methusaleh	methusaleh	6000	0	1	methusaleh
+30	nebuchadnezzar	nebuchadnezzar	15000	0	1	nebuchadnezzar
+30	noggin/gill (UK)	noggin/gill (UK)	142.0636	0	1	noggin/gill (UK)
+30	octave	octave	71600.546	0	1	octave
+30	pony	pony	22.179525	0	1	pony
+30	rehoboam	rehoboam	4500	0	1	rehoboam
+30	runlet/kilderkin	runlet/kilderkin	68135.5008	0	1	runlet/kilderkin
+30	salmanezer	salmanezer	9000	0	1	salmanezer
+30	shot(ounce)	shot(ounce)	29.5727	0	1	shot(ounce)
+30	tierce	tierce	158982.8352	0	1	tierce
+30	triple	triple	88.7181	0	1	triple
+30	wine barrel	wine barrel	119237.1264	0	1	wine barrel
+30	wine bottle	wine bottle	750	0	1	wine bottle
+30	wine butt/pipe	wine butt/pipe	572804.3816	0	1	wine butt/pipe
+30	wine hogshead (UK)	wine hogshead (UK)	286402.1908	0	1	wine hogshead (UK)
+30	wine puncheon	wine puncheon	317965.6704	0	1	wine puncheon
+30	wine tun(UK)	wine tun(UK)	1145608.7632	0	1	wine tun(UK)
+30	yard	yard	2365.816	0	1	yard
