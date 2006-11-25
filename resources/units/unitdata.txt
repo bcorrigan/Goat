@@ -84,17 +84,17 @@
 2	word	word 32b	32	0	1	word on a 32-bit machine; word is the natural data size of a computer, depending on the CPU.
 2	word	word 36b	36	0	1	word on a 36-bit machine; word is the natural data size of a computer, depending on the CPU.
 3	g/cm³	grams/cubic centimetres	1	0	1	grams/cubic centimetres
-3	g/cl	grams/centiliter	1E-1	0	1	grams/centiliter
-3	g/dal	grams/dekaliters	1E-4	0	1	grams/dekaliters
+3	g/cl	grams/centilitre	1E-1	0	1	grams/centilitre
+3	g/dal	grams/dekalitres	1E-4	0	1	grams/dekalitres
 3	g/dam³	grams/cubic dekametres	1E-9	0	1	grams/cubic dekametres
-3	g/dl	grams/deciliter	1E-2	0	1	grams/deciliter
+3	g/dl	grams/decilitre	1E-2	0	1	grams/decilitre
 3	g/dm³	grams/cubic decimetres	1E-3	0	1	grams/cubic decimetres
-3	g/hl	grams/hectoliter	1E-5	0	1	grams/hectoliter
+3	g/hl	grams/hectolitre	1E-5	0	1	grams/hectolitre
 3	g/hm³	grams/cubic hectometres	1E-12	0	1	grams/cubic hectometres
-3	g/kl	grams/kiloliter	1E-6	0	1	grams/kiloliter
+3	g/kl	grams/kilolitre	1E-6	0	1	grams/kilolitre
 3	g/km³	grams/cubic kilometres	1E-15	0	1	grams/cubic kilometres
-3	g/l	grams/liter	1E-3	0	1	grams/liter
-3	g/ml	grams/milliliters	1	0	1	grams/milliliters
+3	g/l	grams/litre	1E-3	0	1	grams/litre
+3	g/ml	grams/millilitres	1	0	1	grams/millilitres
 3	g/mm³	grams/cubic millimetres	1E3	0	1	grams/cubic millimetres
 3	g/m³	grams/cubic metres	1E-6	0	1	grams/cubic metres
 3	gr/gal	grains/gallon (UK)	0.000014253948343691203	0	1	grains/gallon (UK)
@@ -178,7 +178,7 @@
 15	cables	cables	1.8288E2	0	1	cables
 15	chain	surveyors chains	20.1168	0	1	chains (surveyors')
 15	cubit	cubit	0.4318	0	1	cubit; theoretically the distance between the elbow and the middle finger
-15	earth diametre	earth diametre	1.274263E7	0	1	earth diametre
+15	earth diameter	earth diameter	1.274263E7	0	1	earth diameter
 15	ell	ell (UK)	0.875	0	1	ell (UK)
 15	ems	ems (pica)	4.2333E-3	0	1	ems (pica)
 15	fathoms	fathoms	1.8288	0	1	fathom; finger-tip to finger-tip with arms outstreched
@@ -200,7 +200,7 @@
 15	perche	perche	5.0292	0	1	rods, perches, poles
 15	pole	pole	5.0292	0	1	rods, perches, poles
 15	rod	rod	5.0292	0	1	rods, perches, poles
-15	solar diametre	solar diametre	1.3919E9	0	1	solar diametre
+15	solar diameter	solar diameter	1.3919E9	0	1	solar diameter
 15	span	span	0.2286	0	1	spans
 15	yard	yard	0.9144	0	1	yard
 15	--- Foreign ---		1	0	1	
@@ -519,8 +519,8 @@
 29	gill	gill (UK)	1.420654E-4	0	1	gill (UK)
 29	gill	gill (US)	1.182941E-4	0	1	gill (US)
 29	inch³	cubic inch	1.6387064E-5	0	3	cubic inch
-29	l	liter	1E-3	0	1	liters = 1 dm³
-29	l	liter (1901-1964)	1.000028E-3	0	1	liters (1901-1964)
+29	l	litre	1E-3	0	1	litres = 1 dm³
+29	l	litre (1901-1964)	1.000028E-3	0	1	litres (1901-1964)
 29	m³	cubic metre	1	0	3	cubic metre
 29	peck	peck	8.809768E-3	0	1	peck
 29	pinch	pinch	6.1612E-7	0	1	pinch
@@ -536,7 +536,7 @@
 29	teaspoon	teaspoon (UK)	4.62073E-6	0	1	teaspoon (UK)
 29	teaspoon	teaspoon (US)	4.92892E-6	0	1	teaspoon (US)
 29	yd³	cubic yard	7.64554857984E-1	0	3	cubic yards
-30	liter	liters	1000	0	1	liter
+30	litre	litres	1000	0	1	litre
 30	anker	anker	45460.662	0	1	anker
 30	arroba	arroba	16125.8644	0	1	arroba
 30	aum	aum	113559.1680	0	1	aum
@@ -558,7 +558,7 @@
 30	jeroboam	jeroboam	3000	0	1	jeroboam
 30	jigger	jigger	44.35905	0	1	jigger
 30	keg	keg	37853.056	0	1	keg
-30	liters	liters	1000	0	1	liters
+30	litres	litres	1000	0	1	litres
 30	magnum	magnum	1500	0	1	magnum
 30	methusaleh	methusaleh	6000	0	1	methusaleh
 30	nebuchadnezzar	nebuchadnezzar	15000	0	1	nebuchadnezzar
