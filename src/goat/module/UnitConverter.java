@@ -429,7 +429,7 @@ public class UnitConverter extends Module {
     }
 
     public void processChannelMessage(Message m) {
-        if( m.modCommand.equals("convert")) {
+        if( m.modCommand.toLowerCase().equals("convert")) {
             Pattern p = Pattern.compile(".*\\d+([,\\d]+)?(\\.\\d+)? (.+?) to (.*)");
             Matcher matcher = p.matcher(m.modTrailing);
             if(matcher.matches()) {
@@ -455,13 +455,13 @@ public class UnitConverter extends Module {
                 String result = doCalculation( valueArg, multiplierFrom, multiplierTo, unitFrom, unitTo);
                 m.createReply(valueArg + " " + p_multiplier_description[multiplierFrom].split(" ")[0] + p_unit_symbol[unitFrom] + " = " + result + " " + p_multiplier_description[multiplierTo].split(" ")[0] + p_unit_symbol[unitTo]).send();
             }
-        } else if( m.modCommand.equals("describeunit")) {
+        } else if( m.modCommand.toLowerCase().equals("describeunit")) {
             String unitArg = m.modTrailing;
             int unit = extractUnit(unitArg);
             if(!checkUnit(unit,unitArg,m))
                 return;
             m.createPagedReply( p_category_name[ p_unit_category_id[unit] ] +": " + p_unit_description[unit]).send();
-        } else if( m.modCommand.equals("findunit")) {
+        } else if( m.modCommand.toLowerCase().equals("findunit")) {
             String searchTerm = m.modTrailing;
             String results = "";
             boolean categoryUsed = false;
