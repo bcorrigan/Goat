@@ -25,7 +25,7 @@ public class Googlism extends Module {
     private static final String WHERE_URL = "http://www.googlism.com/index.htm?type=3&ism=";
     private static final String WHEN_URL = "http://www.googlism.com/index.htm?type=4&ism=";
 
-    private String[] stripWords = {"and","the","of","is","are", "those", "these", "was"};
+    private String[] stripWords = {"and","the","of","is","are", "those", "these", "was", "a", "in", "for"};
 
     public void processChannelMessage(Message m) {
         if(!m.directlyAddressed) {
@@ -123,8 +123,10 @@ public class Googlism extends Module {
         while(true) {
             for (String stripWord : stripWords) {
                 if (query.startsWith(stripWord)) {
-                    query = query.replaceFirst(stripWord, "").trim();
-                    continue outer;
+                    if(query.replaceFirst(stripWord, "").startsWith(" ")) {
+                        query = query.replaceFirst(stripWord, "").trim();
+                        continue outer;
+                    }
                 }
             }
             break;
