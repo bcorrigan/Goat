@@ -100,7 +100,14 @@ public class Message {
 	 */
 	public String replyTo = "" ;
 
-	/**
+    /**
+     * If goat has been directly addressed, this is true.
+     * That is to say, if the user has said "goat, blah blah blah" it is true,
+     * but if they have said merely "blah blah blah" it is false
+     */
+    public boolean directlyAddressed;
+
+    /**
 	 * CTCP is a slight addition to the protocol. Effectively, this allows extension commands to be supplied, which can be
 	 * ignored by the client if not understood. CTCP is usually a PRIVMSG, where the trailing is encapulated by ASCII 0x01,
 	 * and the first full word of which is the command.
@@ -592,13 +599,15 @@ public class Message {
 			}
 			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
                     && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
-				if (st.hasMoreTokens()) {
+                directlyAddressed = true;
+                if (st.hasMoreTokens()) {
 					modCommand = st.nextToken();
 					while (st.hasMoreTokens())
 						modTrailing += st.nextToken() + ' ';         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
 				}
 			} else {
-				modCommand = removeFormattingAndColors(firstWord);
+                directlyAddressed = false;
+                modCommand = removeFormattingAndColors(firstWord);
 				while (st.hasMoreTokens())
 					modTrailing += st.nextToken() + ' ';
 			}
@@ -611,10 +620,12 @@ public class Message {
 			}
 			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
                     && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
-				if (st.hasMoreTokens())
+                directlyAddressed = true;
+                if (st.hasMoreTokens())
 					modCommand = st.nextToken();
 			} else {
-				modCommand = removeFormattingAndColors(firstWord);
+                directlyAddressed = false;
+                modCommand = removeFormattingAndColors(firstWord);
 			}
 
 			while (st.hasMoreTokens()) {
