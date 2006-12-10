@@ -35,6 +35,9 @@ if Integer(bak_version) < Integer(version)
         batchFile.close
         `sftp -b batchFile bc@lagash.satanosphere.com:/home/bc`
         File.delete("batchFile")
+    else
+        puts "ERROR backing up goat - likely net is down"
+        exit(1)
     end
 
     #store version
