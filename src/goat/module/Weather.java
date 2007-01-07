@@ -10,6 +10,7 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
 import goat.core.Users;
+import goat.util.PhaseOfMoon;
 
 import java.util.Calendar;
 
@@ -61,7 +62,7 @@ public class Weather extends Module {
 			
 
 			if (! user.getWeatherStation().equals("")) {
-				m.createReply(getReport(user, m.modCommand, user.getWeatherStation())).send();
+				m.createPagedReply(getReport(user, m.modCommand, user.getWeatherStation())).send();
 				return;
 			}
 			
@@ -98,7 +99,7 @@ public class Weather extends Module {
 					users.save();
 				}
 			}
-			m.createReply(report).send();
+			m.createPagedReply(report).send();
 		}
 	}
 
@@ -146,7 +147,7 @@ public class Weather extends Module {
 					inputLine = inputLine.replaceAll(": ", ':' + Message.BOLD + ' ');
 					inputLine = Message.BOLD + inputLine;
 				}
-				response += inputLine + ' ';
+				response += inputLine;
 				
 				// Might want to move these pattern compiles out of the while loop...
 
@@ -290,9 +291,13 @@ public class Weather extends Module {
 				short_response +=  ".  " + sun_report ;
 				response += ".  " + sun_report ;
 			}
+			Date now = new Date();
+			short_response += ".  Moon " + PhaseOfMoon.phaseAsShortString(now.getTime()) ;
+			response += ".  Moon: " + PhaseOfMoon.phaseAsString(now.getTime()) ;
 			if (0 != minutes_since_report) {
 				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station ;
 			}
+			response += ".  Score " + scoreRounded + ".";
             short_response += ".  Score " + scoreRounded + ".";               
             if (command.equalsIgnoreCase("fullweather")) {
 				return response;

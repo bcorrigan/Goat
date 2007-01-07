@@ -105,7 +105,10 @@ public class Pager {
 	}
 
 	public static String smush(String text) {
-		text = text.replaceAll("\\s+", " ") ;
+		// convert all whitespace to spaces
+		text = text.replaceAll("\\s", " ") ;
+		// condense all multi-whitespace down to two spaces
+		text = text.replaceAll("\\s{3,}", "  ") ;
 		text = text.trim() ;
 		return text ;
 	}
