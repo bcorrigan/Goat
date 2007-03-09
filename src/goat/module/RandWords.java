@@ -41,31 +41,31 @@ public class RandWords extends Module {
 		int num = 1 ;
 		if (m.modCommand.equalsIgnoreCase("randword") 
 				|| m.modCommand.equals("randwords")) {
+			String numString = "";
 			CommandParser parser = new CommandParser(m) ;
 			if (parser.has("num")) 
-				num = parser.getInt("num") ;
-			else if (parser.remaining().matches("^\\d+$")) {
-				parser.setRemaining(parser.remaining().replaceFirst("^\\d+$", "")) ;
+				numString = parser.get("num") ;
+			else if (parser.remaining().matches("^\\d+$")) 
+				numString = parser.remaining() ;
+			if (! numString.equals(""))
 				try {
-					num = Integer.parseInt(m.modTrailing.trim()) ;
+					num = Integer.parseInt(numString) ;
 				} catch (NumberFormatException e) {
 					m.createReply("Don't fuck with me, tough guy.").send() ;
 					return ;
 				}
-				if (num > 1000) {
-					m.createReply("Now you're just being a prick.").send() ;
-					return ;
-				} else if (num > 100) {
-					m.createReply("Don't be ridiculous.").send() ;
-					return ;
-				} else if (num < 1) {
-					m.createReply("er...").send() ;
-					return ;
-				} else if (num > 30) {
-					num = 30 ;
-				}
-			}
-			
+			if (num > 1000) {
+				m.createReply("Now you're just being a prick.").send() ;
+				return ;
+			} else if (num > 100) {
+				m.createReply("Don't be ridiculous.").send() ;
+				return ;
+			} else if (num < 1) {
+				m.createReply("er...").send() ;
+				return ;
+			} else if (num > 30) {
+				num = 30 ;
+			}		
 			m.createReply(randWordString(num)).send() ;
 		} else if (m.modCommand.equalsIgnoreCase("bandname")) {
 			String arg = m.modTrailing.trim() ;
