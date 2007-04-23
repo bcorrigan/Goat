@@ -68,12 +68,44 @@ public class ShutUp extends Module {
 	} ;
 	
 	// ideally, these should be in order of increasing severity, and not look
-	//   odd when prefixed with "[uname], " or appended with ", uname." or "."
+	//   odd when prefixed with "[uname], " or appended with ", uname"
+	//   periods will be added if you don't supply one, and question marks
+	//   will be moved to the end if the uname is appended to the question.
+	//   
 	public static final String[] responses = {
 			"shut up",
+			"yadda yadda yadda",
+			"la la la la NOT LISTENING",
+			"pipe down",
+			"blag blag blag",
+			"I'm not your bartender",
+			"let it rest",
+			"give us a little peace and quiet",
+			"have you had too much coffee?",
+			"go bother your mother",
+			"god, you're boring",
+			"maybe you should go outside and get some fresh air",
+			"isn't it a lovely day?  To go outside, away from the computer?",
+			"go cry about it on your livejournal",
+			"do you ever get the feeling that no-one listens to you?",
+			"don't your hands start to hurt when you do that?",
+			"you do realize there are other people trying to use this channel, don't you?",
+			"leave us alone and put it on your goddamned blog",
+			"has anyone ever walked away from you while you were in the middle of saying something?",
+			"fascinating.  Really",
+			"enough already",
+			"have you considered not typing anymore?",
+			"have you considered therapy?",
+			"have you considered suicide?",
+			"shut your pie-hole",
+			"you must be feeling lonely",
+			"tell it to someone who cares",
+			"I don't want to hear about it",
+			"would you mind shutting the fuck up?",
 			"shut the fuck up",
 			"fucking shut up",
-			"fuck off.  Now",
+			"do you think you could go fuck off for a little while?",
+			"eat a bag of dicks",
 			"give it a fucking rest",
 			"please shut the fuck up",
 			"you're being fucking boring",
@@ -104,11 +136,11 @@ public class ShutUp extends Module {
 	
 	private String blatherer = "";     // who is blathering?
 	private int blatherCount = 0;      // how long have they been blathering?
-	private int blatherThreshold = 4 ; // how much of this blather will we put up with?
+	private int blatherThreshold = 7 ; // how much of this blather will we put up with?
 	private int kipismCount = 0;       // and is it that bastard kip again?
 	
 	private int commandCount = 0;                        // has someone been bossing goat around?		
-	private int commandThreshold = 2*blatherThreshold ;  // and how much will goat tolerate?
+	private int commandThreshold = blatherThreshold + 5;  // and how much will goat tolerate?
 	
 	public ShutUp() {
 	}
@@ -183,16 +215,28 @@ public class ShutUp extends Module {
 	}
 	
 	public void randomReply(String[] replies, Message m) {
-		String reply = pickRandom(replies) ;
+		String reply = pickRandom(replies).trim() ;
+		boolean isQuestion = false;
+		if (reply.substring(reply.length() - 1).equals("?")) {
+			reply = reply.substring(0, reply.length() - 1);
+			isQuestion = true;
+		}
+		if (reply.substring(reply.length() - 1).equals(".")) {
+			reply = reply.substring(0, reply.length() - 1);
+		}
 		int rand = random.nextInt(100) ;
 		if (rand < 60) 
-			reply = m.sender + ", " + reply + "." ;
+			reply = m.sender + ", " + reply;
 		else if(rand < 80)
-			reply = m.sender + ": " + reply + "." ;
+			reply = m.sender + ": " + reply;
 		else if(rand < 90)
-			reply = capitalise(reply) + ", " + m.sender + "." ;
+			reply = capitalise(reply) + ", " + m.sender;
 		else 
-			reply = capitalise(reply) + "." ;
+			reply = capitalise(reply);
+		if(isQuestion)
+			reply += "?";
+		else
+			reply += ".";
 		m.createReply(reply).send();
 	}
 	
