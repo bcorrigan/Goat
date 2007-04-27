@@ -257,8 +257,8 @@ public class ServerConnection extends Thread {
 				// uncomment below to console-view messages sent before the Logger is loaded
 				// security note:  passwords.
 				
-				System.err.println("Couldn't find Logger module for outgoing message, skipping:");
-				System.err.println("   " + m.toString()) ;
+				//System.err.println("Couldn't find Logger module for outgoing message, skipping:");
+				//System.err.println("   " + m.toString()) ;
 				
 			}
 		}
