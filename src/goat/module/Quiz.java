@@ -99,10 +99,9 @@ public class Quiz extends Module implements Runnable {
 
         //now take two letters away
         if (tip.size() >= 2) {
-            tip.remove(0);
-            tip.remove(0);
-        } else {
-            tip.remove(0);
+        	tip.remove(0);
+        	if(tip.size() >= 1)
+        		tip.remove(0);
         }
 
         //now convert to a StringBuf

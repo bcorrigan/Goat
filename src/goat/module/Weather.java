@@ -463,7 +463,7 @@ public class Weather extends Module {
 		}
 		if (null == tz) {
 			ret += " GMT" ;
-		}
+		} 
 		return ret ;
 	}
 	

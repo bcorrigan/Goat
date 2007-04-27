@@ -35,8 +35,9 @@ public class Define extends Module {
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
+
    public static String[] getCommands() {
-		return new String[] { "define", "randef", "dictionaries", "dictionary", "oed" };
+		return new String[] { "define", "randef", "dictionaries", "dictionary", "oed", "thesaurus"};
    }
 	
 	public Define() {
@@ -52,7 +53,7 @@ public class Define extends Module {
 
 		if(debug)
 			System.out.println("processing command: " + m.modCommand) ;
-		if (m.modCommand.equalsIgnoreCase("define")) {
+		if (m.modCommand.equalsIgnoreCase("define") || m.modCommand.equalsIgnoreCase("thesaurus")) {
 			define(m) ;
 		} else if (m.modCommand.equalsIgnoreCase("randef")) { 
 			randef(m) ;
@@ -71,7 +72,9 @@ public class Define extends Module {
 		if (parser.has("dictionary")) 
 			dictionary = parser.get("dictionary") ;
 		else if (parser.has("dict") ) 
-			dictionary = parser.get("dict") ;
+			dictionary = parser.get("dict");
+		if (m.modCommand.equalsIgnoreCase("thesaurus"))
+			dictionary = "moby-thes";
 		int num = 1 ;
 		if (parser.has("number"))
 			num = parser.getInt("number") ;
@@ -226,7 +229,7 @@ public class Define extends Module {
 		return "http://www.urbandictionary.com/define.php?term=" + word.replaceAll(" ", "%20") ;
 	}
         
-	public Vector getUrbanDefinitions(String word, Message m) {
+	public Vector getUrbanDefinitions(String word) throws SocketTimeoutException {
       Vector definitionList = null;
       HttpURLConnection connection = null;
       try {
@@ -247,9 +250,8 @@ public class Define extends Module {
         	 System.out.println("Page retrieved from urbandictionary for word \"" + word + "\"") ;
          definitionList = parseUrbanPage(new BufferedReader(new InputStreamReader(connection.getInputStream())));
 		} catch (SocketTimeoutException e) {
-			m.createReply("Connection to urbandictionary timed out.").send() ;
 			System.err.println("Connection to urbandictionary timed out.") ;
-			return null ;
+			throw new SocketTimeoutException(e.toString()) ;
       } catch (IOException e) {
     	  if(debug)
     		  System.err.println("IOException caught.") ;
@@ -261,6 +263,15 @@ public class Define extends Module {
       return definitionList ;
    }   
    
+	public Vector getUrbanDefinitions(String word, Message m) {
+		try {
+			return getUrbanDefinitions(word) ;
+		} catch (SocketTimeoutException e) {
+			m.createReply("Connection to urbandictionary timed out.").send() ;
+		}
+		return null;
+	}
+	
    private Vector parseUrbanPage(BufferedReader br) throws IOException {
 		// In which we use java regexps, the painful way
 		Vector definitionList = new Vector();

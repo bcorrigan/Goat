@@ -99,7 +99,7 @@ public class Colours extends Module {
 			if (colourNum < 0) 
 				colourNum = -colourNum ;
 			colourNum = colourNum % (numColours + 3) ;
-			System.out.println("selecting colour for \"" + text + "\", hash=" + text.hashCode() + ", colorNum=" + text.hashCode() % (numColours + 3) );
+			//System.out.println("selecting colour for \"" + text + "\", hash=" + text.hashCode() + ", colorNum=" + text.hashCode() % (numColours + 3) );
 			if (colourNum < numColours )
 				msg = colourStrings[colourNum] + text ;
 			else if (numColours + 0 == colourNum)
