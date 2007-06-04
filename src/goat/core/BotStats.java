@@ -32,8 +32,13 @@ public class BotStats {
 	 */
 	public static String servername;
 	public static String clientName;
-	
-	/**
+
+    /**
+     * Set to true in unit test context
+     */
+    public static boolean testing = false;
+
+    /**
 	 * The charset the bot is currently using
 	 */
 	private static Charset charset = Charset.forName("ISO-8859-1");
