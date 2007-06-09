@@ -32,7 +32,7 @@ public class DiceRoll extends Module {
 				}
 				Dice dice = new Dice(roll);
 				dice.throwDice();
-				m.createPagedReply(dice.toString()).send();
+				m.createPagedReply(m.sender + ": " + dice).send();
 			} catch(ParseException pe) {
 				pe.printStackTrace();
 				if( pe.getMessage().equals("Throw size too big"))
