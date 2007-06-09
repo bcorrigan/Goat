@@ -28,7 +28,10 @@ public class ModuleController  {
 	public ModuleController() {
 		buildAllModulesList() ;
 		buildAllCommandsList() ;
-	}
+		
+		BotStats.modules = getAllModules();
+		BotStats.commands = getAllCommands();
+	}	
 	
     /**
 	 * Loads a module.
@@ -111,6 +114,8 @@ public class ModuleController  {
 	 * could give us a list of all classes in a package, wouldn't it?
 	 */
 	private void buildAllModulesList() {
+		if(BotStats.testing)
+			return;
         JarFile jf = null;
         try {
         	jf = new JarFile("goat.jar") ;

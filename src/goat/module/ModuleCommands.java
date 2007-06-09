@@ -30,8 +30,13 @@ public class ModuleCommands extends Module {
 		}
 		if (m.modCommand.equals("lsmod")) {
 			lsmod(m);
+		} else if( m.modCommand.equals("showcommands")) {
+			String listC = "";
+			for( int i=0; i<BotStats.commands.length-1; i++ )
+				listC += BotStats.commands[i] + ", ";
+			listC += BotStats.commands[ BotStats.commands.length-1 ] + ".";
+			m.createPagedReply(listC).send();
 		}
-
 	}
 
 	private void parse() {
@@ -147,7 +152,7 @@ public class ModuleCommands extends Module {
 
 
 	public static String[] getCommands() {
-		return new String[]{"lsmod", "rmmod", "insmod", "chans"};
+		return new String[]{"lsmod", "rmmod", "insmod", "chans", "showcommands"};
 	}
 
 

@@ -33,6 +33,9 @@ public class BotStats {
 	public static String servername;
 	public static String clientName;
 
+	public static String[] commands;
+	public static String[] modules;
+	
     /**
      * Set to true in unit test context
      */
