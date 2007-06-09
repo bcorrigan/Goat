@@ -90,9 +90,7 @@ public class ModuleCommands extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-		if (m.modCommand.equals("lsmod")) {
-			lsmod(m);
-		}
+	    processPrivateMessage(m);
 	}
 
 	private void insmod(String moduleName, ArrayList chans) {
