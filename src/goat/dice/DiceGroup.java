@@ -1,6 +1,7 @@
 package goat.dice;
 
 import java.util.ArrayList;
+import static goat.dice.Dice.*;
 
 /**
  * A group of dice of same size. This is useful cos we have various operations we want to perform on same-sized dice.
@@ -43,13 +44,13 @@ public class DiceGroup {
 	}
 	
 	public String toString() {
-		StringBuilder term = new StringBuilder( dice.size() + "d" + size + ":" );
+		StringBuilder term = new StringBuilder( BOLD + dice.size() + "d" + size +  NORMAL + ":" + UNDERLINE );
 		for( int i=0; i<dice.size(); i++ ) {
 			term.append(dice.get(i).getResult());
 			if(i<(dice.size()-1))
 				term.append(",");
 		}
-		term.append(":" + getTotal());
+		term.append(UNDERLINE + ":" + getTotal());
 		return term.toString();
 	}
 	

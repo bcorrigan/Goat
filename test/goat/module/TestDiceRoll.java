@@ -58,41 +58,42 @@ public class TestDiceRoll {
 
     @Test
     public void testAggregation() {
-    	long time = System.currentTimeMillis();
         roll("1d1+3d1+0d1+0d1  + 2d1+4d1+0d0+0d0 ","roll"); 
         String result = cleanMessage(testMessage.sentMessage);
         assertEquals( "Aggregation of terms should work as expected", "10d1:1,1,1,1,1,1,1,1,1,1:10  Total:10", result );
-        System.out.println("Time taken: " + (System.currentTimeMillis()-time)/1000.0 );
     }
     
     @Test
     public void testAbusiveRollSize() {
     	roll("100d0+345d23+780d99","roll");
     	String result = cleanMessage(testMessage.sentMessage);
-    	assertEquals("Goat should refuse to roll a zillion dice", "Don't be a qpt, please.", result );
+    	assertEquals("1)Goat should refuse to roll a zillion dice", "I'm not rolling that many dice, I'd be here all day!", result );
+    	roll("99999999999999999999999999999999999999999999999999999999999999999999d88","roll");
+    	result = cleanMessage(testMessage.sentMessage);
+    	assertEquals("2)Goat should refuse to roll a zillion dice", "It is so funny to make me try and throw more dice than exist in the universe.", result );
     }
     
     @Test
     public void testAbusiveDieSize() {
     	roll("1d999999999999999999999999999999999999999999999999999999999999999999999999","roll");
     	String result = cleanMessage(testMessage.sentMessage);
-    	assertEquals("Goat should refuse to roll a die with a zillion sides", "I'm not rolling a sphere, thanks.", result);
+    	assertEquals("Goat should refuse to roll a die with a zillion sides", "I'm not rolling a sphere, sorry.", result);
     }
     
     @Test
     public void testCrapInput() {
     	roll("d6+d6+2x9","roll");
     	String result = cleanMessage(testMessage.sentMessage);
-    	assertEquals("Goat should detect shite input", "That doesn't seem right somehow. Sorry.", result);
+    	assertEquals("Goat should detect shite input", "Sorry, I don't know how to do that.", result);
     	roll("-5d6","roll");
     	result = cleanMessage(testMessage.sentMessage);
-    	assertEquals("Goat should detect shite input", "That doesn't seem right somehow. Sorry.", result);
+    	assertEquals("Goat should detect shite input", "Sorry, I don't know how to do that.", result);
     	roll("100d6+1.0d6","roll");
     	result = cleanMessage(testMessage.sentMessage);
-    	assertEquals("Goat should detect shite input", "That doesn't seem right somehow. Sorry.", result);
+    	assertEquals("Goat should detect shite input", "Sorry, I don't know how to do that.", result);
     	roll("100d6+1d6.0001","roll");
     	result = cleanMessage(testMessage.sentMessage);
-    	assertEquals("Goat should detect shite input", "That doesn't seem right somehow. Sorry.", result);
+    	assertEquals("Goat should detect shite input", "Sorry, I don't know how to do that.", result);
     }
     
     @Test
@@ -159,6 +160,6 @@ public class TestDiceRoll {
     }
 
     private String cleanMessage(String msg) {
-        return msg.replaceAll(Message.BOLD, "").replaceAll(Message.UNDERLINE, "");
+        return msg.replaceAll(Message.BOLD, "").replaceAll(Message.UNDERLINE, "").replaceAll(Message.NORMAL, "");
     }
 }

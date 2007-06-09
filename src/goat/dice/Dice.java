@@ -9,7 +9,12 @@ import java.util.Collection;
  * retrieve them, and so on and so forth. 
  * @author Barry Corrigan
  */
-public class Dice  {	
+public class Dice  {
+	//Populate these to mark up output
+	public static String BOLD = "";
+	public static String UNDERLINE = "";
+	public static String NORMAL="";
+	
 	private HashMap<Integer,DiceGroup> dice = new HashMap<Integer,DiceGroup>();
 	
 	public void addDie(Die die) {
@@ -36,7 +41,6 @@ public class Dice  {
 	
 	/**
 	 * Rolls all the dice! ie populates the result parameter of every Die object.
-	 * TODO thorw method should be on dice objects! That way different types of dice can do weird stuff
 	 */
 	public void throwDice() {
 		for( DiceGroup diceGroup:dice.values() ) {
@@ -78,15 +82,24 @@ public class Dice  {
                 if( terms[i].split("d")[0].equals("") )
                 	throwSize=1;		//if no size is specified, use 1. eg a term like "d6"
                 else
-                	throwSize = Integer.parseInt( terms[i].split("d")[0] );
+                	try {
+                		throwSize = Integer.parseInt( terms[i].split("d")[0] );
+                	} catch( NumberFormatException nfe ) {
+                    	throw new ParseException( "Throw size too big", -1 );
+                    }
                 //now get diceSize
-                int diceSize = Integer.parseInt( terms[i].split("d")[1]);
+                int diceSize;
+                try {
+                	diceSize = Integer.parseInt( terms[i].split("d")[1]);
+                } catch( NumberFormatException nfe ) {
+                	throw new ParseException( "Dice size too big", -1 );
+                }
                 //create a Die and add it
                 for( int j=0; j<throwSize; j++ )
                 	addDie( new Die(diceSize) );
             } else {
                 throw new ParseException("Error parsing roll", -1);                
-            } 
+            }
         }
 	}
 	
@@ -110,8 +123,11 @@ public class Dice  {
                 if( terms[i].split("d")[0].equals("") )
                 	throwSizeTotal+=1;		//if no size is specified, use 1. eg a term like "d6"
                 else
-                	throwSizeTotal += Integer.parseInt( terms[i].split("d")[0] );
-
+                	try {
+                		throwSizeTotal += Integer.parseInt( terms[i].split("d")[0] );
+                	} catch( NumberFormatException nfe ) {
+                    	throw new ParseException( "Throw size too big", -1 );
+                    }
             } else {
                 throw new ParseException("Error parsing roll", -1);                
             } 
@@ -130,7 +146,7 @@ public class Dice  {
 		for( DiceGroup diceGroup:dice.values() ) {
 			result.append( diceGroup + " ");
 		}
-		result.append(" Total:" + getTotalScore());
+		result.append(BOLD + " Total:" + NORMAL + getTotalScore());
 		System.out.println("RESULT:" + result);
 		return result.toString();
 	}	
