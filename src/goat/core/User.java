@@ -10,7 +10,9 @@ public class User {
 	private String name;
 	private String weatherStation;
 	private String timeZone;
-
+	private long lastMessageTimestamp = 0;
+	private Message lastMessage;
+	
 	public User() {
 		name = "";
 		weatherStation = "";
@@ -81,5 +83,22 @@ public class User {
 	
 	public void setTimeZone(TimeZone tz) {
 		this.timeZone = tz.getID() ;
+	}
+	
+	public void setLastMessage(Message m) {
+		lastMessageTimestamp = System.currentTimeMillis();
+		lastMessage = m;
+	}
+
+	public long getLastMessageTimestamp() {
+		return lastMessageTimestamp;
+	}
+
+	public void setLastMessageTimestamp(long lastMessageTimestamp) {
+		this.lastMessageTimestamp = lastMessageTimestamp;
+	}
+
+	public Message getLastMessage() {
+		return lastMessage;
 	}
 }

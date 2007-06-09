@@ -130,6 +130,11 @@ public class Message {
 
 	private static HashMap pagerCache = new HashMap() ;
 
+	
+	public Message() {
+		// so's we can serialize
+	}
+	
 	/**
 	 * The most low level way of creating a new message, this requires some knowledge of the IRC RFC. prefix can be left
 	 * empty (but not null) with most outgoing messages.
@@ -893,5 +898,141 @@ public class Message {
 		// copy to console
 		// System.out.println("(goat): " + this.trailing) ;
 		Message.send(this);
+	}
+
+	public String getChanname() {
+		return channame;
+	}
+
+	public void setChanname(String channame) {
+		this.channame = channame;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public String getCTCPCommand() {
+		return CTCPCommand;
+	}
+
+	public void setCTCPCommand(String command) {
+		CTCPCommand = command;
+	}
+
+	public String getCTCPMessage() {
+		return CTCPMessage;
+	}
+
+	public void setCTCPMessage(String message) {
+		CTCPMessage = message;
+	}
+
+	public boolean isDirectlyAddressed() {
+		return directlyAddressed;
+	}
+
+	public void setDirectlyAddressed(boolean directlyAddressed) {
+		this.directlyAddressed = directlyAddressed;
+	}
+
+	public String getHostmask() {
+		return hostmask;
+	}
+
+	public void setHostmask(String hostmask) {
+		this.hostmask = hostmask;
+	}
+
+	public boolean isCTCP() {
+		return isCTCP;
+	}
+
+	public void setCTCP(boolean isCTCP) {
+		this.isCTCP = isCTCP;
+	}
+
+	public String getModCommand() {
+		return modCommand;
+	}
+
+	public void setModCommand(String modCommand) {
+		this.modCommand = modCommand;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public String getSender() {
+		return sender;
+	}
+
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	public String getTrailing() {
+		return trailing;
+	}
+
+	public void setTrailing(String trailing) {
+		this.trailing = trailing;
+	}
+
+	public boolean isAuthorised() {
+		return isAuthorised;
+	}
+
+	public void setAuthorised(boolean isAuthorised) {
+		this.isAuthorised = isAuthorised;
+	}
+
+	public boolean isPrivate() {
+		return isPrivate;
+	}
+
+	public void setPrivate(boolean isPrivate) {
+		this.isPrivate = isPrivate;
+	}
+
+	public String getModTrailing() {
+		return modTrailing;
+	}
+
+	public void setModTrailing(String modTrailing) {
+		this.modTrailing = modTrailing;
+	}
+
+	public String getReplyTo() {
+		return replyTo;
+	}
+
+	public void setReplyTo(String replyTo) {
+		this.replyTo = replyTo;
+	}
+
+	public ArrayList getWords() {
+		return words;
+	}
+
+	public void setWords(ArrayList words) {
+		this.words = words;
 	}
 }
