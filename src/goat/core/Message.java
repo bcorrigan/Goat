@@ -553,7 +553,6 @@ public class Message {
 							state = 0;
 							break;
 						}
-
 				}
 			}
 

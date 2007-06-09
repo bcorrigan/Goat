@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Date;
 import java.util.Random;
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 
 public class Users extends Module {
 
 	public static final String TIMEZONE_HELP_MESSAGE = 
-		"To set your timezone, type 'timezone [code]', or 'timezone unset' to erase your setting.  A partial code will work, if I can resolve it to a single timeszone.  To find your code, try a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html";
+		"To set your timezone, type 'timezone [code]', or 'timezone unset' to erase your setting.  A partial timezone code will work, if I can resolve it to a single timeszone.  To find your code directly instead of making me guess, try a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html";
 
 	private static final int MAX_LISTINGS = 30;
 	
@@ -166,15 +166,27 @@ public class Users extends Module {
 			if (users.hasUser(name)) {
 				User u = users.getUser(name);
 				if(u.getLastMessageTimestamp() != 0) {
-					DateFormat df = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, Locale.UK);
-					if(u.getTimeZone() != "") {
-						df.setTimeZone(TimeZone.getTimeZone(u.getTimeZone()));
+					SimpleDateFormat df = new SimpleDateFormat("EEEE, d MMMM yyyy, hh:mma z", Locale.UK);
+					if(users.hasUser(m.sender) && users.getUser(m.sender).getTimeZone() != "")
+						df.setTimeZone(TimeZone.getTimeZone(users.getUser(m.sender).getTimeZone()));
+					else {
+						df.setTimeZone(TimeZone.getTimeZone("Zulu"));
+						// nag the user if they haven't got their time zone set
+						Message.createPagedPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 					}
+					String stamp = df.format(new Date(u.getLastMessageTimestamp()));
+					if(u.getTimeZone() != "") {
+						df = new SimpleDateFormat("d MMM hh:mma", Locale.UK);
+						df.setTimeZone(TimeZone.getTimeZone(u.getTimeZone()));
+						stamp += ", " + df.format(new Date(u.getLastMessageTimestamp())) + " " + u.getName() + " time";
+					}
+					stamp = stamp.replaceAll("AM", "am");  // SimpleDateFormat doesn't give us a lower-case am/pm marker
+					stamp = stamp.replaceAll("PM", "pm");
 					String durString = durationString(System.currentTimeMillis() - u.getLastMessageTimestamp());
 					m.createReply(u.getName() + " was last seen " + durString
 							+ " ago in " + u.getLastMessage().channame + " saying: " 
 							+ u.getLastMessage().trailing
-							+ " [" + df.format(new Date(u.getLastMessageTimestamp())) + "]").send();
+							+ "   [" + stamp + "]").send();
 				} else 
 					m.createReply("Oddly, I know about " + name + ", but I've never heard it say anything.").send();
 			} else {
