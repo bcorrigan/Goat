@@ -1,40 +1,35 @@
 package goat.core;
 
 import java.util.TimeZone;
+import java.util.HashMap;
 
 /**
  * A simple javabean to represent a user
  */
 public class User {
 
-	private String name;
-	private String weatherStation;
-	private String timeZone;
-	private long lastMessageTimestamp = 0;
-	private Message lastMessage;
+	private String name = "";
+	private String weatherStation = "";
+	private String timeZone = "";
+	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
+	private Message lastMessage = null;
 	
 	public User() {
-		name = "";
-		weatherStation = "";
-		timeZone = "" ;
 	}
 	
 	public User(String uname) {
 		name = uname ;
-		weatherStation = "" ;
-		timeZone = "" ;
 	}
 
 	public User(String name, String weatherStation) {
 		this.name = name;
 		this.weatherStation = weatherStation;
-		this.timeZone = "";
 	}
 	
-	public User(String name, String location, String tz) {
+	public User(String name, String weatherStation, String timezone) {
 		this.name = name;
-		this.weatherStation = location;
-		this.timeZone = TimeZone.getTimeZone(tz).getID();
+		this.weatherStation = weatherStation;
+		this.timeZone = TimeZone.getTimeZone(timezone).getID();
 	}
 
 	public String getName() {
@@ -86,18 +81,18 @@ public class User {
 	}
 	
 	public void setLastMessage(Message m) {
-		lastMessageTimestamp = System.currentTimeMillis();
+		lastMessageTimestamps.put(m.channame, System.currentTimeMillis());
 		lastMessage = m;
 	}
 
-	public long getLastMessageTimestamp() {
-		return lastMessageTimestamp;
+	public Long getLastMessageTimestamp() {
+		return lastMessageTimestamps.get(lastMessage.channame);
 	}
 
-	public void setLastMessageTimestamp(long lastMessageTimestamp) {
-		this.lastMessageTimestamp = lastMessageTimestamp;
+	public Long getLastMessageTimestamp(String channel) {
+		return lastMessageTimestamps.get(channel);
 	}
-
+	
 	public Message getLastMessage() {
 		return lastMessage;
 	}

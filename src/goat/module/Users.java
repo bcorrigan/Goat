@@ -147,8 +147,26 @@ public class Users extends Module {
 	}
 
 	private void seen(Message m) {
-		String name = Message.removeFormattingAndColors(m.modTrailing).trim();
-		name = name.replaceAll("\\?", "");
+		String remaining = Message.removeFormattingAndColors(m.modTrailing).replaceAll("\\s+", " ").trim();
+		remaining = remaining.replaceAll("\\?", "");
+		String name = "";
+		String channel = "";
+		final String HERE = "here";
+		if(remaining.contains(" ")) {
+			name = remaining.substring(0, remaining.indexOf(" "));
+			remaining = remaining.substring(remaining.indexOf(" ")).trim();
+			if(remaining.matches("(?i)here.*") || remaining.matches("(?i)in here.*"))
+				channel = HERE;
+			else if(remaining.startsWith("in "))
+				channel = remaining.substring(remaining.indexOf(" ")).trim();
+			else if(remaining.equals("*"))
+				channel = "";
+			if (! channel.equals("") 
+					&& !channel.equals(HERE)
+					&& !channel.startsWith("#"))
+				channel = "#" + channel;
+		} else
+			name = remaining;
 		if (name.equalsIgnoreCase(m.sender)) {
 			String snarkyReplies[] = new String[] {
 					"Yes.",
@@ -174,25 +192,46 @@ public class Users extends Module {
 						// nag the user if they haven't got their time zone set
 						Message.createPagedPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 					}
-					String stamp = df.format(new Date(u.getLastMessageTimestamp()));
+					
+					Long lastSeen = u.getLastMessageTimestamp();
+					String saying = " saying: " + u.getLastMessage().trailing;
+				
+					if(channel.equals(""))
+						channel = u.getLastMessage().channame;
+					else {
+						String temp = channel;
+						if(temp.equals(HERE))
+							temp = m.channame;
+						if(! u.getLastMessage().channame.equals(temp)) {
+							saying = "";
+							lastSeen = u.getLastMessageTimestamp(temp);
+							if(lastSeen == null) {
+								m.createReply("I've seen " + name + ", but never in " + channel + ".").send();
+								return;
+							}
+						}
+					}
+					
+					String stamp = df.format(new Date(lastSeen));
 					if(u.getTimeZone() != "") {
 						df = new SimpleDateFormat("d MMM hh:mma", Locale.UK);
 						df.setTimeZone(TimeZone.getTimeZone(u.getTimeZone()));
-						stamp += ", " + df.format(new Date(u.getLastMessageTimestamp())) + " " + u.getName() + " time";
+						stamp += ", " + df.format(new Date(lastSeen)) + " " + u.getName() + " time";
 					}
 					stamp = stamp.replaceAll("AM", "am");  // SimpleDateFormat doesn't give us a lower-case am/pm marker
 					stamp = stamp.replaceAll("PM", "pm");
-					String durString = durationString(System.currentTimeMillis() - u.getLastMessageTimestamp());
-					m.createReply(u.getName() + " was last seen " + durString
-							+ " ago in " + u.getLastMessage().channame + " saying: " 
-							+ u.getLastMessage().trailing
-							+ "   [" + stamp + "]").send();
+					
+					
+					String durString = durationString(System.currentTimeMillis() - lastSeen);
+					m.createReply(u.getName() + " was last seen in " + channel + " "
+							+ durString + " ago" + saying + "    [" + stamp + "]").send();
 				} else 
 					m.createReply("Oddly, I know about " + name + ", but I've never heard it say anything.").send();
 			} else {
 				m.createReply("I have never seen " + name + ".").send();
 			}
-		}
+		} else
+			m.createReply("I ain't seen nothin'").send();
 		
 	}
 
