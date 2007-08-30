@@ -26,68 +26,87 @@ public class Confessions extends Module {
     private int noConfessions = 0;
 	private int hits = 0;
 	public Confessions() {
+		//debug
+		System.out.println("loading Confessions module...");
 		getConfessions(null);
 	}
 
 
 	//TODO Just realised the page is an xml page so it'd prolly be a lot better to just get the info using a simple xml decoder or something
 	private boolean getConfessions(Message m) {
+		boolean ret = false;
         HttpURLConnection connection = null;
 		try {
 			URL grouphug = new URL("http://grouphug.us/random");
 			connection = (HttpURLConnection) grouphug.openConnection();
-			connection.setConnectTimeout(5000);  //just 5 seconds, we can't hang around
+			connection.setConnectTimeout(3000);  // just 3 seconds, we can't hang around
+			connection.setReadTimeout(10000); // ten seconds, give it a little longer to actually get the page once connected
 			confessions = parseConfession(connection);
+			if (confessions.isEmpty()) {
+				// why we risk a recursion blowout here, I'm not sure.
+				//	getConfessions(m);
+			} else {
+				ret = true;
+			}
 		} catch (SocketTimeoutException e) {
 			if (null != m)
 				m.createReply("Timed out trying to extract confessions").send() ;
-			e.printStackTrace() ;
-			return false ;
+			else
+				System.out.println("Timed out trying to extract confessions");
+			// e.printStackTrace() ;
 		} catch (IOException e) {
 			if (m != null)
 				m.createReply("I/O problem while trying to extract confessions").send() ;
+			else
+				System.out.println("I/O problem while trying to extract confessions");
 			e.printStackTrace();
-			return false;
 		} finally {
-            if(connection!=null) connection.disconnect();
+            if(connection!=null) {
+					connection.disconnect();
+				} else
+					System.out.println("null connection, Confession extraction aborted");
+
         }
-		// why we risk a recursion blowout here, I'm not sure.
-		if (confessions.isEmpty())
-			getConfessions(m);
-		return true;
+		return ret;
 	}
 
 	private LinkedList<String> parseConfession(HttpURLConnection connection) throws SocketTimeoutException, IOException {
+		//debug
 		String confession = "";
 		LinkedList<String> confessions = new LinkedList<String>();
-		connection.connect();
-		hits++;
-		if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
-			System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
+		try {
+			connection.connect();
+			hits++;
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
+				System.out.println("Fuck at grouphug, HTTP Response code: " + connection.getResponseCode());
 
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		while ((inputLine = in.readLine()) != null) {
-			if (inputLine.matches(".*conf-text.*")) {  //inside confession
-				while (true) {
-					confession += inputLine + " ";
-					if (inputLine.matches(".*</td>.*")) { //outside confession - break
-						break;
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			while ((inputLine = in.readLine()) != null) {
+				if (inputLine.matches(".*conf-text.*")) {  //inside confession
+					while (true) {
+						confession += inputLine + " ";
+						if (inputLine.matches(".*</td>.*")) { //outside confession - break
+							break;
+						}
+						inputLine = in.readLine();
 					}
-					inputLine = in.readLine();
+					confession = confession.replaceAll("<.*?>", "");
+					confession = confession.replaceAll("\\s{2,}?", " ");
+					confession = confession.replaceAll("\\r", "");
+					confession = confession.replaceAll("\\t", "");
+					confession = confession.trim();
+					if (confession.length() > 0) {
+						confessions.addFirst(confession);
+					}
+					confession = "";
 				}
-				confession = confession.replaceAll("<.*?>", "");
-				confession = confession.replaceAll("\\s{2,}?", " ");
-				confession = confession.replaceAll("\\r", "");
-				confession = confession.replaceAll("\\t", "");
-				confession = confession.trim();
-				if (confession.length() > 0) {
-					confessions.addFirst(confession);
-				}
-				confession = "";
 			}
+			in.close();
+		} catch(SocketTimeoutException ste) {
+			// System.out.println("Connection timed out");
+			throw ste;
 		}
-		in.close();
 		return confessions;
 	}
 
@@ -116,10 +135,6 @@ public class Confessions extends Module {
 					confession = searchConfessions("\"" + query + "\"", m);
 				else
 					confession = searchConfessions(query, m) ;
-				if(confession!=null)
-					m.createPagedReply(confession).send();
-				else
-					m.createReply("I'm afraid I just don't feel guilty about " + query + ".").send();
 			} else if(confessions.isEmpty()) {
 				if(getConfessions(m))
 					m.createPagedReply(confessions.removeFirst()).send();
@@ -156,7 +171,8 @@ public class Confessions extends Module {
 				searchString = searchString.replaceAll(" ", "%20");
 				URL grouphug = new URL("http://grouphug.us/search/" + searchString + "/" + i*15 + "/n");
 				connection = (HttpURLConnection) grouphug.openConnection();
-				connection.setConnectTimeout(5000) ;
+				connection.setConnectTimeout(3000) ;
+				connection.setReadTimeout(10000);
 				searchedConfessions = parseConfession(connection);
 				if(!searchedConfessions.isEmpty()) {
 					confession = searchedConfessions.remove((int) (Math.random() * searchedConfessions.size()));
@@ -166,15 +182,18 @@ public class Confessions extends Module {
 						if(!confessions.contains(storeConfession))
 							confessions.addFirst(storeConfession);
 					}
+					if(m != null)
+						m.createPagedReply(confession).send();
 					return confession;
+				} else {
+					if (m != null)
+						m.createReply("I'm afraid I just don't feel guilty about " + searchString + ".").send();
 				}
 			}
-			return null;
 		} catch (SocketTimeoutException e) {
 			if (null != m)
 				m.createReply("Timed out while trying to extract confessions about " + searchString).send();
-			e.printStackTrace() ;
-			return null ;
+			// e.printStackTrace() ;
 		} catch (IOException e) {
 			if (null != m)
 				m.createReply("I/O problem while trying to extract confessions about " + searchString).send();
