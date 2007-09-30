@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
@@ -131,9 +133,9 @@ public class Confessions extends Module {
 				// stick quotes around queries with whitespace in them.
 				//   we should change this up if grouphug ever implements any 
 				//   sort of boolean or otherwise advanced search options.
-				if (query.matches(".*\\s+.*"))
-					confession = searchConfessions("\"" + query + "\"", m);
-				else
+				//if (query.matches(".*\\s+.*"))
+				//	confession = searchConfessions("\"" + query + "\"", m);
+				//else
 					confession = searchConfessions(query, m) ;
 			} else if(confessions.isEmpty()) {
 				if(getConfessions(m))
@@ -166,10 +168,21 @@ public class Confessions extends Module {
 		LinkedList<String> searchedConfessions = new LinkedList<String>();
         HttpURLConnection connection = null;
 		try {
-			for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
+			// why on god's green earth is this for loop here,
+			// and why does it bother with Math.random() when
+			// it multiplies the result by the integer 3, 
+			// which always results in 3?
+			// for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
 				searchString = searchString.trim();
-				searchString = searchString.replaceAll(" ", "%20");
-				URL grouphug = new URL("http://grouphug.us/search/" + searchString + "/" + i*15 + "/n");
+				searchString = Message.removeFormattingAndColors(searchString);
+				String query = searchString;
+				// pop our search string in quotes if it's got spaces in it.
+				if (query.matches(".*\\s+.*"))
+					query = "\"" + query + "\"";
+				// we use URI here with a multi-argument constructor
+				// because that way it encodes characters properly for us.
+				URI searchURI = new URI("http", "//grouphug.us/search/" + query, null);
+				URL grouphug = searchURI.toURL();
 				connection = (HttpURLConnection) grouphug.openConnection();
 				connection.setConnectTimeout(3000) ;
 				connection.setReadTimeout(10000);
@@ -189,7 +202,9 @@ public class Confessions extends Module {
 					if (m != null)
 						m.createReply("I'm afraid I just don't feel guilty about " + searchString + ".").send();
 				}
-			}
+			// }
+		} catch (URISyntaxException e) {
+			m.createReply("Um, I couldn't make a valid URI out of \"" + searchString + "\".").send();
 		} catch (SocketTimeoutException e) {
 			if (null != m)
 				m.createReply("Timed out while trying to extract confessions about " + searchString).send();
