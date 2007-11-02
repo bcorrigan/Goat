@@ -20,7 +20,8 @@ public class WordGame extends Module implements Runnable {
 
 	private boolean playing;						//True if a game is being played just now
 	private Dict dict = new Dict();					//the entire dictionary
-	private ArrayList validWords; 					//all the valid answers
+	private ArrayList<String> validWords; 					//all the valid answers
+    private ArrayList<String> anagrams;                    //all the winning answers, ie anagrams of answer
 	private ArrayList letters;						//letters in this match
 	private String answer;							//the answer word
 	private int longestPossible;   					//longest possible word length for this game
@@ -91,12 +92,21 @@ public class WordGame extends Module implements Runnable {
 			if (currentWinning[ANSWER].length() == longestPossible) {
 				reply += " This was the longest possible.";
 				lastAnswers.put(m.channame, currentWinning[ANSWER]) ;
-			} else
-				reply += "  The longest possible word was \"" + answer + "\".";
+			}
 		} else {
 			reply = "Nobody guessed a correct answer :(";
-			reply += "  A longest possible word was \"" + answer + "\".";
 		}
+        
+        if(anagrams.size()>1) {
+            reply+=" There were " + anagrams.size() + " possible answers: ";
+            for (int i=0; i<(anagrams.size()-1); i++) {
+                reply += anagrams.get(i) + ", ";
+            }
+        } else {
+            reply+=" The longest possible answer was: ";
+        }
+        reply+=anagrams.get(anagrams.size()-1) + ".";
+        
 		m.createReply(reply).send();
 		if (currentWinning != null) {
 			scores.commit(currentWinning, score);   //commit new score to league table etc
@@ -112,6 +122,12 @@ public class WordGame extends Module implements Runnable {
 		t = new Thread(this);
 		t.start();
 		validWords = dict.getMatchingWords(answer);
+        anagrams = new ArrayList<String>();
+        int answerLength = answer.length();
+        for(String word:validWords) {
+            if( word.length() == answer.length() ) //anagram
+                anagrams.add(word);
+        }
 		currentWinning = null;
 	}
 

@@ -188,6 +188,9 @@ public class Scores implements Comparator {
 		target.createReply(Message.BOLD + matchWinner[NAME].toUpperCase() + Message.BOLD
 				+ Message.YELLOW + " has " + Message.RED + Message.UNDERLINE
 				+ "WON THE MATCH!!!").send();
+        target.createReply("Scores at close of play: ");
+        sendScoreTable(target);
+        
 		if (scores.size() > 1) {
 			String[] entry1, entry2;
 			entry1 = (String[]) scores.get(0);
