@@ -8,6 +8,7 @@ import goat.util.Dict;
 import java.util.ArrayList;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.HashMap;
 
@@ -16,12 +17,12 @@ import java.util.HashMap;
  *         Date: Apr 25, 2004
  */
 
-public class WordGame extends Module implements Runnable {
+public class WordGame extends Module implements Runnable, Comparator<String> {
 
 	private boolean playing;						//True if a game is being played just now
 	private Dict dict = new Dict();					//the entire dictionary
-	private ArrayList<String> validWords; 					//all the valid answers
-    private ArrayList<String> anagrams;                    //all the winning answers, ie anagrams of answer
+	private ArrayList<String> validWords; 			//all the valid answers
+    private ArrayList<String> anagrams;             //all the winning answers, ie anagrams of answer
 	private ArrayList letters;						//letters in this match
 	private String answer;							//the answer word
 	private int longestPossible;   					//longest possible word length for this game
@@ -86,28 +87,49 @@ public class WordGame extends Module implements Runnable {
 
 	private void finaliseGame(Message m) {
 		String reply;
+        boolean won=false;
 		lastAnswers.put(m.channame, answer) ;
 		if (currentWinning != null) {
-			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + score + " points!";
+			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + score + " points! ";
 			if (currentWinning[ANSWER].length() == longestPossible) {
-				reply += " This was the longest possible.";
-				lastAnswers.put(m.channame, currentWinning[ANSWER]) ;
+				reply += " This was the longest possible. ";
+                won=true;
+				lastAnswers.put(m.channame, currentWinning[ANSWER]);
 			}
 		} else {
-			reply = "Nobody guessed a correct answer :(";
+			reply = "Nobody guessed a correct answer :( ";
 		}
         
         if(anagrams.size()>1) {
-            reply+=" There were " + anagrams.size() + " possible answers: ";
+            reply+= anagrams.size() + " possible winning answers: ";
             for (int i=0; i<(anagrams.size()-1); i++) {
-                reply += anagrams.get(i) + ", ";
+                reply += Message.BOLD + anagrams.get(i) + Message.BOLD + ", ";
             }
-        } else {
-            reply+=" The longest possible answer was: ";
+            
+        } else if(!won) {
+            reply+=" Longest possible: ";
         }
-        reply+=anagrams.get(anagrams.size()-1) + ".";
         
-		m.createReply(reply).send();
+        if( anagrams.size()>1&&won || !won )
+            reply+=Message.BOLD + anagrams.get(anagrams.size()-1) + Message.BOLD + ". ";
+        
+        //bung on 5 highest scoring words as examples of answers
+        //potentially there could be a bug here if there is only one possible answers,
+        //but as all the letters that make up a word are valid answers and all
+        //answers are at least 6 letters I don't think it can occur.
+        Collections.sort(validWords, this);
+        int numberAnswers = validWords.size();
+        validWords.removeAll(anagrams);
+        int examples = 5;
+        if( validWords.size()<5 )
+            examples = validWords.size();
+        reply+="Top " + examples + " non-winning out of " + numberAnswers + ": ";
+        for( int i=0; i<(examples-1); i++ ) {
+            reply += validWords.get(i) + ", ";
+        } 
+        reply += validWords.get(examples-1) + ".";        
+        
+		m.createPagedReply(reply).send();
 		if (currentWinning != null) {
 			scores.commit(currentWinning, score);   //commit new score to league table etc
 		}
@@ -249,4 +271,12 @@ public class WordGame extends Module implements Runnable {
 			return (String) lastAnswers.get(chan);
 		return null;
 	}
+
+    public int compare(String o1, String o2) {
+        if( o1.length()>o2.length() )
+            return -1;
+        else if ( o1.length() < o2.length() )
+            return 1;
+        return 0;
+    }
 }
