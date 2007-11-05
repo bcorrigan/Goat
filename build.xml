@@ -42,7 +42,7 @@
 	<target name="jar" depends="compile" description="Make a binary jar">
 		<mkdir dir="${jars}/bin"/>
 		<!--Need to narrow this to specific OSs via "os" property-->
-		<exec executable="/bin/sh" output="${build}/goatRevision" os="Linux, FreeBSD">
+		<exec executable="/bin/sh" output="${build}/goatRevision" os="Linux, FreeBSD, Mac OS X">
 			<arg line="tools/version.sh"/>
 		</exec>
 		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}">
