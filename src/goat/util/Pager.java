@@ -15,8 +15,9 @@ public class Pager {
 	
 	// Config-like stuff
 	public static final int maxMessageLength = 420 ;
-	private String innerPre = ".." ;
-	private String innerPost = "..[more]" ;
+	private String innerPre = "\u2026" ;
+	private String innerPost = "\u2026 [more]" ;
+	private int maxWalkback = 32;
 
 	//
 	private boolean untapped = true ; 
@@ -58,16 +59,16 @@ public class Pager {
 		String ret = "" ;
 		if (untapped) {
 			if (remaining() <= maxMessageLength) {
-				ret = getChunk(maxMessageLength) ;
+				ret = getPoliteChunk(maxMessageLength) ;
 			} else {
-				ret = getChunk(firstMax) + innerPost ;
+				ret = getPoliteChunk(firstMax) + innerPost ;
 			}
 			untapped = false ;
 		} else {
 			if (remaining() <= lastMax) {
-				ret = innerPre + getChunk(lastMax) ;
+				ret = innerPre + getPoliteChunk(lastMax) ;
 			} else {
-				ret = innerPre + getChunk(midMax) + innerPost ;
+				ret = innerPre + getPoliteChunk(midMax) + innerPost ;
 			}
 		}
 		return ret ;
@@ -102,6 +103,20 @@ public class Pager {
 			buffer = "" ;
 		}
 		return ret ;
+	}
+
+	//pop the first num chars off the buffer, after first walking num back
+	//to the nearest whitespace (but not walking back further than maxWalkback
+	private String getPoliteChunk(int num) {
+		boolean found = false;
+		if ( remaining() > num )
+			for (int i = num; i>=num-maxWalkback; i--) 
+				if(buffer.substring(i, i+1).matches("\\s")) {
+					found = true;
+					num = i;
+					break;
+				}
+		return getChunk(num).trim();
 	}
 
 	public static String smush(String text) {
