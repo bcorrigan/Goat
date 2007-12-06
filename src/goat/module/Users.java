@@ -272,6 +272,15 @@ public class Users extends Module {
 			ret += "am";
 		else
 			ret += "pm";
+		switch (cal.get(GregorianCalendar.DAY_OF_WEEK)) {
+			case GregorianCalendar.SUNDAY : ret += ", Sunday"; break;
+			case GregorianCalendar.MONDAY : ret += ", Monday"; break;
+			case GregorianCalendar.TUESDAY : ret += ", Tuesday"; break;
+			case GregorianCalendar.WEDNESDAY : ret += ", Wednesdayy"; break;
+			case GregorianCalendar.THURSDAY : ret += ", Thursday"; break;
+			case GregorianCalendar.FRIDAY : ret += ", Friday"; break;
+			case GregorianCalendar.SATURDAY : ret += ", Saturday"; break;
+		}
 		ret += ", " + cal.get(GregorianCalendar.DAY_OF_MONTH) + "/";
 		ret += (cal.get(GregorianCalendar.MONTH) + 1) + "/";
 		ret += cal.get(GregorianCalendar.YEAR);
