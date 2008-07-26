@@ -68,7 +68,7 @@ public class StockQuote extends Module {
 	 */
 	public void processChannelMessage(Message m) {
         String symbol = m.modTrailing.trim();
-        if( !symbol.matches("\\^?\\w*"))
+        if( !symbol.matches("\\^?\\w*(\\.\\w*)?"))
             return;
         HttpURLConnection connection = null;
         BufferedReader in = null;

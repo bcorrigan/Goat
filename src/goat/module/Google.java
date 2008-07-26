@@ -21,6 +21,7 @@ import com.google.soap.search.* ;
  */
 public class Google extends Module {
 
+	public static final String encoding = "UTF-8";
 	public static final String noResultString = "No results found" ;
 	private static Random random = new Random() ;
 
@@ -31,7 +32,7 @@ public class Google extends Module {
 		return new String[]{"google", "goatle", "googlefight", 
 			"searchcount", "pornometer", "pronometer", "pr0nometer",
 			"sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
-			"gayness"};
+			"gayness", "flickr"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -68,6 +69,8 @@ public class Google extends Module {
 				m.createReply(youtubeUrl(m.modTrailing)).send() ;
 			} else if ("imdb".equalsIgnoreCase(m.modCommand)) {
 				m.createReply(imdbUrl(m.modTrailing)).send() ;
+			} else if ("flickr".equalsIgnoreCase(m.modCommand)) {
+				m.createReply(flickrUrl(m.modTrailing)).send() ;
 			} else {
 				m.createReply(m.modCommand + " not yet implemented.").send() ;
 			}
@@ -77,12 +80,17 @@ public class Google extends Module {
 		}
 	}
 
-	private void ircGoogle (Message m) 
+	private void ircGoogleIncludeWikipedia (Message m) 
 		throws GoogleSearchFault {
 		m.removeFormattingAndColors() ;
 		m.createReply(luckyString(m.modTrailing)).send() ;
 	}
 	
+	private void ircGoogle (Message m) throws GoogleSearchFault {
+		m.modTrailing += " -site:wikipedia.org";
+		ircGoogleIncludeWikipedia(m);
+	}
+
 	private void ircSearchCount (Message m) {
 		m.createReply(GoatGoogle.numSearchesToday() + " google search requests have been made in the past 24 hours.").send() ;
 	}
@@ -196,7 +204,7 @@ public class Google extends Module {
 
 	public String imageGoogleUrl(String s) {
 		try {
-			return "http://images.google.com/images?safe=off&q=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+			return "http://images.google.com/images?safe=off&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -215,7 +223,7 @@ public class Google extends Module {
 	
 	public String imageYahooUrl(String s) {
 		try {
-			return "http://images.search.yahoo.com/search/images?&p=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+			return "http://images.search.yahoo.com/search/images?&p=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -224,7 +232,7 @@ public class Google extends Module {
 	
 	public String wikipediaUrl(String s) {
 		try {
-			return "http://www.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+			return "http://www.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -233,7 +241,7 @@ public class Google extends Module {
 	
 	public String youtubeUrl(String s) {
 		try {
-			return "http://youtube.com/results?search_query=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+			return "http://youtube.com/results?search_query=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -242,7 +250,16 @@ public class Google extends Module {
 	
 	public String imdbUrl(String s) {
 		try {
-			return "http://imdb.com/find?s=all&q=" + URLEncoder.encode(s.trim(), "ISO-8859-1") + " " + Message.BOLD + " "  ;
+			return "http://imdb.com/find?s=all&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	public String flickrUrl(String s) {
+		try {
+			return "http://flickr.com/search/?q=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}

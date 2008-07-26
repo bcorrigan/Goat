@@ -190,7 +190,7 @@ public class ShutUp extends Module {
 		// blatherer shutting-up
 		if (blatherCount >= blatherThreshold) {
 			// feel free to tweak the formula below
-			if (random.nextInt(100) < 20 + (blatherCount - blatherThreshold)*10 + kipismCount*20 + commandCount*5)
+			if (random.nextInt(100) < 10 + (blatherCount - blatherThreshold)*5 + kipismCount*20 + commandCount*5)
 				randomReply(responses, m);
 		// commands-abuser whinging	
 		} else if(commandCount >= commandThreshold) {

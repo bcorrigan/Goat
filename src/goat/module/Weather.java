@@ -111,7 +111,7 @@ public class Weather extends Module {
 			URL url = new URL("http://weather.noaa.gov/pub/data/observations/metar/decoded/" + station + ".TXT");
 			connection = (HttpURLConnection) url.openConnection();
 			// incompatible with 1.4
-			connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+			connection.setConnectTimeout(5000);  //just five seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
 				return "That doesn't seem to be a valid location, " + user.getName() + ", sorry.  See " + codes_url ;
@@ -236,10 +236,11 @@ public class Weather extends Module {
 				}
 			}
 			double windchill = 666.0;
-			if (!"".equals(temp_f))
+			if (!"".equals(temp_f)) {
 				windchill = Double.parseDouble(temp_f) ;
-			if (!"".equals(wind_mph))
-				windchill = windchill(Double.parseDouble(temp_f),Double.parseDouble(wind_mph)) ;
+				if (!"".equals(wind_mph))
+					windchill = windchill(Double.parseDouble(temp_f),Double.parseDouble(wind_mph)) ;
+			}
 			String sunrise_string = "" ;
 			String sunset_string = "" ;
 			//  Note: crappily named class Time is bundled in with the suntimes lib

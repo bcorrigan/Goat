@@ -277,21 +277,28 @@ public class Define extends Module {
 		Vector definitionList = new Vector();
 		String inputLine;
 		String word;
-		String definition;
+		String definition = "";
 		String example = "";
 		int defNumber = -1;
 		Matcher matcher;
 
-		Pattern def_numberPattern = Pattern.compile("^\\s*<td class=\"def_number\" width=\"20\">([0-9]+)\\.</td>\\s*$");
-		Pattern def_wordPattern = Pattern.compile("^\\s*<td class=\"def_word\">(.+)</td>\\s*$");
-		Pattern def_pStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$");
-		Pattern def_pBodyStartPattern = Pattern.compile("^\\s*<p>(.+?)(</p>)*\\s*$");
-		Pattern def_pBodyEndPattern = Pattern.compile("(.*)</p>\\s*$") ;
-		Pattern exampleStartPattern = Pattern.compile("^\\s*<p style=\"font-style: italic\">(.*)(<br />\\s*|</p>.*)$");
-		Pattern exampleEndPattern = Pattern.compile("(.*)</p>.*$") ;
+		Pattern numberStartPattern = Pattern.compile("^\\s*<td class='index'>\\s*$");
+		Pattern numberBodyPattern = Pattern.compile("^\\s*(\\d+)\\.\\s*$");
+		Pattern numberEndPattern = Pattern.compile("^\\s*</td>\\s*$");
+		Pattern wordStartPattern = Pattern.compile("^\\s*<td class='word'>\\s*$");
+		Pattern wordEndPattern = numberEndPattern;
+//		Pattern def_pStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$");
+//		Pattern def_pBodyStartPattern = Pattern.compile("^\\s*<p>(.+?)(</p>)*\\s*$");
+//		Pattern def_pBodyEndPattern = Pattern.compile("(.*)</p>\\s*$") ;
+
+		Pattern definitionStartPattern = Pattern.compile("^\\s*<div class='definition'>\\s*$");
+		Pattern definitionEndPattern = Pattern.compile("^\\s*</div>\\s*");
+
+		Pattern exampleStartPattern = Pattern.compile("^\\s*<div class='example'>\\s*$");
+		Pattern exampleEndPattern = Pattern.compile("^\\s*</div>\\s*$") ;
 		
-		Pattern startPattern = def_numberPattern;
-		Pattern endPattern = Pattern.compile("^\\s*</div>\\s*$");
+		Pattern startPattern = numberStartPattern;
+		//Pattern endPattern = Pattern.compile("^\\s*</div>\\s*$");
 
 		// this has grown and grown, and now it is completely ludicrous.
 		while ((inputLine = br.readLine()) != null) {
@@ -303,16 +310,47 @@ public class Define extends Module {
 				if(debug)
 					System.out.println("Start of definition block located.") ;
 				// parse out word number ;
+				matcher = numberBodyPattern.matcher(br.readLine());
+				matcher.find();
 				defNumber = Integer.parseInt(matcher.group(1));
+				// skip detection of numberEndPattern, not needed
 				if(debug)
 					System.out.println("  definition #" + defNumber) ;
 				// parse out word
-				matcher = def_wordPattern.matcher(br.readLine());
+				matcher = wordStartPattern.matcher(br.readLine());
 				while (!matcher.find())
-					matcher = def_wordPattern.matcher(br.readLine());
-				word = matcher.group(1);
+					matcher = wordStartPattern.matcher(br.readLine());
+				word = br.readLine().trim(); // word or phrase should be alone on a line, no parse necessary
 				if(debug)
 					System.out.println("  word found: " + word) ;
+				// parse out definition
+				definition = "";
+				matcher = definitionStartPattern.matcher(br.readLine());
+				while(!matcher.find())
+					matcher = definitionStartPattern.matcher(br.readLine());
+				String thisline = br.readLine();
+				matcher = definitionEndPattern.matcher(thisline);
+				while(!matcher.find()) {
+					definition += " " + thisline;
+					thisline = br.readLine();
+					matcher = definitionEndPattern.matcher(thisline);
+				}
+				definition = definition.trim();
+				// parse out example
+				example = "";
+				matcher = exampleStartPattern.matcher(br.readLine());
+				while(!matcher.find())
+					matcher = exampleStartPattern.matcher(br.readLine());
+				thisline = br.readLine();
+				matcher = exampleEndPattern.matcher(thisline);
+				while(!matcher.find()) {
+					example += " " + thisline;
+					thisline = br.readLine();
+					matcher = exampleEndPattern.matcher(thisline);
+				}
+				example = example.trim();
+/* old site design made this hideous, rewriting from scratch
+ 
 				// parse out definition
 				String tempLine = br.readLine() ;
 				matcher = def_pStartPattern.matcher(tempLine);
@@ -377,6 +415,7 @@ public class Define extends Module {
 					if(debug)
 						System.out.println("  raw example: " + example);
 				}
+*/
 
 				// massage our definition into one line of readable ascii
 				if (!example.equals(""))
@@ -385,7 +424,7 @@ public class Define extends Module {
 				definition = definition.replaceAll("\\n", " ");
 				definition = definition.replaceAll("&quot;", "\"");
 				definition = definition.replaceAll("&amp;", "&");
-				definition = definition.replaceAll("<br />", " ");
+				definition = definition.replaceAll("<br\\s*/>", "  ");
 				definition = definition
 						.replaceAll("<a .*?>", Message.UNDERLINE);
 				definition = definition.replaceAll("</a>", Message.NORMAL);
