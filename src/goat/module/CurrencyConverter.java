@@ -109,7 +109,7 @@ public class CurrencyConverter extends Module {
         
         // a few aliases... be sure to keep things lower case in this section
         m.modTrailing = m.modTrailing.replaceAll("gay money", "eur");
-        m.modTrailing = m.modTrailing.replaceAll("real money", "gbp");
+        m.modTrailing = m.modTrailing.replaceAll("real money", "usd");
         m.modTrailing = m.modTrailing.replaceAll("proper money", "gbp");
         m.modTrailing = m.modTrailing.replaceAll("blood money", "usd");
         m.modTrailing = m.modTrailing.replaceAll("oil money", "usd");
@@ -117,6 +117,17 @@ public class CurrencyConverter extends Module {
         m.modTrailing = m.modTrailing.replaceAll("eddie money", "usd");
         m.modTrailing = m.modTrailing.replaceAll("monopoly money", "cad");
         m.modTrailing = m.modTrailing.replaceAll("tubgirl money", "jpy");
+        m.modTrailing = m.modTrailing.replaceAll("dinero", "mxn");
+        m.modTrailing = m.modTrailing.replaceAll("pounds", "gbp");
+        m.modTrailing = m.modTrailing.replaceAll("pound", "gbp");
+        m.modTrailing = m.modTrailing.replaceAll("yen", "jpy");
+        m.modTrailing = m.modTrailing.replaceAll("dollars", "nzd");
+        m.modTrailing = m.modTrailing.replaceAll("dollar", "cad");
+        m.modTrailing = m.modTrailing.replaceAll("bucks", "usd");
+        m.modTrailing = m.modTrailing.replaceAll("buck", "usd");
+        m.modTrailing = m.modTrailing.replaceAll("quid", "gbp");
+        m.modTrailing = m.modTrailing.replaceAll("loonies", "cad");
+        m.modTrailing = m.modTrailing.replaceAll("loonie", "cad");
         
         if (!EXCHANGE_RATES.isEmpty()) {
         	String fromCurrency="";
