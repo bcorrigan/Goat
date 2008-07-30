@@ -36,61 +36,39 @@
  */
 package goat.module;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
 
-import org.jdom.input.SAXBuilder;
 
-import java.io.IOException;
 
-import java.net.URL;
 
 import java.text.NumberFormat;
-
+import org.jdom.JDOMException;
+import java.io.IOException;
 import java.util.*;
 
 import goat.core.Message;
 import goat.core.Module;
+import goat.core.User;
+import goat.core.Users;
+import static goat.util.CurrencyConverter.*;
 
 
-/**
- * Converts various currencies.
- *
- * @author Erik C. Thauvin
- * @version $Revision: 1.4 $, $Date: 2004/09/28 01:36:34 $
- *          <p/>
- *          Feb 11, 2004
- * @since 1.0
- */
+
 public class CurrencyConverter extends Module {
-    /**
-     * The exchange rates table URL.
-     */
-    private static final String EXCHANGE_TABLE_URL = "http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml";
-
-    /**
-     * The exchange rates.
-     */
-    private static final Map EXCHANGE_RATES = new TreeMap();
-
-    /**
-     * The rates keyword.
-     */
-    private static final String RATES_KEYWORD = "rates";
-
-    /**
-     * The last exchange rates table publication date.
-     */
-    private static String s_date = "";
-    
-    private static boolean DEBUG = true;
+	
+    private static boolean DEBUG = false;
+	/**
+	 * The rates keyword.
+	 */
+	private static final String RATES_KEYWORD = "rates";
 
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
 
+    public static String[] getCommands() {
+        return new String[]{"convert"};
+    }
+    
     public void processChannelMessage(Message m) {
     	if (DEBUG) {
     		System.out.println("convert: today's date is \"" + todaysDate() + "\"");
@@ -100,12 +78,28 @@ public class CurrencyConverter extends Module {
             EXCHANGE_RATES.clear();
         }
         if (EXCHANGE_RATES.isEmpty()) {
-        	updateRates(m);
-        	if (DEBUG)
-        		System.out.println("convert: new rate-table's date is \"" + s_date + "\"");
+        	try {
+        		updateRates();
+        		if (DEBUG)
+        			System.out.println("convert: new rate-table's date is \"" + s_date + "\"");
+        	} catch (JDOMException jde) {
+        		m.createReply("I had a problem parsing the exchange rate table").send();
+        		jde.printStackTrace();
+        		return;
+        	} catch (IOException ioe) {
+        		m.createReply("I had a problem downloading the exchange rates table").send();
+        		ioe.printStackTrace();
+        		return;
+        	}
         }
+        Users users = new Users();
+        User user = new User();
+        if (users.hasUser(m.sender)) {
+        	user = users.getUser(m.sender);
+        }
+        
         // System.out.println("1");
-        m.modTrailing = m.modTrailing.toLowerCase();
+        m.modTrailing = m.modTrailing.toLowerCase().trim();
         
         // a few aliases... be sure to keep things lower case in this section
         m.modTrailing = m.modTrailing.replaceAll("gay money", "eur");
@@ -133,29 +127,69 @@ public class CurrencyConverter extends Module {
         	String fromCurrency="";
         	double fromAmount = 1.0;
         	String toCurrency="";
+        	String[] cmds = {};
         	if(DEBUG)
         		System.out.println("convert: modTrailing is \"" + m.modTrailing + "\"");
-            if (m.modTrailing.matches("\\s*\\d+([,\\d]+)?(\\.\\d+)?\\s+[a-z]{3}\\s+to\\s+[a-z]{3}.*")) {
-                final String[] cmds = m.modTrailing.split("\\s+");
+            if (m.modTrailing.matches("\\d+([,\\d]+)?(\\.\\d+)?\\s+[a-z]{3}\\s+to\\s+[a-z]{3}.*")) {
+                cmds = m.modTrailing.split("\\s+");
                 fromCurrency = cmds[1];
-                toCurrency = cmds[3];
+                toCurrency = cmds[3].substring(0,3);
                 try {
                 	fromAmount = Double.parseDouble(cmds[0].replaceAll(",", ""));
                 } catch (NumberFormatException nfe) {
                     m.createReply("There's something funky about that number that confuses me.").send();
                     return;
                 }
-            } else if(m.modTrailing.matches("\\s*[a-z]{3}\\s+to\\s+[a-z]{3}.*")) {
-            	final String[] cmds = m.modTrailing.split("\\s+");
+            } else if(m.modTrailing.matches("[a-z]{3}\\s+to\\s+[a-z]{3}.*")) {
+            	cmds = m.modTrailing.split("\\s+");
             	fromCurrency = cmds[0];
-            	toCurrency = cmds[2];
+            	toCurrency = cmds[2].substring(0,3);
+            } else if(m.modTrailing.matches("\\d+([,\\d]+)?(\\.\\d+)?\\s+to\\s+[a-z]{3}.*")) {
+            	if(user.getCurrency().equals("")) {
+            		m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+            		return;
+            	} else {
+            		fromCurrency = user.getCurrency();
+            		cmds = m.modTrailing.split("\\s+");
+            		fromAmount = Double.parseDouble(cmds[0]);
+            		toCurrency = cmds[2].substring(0,3);
+            	}
+            } else if(m.modTrailing.matches("\\d+([,\\d]+)?(\\.\\d+)?\\s+[a-z]{3}.*")) {
+            	if(user.getCurrency().equals("")) {
+            		m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+            		return;
+            	} else {
+            		toCurrency = user.getCurrency();
+            		cmds = m.modTrailing.split("\\s+");
+            		fromAmount = Double.parseDouble(cmds[0]);
+            		fromCurrency = cmds[1].substring(0,3);
+            	}
+            } else if(m.modTrailing.matches("to\\s+[a-z]{3}.*")) {
+            	if(user.getCurrency().equals("")) {
+            		m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+            		return;
+            	} else {
+            		fromCurrency = user.getCurrency();
+            		cmds = m.modTrailing.split("\\s+");
+            		fromAmount = 1.0;
+            		toCurrency = cmds[1].substring(0,3);
+            	}
+            } else if(m.modTrailing.matches("[a-z]{3}.*")) {
+            	if(user.getCurrency().equals("")) {
+            		m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+            		return;
+            	} else {
+            		toCurrency = user.getCurrency();
+            		fromAmount = 1.0;
+            		fromCurrency = m.modTrailing.substring(0,3);
+            	}
             } else if (m.modTrailing.trim().toLowerCase().equals(RATES_KEYWORD)) {
                 m.createReply("Last Update: " + s_date).send();
-                final Iterator it = EXCHANGE_RATES.keySet().iterator();
+                final Iterator<String> it = EXCHANGE_RATES.keySet().iterator();
                 String rate;
                 final StringBuffer buff = new StringBuffer(0);
                 while (it.hasNext()) {
-                    rate = (String) it.next();
+                    rate = it.next();
                     if (buff.length() > 0) {
                         buff.append(", ");
                     }
@@ -185,54 +219,4 @@ public class CurrencyConverter extends Module {
         }
     }
 
-    public static String[] getCommands() {
-        return new String[]{"convert"};
-    }
-    
-    private static Double convert(Double amount, String fromCurrency, String toCurrency) throws NullPointerException, NumberFormatException {
-    	
-    	if(DEBUG)
-    		System.out.println("convert:  converting " + amount + " " + fromCurrency + " to " + toCurrency);
-    	final double from = Double.parseDouble((String) EXCHANGE_RATES.get(fromCurrency.toUpperCase()));
-    	final double to = Double.parseDouble((String) EXCHANGE_RATES.get(toCurrency.toUpperCase()));
-
-    	return amount * to / from ;
-    }
-    
-    private static void updateRates(Message m) {
-        try {
-            final SAXBuilder builder = new SAXBuilder();
-            builder.setIgnoringElementContentWhitespace(true);
-
-            final Document doc = builder.build(new URL(EXCHANGE_TABLE_URL));
-            final Element root = doc.getRootElement();
-            final Namespace ns = root.getNamespace("");
-            final Element cubeRoot = root.getChild("Cube", ns);
-            final Element cubeTime = cubeRoot.getChild("Cube", ns);
-
-            s_date = cubeTime.getAttribute("time").getValue();
-
-            final List cubes = cubeTime.getChildren();
-            Element cube;
-
-            for (Object cube1 : cubes) {
-                cube = (Element) cube1;
-                EXCHANGE_RATES.put(cube.getAttribute("currency").getValue(), cube.getAttribute("rate").getValue());
-            }
-
-            EXCHANGE_RATES.put("EUR", "1");
-        } catch (JDOMException e) {
-            m.createReply("An error has occurred while parsing the exchange rates table.").send();
-            e.printStackTrace();
-        } catch (IOException e) {
-            m.createReply("An error has occurred while fetching the exchange rates table:  " + e.getMessage()).send();
-            e.printStackTrace();
-        }
-    }
-    
-    private String todaysDate() {
-    	Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-    	cal.setTime(new Date());
-    	return cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1) + "-" + cal.get(Calendar.DAY_OF_MONTH);
-    }
 }

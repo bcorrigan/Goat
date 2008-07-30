@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
+import static goat.util.CurrencyConverter.*;
 
 import java.util.TimeZone;
 import java.util.GregorianCalendar;
@@ -10,8 +11,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Date;
 import java.util.Random;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+
+import org.jdom.JDOMException;
 
 
 public class Users extends Module {
@@ -19,6 +23,8 @@ public class Users extends Module {
 	public static final String TIMEZONE_HELP_MESSAGE = 
 		"To set your timezone, type 'timezone [code]', or 'timezone unset' to erase your setting.  A partial timezone code will work, if I can resolve it to a single timeszone.  To find your code directly instead of making me guess, try a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html";
 
+	public static String CURRENCY_HELP_MESSAGE = "Type \"currency xxx\" to set your currency, where xxx is a known three-letter currency code.  Type \"currency list\" to list all available codes";
+	
 	private static final int MAX_LISTINGS = 30;
 	
 	private static Random random = new Random();
@@ -38,12 +44,14 @@ public class Users extends Module {
 	}
 
 	public static String[] getCommands() {
-		return new String[]{"timezone", "usertime", "localtime", "worldclock", "worldtime", "seen"};
+		return new String[]{"timezone", "usertime", "localtime", "worldclock", "worldtime", "seen", "currency"};
 	}
 
 	public void processChannelMessage(Message m) {
 		if (m.modCommand.equalsIgnoreCase("timezone")) 
 			timezone(m) ;
+		else if(m.modCommand.equalsIgnoreCase("currency"))
+			currency(m) ;
 		else if(m.modCommand.equalsIgnoreCase("usertime") || m.modCommand.equalsIgnoreCase("localtime"))
 			usertime(m);
 		else if(m.modCommand.equalsIgnoreCase("worldclock") || m.modCommand.equalsIgnoreCase("worldtime"))
@@ -70,7 +78,7 @@ public class Users extends Module {
 			}
 			Message.createPagedPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 		} else if (tz.equalsIgnoreCase("unset")) {
-			user.setTimeZone("") ;
+			user.setTimeZone(tz) ;
 			m.createReply("Time zone unset for user " + user.getName()).send() ;
 			if (users.hasUser(user))
 				users.save() ;
@@ -93,6 +101,49 @@ public class Users extends Module {
 		}
 	}
 
+	private void currency(Message m) {
+		User user;
+		if (users.hasUser(m.sender))
+			user = users.getUser(m.sender);
+		else
+			user = new User(m.sender);
+		String newCurrency = Message.removeFormattingAndColors(m.modTrailing).trim();
+		try {
+		if (newCurrency.equals("")) { // no input
+			if (user.getCurrency().equals(""))
+				m.createReply(user.getName() + ", your currency is not set.  Instructions in /msg").send();
+			else
+				m.createReply(user.getName() + ", your currency is " + user.getCurrency() + ".").send();
+			Message.createPagedPrivmsg(m.sender, CURRENCY_HELP_MESSAGE).send();
+		} else if(newCurrency.equalsIgnoreCase("unset")) {
+			user.setCurrency(newCurrency);
+			m.createReply("Currency unset for user " + user.getName()).send();
+			if(users.hasUser(user))
+				users.save();
+		} else if(newCurrency.matches("[a-zA-Z]{3}")) {
+			if(isRecognizedCurrency(newCurrency)) {
+				user.setCurrency(newCurrency);
+				if(! users.hasUser(user))
+					users.addUser(user);
+				users.save();
+				m.createReply(user.getName() + "'s currency set to " + user.getCurrency()).send();
+			} else {
+				m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
+			}
+		} else if(newCurrency.equalsIgnoreCase("list")) {
+			m.createPagedReply("Current known currency codes:  " + EXCHANGE_RATES.keySet().toString()).send();
+		} else {
+			m.createReply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." ).send();
+		}
+		} catch (JDOMException jde) {
+			m.createReply("I ran into trouble trying to parse the exchange rates table").send();
+			jde.printStackTrace();
+		} catch (IOException ioe) {
+			m.createReply("I couldn't retrieve the exchange rates table from the internets");
+			ioe.printStackTrace();
+		}
+	}
+	
 	private void usertime(Message m) {
 		String uname = m.modTrailing.trim();
 		uname = Message.removeFormattingAndColors(uname);
@@ -251,7 +302,7 @@ public class Users extends Module {
 
 	private String quotedList(ArrayList<String> strings) {
 		String ret = "" ;
-		Iterator i = strings.iterator();
+		Iterator<String> i = strings.iterator();
 		if (i.hasNext())
 			ret += "\"" + i.next() + "\"";
 		while (i.hasNext())

@@ -1,7 +1,11 @@
 package goat.core;
 
 import java.util.TimeZone;
+import java.util.Locale;
 import java.util.HashMap;
+import static goat.util.CurrencyConverter.*;
+import org.jdom.JDOMException;
+import java.io.IOException;
 
 /**
  * A simple javabean to represent a user
@@ -11,6 +15,8 @@ public class User {
 	private String name = "";
 	private String weatherStation = "";
 	private String timeZone = "";
+	private String currency = "";
+	private Locale locale = null;
 	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
 	private Message lastMessage = null;
 	
@@ -53,7 +59,7 @@ public class User {
 	}
 	
 	public void setTimeZone(String tz) {
-		if (tz.equalsIgnoreCase("unset")) {
+		if (tz.equalsIgnoreCase("unset") || tz.equals("")) {
 			this.timeZone = "" ;
 			return ;
 		}
@@ -78,6 +84,35 @@ public class User {
 	
 	public void setTimeZone(TimeZone tz) {
 		this.timeZone = tz.getID() ;
+	}
+	
+	public String getCurrency() {
+		return currency;
+	}
+	
+	public void setCurrency(String newCurrency) throws JDOMException, IOException {
+		if (newCurrency.equalsIgnoreCase("unset")) {
+			this.currency = "";
+			return;
+		} else {
+			if (isRecognizedCurrency(newCurrency))
+				this.currency = newCurrency.toUpperCase();
+		}
+	}
+	
+	public Locale getLocale() {
+		return locale;
+	}
+	
+	/* ugly ugly, do later
+	public void setLocale(String loc) {
+		loc = loc.trim();
+		String[] parts  = loc.split("\\s*,\\s*");
+	}
+	*/
+	
+	public void setLocale(Locale loc) {
+		locale = loc;
 	}
 	
 	public void setLastMessage(Message m) {
