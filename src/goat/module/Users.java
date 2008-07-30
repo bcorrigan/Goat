@@ -327,7 +327,7 @@ public class Users extends Module {
 			case GregorianCalendar.SUNDAY : ret += ", Sunday"; break;
 			case GregorianCalendar.MONDAY : ret += ", Monday"; break;
 			case GregorianCalendar.TUESDAY : ret += ", Tuesday"; break;
-			case GregorianCalendar.WEDNESDAY : ret += ", Wednesdayy"; break;
+			case GregorianCalendar.WEDNESDAY : ret += ", Wednesday"; break;
 			case GregorianCalendar.THURSDAY : ret += ", Thursday"; break;
 			case GregorianCalendar.FRIDAY : ret += ", Friday"; break;
 			case GregorianCalendar.SATURDAY : ret += ", Saturday"; break;
