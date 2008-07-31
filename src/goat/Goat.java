@@ -147,28 +147,33 @@ public class Goat {
 	}
 
 	private void setDefaultStats() {
-		if (getClass().getClassLoader().getResource("goatRevision") != null) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
-			String line;
-			try {
-				line = br.readLine();
-				BotStats.version = "r" + line;				
-				br.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if(BotStats.version==null)
-					BotStats.version = "unknown";
+		try {
+			if (getClass().getClassLoader().getResource("goatRevision") != null) {
+				BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
+				String line;
+				try {
+					line = br.readLine();
+					BotStats.version = "r" + line;				
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					if(BotStats.version==null)
+						BotStats.version = "unknown";
+				}
+			} else {
+				BotStats.version = "unknown" ;
 			}
-		} else {
-			BotStats.version = "unknown" ;
+		} catch (NullPointerException npe) {
+			npe.printStackTrace();
 		}
 		BotStats.botname = "goat";
 		BotStats.clientName = "goat";
 		BotStats.owner = "rs";
 		BotStats.servername = "irc.slashnet.org";
+
 	}
-	
+
 	public static Properties getProps() {
 		return getPropsFromFile(GOAT_PROPS_FILE) ;
 	}
