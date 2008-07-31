@@ -107,7 +107,9 @@ public class Users extends Module {
 			user = users.getUser(m.sender);
 		else
 			user = new User(m.sender);
-		String newCurrency = Message.removeFormattingAndColors(m.modTrailing).trim();
+		String newCurrency = Message.removeFormattingAndColors(m.modTrailing);
+		newCurrency = translateCurrencyAliases(newCurrency);
+		newCurrency = newCurrency.trim();
 		try {
 		if (newCurrency.equals("")) { // no input
 			if (user.getCurrency().equals(""))
@@ -131,7 +133,7 @@ public class Users extends Module {
 				m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
 			}
 		} else if(newCurrency.equalsIgnoreCase("list")) {
-			m.createPagedReply("Current known currency codes:  " + EXCHANGE_RATES.keySet().toString()).send();
+			m.createPagedReply("Current known currency codes:  " + exchangeRates.keySet().toString()).send();
 		} else {
 			m.createReply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." ).send();
 		}

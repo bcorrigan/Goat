@@ -5,6 +5,7 @@ import goat.module.Core;
 import goat.module.ModuleCommands;
 
 import java.io.*;
+import java.util.Locale;
 import java.util.Properties;
 
 public class Goat {
@@ -46,6 +47,7 @@ public class Goat {
 	}
 
 	public Goat() {
+		Locale.setDefault(Locale.UK);  // goat is UKian, damn it.
         setDefaultStats();
 		parseArgs(argv);
         if (showhelp) {
