@@ -42,10 +42,11 @@
 	<target name="jar" depends="compile" description="Make a binary jar">
 		<mkdir dir="${jars}/bin"/>
 		<!--Need to narrow this to specific OSs via "os" property-->
-		<exec executable="/bin/sh" output="${build}/goatRevision" os="Linux, FreeBSD, Mac OS X">
+		<exec executable="/bin/sh" output="${build}/goatRevision" osFamily="unix">
 			<arg line="tools/version.sh"/>
 		</exec>
-		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}">
+
+		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}" duplicate="fail">
 			<manifest>
 				<attribute name="Main-Class" value="goat.Goat"/>
 				<attribute name="Built-By" value="${user.name}"/>
@@ -57,7 +58,7 @@
 				</section>
 			</manifest>
 		</jar>
-		<delete file="${build}/goatRevision"/>
+		<!-- <delete file="${build}/goatRevision"/> -->
 		<!-- delete the jar in top dir, and replace with updated copy -->
 		<delete file="goat.jar"/>
 		<copy file="${jars}/bin/Goat-${DSTAMP}.jar" tofile="goat.jar"/>
