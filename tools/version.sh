@@ -1,1 +1,1 @@
-svn -R info |grep Revision |sed 's/Revision: //'|sort |tail -n 1
+svn info | grep Revision

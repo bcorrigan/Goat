@@ -49,7 +49,7 @@ public class Goat {
 
 	public Goat() {
 		Locale.setDefault(Locale.UK);  // goat is UKian, damn it.
-        setDefaultStats();
+      setDefaultStats();
 		parseArgs(argv);
         if (showhelp) {
 			showHelp();
@@ -148,19 +148,14 @@ public class Goat {
 	}
 
 	private void setDefaultStats() {
-		URL goatRevisionResource = null;
-		try {
-			Class goatClass = getClass();
-			ClassLoader goatClassLoader = goatClass.getClassLoader();
-			goatRevisionResource = goatClassLoader.getResource("goatRevision");
-		} catch (NullPointerException npe) {
-			npe.printStackTrace();
-		}
+		ClassLoader goatClassLoader = ClassLoader.getSystemClassLoader();
+		URL goatRevisionResource = goatClassLoader.getResource("goatRevision");
 		if (goatRevisionResource != null) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
+			BufferedReader br = new BufferedReader(new InputStreamReader(goatClassLoader.getResourceAsStream("goatRevision")));
 			String line;
 			try {
 				line = br.readLine();
+				line = line.replaceAll("(?i)[a-z:]", "").trim();
 				BotStats.version = "r" + line;				
 				br.close();
 			} catch (IOException e) {
