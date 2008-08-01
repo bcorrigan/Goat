@@ -321,6 +321,7 @@ abstract class ZipCode {
 			boolean foundReadOnly = getStore().getConfig().getReadOnly();
 			if (! getStore().getModel().getKnownClasses().contains(this.getClass().getName())) {
 				// this disgusting hack is required in case the primary index doesn't exist yet, in which case getPrimaryIndex will try to create the index, which it can't do if the EntityStore is read-only.
+				System.err.println("Alert!  ZipCode cache does not contain entity: " + this.getClass().getName() + "\n  contents: " + getStore().getModel().getKnownClasses());
 				makeStoreWriteable();
 				//debug
 				//System.out.println("hasDataCached() did not find class \"" + this.getClass().getName() + "\" in the cache") ;
