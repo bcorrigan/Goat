@@ -44,7 +44,7 @@ public class BotStats {
     /**
 	 * The charset the bot is currently using
 	 */
-	private static Charset charset = Charset.forName("ISO-8859-1");
+	private static Charset charset = Charset.forName("UTF-8");
 	
 	public static synchronized String[] getChannels() {
 		Object[] ob = channels.toArray();
