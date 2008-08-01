@@ -5,6 +5,7 @@ import goat.module.Core;
 import goat.module.ModuleCommands;
 
 import java.io.*;
+import java.net.URL;
 import java.util.Locale;
 import java.util.Properties;
 
@@ -147,26 +148,31 @@ public class Goat {
 	}
 
 	private void setDefaultStats() {
+		URL goatRevisionResource = null;
 		try {
-			if (getClass().getClassLoader().getResource("goatRevision") != null) {
-				BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
-				String line;
-				try {
-					line = br.readLine();
-					BotStats.version = "r" + line;				
-					br.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					if(BotStats.version==null)
-						BotStats.version = "unknown";
-				}
-			} else {
-				BotStats.version = "unknown" ;
-			}
+			Class goatClass = getClass();
+			ClassLoader goatClassLoader = goatClass.getClassLoader();
+			goatRevisionResource = goatClassLoader.getResource("goatRevision");
 		} catch (NullPointerException npe) {
 			npe.printStackTrace();
 		}
+		if (goatRevisionResource != null) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getClassLoader().getResourceAsStream("goatRevision")));
+			String line;
+			try {
+				line = br.readLine();
+				BotStats.version = "r" + line;				
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if(BotStats.version==null)
+					BotStats.version = "unknown";
+			}
+		} else {
+			BotStats.version = "unknown" ;
+		}
+
 		BotStats.botname = "goat";
 		BotStats.clientName = "goat";
 		BotStats.owner = "rs";
