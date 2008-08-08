@@ -131,4 +131,12 @@ public class User {
 	public Message getLastMessage() {
 		return lastMessage;
 	}
+	
+	public HashMap<String, Long> getLastMessageTimestamps() {
+		return lastMessageTimestamps;
+	}
+
+	public void setLastMessageTimestamps(HashMap<String, Long> lastMessageTimestamps) {
+		this.lastMessageTimestamps = lastMessageTimestamps;
+	}
 }

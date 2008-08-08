@@ -8,6 +8,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 
@@ -33,34 +34,53 @@ public class Users {
 		saveToDisk(usersHash, usersFilename) ;
 	}
 	
-	public void saveToDisk(HashMap<String, User> saveUsers, String filename) {
+	private void saveToDisk(HashMap<String, User> saveUsers, String filename) {
+		FileOutputStream fos = null;
         XMLEncoder XMLenc = null;
-		try {
-			XMLenc = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(filename)));
-			XMLenc.writeObject(saveUsers);
-		} catch (FileNotFoundException fnfe) {
-			fnfe.printStackTrace();
-		} finally {
-            if(XMLenc!=null) XMLenc.close();
+        if(! saveUsers.isEmpty()) {
+        	try {
+        		fos = new FileOutputStream(filename);
+        		XMLenc = new XMLEncoder(new BufferedOutputStream(fos));
+        		XMLenc.writeObject(saveUsers);
+        	} catch (FileNotFoundException fnfe) {
+        		fnfe.printStackTrace();
+        	} finally {
+        		if(XMLenc!=null) XMLenc.close();
+        		try {
+        			if(fos != null) fos.close();
+        		} catch (IOException ioe) {
+        			System.out.println("I couldn't close the users.xml file after writing it!");
+        			ioe.printStackTrace();
+        		}
+        	}
         }
 	}
 	
-	public static HashMap<String, User> readFromDisk(String filename) {
+	private HashMap<String, User> readFromDisk(String filename) {
+        FileInputStream fis = null;
         XMLDecoder XMLdec = null;
         HashMap<String, User> diskUsers = new HashMap<String, User>() ;
 		try {
-			XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream(filename)));
+			fis = new FileInputStream(filename);
+			XMLdec = new XMLDecoder(new BufferedInputStream(fis));
 			diskUsers = (HashMap<String,User>) XMLdec.readObject();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			diskUsers = new HashMap<String,User>();
-		} catch (NoSuchElementException e) {
-			diskUsers = new HashMap<String,User>();
-			e.printStackTrace();
+// not sure why this was here...
+//		} catch (NoSuchElementException e) {
+//			diskUsers = new HashMap<String,User>();
+//			e.printStackTrace();
 		} catch (ArrayIndexOutOfBoundsException e) {
 			e.printStackTrace();
 		} finally {
             if(XMLdec!=null) XMLdec.close();
+            try {
+            	if(fis!=null) fis.close();
+            } catch (IOException ioe) {
+            	System.out.println("I couldn't close the users.xml file after reading it!");
+            	ioe.printStackTrace();
+            }
         }
 		return diskUsers ;
 	}
