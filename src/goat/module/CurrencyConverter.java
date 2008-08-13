@@ -141,15 +141,6 @@ public class CurrencyConverter extends Module {
         				fromAmount = 1.0;
         				toCurrency = args[1].substring(0,3);
         			}
-        		} else if(trailing.matches("[a-zA-Z]{3}.*")) {
-        			if(user.getCurrency().equals("")) {
-        				m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
-        				return;
-        			} else {
-        				toCurrency = user.getCurrency();
-        				fromAmount = 1.0;
-        				fromCurrency = trailing.substring(0,3);
-        			}
         		} else if (trailing.equalsIgnoreCase(RATES_KEYWORD)) {
         			m.createReply("Last Update: " + exchangeRatesPublicationDate).send();
         			final Iterator<String> it = exchangeRates.keySet().iterator();
@@ -164,7 +155,17 @@ public class CurrencyConverter extends Module {
         			}
         			m.createPagedReply(buff.toString()).send();
         			return;
+        		} else if(trailing.matches("[a-zA-Z]{3}.*")) {
+        			if(user.getCurrency().equals("")) {
+        				m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        				return;
+        			} else {
+        				toCurrency = user.getCurrency();
+        				fromAmount = 1.0;
+        				fromCurrency = trailing.substring(0,3);
+        			}
         		} else {
+        			//System.out.println("borked currency conversion query:\n   " + trailing);
         			m.createPagedReply("The supported currencies are: " + exchangeRates.keySet().toString()).send();
         			return;
         		}
