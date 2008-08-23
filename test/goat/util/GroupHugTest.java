@@ -52,16 +52,16 @@ public class GroupHugTest extends TestCase {
 			System.out.println(dbCount() + " total confessions in the db.");
 			System.out.println("Started with " + origInDb + " confessions in the db");
 			System.out.println("...searching for \"poon\"");
-			Hits hits = search("poon");
-			System.out.println("Found " + hits.length() + " results");
-			if (hits.length() > 0) {
-				System.out.println("Sample:\n   " + dbGet(Integer.parseInt(hits.doc(0).get("id"))).content);
+			ArrayList<Integer> hits = search("poon");
+			System.out.println("Found " + hits.size() + " results");
+			if (hits.size() > 0) {
+				System.out.println("Sample:\n   " + dbGet(hits.get(0)).content);
 			}
 			System.out.println("...searching for \"donk*\"");
 			hits = search("donk*");
-			System.out.println("Found " + hits.length() + " results");
-			if (hits.length() > 0) {
-				System.out.println("Sample:\n   " + dbGet(Integer.parseInt(hits.doc(0).get("id"))).content);
+			System.out.println("Found " + hits.size() + " results");
+			if (hits.size() > 0) {
+				System.out.println("Sample:\n   " + dbGet(hits.get(0)).content);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

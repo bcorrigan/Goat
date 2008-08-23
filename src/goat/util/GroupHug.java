@@ -5,16 +5,23 @@ import java.net.MalformedURLException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.regex.*;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.Adler32;
 import java.util.Date;
 import java.util.Random;
+//import java.util.Arrays;
+import java.util.Collections;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.FileInputStream;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.DatabaseException;
@@ -25,6 +32,8 @@ import com.sleepycat.persist.model.PrimaryKey;
 import com.sleepycat.persist.model.SecondaryKey;
 import com.sleepycat.persist.PrimaryIndex;
 import com.sleepycat.persist.EntityCursor;
+import com.sleepycat.persist.SecondaryIndex;
+
 import static com.sleepycat.persist.model.Relationship.*;
 import com.sleepycat.persist.EntityStore;
 
@@ -37,11 +46,13 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.Hit;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.search.BooleanQuery.TooManyClauses;
 
 import static goat.util.HTMLUtil.*;
 
@@ -54,6 +65,11 @@ public class GroupHug {
 		public Integer id;
 		@SecondaryKey(relate=ONE_TO_ONE)
 		public Integer node_id;
+		@SecondaryKey(relate=MANY_TO_ONE)
+		public Long added;
+		@SecondaryKey(relate=ONE_TO_ONE)
+		public Long adler32;
+		
 		public String content;
 		
 		Confession() {}
@@ -62,6 +78,10 @@ public class GroupHug {
 			id = myId;
 			node_id = node;
 			content = text;
+			added = (new Date()).getTime();
+			Adler32 ad = new Adler32();
+			ad.update(content.getBytes());
+			adler32 = ad.getValue();
 		}
 		
 		public String toString() {
@@ -92,6 +112,23 @@ public class GroupHug {
 		public void setContent(String content) {
 			this.content = content;
 		}
+		
+		public Long getAdded() {
+			return added;
+		}
+
+		public void setAdded(Long added) {
+			this.added = added;
+		}
+
+		public Long getAdler32() {
+			return adler32;
+		}
+
+		public void setAdler32(Long adler32) {
+			this.adler32 = adler32;
+		}
+
 	}
 	
 	private static final String NEW_CONFESSIONS_URL = "http://beta.grouphug.us/confessions/new";
@@ -176,6 +213,7 @@ public class GroupHug {
 	private static Environment environment = null;
 	private static EntityStore entityStore = null;
 	private static PrimaryIndex<Integer, Confession> primaryIndex = null;
+	private static SecondaryIndex<Long, Integer, Confession> adler32Index = null;
 	
 	private static final String STORE_NAME = "ConfessionStore" ; 
 	
@@ -208,6 +246,13 @@ public class GroupHug {
 		return entityStore.getPrimaryIndex(Integer.class, Confession.class);
 	}
 	
+	private static SecondaryIndex<Long, Integer, Confession> getAdler32Index() throws DatabaseException {
+		if (null != adler32Index)
+			return adler32Index;
+		PrimaryIndex<Integer, Confession> pi = getPrimaryIndex();
+		return entityStore.getSecondaryIndex(pi, Long.class, "adler32");
+	}
+	
 	public static void dbPut(Confession confession) throws DatabaseException {
 		getPrimaryIndex().put(confession);
 		index(confession);
@@ -221,29 +266,58 @@ public class GroupHug {
 		return getPrimaryIndex().contains(id);
 	}
 	
+	public static boolean dbContainsAdler32(Long adler32) throws DatabaseException {
+//		if(null == environment || null == entityStore)
+//			initLocalDB();
+//		PrimaryIndex<Integer, Confession> pi = getPrimaryIndex();
+//		SecondaryIndex<Long, Integer, Confession> si = entityStore.getSecondaryIndex(pi, Long.class, "adler32");
+		return getAdler32Index().contains(adler32);
+	}
+	
 	public static long dbCount() throws DatabaseException {
 		return getPrimaryIndex().count();
 	}
 
+	private static int MAX_RANDOM = 1024;
 	/*
-	 * This is hideous.  The price we pay for non-sequential primary keys.
+	 * This is kinda expensive, works best when you get your random keys in bulk.
+	 * The price we pay for non-sequential primary keys, eh.
 	 */
-	public static Confession getRandomConfession() throws DatabaseException {
+	public static ArrayList<Integer> getRandomConfessionIds(int num) throws DatabaseException {
+		if(num > MAX_RANDOM)
+			num = MAX_RANDOM;
+		if(num < 0)
+			num = 0;
+		ArrayList<Integer> ids = new ArrayList<Integer>(num);
 		EntityCursor<Integer> ec = getPrimaryIndex().keys();
 		Random random = new Random();
-		ec.first();
-		// System.out.println("we've got " + getPrimaryIndex().count() + " entries");
-		int entry = (int) (random.nextDouble() * getPrimaryIndex().count());
-		// System.out.println("going for entry #" + entry);
+		
+		Long numRecords = getPrimaryIndex().count();
 		int i = 0;
-		while(i < entry) {
-			ec.next();
-			i++;
+		while(i++ < num)
+			ids.add((int) (random.nextDouble() * numRecords));
+		Collections.sort(ids);
+		ec.first();
+		int here = 0;
+		i = 0;
+		Iterator<Integer> it = ec.iterator();
+		while(it.hasNext()) {
+			if(ids.get(i) == here) {
+				ids.remove(i);
+				ids.add(i, it.next());
+				i++;
+				if(i >= num)
+					break;
+			} else {
+				it.next();
+			}
+			here++;
 		}
-		Integer id = ec.next();
-		Confession confession = dbGet(id);
 		ec.close();
-		return confession;
+		
+		// randomize the return ArrayList, remember we sorted ids for the sake of one-pass access
+		Collections.shuffle(ids);
+		return ids;
 	}
 	
 	/**
@@ -309,41 +383,138 @@ public class GroupHug {
 		}
 	}
 
-	public static IndexReader indexReader = null;
-	
-	public static Hits search(String searchString) throws CorruptIndexException, IOException, ParseException {
-		if(null == indexReader)
-			indexReader = IndexReader.open(INDEX_DIR);
+	// might want to consider capping # of search results returned
+	public static ArrayList<Integer> search(String searchString, int maxResults) throws CorruptIndexException, IOException, ParseException, TooManyClauses {
+		IndexReader indexReader = IndexReader.open(INDEX_DIR);
 	    Searcher searcher = new IndexSearcher(indexReader);
 	    Analyzer analyzer = new StandardAnalyzer();
 	    QueryParser parser = new QueryParser("content", analyzer);
+	    parser.setDefaultOperator(QueryParser.AND_OPERATOR);
 	    Query query = parser.parse(searchString);
 	    Hits hits = searcher.search(query);
-	    // indexReader.close();
-	    return hits;
+	    ArrayList<Integer> ret = new ArrayList<Integer>();
+	    Iterator<Hit> it = hits.iterator();
+	    if(maxResults <= 0)
+	    	while(it.hasNext())
+	    		ret.add(Integer.parseInt(it.next().get("id")));
+	    else
+	    	while(it.hasNext() && maxResults-- > 0) {
+	    		ret.add(Integer.parseInt(it.next().get("id")));
+	    	}
+	    indexReader.close();
+	    return ret;
+	}
+	
+	public static ArrayList<Integer> search(String searchString) throws CorruptIndexException, IOException, ParseException, TooManyClauses {
+		return search(searchString, 0);
+	}
+	
+	public static ArrayList<Integer> searchRandomized(String searchString, int maxResults) throws CorruptIndexException, IOException, ParseException, TooManyClauses {
+		IndexReader indexReader = IndexReader.open(INDEX_DIR);
+	    Searcher searcher = new IndexSearcher(indexReader);
+	    Analyzer analyzer = new StandardAnalyzer();
+	    QueryParser parser = new QueryParser("content", analyzer);
+	    parser.setDefaultOperator(QueryParser.AND_OPERATOR);
+	    Query query = parser.parse(searchString);
+	    Hits hits = searcher.search(query);
+	    ArrayList<Integer> ret = new ArrayList<Integer>();
+	    Iterator<Hit> it = hits.iterator();
+	     
+	    int i = 0;
+	    // take the first n search results, where n <= maxresults, and fill our return set with those initially
+	    while(it.hasNext() && i++ < maxResults)
+	    	ret.add(Integer.parseInt(it.next().get("id")));
+
+	    if(it.hasNext()) {
+	    	// if there are still search hits that aren't in our results set, go through the results set
+	    	// one element at a time, picking a search hit at random and overwriting the result element
+	    	// with the search hit if our results set does not already contain that search hit.
+	    	//
+	    	// this might not produce a perfectly random results set, but if not, the randomness
+	    	// is still going to be pretty good.
+	    	i = 0;
+	    	int id;
+	    	Random random = new Random();
+	    	for (i=0; i < maxResults; i++) {
+	    		id = Integer.parseInt(hits.doc(random.nextInt(hits.length())).get("id"));
+	    		if(! ret.contains(id))
+	    			ret.set(i, id);
+	    	}
+	    }
+	    // make sure the order of results is random 
+	    //  (it won't be at this point, if there were fewer search hits than maxResults)
+	    Collections.shuffle(ret);
+	    return ret;
+	}
+	
+	public static int searchCount(String searchString) throws CorruptIndexException, IOException, ParseException, TooManyClauses {
+		IndexReader indexReader = IndexReader.open(INDEX_DIR);
+	    Searcher searcher = new IndexSearcher(indexReader);
+	    Analyzer analyzer = new StandardAnalyzer();
+	    QueryParser parser = new QueryParser("content", analyzer);
+	    parser.setDefaultOperator(QueryParser.AND_OPERATOR);
+	    Query query = parser.parse(searchString);
+	    Hits hits = searcher.search(query);
+	    return hits.length();
 	}
 	
 	// END search crap
+	
 	/**
 	 * method to suck in all the confessions in bc's scraper-output file, giving them pseudo id and node_id
 	 * 
 	 * @path path to the gzipped confessions file
 	 */
 	public static void importBcFile(String path) throws IOException, DatabaseException {
+		System.out.println("Importing confessions from bc-format gzipped file...");
+		System.out.print("   ");
+		final int dotIncrement = 1000;
+		final int countIncrement = 10000;
+		final int outWrap = 72;
+		int outLength = 3;
 		BufferedReader br =  new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(path))));
 		String line;
-		int id = 0;
+		int id = 1;
 		String text = "";
+		int dupes = 0;
+		Adler32 ad32 = new Adler32();
+		
 		while((line = br.readLine()) != null) {
 			if(line.startsWith("#ENDCONF")) {
+				ad32.reset();
+				ad32.update(text.getBytes());
 				if(! dbContains(id))
-					dbPut(new Confession(id, id, text));
+					if (! dbContainsAdler32(ad32.getValue()))
+						dbPut(new Confession(id, id, text));
+					else
+						dupes++;
+				if(0 == id % dotIncrement) {
+					System.out.print(".");
+					outLength++;
+				}
+				if(0 == id % countIncrement) {
+					System.out.print(id);
+					outLength += String.valueOf(id).length();
+				}
+				if(outLength > outWrap) {
+					System.out.println();
+					outLength = 0;
+				}
 				text = "";
 				id++;
 			} else {
 				text += line;
 			}
 		}
+		System.out.println();
 		br.close();
+		System.out.println("\n" + dupes + " dupes found in file");
 	}
+	
+	
+	
+	// BEGIN confessions extractor mayhem
+	
+	private static final int NUM_COLLECTORS = 6;
+	private static ExecutorService pool = Executors.newFixedThreadPool(NUM_COLLECTORS);
 }

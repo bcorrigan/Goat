@@ -398,12 +398,14 @@ public class Users extends Module {
 	private ArrayList<String> timezoneSearch(String searchTerm) {
 		String[] ids = TimeZone.getAvailableIDs() ;
 		ArrayList<String> matches = new ArrayList<String>();
+		TimeZone tz = null;
 		for(int i=0; i < ids.length; i++) {
-			if (ids[i].equalsIgnoreCase(searchTerm)) {
+			tz = TimeZone.getTimeZone(ids[i]);
+			if (ids[i].equalsIgnoreCase(searchTerm) || tz.getDisplayName().equalsIgnoreCase(searchTerm)) {
 				matches = new ArrayList<String>();
 				matches.add(ids[i]);
 				break;
-			} else if (ids[i].toLowerCase().contains(searchTerm.toLowerCase())) {
+			} else if (ids[i].toLowerCase().contains(searchTerm.toLowerCase()) || tz.getDisplayName().toLowerCase().contains(searchTerm.toLowerCase())) {
 				matches.add(ids[i]);
 			} else if (ids[i].toLowerCase().contains(searchTerm.toLowerCase().replaceAll("\\s+", "_"))) {
 				matches.add(ids[i]);

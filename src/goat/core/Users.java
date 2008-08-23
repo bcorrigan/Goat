@@ -44,6 +44,8 @@ public class Users {
         		XMLenc.writeObject(saveUsers);
         	} catch (FileNotFoundException fnfe) {
         		fnfe.printStackTrace();
+        		// This seems to happen on Windows sometimes
+        		System.out.println("Users:  users.xml not saved.");
         	} finally {
         		if(XMLenc!=null) XMLenc.close();
         		try {
