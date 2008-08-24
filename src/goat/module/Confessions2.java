@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.io.IOException;
 import static goat.util.GroupHug.*;
 import static goat.util.HTMLUtil.*;
@@ -18,92 +17,66 @@ import org.apache.lucene.search.BooleanQuery.TooManyClauses;
 
 public class Confessions2 extends Module {
 	
-	private static int MAX_CACHE_SIZE = 1024;
 	
-	private class Cache {
-		
-		//note - the Cache works mainly as a stack, with the top at the end of the arraylist.
-		
-		private ArrayList<Integer> idCache = new ArrayList<Integer>();
-		private HashMap<Integer, Integer> idToIndex = new HashMap<Integer, Integer>();
+	private static int MAX_SEARCH_RESULTS = 16;
+	private static int MAX_SEARCHES_SAVED = 64;
+	
+	private class ResultsQueue {
+		private ArrayList<String> queries = new ArrayList<String>();
+		private HashMap<String, ArrayList<Integer>> resultLists = new HashMap<String, ArrayList<Integer>>();
 		
 		public boolean hasNext() {
-			return ! idCache.isEmpty();
+			return ! queries.isEmpty();
 		}
 		
 		public Integer next() {
-			Integer ret = null;
-			if (! idCache.isEmpty()) {
-				int index = idCache.size() - 1;
-				ret = idCache.get(index);
-				idCache.remove(index);
-				idToIndex.remove(ret);
+			// we could do this using nested method calls, it's broken up for easier debugging
+			int queryIndex = queries.size() - 1;
+			String  query = queries.get(queryIndex);
+			ArrayList<Integer> results = resultLists.get(query);
+			int resultIndex = 0;
+			Integer result = results.get(resultIndex);
+			
+			results.remove(resultIndex);
+			if(results.isEmpty()) {
+				// housekeeping
+				resultLists.remove(query);
+				queries.remove(queryIndex);
 			}
-			return ret;
+			return result;
 		}
 		
-		public void remove(Integer id) {
-			if (! idToIndex.isEmpty() && idToIndex.containsKey(id)) {
-				int index = idToIndex.get(id);
-				idCache.remove(index);
-				idToIndex.remove(id);
-				for(int i = index; i < idCache.size(); i++)
-					idToIndex.put(idCache.get(i), i);
+		public boolean hasNext(String query) {
+			return queries.contains(query);
+		}
+		
+		public Integer next(String query) {
+			// move this query to the front of the line (i.e., the end of the ArrayList)
+			queries.remove(query);
+			queries.add(query);
+			return next();
+		}
+		
+		public void add(String query, ArrayList<Integer> results) {
+			// we could add a check here to make sure we don't already have 
+			//   some results for the given query, but that would be a little
+			//   expensive (an ArrayList.contains() call, as currently implemented)
+			//   as this class is only used internally, we'll trust ourselves to
+			//   check for existing results before adding new ones.
+			if(! results.isEmpty()) {
+				queries.add(query);
+				resultLists.put(query, results);
 			}
-		}
-		
-		public void add(Integer id) {
-			idCache.add(id);
-			idToIndex.put(id, idCache.size() - 1);
-			prune(MAX_CACHE_SIZE / 20);
-		}
-		
-		public void add(ArrayList<Integer> ids) {
-			for(int i = ids.size() - 1; i >= 0; i--) {
-				add(ids.get(i));
-			}
-			prune();
-		}
-		
-		public boolean contains(Integer id) {
-			return idToIndex.containsKey(id);
-		}
-		
-		public int getIndex(Integer id) {
-			int ret = -1;
-			if(idToIndex.containsKey(id))
-				ret = idToIndex.get(id);
-			return ret;
-		}
-		
-		public int getId(Integer index) {
-			return idCache.get(index);
-		}
-		
-		private void prune() {
-			if(idCache.size() > MAX_CACHE_SIZE) {
-				int removeNum = idCache.size() - MAX_CACHE_SIZE;
-				for(int i = 0; i < removeNum; i++) {
-					idToIndex.remove(idCache.get(0));
-					idCache.remove(0);
-				}
-				for(int i = 0; i < idCache.size(); i++)
-					idToIndex.put(idCache.get(i), i);
+			while(queries.size() > MAX_SEARCHES_SAVED) {
+				resultLists.remove(queries.get(0));
+				queries.remove(0);
 			}
 		}
-		
-		private void prune(int overflow) {
-			if(idCache.size() > MAX_CACHE_SIZE + overflow)
-				prune();
-		}
-		
 	}
-	
-	private Cache cache = new Cache();
+
+	private ResultsQueue resultsQueue = new ResultsQueue();
 	
 	private ArrayList<Integer> randomCache = new ArrayList<Integer>();
-	
-	private static int MAX_SEARCH_RESULTS = 64;
 	
 	public static String[] getCommands() {
 		return new String[]{"confess"};
@@ -128,8 +101,8 @@ public class Confessions2 extends Module {
 	
 	private void defaultConfession(Message m) {
 		try {
-			if(cache.hasNext()) {
-				Confession reply = dbGet(cache.next());
+			if(resultsQueue.hasNext()) {
+				Confession reply = dbGet(resultsQueue.next());
 				m.createPagedReply(textFromHTML(reply.content).trim()).send();
 				return;
 			} else {
@@ -152,39 +125,24 @@ public class Confessions2 extends Module {
 	
 	private void searchConfession(Message m, String queryString) {
 		queryString = Message.removeFormattingAndColors(queryString).trim();
+		
 		try {
-			ArrayList<Integer> hits = searchRandomized(queryString, MAX_SEARCH_RESULTS);
-			Integer hitCount = 0;
-			if(hits.size() == 0) {
-				m.createPagedReply("I don't feel at all guilty about " + queryString).send();
-				return;
-			} else if(hits.size() > 1) {
-				ArrayList<Integer> allHits = search(queryString);  // so didn't want to do this... potentially a 400,000+ element ArrayList
-				Iterator<Integer> hitIt = allHits.iterator();
-				int id;
-				int highestCacheIndex = -1;
-				while(hitIt.hasNext()) {
-					id = hitIt.next();
-					if(cache.contains(id)) {
-						int index = cache.getIndex(id);
-						if (index > highestCacheIndex)
-							highestCacheIndex = index;
-					}
-				}
-				if(highestCacheIndex >= 0) {
-						m.createPagedReply(textFromHTML(dbGet(highestCacheIndex).content).trim()).send();
-						cache.remove(cache.getId(highestCacheIndex));
-						return;
-				}
-				hitCount = searchCount(queryString);
-				m.createPagedReply("I have " + hitCount + " things to confess about " + Message.BOLD + queryString + Message.NORMAL + ", starting with:").send() ;
-			}
-			
-			Confession reply = dbGet(hits.get(0));
-			m.createPagedReply(textFromHTML(reply.content).trim()).send();
-			hits.remove(0);
-			if(hits.size() > 0)
-				cache.add(hits);
+			if (resultsQueue.hasNext(queryString))
+				m.createPagedReply(textFromHTML(dbGet(resultsQueue.next(queryString)).content)).send();
+			else {
+				ArrayList<Integer> hits = searchRandomized(queryString, MAX_SEARCH_RESULTS);
+				if(hits.size() == 0) {
+					m.createPagedReply("I just don't feel guilty about " + queryString).send();
+				} else if(hits.size() > 1) {
+					int count = searchCount(queryString);
+					m.createReply("I have " + count + " things to confess about " + Message.BOLD + queryString + Message.NORMAL + ", starting with:").send();
+					String reply = textFromHTML(dbGet(hits.get(0)).content);
+					m.createPagedReply(reply).send();
+					hits.remove(0);
+					resultsQueue.add(queryString, hits);
+				} else
+					m.createPagedReply(textFromHTML(dbGet(hits.get(0)).content)).send();
+			}	
 		} catch (CorruptIndexException cie) {
 			m.createReply("I can't, my index is corrupt!").send();
 			cie.printStackTrace();
