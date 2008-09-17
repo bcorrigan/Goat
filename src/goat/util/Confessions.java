@@ -1,17 +1,11 @@
 package goat.util;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.regex.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Adler32;
 import java.util.Date;
 import java.util.Random;
-//import java.util.Arrays;
 import java.util.Collections;
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,9 +13,6 @@ import java.io.StringReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.FileInputStream;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
 
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.DatabaseException;
@@ -56,7 +47,7 @@ import org.apache.lucene.search.BooleanQuery.TooManyClauses;
 
 import static goat.util.HTMLUtil.*;
 
-public class GroupHug {
+public class Confessions {
 	
 	@Entity
 	public static class Confession {
@@ -68,7 +59,7 @@ public class GroupHug {
 		@SecondaryKey(relate=MANY_TO_ONE)
 		public Long added;
 		@SecondaryKey(relate=ONE_TO_ONE)
-		public Long adler32;
+		public Long checksum;
 		
 		public String content;
 		
@@ -79,9 +70,7 @@ public class GroupHug {
 			node_id = node;
 			content = text;
 			added = (new Date()).getTime();
-			Adler32 ad = new Adler32();
-			ad.update(content.getBytes());
-			adler32 = ad.getValue();
+			checksum = computeChecksum(content);
 		}
 		
 		public String toString() {
@@ -121,104 +110,38 @@ public class GroupHug {
 			this.added = added;
 		}
 
-		public Long getAdler32() {
-			return adler32;
+		public Long getChecksum() {
+			return checksum;
 		}
 
-		public void setAdler32(Long adler32) {
-			this.adler32 = adler32;
+		public void setChecksum(Long checksum) {
+			this.checksum = checksum;
 		}
 
-	}
-	
-	private static final String NEW_CONFESSIONS_URL = "http://beta.grouphug.us/confessions/new";
-	
-	public static URL confessionsPage(int pageNumber) throws MalformedURLException {
-		return new URL(NEW_CONFESSIONS_URL + "?page=" + pageNumber);
-	}
-	
-	public static int connectTimeout = 5000; // five seconds
-	public static int readTimeout = 10000; // ten seconds
-
-	public static ArrayList<Confession> getConfessionsFromPageNumber (int pageNumber) 
-	throws SocketTimeoutException, MalformedURLException, IOException {
-		return scrapePage(getBufferedReaderForPageNumber(pageNumber));
-	}
-	
-	/**
-	 * Gets the confessions from the specified grouphug.us page
-	 * 
-	 * @param pageNumber The number of the page in grouphug's "new confessions" listing to grab from.
-	 * @return
-	 * @throws SocketTimeoutException
-	 * @throws MalformedURLException
-	 * @throws IOException
-	 */
-	public static BufferedReader getBufferedReaderForPageNumber(int pageNumber) 
-	throws SocketTimeoutException, MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) confessionsPage(pageNumber).openConnection();
-		connection.setConnectTimeout(connectTimeout);
-		connection.setReadTimeout(readTimeout);
-		if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-			//TODO anything?
-			System.out.println("grouphug problem:  " + "HTTP " + connection.getResponseCode() + ", " + connection.getResponseMessage());
+		/*
+		 * The checksum we're using is a concatination of the 32-bit java String checksum and a 32-bit Adlerian checksum
+		 */
+		public static Long computeChecksum(String string) {
+			Adler32 checksumGenerator = new Adler32();
+			checksumGenerator.update(string.getBytes());
+			//return crc32.getValue();
+			return (((long) string.hashCode()) << 32) | checksumGenerator.getValue();
 		}
-		return new BufferedReader(new InputStreamReader(connection.getInputStream()));
 	}
-	
-	public static ArrayList<Confession> scrapePage (BufferedReader br) throws IOException {
-		// this is ugly.  life is like that, sometimes.
-		ArrayList<Confession> ret = new ArrayList<Confession>();
-		String line = "";
-		Pattern commentStart = Pattern.compile(".*<div id=\"node-(\\d+)\".*");
-		Pattern idLine = Pattern.compile(".*<a href=\"/confessions/(\\d+)\".*");
-		Pattern contentStart = Pattern.compile("\\s*<div class=\"content\">\\s*");
-		Pattern contentEnd = Pattern.compile("\\s*</div>\\s*");
-		Matcher matcher;
-		while((line = br.readLine()) != null) {
-			matcher = commentStart.matcher(line);
-			if(matcher.find()) {
-				int nodeId = Integer.parseInt(matcher.group(1));
-				while((line = br.readLine()) != null) {
-					matcher = idLine.matcher(line);
-					if(matcher.find()) {
-						int id = Integer.parseInt(matcher.group(1));
-						while((line = br.readLine()) != null) {
-							matcher = contentStart.matcher(line);
-							if(matcher.find()) {
-								String content = "";
-								while((line = br.readLine()) != null) {
-									matcher = contentEnd.matcher(line);
-									if(matcher.find()) {
-										ret.add(new Confession(id, nodeId, content));
-										break;
-									} else {
-										content += line;
-									}
-								}
-								break;
-							}
-						}
-						break;
-					}
-				}
-			}
-		}
-		return ret;
-	}
-	
-	
-	// START db crap
 	
 	private static Environment environment = null;
 	private static EntityStore entityStore = null;
 	private static PrimaryIndex<Integer, Confession> primaryIndex = null;
-	private static SecondaryIndex<Long, Integer, Confession> adler32Index = null;
+	private static SecondaryIndex<Long, Integer, Confession> checksumIndex = null;
 	
 	private static final String STORE_NAME = "ConfessionStore" ; 
 	
 	private static final String DEFAULT_LOCAL_DIR = "resources" + File.separator + "confessions" + File.separator + "db";
 	private static String localDir = DEFAULT_LOCAL_DIR;
+	
+	public static Long computeChecksum(String string) {
+		return Confession.computeChecksum(string);
+	}
 	
 	private static void initLocalDB() {
 		try {
@@ -246,11 +169,11 @@ public class GroupHug {
 		return entityStore.getPrimaryIndex(Integer.class, Confession.class);
 	}
 	
-	private static SecondaryIndex<Long, Integer, Confession> getAdler32Index() throws DatabaseException {
-		if (null != adler32Index)
-			return adler32Index;
+	private static SecondaryIndex<Long, Integer, Confession> getChecksumIndex() throws DatabaseException {
+		if (null != checksumIndex)
+			return checksumIndex;
 		PrimaryIndex<Integer, Confession> pi = getPrimaryIndex();
-		return entityStore.getSecondaryIndex(pi, Long.class, "adler32");
+		return entityStore.getSecondaryIndex(pi, Long.class, "checksum");
 	}
 	
 	public static void dbPut(Confession confession) throws DatabaseException {
@@ -266,12 +189,12 @@ public class GroupHug {
 		return getPrimaryIndex().contains(id);
 	}
 	
-	public static boolean dbContainsAdler32(Long adler32) throws DatabaseException {
-//		if(null == environment || null == entityStore)
-//			initLocalDB();
-//		PrimaryIndex<Integer, Confession> pi = getPrimaryIndex();
-//		SecondaryIndex<Long, Integer, Confession> si = entityStore.getSecondaryIndex(pi, Long.class, "adler32");
-		return getAdler32Index().contains(adler32);
+	public static boolean dbContainsChecksum(Long checksum) throws DatabaseException {
+		return getChecksumIndex().contains(checksum);
+	}
+	
+	public static Confession dbGetByChecksum(Long checksum) throws DatabaseException {
+		return getChecksumIndex().get(checksum);
 	}
 	
 	public static long dbCount() throws DatabaseException {
@@ -477,17 +400,23 @@ public class GroupHug {
 		int id = 1;
 		String text = "";
 		int dupes = 0;
-		Adler32 ad32 = new Adler32();
+		int falseDupes = 0;
 		
 		while((line = br.readLine()) != null) {
 			if(line.startsWith("#ENDCONF")) {
-				ad32.reset();
-				ad32.update(text.getBytes());
-				if(! dbContains(id))
-					if (! dbContainsAdler32(ad32.getValue()))
+				if(! dbContains(id)) {
+					Long checksum = computeChecksum(text);
+					if (! dbContainsChecksum(checksum))
 						dbPut(new Confession(id, id, text));
-					else
+					else {
 						dupes++;
+						Confession conf = dbGetByChecksum(checksum);
+						if(! text.equals(conf.content)) {
+							falseDupes++;
+							System.out.println("\nfalse match:\n   \"" + text + "\"\n   \"" + conf.content + "\"");
+						}
+					}
+				}
 				if(0 == id % dotIncrement) {
 					System.out.print(".");
 					outLength++;
@@ -497,7 +426,7 @@ public class GroupHug {
 					outLength += String.valueOf(id).length();
 				}
 				if(outLength > outWrap) {
-					System.out.println();
+					System.out.print("\n   ");
 					outLength = 0;
 				}
 				text = "";
@@ -509,12 +438,10 @@ public class GroupHug {
 		System.out.println();
 		br.close();
 		System.out.println("\n" + dupes + " dupes found in file");
+		System.out.println("   " + falseDupes + " were false matches");
 	}
 	
 	
 	
-	// BEGIN confessions extractor mayhem
-	
-	private static final int NUM_COLLECTORS = 6;
-	private static ExecutorService pool = Executors.newFixedThreadPool(NUM_COLLECTORS);
+
 }

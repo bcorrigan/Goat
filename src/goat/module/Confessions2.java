@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.IOException;
-import static goat.util.GroupHug.*;
+import static goat.util.Confessions.*;
 import static goat.util.HTMLUtil.*;
 import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.index.CorruptIndexException;
@@ -72,6 +72,17 @@ public class Confessions2 extends Module {
 				queries.remove(0);
 			}
 		}
+		
+		public int queryCount() {
+			return queries.size();
+		}
+		
+		public int totalResultsCount() {
+			int total = 0;
+			for(int i=0; i<queries.size();i++)
+				total += resultLists.get(queries.get(i)).size();
+			return total;
+		}
 	}
 
 	private ResultsQueue resultsQueue = new ResultsQueue();
@@ -79,7 +90,7 @@ public class Confessions2 extends Module {
 	private ArrayList<Integer> randomCache = new ArrayList<Integer>();
 	
 	public static String[] getCommands() {
-		return new String[]{"confess"};
+		return new String[]{"confess", "confession"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -94,6 +105,8 @@ public class Confessions2 extends Module {
 			searchConfession(m, matcher.group(1));
 		} else if(m.modTrailing.matches("\\s*random.*")) {
 			randomConfession(m);
+		} else if(m.modTrailing.toLowerCase().startsWith("stat")) {
+			status(m);
 		} else {
 			defaultConfession(m);
 		}
@@ -121,6 +134,26 @@ public class Confessions2 extends Module {
 			m.createReply("I had a database fuckup while I was trying to get a random confession").send();
 			dbe.printStackTrace();
 		}
+	}
+	
+	private void status(Message m) {
+		String reply = "";
+		try {
+			reply += "I've heard " + dbCount() + " confessions.  ";
+		} catch (DatabaseException dbe) {
+			reply += "I'm having a problem with my confessions filing cabinet.  ";
+		}
+		reply += "I have " + resultsQueue.totalResultsCount() + " search result";
+		if(resultsQueue.totalResultsCount() != 1)
+			reply += "s";
+		reply += " for " + resultsQueue.queryCount() + " quer";
+		if(resultsQueue.queryCount() != 1)
+			reply += "ies";
+		else
+			reply += "y";
+		reply += ".  ";
+		reply += "The last time I heard a new confession was " + "... um, I don't remember.";
+		m.createPagedReply(reply).send();
 	}
 	
 	private void searchConfession(Message m, String queryString) {
