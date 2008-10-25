@@ -56,10 +56,10 @@ public class Remind extends Module implements Runnable {
 
             GregorianCalendar cal;
             String timeZone;
-            if (! user.getTimeZone().equals("")) {
-                TimeZone tz = TimeZone.getTimeZone(user.getTimeZone());
+            if (! user.getTimeZoneString().equals("")) {
+                TimeZone tz = TimeZone.getTimeZone(user.getTimeZoneString());
                 cal = new GregorianCalendar(tz);
-                timeZone = user.getTimeZone();
+                timeZone = user.getTimeZoneString();
             } else {
                 cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
                 timeZone = "GMT";

@@ -71,10 +71,10 @@ public class Users extends Module {
 		}
 		String tz = Message.removeFormattingAndColors(m.modTrailing).trim();
 		if (tz.matches("")) { // no input
-			if (user.getTimeZone().equals("")) {
+			if (user.getTimeZoneString().equals("")) {
 				m.createReply(user.getName() + ", your time zone is not set.  Instructions in /msg.").send();
 			} else {
-				m.createReply(user.getName() + ", your time zone is \"" + user.getTimeZone() + "\" (" + TimeZone.getTimeZone(user.getTimeZone()).getDisplayName() + ").  To change it, see instructions in /msg").send();
+				m.createReply(user.getName() + ", your time zone is \"" + user.getTimeZoneString() + "\" (" + TimeZone.getTimeZone(user.getTimeZoneString()).getDisplayName() + ").  To change it, see instructions in /msg").send();
 			}
 			Message.createPagedPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 		} else if (tz.equalsIgnoreCase("unset")) {
@@ -89,7 +89,7 @@ public class Users extends Module {
 				if(! users.hasUser(user.getName())) 
 					users.addUser(user) ;
 				users.save();
-				m.createReply(user.getName() + "'s time zone set to \"" + user.getTimeZone() + "\"  Current time is: " + timeString(user.getTimeZone())).send();
+				m.createReply(user.getName() + "'s time zone set to \"" + user.getTimeZoneString() + "\"  Current time is: " + timeString(user.getTimeZoneString())).send();
 			} else if(matches.size() == 0) {
 				m.createReply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.").send();
 				Message.createPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
@@ -154,20 +154,20 @@ public class Users extends Module {
 			if(! users.hasUser(m.sender)) {
 				reply="I don't know anything about you, " + m.sender + ".";
 				Message.createPrivmsg(m.sender, "Try setting your timezone with the command \"timezone [your time zone]\"").send();
-			} else if(users.getUser(m.sender).getTimeZone().equals("")) {
+			} else if(users.getUser(m.sender).getTimeZoneString().equals("")) {
 				reply="I don't know your time zone, " + m.sender + ".";
 				Message.createPrivmsg(m.sender, "Try setting your timezone with the command \"timezone [your time zone]\"").send();
 			}
 			else 
-				reply="Your current time is " + timeString(users.getUser(m.sender).getTimeZone()); 
+				reply="Your current time is " + timeString(users.getUser(m.sender).getTimeZoneString()); 
 		} else if (! uname.matches("[a-zA-Z0-9^{}\\[\\]`\\\\^_-|]+"))
 			reply = "You're being difficult";
 		else if(! users.hasUser(uname))
 			reply="I don't know anything about user \"" + uname + "\"";
-		else if(users.getUser(uname).getTimeZone().equals(""))
+		else if(users.getUser(uname).getTimeZoneString().equals(""))
 			reply="I don't know " + uname + "'s time zone.";
 		else 
-			reply="Current time for " + uname + " is " + timeString(users.getUser(uname).getTimeZone()); 
+			reply="Current time for " + uname + " is " + timeString(users.getUser(uname).getTimeZoneString()); 
 		m.createReply(reply).send();
 	}
 
@@ -238,8 +238,8 @@ public class Users extends Module {
 				User u = users.getUser(name);
 				if(u.getLastMessageTimestamp() != 0) {
 					SimpleDateFormat df = new SimpleDateFormat("EEEE, d MMMM yyyy, hh:mma z", Locale.UK);
-					if(users.hasUser(m.sender) && users.getUser(m.sender).getTimeZone() != "")
-						df.setTimeZone(TimeZone.getTimeZone(users.getUser(m.sender).getTimeZone()));
+					if(users.hasUser(m.sender) && users.getUser(m.sender).getTimeZoneString() != "")
+						df.setTimeZone(TimeZone.getTimeZone(users.getUser(m.sender).getTimeZoneString()));
 					else {
 						df.setTimeZone(TimeZone.getTimeZone("Zulu"));
 						// nag the user if they haven't got their time zone set
@@ -266,9 +266,9 @@ public class Users extends Module {
 					}
 					
 					String stamp = df.format(new Date(lastSeen));
-					if(u.getTimeZone() != "") {
+					if(u.getTimeZoneString() != "") {
 						df = new SimpleDateFormat("d MMM hh:mma", Locale.UK);
-						df.setTimeZone(TimeZone.getTimeZone(u.getTimeZone()));
+						df.setTimeZone(TimeZone.getTimeZone(u.getTimeZoneString()));
 						stamp += ", " + df.format(new Date(lastSeen)) + " " + u.getName() + " time";
 					}
 					stamp = stamp.replaceAll("AM", "am");  // SimpleDateFormat doesn't give us a lower-case am/pm marker

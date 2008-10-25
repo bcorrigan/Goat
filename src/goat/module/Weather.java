@@ -253,8 +253,8 @@ public class Weather extends Module {
 				e.printStackTrace() ;
 			}
 			TimeZone tz = null ;
-			if (! user.getTimeZone().equals("")) {
-				tz = TimeZone.getTimeZone(user.getTimeZone()) ;
+			if (! user.getTimeZoneString().equals("")) {
+				tz = TimeZone.getTimeZone(user.getTimeZoneString()) ;
 			}
 			sunrise_string = sunString(sunrise_UTC, longitude, tz) ;
 			sunset_string = sunString(sunset_UTC, longitude, tz) ;

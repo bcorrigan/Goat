@@ -54,8 +54,15 @@ public class User {
 		this.weatherStation = station;
 	}
 	
-	public String getTimeZone() {
+	public String getTimeZoneString() {
 		return timeZone ;
+	}
+	
+	public TimeZone getTimeZone() {
+		TimeZone ret = null;
+		if (! timeZone.equals(""))
+			ret = TimeZone.getTimeZone(timeZone);
+		return ret;
 	}
 	
 	public void setTimeZone(String tz) {
