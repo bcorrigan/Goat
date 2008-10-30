@@ -14,7 +14,7 @@ public class User {
 
 	private String name = "";
 	private String weatherStation = "";
-	private String timeZone = "";
+	private String timeZoneString = "";
 	private String currency = "";
 	private Locale locale = null;
 	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
@@ -35,7 +35,7 @@ public class User {
 	public User(String name, String weatherStation, String timezone) {
 		this.name = name;
 		this.weatherStation = weatherStation;
-		this.timeZone = TimeZone.getTimeZone(timezone).getID();
+		this.timeZoneString = TimeZone.getTimeZone(timezone).getID();
 	}
 
 	public String getName() {
@@ -55,19 +55,19 @@ public class User {
 	}
 	
 	public String getTimeZoneString() {
-		return timeZone ;
+		return timeZoneString ;
 	}
 	
 	public TimeZone getTimeZone() {
 		TimeZone ret = null;
-		if (! timeZone.equals(""))
-			ret = TimeZone.getTimeZone(timeZone);
+		if (! timeZoneString.equals(""))
+			ret = TimeZone.getTimeZone(timeZoneString);
 		return ret;
 	}
 	
 	public void setTimeZone(String tz) {
 		if (tz.equalsIgnoreCase("unset") || tz.equals("")) {
-			this.timeZone = "" ;
+			this.timeZoneString = "" ;
 			return ;
 		}
 		// this is more complicated than it has to be thanks to 
@@ -81,16 +81,16 @@ public class User {
 					|| tz.equalsIgnoreCase("UTC")
 					|| tz.equalsIgnoreCase("UCT")
 					|| tz.equalsIgnoreCase("Universal")) {
-				this.timeZone = newTZ.getID() ;
+				this.timeZoneString = newTZ.getID() ;
 			}
 		} else {
-			this.timeZone = newTZ.getID();
+			this.timeZoneString = newTZ.getID();
 		}
 				
 	}
 	
 	public void setTimeZone(TimeZone tz) {
-		this.timeZone = tz.getID() ;
+		this.timeZoneString = tz.getID() ;
 	}
 	
 	public String getCurrency() {
