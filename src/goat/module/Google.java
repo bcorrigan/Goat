@@ -1,17 +1,28 @@
 package goat.module;
 
 import java.lang.Math ;
-import java.util.Random ;
+// import java.util.Random ;
 //import java.net.URL ;
 //import java.net.MalformedURLException;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.Date;
+import java.util.TimeZone;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 import goat.core.Message ;
 import goat.core.Module ;
-import goat.util.GoatGoogle ;
-
-import com.google.soap.search.* ;
+import goat.util.HTMLUtil;
+import goojax.*;
+import goojax.search.SearchResponse;
+import goojax.search.SearchResult;
+import goojax.search.news.*;
+import goojax.search.web.WebSearcher;
 
 /**
  * Module to ask google about stuff.
@@ -21,22 +32,32 @@ import com.google.soap.search.* ;
  */
 public class Google extends Module {
 
+	private final GooJAXFetcher.Language DEFAULT_GOAT_LANGUAGE = GooJAXFetcher.Language.EN;
+	
 	public static final String encoding = "UTF-8";
 	public static final String noResultString = "No results found" ;
-	private static Random random = new Random() ;
-
+//	private static Random random = new Random() ;
+	
 	/* IRC methods
 	 */
 	
+	public Google() {
+		GooJAXFetcher.setDefaultTimeout(3000);
+		GooJAXFetcher.setDefaultHttpReferrer("http://goat-blog.blogspot.com/");
+		GooJAXFetcher.setDefaultKey("ABQIAAAA3SYwJ1rsiLgTvuisAwhOWBSj2h-HwVayfKLTNoeW4qFtyKpsrhSAZlVe3nAKyDZbufib0rUbOQ-MvA");
+	}
+	
 	public static String[] getCommands() {
 		return new String[]{"google", "goatle", "googlefight", 
-			"searchcount", "pornometer", "pronometer", "pr0nometer",
+			"pornometer", "pronometer", "pr0nometer",
 			"sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
-			"gayness", "flickr"};
+			"gayness", "flickr", "gnews", "googlenews", 
+			"newslink", "nlink", "translate",
+			"detectlanguage", "detectlang", "languages"};
 	}
 
 	public void processPrivateMessage(Message m) {
-   	processChannelMessage(m);
+		processChannelMessage(m);
 	}
 
 	public void processChannelMessage(Message m) {
@@ -47,14 +68,22 @@ public class Google extends Module {
 			if ("google".equalsIgnoreCase(m.modCommand) || 
 				"goatle".equalsIgnoreCase(m.modCommand)) {
 				ircGoogle(m) ;
-			} else if ("searchcount".equalsIgnoreCase(m.modCommand)) {
-				ircSearchCount(m) ;
+			} else if ("gnews".equalsIgnoreCase(m.modCommand) || 
+					"googlenews".equalsIgnoreCase(m.modCommand)) {
+				ircGoogleNews(m);
+			} else if ("nlink".equalsIgnoreCase(m.modCommand) || 
+					"newslink".equalsIgnoreCase(m.modCommand)) {
+				ircNewsLink(m);
+			} else if ("translate".equalsIgnoreCase(m.modCommand)) {
+				ircTranslate(m);
+			} else if ("languages".equalsIgnoreCase(m.modCommand)) {
+				ircLanguages(m);
 			} else if ("googlefight".equalsIgnoreCase(m.modCommand)) {
 				ircGoogleFight(m) ;
-			} else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
-					"pronometer".equalsIgnoreCase(m.modCommand) ||
-					"pr0nometer".equalsIgnoreCase(m.modCommand)) {
-				ircPornometer(m) ;
+//			} else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
+//					"pronometer".equalsIgnoreCase(m.modCommand) ||
+//					"pr0nometer".equalsIgnoreCase(m.modCommand)) {
+//				ircPornometer(m) ;
 			} else if ("sexiness".equalsIgnoreCase(m.modCommand)) {
 				ircSexiness(m) ;
 			} else if ("gayness".equalsIgnoreCase(m.modCommand)) {
@@ -74,31 +103,232 @@ public class Google extends Module {
 			} else {
 				m.createReply(m.modCommand + " not yet implemented.").send() ;
 			}
-		} catch (GoogleSearchFault f) {
-			m.createReply("There was a problem with google.").send() ;
+		} catch (MalformedURLException mue) {
+			m.createReply("I'm retarded, I couldn't figure out how to make a goojax URL").send();
+			mue.printStackTrace();
+		} catch (SocketTimeoutException ste) {
+			m.createReply("I got bored waiting for Google to respond.").send();
+		} catch (IOException f) {
+			m.createReply("Couldn't connect to google.").send() ;
 			System.out.println(f.toString()) ;
 		}
 	}
 
 	private void ircGoogleIncludeWikipedia (Message m) 
-		throws GoogleSearchFault {
+		throws IOException, SocketTimeoutException, MalformedURLException {
 		m.removeFormattingAndColors() ;
 		m.createReply(luckyString(m.modTrailing)).send() ;
 	}
 	
-	private void ircGoogle (Message m) throws GoogleSearchFault {
+	private void ircGoogle (Message m) throws IOException, SocketTimeoutException, MalformedURLException {
 		m.modTrailing += " -site:wikipedia.org";
 		ircGoogleIncludeWikipedia(m);
 	}
 
-	private void ircSearchCount (Message m) {
-		m.createReply(GoatGoogle.numSearchesToday() + " google search requests have been made in the past 24 hours.").send() ;
+	private HashMap<String,NewsSearchResponse> newsResponseCache = new HashMap<String,NewsSearchResponse>(); 
+	
+	private void ircGoogleNews(Message m) 
+		throws IOException, SocketTimeoutException, MalformedURLException {
+		NewsSearcher ns = new NewsSearcher();
+		String query = Message.removeFormattingAndColors(m.modTrailing);
+		NewsSearchResponse nsr = ns.search(query);
+		if(null == nsr) {
+			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			return;
+		}
+		if(!nsr.statusNormal()) {
+			m.createReply("Error at Google:  " + nsr.getResponseStatus() + ", " + nsr.getResponseDetails()).send();
+			return;
+		}
+		if(nsr.getResponseData().getResults().length < 1) {
+			m.createReply("I have no news of " + query).send();
+			return;
+		}
+		NewsSearchResult results[] = nsr.getResponseData().getResults();
+		String reply = "";
+		
+		for (int newsItem = 0; newsItem < results.length; newsItem++) {
+			reply += Message.BOLD + (newsItem + 1) + ")" + Message.NORMAL;
+			NewsSearchResult result = results[newsItem];
+			reply += " " + getDateLine(result.getPublishedDate());
+			reply += ", " + result.getLocation();
+			reply += " " + Message.BOLD + "\u2014" + Message.NORMAL + " " + HTMLUtil.convertCharacterEntities(result.getTitleNoFormatting());
+			reply += " (" + result.getPublisher() + ")  ";
+		}
+//		reply += "   ";
+//		for (int newsItem = 0; newsItem < results.length; newsItem++)
+//			reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
+		newsResponseCache.put(m.channame, nsr);
+		m.createPagedReply(reply).send();
 	}
-
+	
+	private String getDateLine(Date date, TimeZone zone) {
+		Date now = new Date();
+		DateFormat df = new SimpleDateFormat("ha zzz");
+		if(now.getTime() - date.getTime() > (1000L * 60L * 60L * 24L))
+			df = new SimpleDateFormat("d MMM");
+		else if(now.getTime() - date.getTime() > (1000L * 60L * 60L * 24L * 365L))
+			df = new SimpleDateFormat("d MMM, yyyy");
+		df.setTimeZone(zone);
+		String ret = df.format(date);
+		ret = ret.replace("AM ", "am ");
+		ret = ret.replace("PM ", "pm ");
+		return ret;
+	}
+	
+	private String getDateLine(Date date) {
+		return getDateLine(date, TimeZone.getDefault());
+	}
+	
+	private void ircNewsLink(Message m) {
+		if (! newsResponseCache.containsKey(m.channame)) {
+			m.createReply("I'm sorry, I don't have any news for this channel.").send();
+			return;
+		}
+		NewsSearchResponse nsr = newsResponseCache.get(m.channame);
+		if (null == nsr) {
+			m.createReply("something has gone horribly wrong; my news for this channel seems to be null.").send();
+			return;
+		}
+		int resultNum = 0;
+		try {
+			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.modTrailing.matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.modTrailing) - 1;
+				else
+					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+		} catch (NumberFormatException nfe) {
+			m.createReply("There's no need to be like that, qpt.").send();
+		}
+		if(resultNum > nsr.getResponseData().getResults().length) {	
+			m.createReply("I don't have that many results :(").send();
+			return;
+		} else if(resultNum < 0) {
+			m.createReply("Oh, come on.").send();
+			return;
+		} else {
+			NewsSearchResult re = nsr.getResponseData().getResults()[resultNum];
+			String reply = re.getUnescapedUrl()
+				+ "  " + re.getTitleNoFormatting()
+				+ "  " + getDateLine(re.getPublishedDate())
+				+ ", " + re.getLocation()
+				+ " (" + re.getPublisher() + ")  "
+				+ "  " + Message.BOLD + "\u2014" + Message.NORMAL + "  "
+				+ HTMLUtil.textFromHTML(re.getContent());
+ 				
+			m.createPagedReply(reply).send();
+		}
+	}
+	
+	private void ircTranslate(Message m) throws MalformedURLException, SocketTimeoutException, IOException {
+		String text = Message.removeFormattingAndColors(m.modTrailing);
+		GooJAXFetcher.Language toLanguage = DEFAULT_GOAT_LANGUAGE; 
+		GooJAXFetcher.Language fromLanguage = null;
+		
+		int toFrom = 0;
+		while(toFrom < 2 && (text.toLowerCase().startsWith("to ") || text.toLowerCase().startsWith("from "))) {
+			if (text.toLowerCase().startsWith("to ")) {
+				if(text.length() < 4) {
+					m.createReply("translate to...?").send();
+					return;
+				}
+				text = text.substring(3).trim();
+				int spacepos = text.indexOf(' ');
+				if(-1 == spacepos) {
+					m.createReply("uh, I need at least two words after that \"to\" of yours").send();
+					return;
+				}
+				String langString = text.substring(0, spacepos).trim();
+				text = text.substring(spacepos).trim();
+				GooJAXFetcher.Language tempLang = GooJAXFetcher.Language.fromCode(langString);
+				if(null == tempLang)
+					tempLang = GooJAXFetcher.Language.fromEnglishName(langString);
+				if(null == tempLang) {
+					m.createReply("Sorry, I don't speak \"" + langString + "\".  Type \"languages\", and I'll tell you which ones I know.").send();
+					return;
+				}
+				toLanguage = tempLang;
+				if(text.matches("\\s*") ) {
+					m.createReply("Er, what do you want me to translate to " + toLanguage.getEnglishName()).send();
+					return;
+				}
+			} else if(text.toLowerCase().startsWith("from ")) {
+				if(text.length() < 6) {
+					m.createReply("translate from...?").send();
+					return;
+				}
+				text = text.substring(5).trim();
+				int spacepos = text.indexOf(' ');
+				if(-1 == spacepos) {
+					m.createReply("uh, I need at least two words after that \"from\" of yours").send();
+					return;
+				}
+				String langString = text.substring(0, spacepos).trim();
+				text = text.substring(spacepos).trim();
+				GooJAXFetcher.Language tempLang = GooJAXFetcher.Language.fromCode(langString);
+				if(null == tempLang)
+					tempLang = GooJAXFetcher.Language.fromEnglishName(langString);
+				if(null == tempLang) {
+					m.createReply("Sorry, I don't speak \"" + langString + "\".  Type \"languages\", and I'll tell you which ones I know.").send();
+					return;
+				}
+				fromLanguage = tempLang;
+				if(text.matches("\\s*") ) {
+					m.createReply("Er, what do you want me to translate from " + fromLanguage.getEnglishName()).send();
+					return;
+				}
+			}
+			toFrom++;
+		}
+		if(text.matches("\\s*")) {
+			m.createReply("Er, translate what, exactly?").send();
+			return;
+		}
+		if(! toLanguage.isTranslateable()) {
+			m.createReply("Sorry, but I'm not fluent in " + toLanguage.getEnglishName() + ".").send();
+			return;
+		}
+		Translator tranny = new Translator();
+		TranslateResponse trs = tranny.translate(text, fromLanguage, toLanguage);
+		if(null == trs) {
+			// should never get here
+			m.createReply("something went horribly wrong when I tried to translate.").send();
+			return;
+		}
+		if(!trs.statusNormal()) {
+			m.createReply("problem at Google:  " + trs.getResponseStatus() + ", " + trs.getResponseDetails()).send();
+			return;
+		}
+		if(fromLanguage == null && (null == trs.getDetectedSourceLanguage() || "".equals(trs.getDetectedSourceLanguage())))
+			m.createReply("The Google couldn't figure out what language you're speaking, there.").send();
+		else if(null == trs.getTranslatedText())
+			m.createReply("Translated text is null.  Like, whoa.").send();
+		else if(toLanguage.equals(trs.getDetectedSourceLanguage()))
+			m.createReply("I'm not going to translate that into the language it's already in.  Jerk.").send();
+		else if (fromLanguage == null)
+			m.createReply("(from " + trs.getDetectedSourceLanguage().getEnglishName() + ")   " + trs.getTranslatedText()).send();
+		else 
+			m.createReply(trs.getTranslatedText()).send();
+	}
+	
+	private void ircLanguages(Message m) {
+		String msg = "I am fluent in:  ";
+		for(int i=0; i < GooJAXFetcher.Language.values().length; i++)
+			if(GooJAXFetcher.Language.values()[i].isTranslateable()) 
+				msg += GooJAXFetcher.Language.values()[i].getEnglishName() + 
+				" (" + GooJAXFetcher.Language.values()[i].getCode() + "), ";
+		msg = msg.substring(0, msg.lastIndexOf(","));
+		String tmp = msg.substring(msg.lastIndexOf(",") + 1);
+		msg = msg.substring(0, msg.lastIndexOf(","));
+		msg += " and" + tmp + ".";
+		//GooJAXmsg += "and " + lastLang.getEnglishName() + " (" + lastLang.getCode() + ")"; 
+		m.createPagedReply(msg).send();
+	}
+	
 	private void ircSexiness (Message m) 
-		throws GoogleSearchFault {
+		throws SocketTimeoutException, MalformedURLException, IOException {
 		String query = quoteAndClean(m.modTrailing) ;
-		int sexyPercentage = Math.round((float) 100 * GoatGoogle.sexiness(query)) ;
+		int sexyPercentage = Math.round((float) 100 * sexiness(query)) ;
 		if (sexyPercentage < 0) {
 			m.createReply(query + " does not exist, and therefore can not be appraised for sexiness.").send() ;
 		} else {
@@ -107,9 +337,9 @@ public class Google extends Module {
 	}
 
 	private void ircGayness (Message m) 
-		throws GoogleSearchFault {
+		throws SocketTimeoutException, MalformedURLException, IOException {
 		String query = quoteAndClean(m.modTrailing) ;
-		int sexyPercentage = Math.round((float) 100 * GoatGoogle.gayness(query)) ;
+		int sexyPercentage = Math.round((float) 100 * gayness(query)) ;
 		if (sexyPercentage < 0) {
 			m.createReply(query + " does not exist, and therefore can not be appraised for faggotry.").send() ;
 		} else {
@@ -117,6 +347,7 @@ public class Google extends Module {
 		}
 	}
 
+	/*
 	private void ircPornometer(Message m) 
 		throws GoogleSearchFault {
 		String query = quoteAndClean(m.modTrailing) ;
@@ -150,12 +381,13 @@ public class Google extends Module {
 			m.createReply(query + " is " + pornPercent + "% pornographic.").send() ;
 		}
 	}
+	*/
 
 	/**
 	 * Half of this probably belongs in its own method.
 	 */
 	private void ircGoogleFight (Message m)
-		throws GoogleSearchFault {
+		throws SocketTimeoutException, MalformedURLException, IOException {
 		m.removeFormattingAndColors() ;
 		String [] contestants = m.modTrailing.split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
@@ -269,14 +501,21 @@ public class Google extends Module {
 	/**
 	 * Given an array of query strings, return an array of search-result counts.
 	 */
+	
 	public int[] getResultCounts(String[] queries)
-		throws GoogleSearchFault {
+		throws IOException, MalformedURLException, SocketTimeoutException {
+		WebSearcher ws = new WebSearcher();
+		ws.setSafeSearch(WebSearcher.SafeSearch.NONE);
 		int [] counts = new int[queries.length] ;
 		for (int i = 0 ; i < queries.length; i++) {
 			if (queries[i].matches("\\s*")) { // if string is empty
 				counts[i] = -1 ;
 			} else {
-				counts[i] = GoatGoogle.simpleSearch(queries[i]).getEstimatedTotalResultsCount();
+				SearchResponse srs = ws.search(queries[i]);
+				if(srs.statusNormal())
+					counts[i] = srs.getEstimatedResultCount();
+				else
+					counts[i] = -1; // error at google
 			}
 		}
 		return counts ;
@@ -312,25 +551,34 @@ public class Google extends Module {
 	/**
 	 * Takes a GoogleSearchResultElement and gives you a simple, irc-friendly string representation of it.
 	 */
-	public String simpleResultString (GoogleSearchResultElement re) {
+	public String simpleResultString (SearchResult re) {
 		if (null == re)
 			return noResultString ;
-		return boldConvert(re.getTitle()) + "  " + re.getURL() ;
+		return boldConvert(re.getTitle()) + "  " + re.getUnescapedUrl() ;
 	}
 		
 	/**
 	 * returns an irc-friendly string representation of first search result.
 	 */
 	public String luckyString (String query, boolean safe)
-		throws GoogleSearchFault {
-		GoogleSearchResultElement re = GoatGoogle.feelingLucky(query, safe) ;
-		if (null == re) 
-			return noResultString + " for " + Message.BOLD + query ;
-		return simpleResultString(re) ;
+		throws IOException, SocketTimeoutException, MalformedURLException {
+		WebSearcher ws = new WebSearcher();
+		if(!safe)
+			ws.setSafeSearch(WebSearcher.SafeSearch.NONE);
+		SearchResponse srs = ws.search(query);
+		String ret = "";
+		if(srs.statusNormal())
+			if(srs.getResponseData().getResults().length > 0)
+				ret = simpleResultString(srs.getResponseData().getResults()[0]);
+			else
+				ret = noResultString + " for \"" + Message.removeFormattingAndColors(query) + "\"";
+		else
+			ret = "Error at Google:  " + srs.getResponseStatus() + ", " + srs.getResponseDetails();
+		return ret ;
 	}
 	
 	public String luckyString (String query)
-		throws GoogleSearchFault {
+		throws IOException, SocketTimeoutException, MalformedURLException {
 		return luckyString(query, false) ;
 	}
 	
@@ -339,6 +587,54 @@ public class Google extends Module {
 	 */
 	public String boldConvert (String s) {
 		return s.replaceAll("<[/ ]*[bB] *>", Message.BOLD) ;
+	}
+	
+	/**
+	 * Return the estimated sexiness of the given string.
+	 * <p>
+	 * You should probably clean up your query and quote it
+	 * before you pass it to this method. Like with quoteAndClean(), say.
+	 *
+	 * @param   query your search string.
+	 * @return        a float between 0 and 1, usually, but sometimes
+	 *                more than 1.  -1 if google returns no results for
+	 *                your query.
+	 * @see     quoteAndClean()
+	 */
+	public static float sexiness (String query)
+	throws IOException, MalformedURLException, SocketTimeoutException {
+		
+		WebSearcher ws = new WebSearcher();
+		ws.setSafeSearch(WebSearcher.SafeSearch.NONE);
+		
+		SearchResponse plainResult = ws.search(query) ;
+		if (null == plainResult || ! plainResult.statusNormal() || plainResult.getEstimatedResultCount() < 1)
+			return -1 ;
+		SearchResponse sexResult = ws.search(query + " sex");
+		//debug
+		//System.out.println(sexResult.getEstimatedTotalResultsCount()) ;
+		//System.out.println(plainResult.getEstimatedTotalResultsCount()) ;
+		float ret = -1;
+		if(sexResult != null && sexResult.statusNormal())
+			ret =  (float) sexResult.getEstimatedResultCount() /
+			(float) plainResult.getEstimatedResultCount() ;
+		return ret;
+	}
+
+	public static float gayness (String query)
+	throws MalformedURLException, IOException, SocketTimeoutException {
+		WebSearcher ws = new WebSearcher();
+		ws.setSafeSearch(WebSearcher.SafeSearch.NONE);
+
+		SearchResponse plainResult = ws.search(query) ;
+		if (null == plainResult || plainResult.getEstimatedResultCount() < 1)
+			return -1 ;
+		SearchResponse gayResult = ws.search(query + " gay");
+		float ret = -1;
+		if(null != gayResult && gayResult.statusNormal())
+			ret = (float) gayResult.getEstimatedResultCount() /
+			(float) plainResult.getEstimatedResultCount() ;
+		return ret;
 	}
 	
 /*
