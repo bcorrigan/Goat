@@ -45,6 +45,8 @@
 		<exec executable="cmd.exe" output="${build}/goatRevision" osFamily="windows">
 			<arg line="/C tools\version.bat"/>
 		</exec>
+		<!-- copy over a required resource file -->
+		<copy file="src/goat/util/HTMLUtil.properties" todir="${build}/goat/util/" />
 
 	</target>
 
