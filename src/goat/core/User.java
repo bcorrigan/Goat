@@ -65,7 +65,7 @@ public class User {
 		return ret;
 	}
 	
-	public void setTimeZone(String tz) {
+	public void setTimeZoneString(String tz) {
 		if (tz.equalsIgnoreCase("unset") || tz.equals("")) {
 			this.timeZoneString = "" ;
 			return ;
