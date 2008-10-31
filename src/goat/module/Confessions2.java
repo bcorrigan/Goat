@@ -89,6 +89,23 @@ public class Confessions2 extends Module {
 	
 	private ArrayList<Integer> randomCache = new ArrayList<Integer>();
 	
+	Confessions2() {
+		super();
+		final String confessionsFile = "resources/confessions.gz";
+		try {
+			if (0L == dbCount()) {
+				System.out.println("Trying to import confessions from file: " + confessionsFile);
+				goat.util.Confessions.importBcFile(confessionsFile);
+			}
+		} catch (DatabaseException dbe) {
+			System.err.println("Database fuckup while trying to load confessions from file");
+			dbe.printStackTrace();
+		} catch (IOException ioe) {
+			System.err.println("I/O error while trying to load confessions from file");
+			ioe.printStackTrace();
+		}
+	}
+	 
 	public static String[] getCommands() {
 		return new String[]{"confess", "confession"};
 	}
