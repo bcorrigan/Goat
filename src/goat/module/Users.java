@@ -78,14 +78,14 @@ public class Users extends Module {
 			}
 			Message.createPagedPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 		} else if (tz.equalsIgnoreCase("unset")) {
-			user.setTimeZone(tz) ;
+			user.setTimeZoneString(tz) ;
 			m.createReply("Time zone unset for user " + user.getName()).send() ;
 			if (users.hasUser(user))
 				users.save() ;
 		} else {
 			ArrayList<String> matches = timezoneSearch(tz);
 			if (matches.size() == 1) {
-				user.setTimeZone(matches.get(0));
+				user.setTimeZoneString(matches.get(0));
 				if(! users.hasUser(user.getName())) 
 					users.addUser(user) ;
 				users.save();
