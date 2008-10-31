@@ -89,7 +89,7 @@ public class Confessions2 extends Module {
 	
 	private ArrayList<Integer> randomCache = new ArrayList<Integer>();
 	
-	Confessions2() {
+	public Confessions2() {
 		super();
 		final String confessionsFile = "resources/confessions.gz";
 		try {
