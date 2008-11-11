@@ -19,6 +19,7 @@ public class User {
 	private Locale locale = null;
 	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
 	private Message lastMessage = null;
+	private String lastfmName = "";
 	
 	public User() {
 	}
@@ -145,5 +146,13 @@ public class User {
 
 	public void setLastMessageTimestamps(HashMap<String, Long> lastMessageTimestamps) {
 		this.lastMessageTimestamps = lastMessageTimestamps;
+	}
+	
+	public String getLastfmname() {
+		return lastfmName;
+	}
+	
+	public void setLastfmname(String name) {
+		lastfmName = name;
 	}
 }
