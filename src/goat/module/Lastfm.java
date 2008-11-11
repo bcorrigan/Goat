@@ -1,6 +1,7 @@
 package goat.module;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import goat.Goat;
 import goat.core.Message;
@@ -41,9 +42,7 @@ public class Lastfm extends Module {
 			m.createReply("What you say?").send();
 			return;
 		}
-		for (int i=0; i<words.length; i++) {
-			System.out.println("words" + i + ":" + words[i]);
-		}
+
 		command = words[0];
 		trailing = m.modTrailing.replaceFirst("\\S*\\s*", ""); //first word and subsequent spaces
 
@@ -58,10 +57,11 @@ public class Lastfm extends Module {
 				return;
 			}
 			String replyString="";
-			for( Track track:tracks) {
-				replyString += track.getName() + " by " + track.getArtist() + ", ";
+			int i=0;
+			for( Track track: tracks) {
+				i++;
+				replyString += Message.BOLD + i + ":" + Message.NORMAL + track.getName() + " - " + track.getArtist() + " ";
 			}
-			replyString = replyString.substring(0, replyString.length()-2); //hehe
 			m.createPagedReply(replyString).send();
 		} else if ("setuser".equalsIgnoreCase(command)) {
 			if(trailing.trim().length()==0) {
