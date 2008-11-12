@@ -43,10 +43,10 @@ public class CommandParser {
 	 * @param text String to be parsed
 	 */
 	private void parse(String text) {
-		// Actual regex before being escaped: ^\w+\s|\w+=\w+|\w+=\"([^\"]+?)\"
+		// Actual regex before being escaped: \w+=\w+|\w+=\"([^\"]+?)\"|^\w+
 		// ie match first word (command) OR match someword=anotherword OR match someword="some words"
 		// idea is to describe each field instead of the delimiter between them,
-		String commandRegex = "^\\w+\\s|\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"";
+		String commandRegex = "\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"|^\\w+";
 		Pattern commandRE = Pattern.compile(commandRegex);
 		Matcher m = commandRE.matcher(text);
 		
