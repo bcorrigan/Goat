@@ -1,12 +1,12 @@
 package goat.module;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import goat.Goat;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.Users;
+import goat.util.CommandParser;
 
 
 import net.roarsoftware.lastfm.User;
@@ -34,23 +34,19 @@ public class Lastfm extends Module {
 		if (users.hasUser(m.sender)) {
 			user = users.getUser(m.sender);
 		} else {
-			user = new goat.core.User(m.sender) ;
+			user = new goat.core.User(m.sender);
 		}
-		String command, trailing;
-		String[] words =  m.modTrailing.split("\\s+?"); //whitespace
-		if( words==null || words.length==0 ) {
-			m.createReply("What you say?").send();
-			return;
-		}
-
-		command = words[0];
-		trailing = m.modTrailing.replaceFirst("\\S*\\s*", ""); //first word and subsequent spaces
-
-		if("tracks".equalsIgnoreCase(command)) {
+		
+		CommandParser parser = new CommandParser(m.modTrailing);
+		if("tracks".equalsIgnoreCase(parser.command())) {
 			String lastfmUser;
-			if(trailing.trim().length()==0) {
+			if(!parser.has("user")) {
 				lastfmUser = user.getLastfmname();
-			} else lastfmUser = trailing.trim();
+				if("".equals(lastfmUser)) {
+					m.createReply(m.sender + ": I don't know your lastfm name!").send();
+					return;
+				}
+			} else lastfmUser = parser.get("user");
 			Collection<Track> tracks = User.getRecentTracks(lastfmUser, apiKey);
 			if( tracks.size()==0) {
 				m.createReply("I don't find anything for the user " + lastfmUser + ", sorry." ).send();
@@ -63,15 +59,17 @@ public class Lastfm extends Module {
 				replyString += Message.BOLD + i + ":" + Message.NORMAL + track.getName() + " - " + track.getArtist() + " ";
 			}
 			m.createPagedReply(replyString).send();
-		} else if ("setuser".equalsIgnoreCase(command)) {
-			if(trailing.trim().length()==0) {
-				m.createReply("You have to supply a username you enormous tit.").send();
+		} else if ("setuser".equalsIgnoreCase(parser.command())) {
+			if(parser.remaining().length()==0) {
+				m.createReply(m.sender + ": You have to supply a username you enormous tit.").send();
+			} else if (parser.remainingAsArrayList().size()>1) {
+				m.createReply(m.sender + ": A lastfm username can't have spaces.").send();
 			} else {
 				if (! users.hasUser(user)) {
 					users.addUser(user);
 				}
-				if (! user.getLastfmname().equals(trailing)) {
-					user.setLastfmname(trailing.trim());
+				if (! user.getLastfmname().equals(parser.remaining())) {
+					user.setLastfmname(parser.remaining().trim());
 					users.save();
 				}
 				m.createReply(m.sender + ": set.").send();
