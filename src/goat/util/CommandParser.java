@@ -1,8 +1,13 @@
 package goat.util ;
 
 import goat.core.Message ;
+
+import java.util.Collections;
 import java.util.HashMap ;
 import java.util.ArrayList ;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A simple command parser
@@ -17,10 +22,10 @@ import java.util.ArrayList ;
  */
 public class CommandParser {
 
-	private HashMap vars = new HashMap();
+	private HashMap<String,String> vars = new HashMap<String,String>();
 	private String command = "" ;
 	private String remaining = "" ; 
-	private ArrayList remainingAsArrayList = new ArrayList() ;
+	private ArrayList<String> remainingAsArrayList = new ArrayList<String>() ;
 	
 	/**
 	 * @param m Message to be parsed
@@ -38,34 +43,55 @@ public class CommandParser {
 	 * @param text String to be parsed
 	 */
 	private void parse(String text) {
-		//TODO might be nice if this handled quotes helpfully
-		String[] words = {} ;
-		if (! text.equals("")) {
-			// we need to wrap this in an if() because java's split() returns an
-			// array with one element in it ("") when invoked on an empty string.
-			words = text.split("\\s+") ;
-		}
-		int start = 0 ;
-		if (command.equals("")) {
-			command = words[0] ;
-			start = 1 ;
-		}
-		String word = "" ;
-		String[] buf = {} ;
-		int i = start ;
-		while (i < words.length) {
-			//quote handling would go in here somewhere
-			word = words[i] ;
-			if ( word.matches("\\S+=\\S+") ) {
-				buf = word.split("=") ;
-				vars.put(buf[0].toLowerCase(),buf[1]) ;
+		// Actual regex before being escaped: ^\w+\s|\w+=\w+|\w+=\"([^\"]+?)\"
+		// ie match first word (command) OR match someword=anotherword OR match someword="some words"
+		// idea is to describe each field instead of the delimiter between them,
+		String commandRegex = "^\\w+\\s|\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"";
+		Pattern commandRE = Pattern.compile(commandRegex);
+		Matcher m = commandRE.matcher(text);
+		
+		int start=0;
+		int last=0;
+		String[] buf = {};
+		if(command.equals("")&&m.find()) {
+			if(m.group().contains("=")) {
+				//not command string proper
+				m.reset();
+				start=0;
 			} else {
-				remaining = remaining + " " + word ;
-				remainingAsArrayList.add(word) ;
+				command = m.group().trim();
+				start=1;
+				last=m.end();
+				remaining+=text.substring(0,m.start()).trim() + " "; //anything unmatched from start onto remaining
 			}
-			++i ;
 		}
-		remaining = remaining.trim() ;
+		
+		//process each match
+		int i=start;
+		while(m.find()) {
+			String group = m.group();
+			//anything unmatched between last match and this match added to remaining
+			remaining+=text.substring(last,m.start()).trim() + " ";
+			last=m.end();
+			buf = group.split("=");
+			//trim quotes
+			if( buf[1].startsWith("\"")) 
+				buf[1] = buf[1].substring(1);
+			if( buf[1].endsWith("\""))
+				buf[1] = buf[1].substring(0,buf[1].length()-1);
+			vars.put(buf[0].toLowerCase(), buf[1]);
+			i++;
+		}
+		//unmatched tail onto remaining
+		remaining += text.substring(last, text.length()).trim();
+		remaining=remaining.trim();
+		
+		//now for remaining as list - simply split on whitespace and add to arraylist
+		//no quote handling here but dunno if we want it
+		// we need to wrap this in an if() because java's split() returns an
+		// array with one element in it ("") when invoked on an empty string.
+		if(!remaining.equals(""))
+			Collections.addAll(remainingAsArrayList, remaining.split("\\s+"));
 	}
 	
 	/**
