@@ -49,17 +49,15 @@ public class CommandParser {
 		String commandRegex = "\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"|^\\w+";
 		Pattern commandRE = Pattern.compile(commandRegex);
 		Matcher m = commandRE.matcher(text);
-		int start=0;
+
 		int last=0;
 		String[] buf = {};
 		if(command.equals("")&&m.find()) {
 			if(m.group().contains("=")) {
 				//not command string proper
 				m.reset();
-				start=0;
 			} else {
 				command = m.group().trim();
-				start=1;
 				last=m.end();
 				remaining+=text.substring(0,m.start()).trim() + " "; //anything unmatched from start onto remaining
 			}
@@ -68,7 +66,6 @@ public class CommandParser {
 		}
 		
 		//process each match
-		int i=start;
 		while(m.find()) {
 			String group = m.group();
 			//anything unmatched between last match and this match added to remaining
@@ -81,7 +78,6 @@ public class CommandParser {
 			if( buf[1].endsWith("\""))
 				buf[1] = buf[1].substring(0,buf[1].length()-1);
 			vars.put(buf[0].toLowerCase(), buf[1]);
-			i++;
 		}
 		//unmatched tail onto remaining
 		remaining += text.substring(last, text.length()).trim();
