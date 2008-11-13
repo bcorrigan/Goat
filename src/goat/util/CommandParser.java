@@ -49,7 +49,6 @@ public class CommandParser {
 		String commandRegex = "\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"|^\\w+";
 		Pattern commandRE = Pattern.compile(commandRegex);
 		Matcher m = commandRE.matcher(text);
-		
 		int start=0;
 		int last=0;
 		String[] buf = {};
@@ -64,6 +63,8 @@ public class CommandParser {
 				last=m.end();
 				remaining+=text.substring(0,m.start()).trim() + " "; //anything unmatched from start onto remaining
 			}
+		} else {
+			m.find(); //skip to next match when we have a command already
 		}
 		
 		//process each match
