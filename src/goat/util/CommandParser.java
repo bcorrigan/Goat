@@ -52,7 +52,7 @@ public class CommandParser {
 
 		int last=0;
 		String[] buf = {};
-		if(command.equals("")&&m.find()) {
+		if(command.equals("") & m.find()) { //we do not want to short circuit! that causes a bug
 			if(m.group().contains("=")) {
 				//not command string proper
 				m.reset();
@@ -61,9 +61,7 @@ public class CommandParser {
 				last=m.end();
 				remaining+=text.substring(0,m.start()).trim() + " "; //anything unmatched from start onto remaining
 			}
-		} else {
-			m.find(); //skip to next match when we have a command already
-		}
+		} 
 		
 		//process each match
 		while(m.find()) {
