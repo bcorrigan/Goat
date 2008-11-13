@@ -72,10 +72,12 @@ public class Lastfm extends Module {
 				m.createReply(m.sender + ": set.").send();
 			}
 		} if("chart".equalsIgnoreCase(parser.command())) {
-			String lastfmUser = getUser(m);
+			String lastfmUser = "";
+			if(!parser.has("country"))
+				lastfmUser = getUser(m);
 			ChartType type = ChartType.ALLTIME;
 			String country="";
-			if (lastfmUser.equals("")) 
+			if (lastfmUser.equals("") && !parser.has("country")) 
 				return;
 			if(parser.has("type")) {
 				if(parser.get("type").equals("weekly"))
@@ -89,13 +91,12 @@ public class Lastfm extends Module {
 					if(parser.has("country")) {
 						country = parser.get("country");
 					} else country="United Kingdom";
+				} else {
+					m.createReply(m.sender + ": I've never heard of that stupid type. Right now I only support weekly, loved, country and alltime.").send();
+					return;
 				}
 				if(!parser.get("type").equals("country") && parser.has("country") ) {
 					m.createReply(m.sender + ": You can't ask for country chart ratings of that type - only of type country").send();
-					return;
-				}
-				else {
-					m.createReply(m.sender + ": I've never heard of that stupid type. Right now I only support weekly, loved, country and alltime.").send();
 					return;
 				}
 			} //if parser has country and type is not set just set type to country
