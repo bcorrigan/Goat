@@ -90,6 +90,10 @@ public class Lastfm extends Module {
 						country = parser.get("country");
 					} else country="United Kingdom";
 				}
+				if(!parser.get("type").equals("country") && parser.has("country") ) {
+					m.createReply(m.sender + ": You can't ask for country chart ratings of that type - only of type country").send();
+					return;
+				}
 				else {
 					m.createReply(m.sender + ": I've never heard of that stupid type. Right now I only support weekly, loved, country and alltime.").send();
 					return;
