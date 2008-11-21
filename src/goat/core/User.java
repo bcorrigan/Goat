@@ -4,8 +4,11 @@ import java.util.TimeZone;
 import java.util.Locale;
 import java.util.HashMap;
 import static goat.util.CurrencyConverter.*;
-import org.jdom.JDOMException;
 import java.io.IOException;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 /**
  * A simple javabean to represent a user
@@ -98,7 +101,7 @@ public class User {
 		return currency;
 	}
 	
-	public void setCurrency(String newCurrency) throws JDOMException, IOException {
+	public void setCurrency(String newCurrency) throws IOException, ParserConfigurationException, SAXException {
 		if (newCurrency.equalsIgnoreCase("unset")) {
 			this.currency = "";
 			return;

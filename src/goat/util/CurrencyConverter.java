@@ -1,20 +1,21 @@
 package goat.util;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 /**
  * Converts various currencies.
@@ -55,27 +56,29 @@ public class CurrencyConverter {
 		return amount * to / from ;
 	}
 	
-	public static void updateRates() throws JDOMException, IOException {
+	public static void updateRates() throws IOException, ParserConfigurationException, SAXException {
 		
 			if (!exchangeRates.isEmpty() && ((new Date()).getTime() - lastRatesUpdate < minWaitBetweenRateUpdates))
 				return;  // don't update if we've updated recently
 			
 			String newPublicationDate = "";
 			TreeMap<String, String> newRates = new TreeMap<String, String>();
-	        final SAXBuilder builder = new SAXBuilder();
-	        builder.setIgnoringElementContentWhitespace(true);
+			final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	        final DocumentBuilder builder = dbf.newDocumentBuilder();
+	        //builder.setIgnoringElementContentWhitespace(true);
 	
-	        final Document doc = builder.build(new URL(EXCHANGE_TABLE_URL));
-	        final Element root = doc.getRootElement();
-	        final Namespace ns = root.getNamespace("");
-	        final Element cubeRoot = root.getChild("Cube", ns);
-	        final Element cubeTime = cubeRoot.getChild("Cube", ns);
-	        newPublicationDate = cubeTime.getAttribute("time").getValue();
-	        final List<Element> cubes = cubeTime.getChildren();
+	        final Document doc = builder.parse(EXCHANGE_TABLE_URL);
+	        final Element root = doc.getDocumentElement();
+	        NodeList nl = root.getElementsByTagName("Cube");
+	        final Element cubeRoot = (Element) nl.item(0);
+	        nl = cubeRoot.getElementsByTagName("Cube");
+	        final Element cubeTime = (Element) nl.item(0);
+	        newPublicationDate = cubeTime.getAttribute("time");
+	        final NodeList cubes = cubeTime.getElementsByTagName("Cube");
 	        Element cube;	
-	        for (Object cube1 : cubes) {
-	            cube = (Element) cube1;
-	            newRates.put(cube.getAttribute("currency").getValue(), cube.getAttribute("rate").getValue());
+	        for (int i=0; i < cubes.getLength(); i++) {
+	            cube = (Element) cubes.item(i);
+	            newRates.put(cube.getAttribute("currency"), cube.getAttribute("rate"));
 	        }
 	        newRates.put("EUR", "1");
 	        exchangeRates = newRates;
@@ -83,7 +86,7 @@ public class CurrencyConverter {
 	        lastRatesUpdate = (new Date()).getTime();
 	}
 	
-	public static boolean isRecognizedCurrency(String currency) throws JDOMException, IOException {
+	public static boolean isRecognizedCurrency(String currency) throws IOException, ParserConfigurationException, SAXException {
 		boolean ret = false;
 		ArrayList<String> currencies = listCurrencies();
 		Iterator<String> it = currencies.iterator();
@@ -95,13 +98,13 @@ public class CurrencyConverter {
 		return ret;
 	}
 	
-	public static ArrayList<String> listCurrencies() throws JDOMException, IOException {
+	public static ArrayList<String> listCurrencies() throws IOException, ParserConfigurationException, SAXException {
 		if (exchangeRates.isEmpty())
 			updateRates();
 		return new ArrayList<String>(exchangeRates.keySet());
 	}
 	
-	public static String rateTableDate() throws JDOMException, IOException {
+	public static String rateTableDate() throws IOException, ParserConfigurationException, SAXException {
 		if(exchangeRates.isEmpty())
 			updateRates();
 		return exchangeRatesPublicationDate;

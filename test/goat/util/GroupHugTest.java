@@ -8,7 +8,7 @@ import static goat.util.GroupHugUS.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.junit.Assert;
+import junit.framework.Assert;
 
 import com.sleepycat.persist.EntityCursor;
 

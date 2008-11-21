@@ -10,8 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.NoSuchElementException;
-
 
 /* Goat keeps one nice static Users object in Goat.users.  Use that one instead of 
   creating your own and writing all over goat's files.

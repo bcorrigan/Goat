@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import org.jdom.JDOMException;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 
 public class Users extends Module {
@@ -24,9 +26,9 @@ public class Users extends Module {
 		"To set your timezone, type 'timezone [code]', or 'timezone unset' to erase your setting.  A partial timezone code will work, if I can resolve it to a single timeszone.  To find your code directly instead of making me guess, try a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html";
 
 	public static String CURRENCY_HELP_MESSAGE = "Type \"currency xxx\" to set your currency, where xxx is a known three-letter currency code.  Type \"currency list\" to list all available codes";
-	
+
 	private static final int MAX_LISTINGS = 30;
-	
+
 	private static Random random = new Random();
 
 	private goat.core.Users users ;
@@ -58,7 +60,7 @@ public class Users extends Module {
 			worldclock(m);
 		else if(m.modCommand.equalsIgnoreCase("seen"))
 			seen(m);
-		
+
 		recordSighting(m);
 	}
 
@@ -111,41 +113,43 @@ public class Users extends Module {
 		newCurrency = translateCurrencyAliases(newCurrency);
 		newCurrency = newCurrency.trim();
 		try {
-		if (newCurrency.equals("")) { // no input
-			if (user.getCurrency().equals(""))
-				m.createReply(user.getName() + ", your currency is not set.  Instructions in /msg").send();
-			else
-				m.createReply(user.getName() + ", your currency is " + user.getCurrency() + ".").send();
-			Message.createPagedPrivmsg(m.sender, CURRENCY_HELP_MESSAGE).send();
-		} else if(newCurrency.equalsIgnoreCase("unset")) {
-			user.setCurrency(newCurrency);
-			m.createReply("Currency unset for user " + user.getName()).send();
-			if(users.hasUser(user))
-				users.save();
-		} else if(newCurrency.matches("[a-zA-Z]{3}")) {
-			if(isRecognizedCurrency(newCurrency)) {
+			if (newCurrency.equals("")) { // no input
+				if (user.getCurrency().equals(""))
+					m.createReply(user.getName() + ", your currency is not set.  Instructions in /msg").send();
+				else
+					m.createReply(user.getName() + ", your currency is " + user.getCurrency() + ".").send();
+				Message.createPagedPrivmsg(m.sender, CURRENCY_HELP_MESSAGE).send();
+			} else if(newCurrency.equalsIgnoreCase("unset")) {
 				user.setCurrency(newCurrency);
-				if(! users.hasUser(user))
-					users.addUser(user);
-				users.save();
-				m.createReply(user.getName() + "'s currency set to " + user.getCurrency()).send();
+				m.createReply("Currency unset for user " + user.getName()).send();
+				if(users.hasUser(user))
+					users.save();
+			} else if(newCurrency.matches("[a-zA-Z]{3}")) {
+				if(isRecognizedCurrency(newCurrency)) {
+					user.setCurrency(newCurrency);
+					if(! users.hasUser(user))
+						users.addUser(user);
+					users.save();
+					m.createReply(user.getName() + "'s currency set to " + user.getCurrency()).send();
+				} else {
+					m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
+				}
+			} else if(newCurrency.equalsIgnoreCase("list")) {
+				m.createPagedReply("Current known currency codes:  " + exchangeRates.keySet().toString()).send();
 			} else {
-				m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
+				m.createReply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." ).send();
 			}
-		} else if(newCurrency.equalsIgnoreCase("list")) {
-			m.createPagedReply("Current known currency codes:  " + exchangeRates.keySet().toString()).send();
-		} else {
-			m.createReply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." ).send();
-		}
-		} catch (JDOMException jde) {
+		} catch (ParserConfigurationException pse) {
+			m.createReply("I'm sorry, I can't set your currency until someone fixes my xml parser.").send();
+		} catch (SAXException se) {
 			m.createReply("I ran into trouble trying to parse the exchange rates table").send();
-			jde.printStackTrace();
+			se.printStackTrace();
 		} catch (IOException ioe) {
-			m.createReply("I couldn't retrieve the exchange rates table from the internets");
+			m.createReply("I couldn't retrieve the exchange rates table from the internets").send();
 			ioe.printStackTrace();
 		}
 	}
-	
+
 	private void usertime(Message m) {
 		String uname = m.modTrailing.trim();
 		uname = Message.removeFormattingAndColors(uname);
@@ -245,10 +249,10 @@ public class Users extends Module {
 						// nag the user if they haven't got their time zone set
 						Message.createPagedPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 					}
-					
+
 					Long lastSeen = u.getLastMessageTimestamp();
 					String saying = " saying: " + u.getLastMessage().trailing;
-				
+
 					if(channel.equals(""))
 						channel = u.getLastMessage().channame;
 					else {
@@ -264,7 +268,7 @@ public class Users extends Module {
 							}
 						}
 					}
-					
+
 					String stamp = df.format(new Date(lastSeen));
 					if(u.getTimeZoneString() != "") {
 						df = new SimpleDateFormat("d MMM hh:mma", Locale.UK);
@@ -273,8 +277,8 @@ public class Users extends Module {
 					}
 					stamp = stamp.replaceAll("AM", "am");  // SimpleDateFormat doesn't give us a lower-case am/pm marker
 					stamp = stamp.replaceAll("PM", "pm");
-					
-					
+
+
 					String durString = durationString(System.currentTimeMillis() - lastSeen);
 					m.createReply(u.getName() + " was last seen in " + channel + " "
 							+ durString + " ago" + saying + "    [" + stamp + "]").send();
@@ -285,7 +289,7 @@ public class Users extends Module {
 			}
 		} else
 			m.createReply("I ain't seen nothin'").send();
-		
+
 	}
 
 	private void recordSighting(Message m) {
@@ -326,13 +330,13 @@ public class Users extends Module {
 		else
 			ret += "pm";
 		switch (cal.get(GregorianCalendar.DAY_OF_WEEK)) {
-			case GregorianCalendar.SUNDAY : ret += ", Sunday"; break;
-			case GregorianCalendar.MONDAY : ret += ", Monday"; break;
-			case GregorianCalendar.TUESDAY : ret += ", Tuesday"; break;
-			case GregorianCalendar.WEDNESDAY : ret += ", Wednesday"; break;
-			case GregorianCalendar.THURSDAY : ret += ", Thursday"; break;
-			case GregorianCalendar.FRIDAY : ret += ", Friday"; break;
-			case GregorianCalendar.SATURDAY : ret += ", Saturday"; break;
+		case GregorianCalendar.SUNDAY : ret += ", Sunday"; break;
+		case GregorianCalendar.MONDAY : ret += ", Monday"; break;
+		case GregorianCalendar.TUESDAY : ret += ", Tuesday"; break;
+		case GregorianCalendar.WEDNESDAY : ret += ", Wednesday"; break;
+		case GregorianCalendar.THURSDAY : ret += ", Thursday"; break;
+		case GregorianCalendar.FRIDAY : ret += ", Friday"; break;
+		case GregorianCalendar.SATURDAY : ret += ", Saturday"; break;
 		}
 		ret += ", " + cal.get(GregorianCalendar.DAY_OF_MONTH) + "/";
 		ret += (cal.get(GregorianCalendar.MONTH) + 1) + "/";
@@ -394,7 +398,7 @@ public class Users extends Module {
 		}
 		return durString;
 	}
-	
+
 	private ArrayList<String> timezoneSearch(String searchTerm) {
 		String[] ids = TimeZone.getAvailableIDs() ;
 		ArrayList<String> matches = new ArrayList<String>();

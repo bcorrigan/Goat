@@ -41,7 +41,6 @@ package goat.module;
 
 
 import java.text.NumberFormat;
-import org.jdom.JDOMException;
 import java.io.IOException;
 import java.util.*;
 
@@ -49,6 +48,10 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
 import goat.core.Users;
+
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
+
 import static goat.util.CurrencyConverter.*;
 
 
@@ -79,9 +82,13 @@ public class CurrencyConverter extends Module {
         		updateRates();
         		if (DEBUG)
         			System.out.println("convert: new rate-table's date is \"" + exchangeRatesPublicationDate + "\"");
-        	} catch (JDOMException jde) {
+        	} catch (ParserConfigurationException pse) {
+        		m.createReply("I'm sorry, but someone fixes my xml parser, I can't convert that for you.").send();
+        		pse.printStackTrace();
+        		return;
+        	} catch (SAXException se) {
         		m.createReply("I had a problem parsing the exchange rate table").send();
-        		jde.printStackTrace();
+        		se.printStackTrace();
         		return;
         	} catch (IOException ioe) {
         		m.createReply("I had a problem downloading the exchange rates table").send();
