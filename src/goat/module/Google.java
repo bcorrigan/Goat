@@ -329,6 +329,10 @@ public class Google extends Module {
 	
 	private void ircDetectLanguage(Message m) {
 		Translator tranny = new Translator();
+		if(m.modTrailing.matches("^\\s*$")) {
+			m.createReply("I detect a " + Message.BOLD + "jerk" + Message.NORMAL + ", with a confidence of 1.0").send();
+			return;
+		}
 		try {
 			DetectLanguageResponse dls = tranny.detect(m.modTrailing);
 			if(! dls.statusNormal()) {
