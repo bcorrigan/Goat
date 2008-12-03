@@ -240,7 +240,7 @@ public abstract class GooJAXFetcher {
 		String ret = builder.toString();
 		try {
 			JSONObject job = new JSONObject(ret);
-			System.out.println(job.toString(3));
+			// System.out.println(job.toString(3));
 		} catch (JSONException je) {
 			je.printStackTrace();
 		}

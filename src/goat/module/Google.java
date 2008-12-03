@@ -48,12 +48,23 @@ public class Google extends Module {
 	}
 	
 	public static String[] getCommands() {
-		return new String[]{"google", "goatle", "googlefight", 
+		return new String[]{
+			"google", "goatle", 
+			"googlefight", 
 			"pornometer", "pronometer", "pr0nometer",
-			"sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
-			"gayness", "flickr", "gnews", "googlenews", 
-			"newslink", "nlink", "translate",
-			"detectlanguage", "detectlang", "languages"};
+			"sexiness", 
+			"gis", 
+			"yis", 
+			"wikipedia", 
+			"youtube", 
+			"imdb",
+			"gayness", 
+			"flickr", 
+			"gnews", "googlenews", 
+			"newslink", "nlink", 
+			"translate",
+			"detectlanguage", "languagedetect", "detectlang", "langdetect", 
+			"languages"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -76,6 +87,11 @@ public class Google extends Module {
 				ircNewsLink(m);
 			} else if ("translate".equalsIgnoreCase(m.modCommand)) {
 				ircTranslate(m);
+			} else if ("detectlang".equalsIgnoreCase(m.modCommand) ||
+					"langdetect".equalsIgnoreCase(m.modCommand) ||
+					"detectlanguage".equalsIgnoreCase(m.modCommand) ||
+					"languagedetect".equalsIgnoreCase(m.modCommand)) {
+				ircDetectLanguage(m);
 			} else if ("languages".equalsIgnoreCase(m.modCommand)) {
 				ircLanguages(m);
 			} else if ("googlefight".equalsIgnoreCase(m.modCommand)) {
@@ -101,7 +117,7 @@ public class Google extends Module {
 			} else if ("flickr".equalsIgnoreCase(m.modCommand)) {
 				m.createReply(flickrUrl(m.modTrailing)).send() ;
 			} else {
-				m.createReply(m.modCommand + " not yet implemented.").send() ;
+				m.createReply("No one has gotten around to implementing " + m.modCommand + ".").send() ;
 			}
 		} catch (MalformedURLException mue) {
 			m.createReply("I'm retarded, I couldn't figure out how to make a goojax URL").send();
@@ -309,6 +325,38 @@ public class Google extends Module {
 			m.createReply("(from " + trs.getDetectedSourceLanguage().getEnglishName() + ")   " + trs.getTranslatedText()).send();
 		else 
 			m.createReply(trs.getTranslatedText()).send();
+	}
+	
+	private void ircDetectLanguage(Message m) {
+		Translator tranny = new Translator();
+		try {
+			DetectLanguageResponse dls = tranny.detect(m.modTrailing);
+			if(! dls.statusNormal()) {
+				m.createPagedReply("I had a problem talking to Google:  " 
+						+ dls.getResponseStatus() + ", " 
+						+ dls.getResponseDetails()).send();
+				return;
+			}
+			if(dls.getResponseData().isReliable())
+				m.createReply("I think that's " + Message.BOLD 
+						+ dls.getResponseData().getLanguage().getEnglishName() + Message.NORMAL
+						+ ", with a confidence of " 
+						+ dls.getResponseData().getConfidence()).send();
+			else if(dls.getResponseData().getLanguage() != null)
+				m.createReply("That might be " + Message.BOLD 
+						+ dls.getResponseData().getLanguage().getEnglishName() + Message.NORMAL
+						+ ", but I'm not sure, my confidence is only " 
+						+ dls.getResponseData().getConfidence()).send();
+			else
+				m.createReply("I have no idea what kind of gibber-jabber that might be.").send();
+
+		} catch (SocketTimeoutException ste) {
+			m.createReply("I got bored waiting for Google to figure out what language you were using").send();
+			ste.printStackTrace();
+		} catch (IOException ioe) {
+			m.createReply("Something went wrong when I tried to talk to Google").send();
+			ioe.printStackTrace();
+		}
 	}
 	
 	private void ircLanguages(Message m) {
