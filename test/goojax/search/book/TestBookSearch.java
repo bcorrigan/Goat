@@ -1,4 +1,4 @@
-package goojax.book;
+package goojax.search.book;
 
 import goojax.search.book.BookSearchResult;
 import goojax.search.book.BookSearcher;

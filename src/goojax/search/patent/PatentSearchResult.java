@@ -1,13 +1,16 @@
 package goojax.search.patent;
 
 import goojax.search.SearchResult;
+
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Date;
 
 public class PatentSearchResult extends SearchResult {
 
-	public Date applicationDate;
+	public String applicationDate;
 	public Long patentNumber;
-	public String patentStatus; //TODO getter and setter using PatentStatus enum
+	public String patentStatus;
 	public String assignee;
 	public String tbUrl;
 	
@@ -33,10 +36,54 @@ public class PatentSearchResult extends SearchResult {
 			return ret;
 		}
 	}
-	public PatentStatus getStatus() {
+	
+	public PatentStatus getPatentStatus() {
 		return PatentStatus.statusFromCode(patentStatus);
 	}
+	
 	public void setPatentStatus(PatentStatus status) {
 		patentStatus = status.code;
+	}
+
+	static final String DATE_FORMAT_STRING = "EEE, dd MMM yyyy HH:mm:ss Z";
+	static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
+	
+	public Date getApplicationDate() {
+		Date ret = null;
+		try {
+			if(applicationDate != null)
+				ret = sdf.parse(applicationDate);
+		} catch (ParseException pe) {
+			pe.printStackTrace();
+		}
+		return ret;
+	}
+
+	public void setApplicationDate(Date applicationDate) {
+		this.applicationDate = sdf.format(applicationDate);
+	}
+
+	public Long getPatentNumber() {
+		return patentNumber;
+	}
+
+	public void setPatentNumber(Long patentNumber) {
+		this.patentNumber = patentNumber;
+	}
+
+	public String getAssignee() {
+		return assignee;
+	}
+
+	public void setAssignee(String assignee) {
+		this.assignee = assignee;
+	}
+
+	public String getTbUrl() {
+		return tbUrl;
+	}
+
+	public void setTbUrl(String tbUrl) {
+		this.tbUrl = tbUrl;
 	}
 }

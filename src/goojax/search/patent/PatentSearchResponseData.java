@@ -8,4 +8,12 @@ public class PatentSearchResponseData extends SearchResponseData {
 	PatentSearchResponseData() {
 		super();
 	}
+
+	public PatentSearchResult[] getResults() {
+		return results;
+	}
+
+	public void setResults(PatentSearchResult[] results) {
+		this.results = results;
+	}
 }

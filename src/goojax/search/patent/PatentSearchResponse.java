@@ -9,4 +9,12 @@ public class PatentSearchResponse extends SearchResponse {
 		super();
 	}
 
+	public PatentSearchResponseData getResponseData() {
+		return responseData;
+	}
+
+	public void setResponseData(PatentSearchResponseData responseData) {
+		this.responseData = responseData;
+	}
+
 }
