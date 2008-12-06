@@ -31,16 +31,13 @@ public class TestWebSearch extends TestCase {
 				query = "cats and dogs";
 	
 				
-				BookSearcher   bs  = new BookSearcher();
+				
 				ImageSearcher  is  = new ImageSearcher();
 				PatentSearcher ps  = new PatentSearcher();
 				BlogSearcher   bgs = new BlogSearcher();
 				VideoSearcher  vs  = new VideoSearcher();
 				
 				srs = ws.search(query);
-				for(int i=0;i<srs.getResponseData().getResults().length;i++)
-					System.out.println(i + "\t" + srs.getResponseData().getResults()[i].getGsearchResultClass() + "\t" + srs.getResponseData().getResults()[i].getTitleNoFormatting());			
-				srs = bs.search(query);
 				for(int i=0;i<srs.getResponseData().getResults().length;i++)
 					System.out.println(i + "\t" + srs.getResponseData().getResults()[i].getGsearchResultClass() + "\t" + srs.getResponseData().getResults()[i].getTitleNoFormatting());			
 				srs = is.search(query);

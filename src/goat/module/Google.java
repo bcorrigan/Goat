@@ -22,6 +22,7 @@ import goojax.*;
 import goojax.search.SearchResponse;
 import goojax.search.SearchResult;
 import goojax.search.news.*;
+import goojax.search.book.*;
 import goojax.search.web.WebSearcher;
 
 /**
@@ -64,7 +65,10 @@ public class Google extends Module {
 			"newslink", "nlink", 
 			"translate",
 			"detectlanguage", "languagedetect", "detectlang", "langdetect", 
-			"languages"};
+			"languages",
+			"googlebooks", "booksgoogle", "bookgoogle", "booksearch",
+			"booklink",
+			"glink"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -85,6 +89,15 @@ public class Google extends Module {
 			} else if ("nlink".equalsIgnoreCase(m.modCommand) || 
 					"newslink".equalsIgnoreCase(m.modCommand)) {
 				ircNewsLink(m);
+			} else if ("googlebooks".equalsIgnoreCase(m.modCommand) || 
+					"bookgoogle".equalsIgnoreCase(m.modCommand) ||
+					"booksgoogle".equalsIgnoreCase(m.modCommand) ||
+					"booksearch".equalsIgnoreCase(m.modCommand)) {
+				ircGoogleBooks(m);
+			} else if ("booklink".equalsIgnoreCase(m.modCommand)) {
+				ircBookLink(m);
+			} else if ("glink".equalsIgnoreCase(m.modCommand)) {
+				ircCachedLink(m);
 			} else if ("translate".equalsIgnoreCase(m.modCommand)) {
 				ircTranslate(m);
 			} else if ("detectlang".equalsIgnoreCase(m.modCommand) ||
@@ -141,6 +154,7 @@ public class Google extends Module {
 		ircGoogleIncludeWikipedia(m);
 	}
 
+	private String lastCachedResultType = null;
 	private HashMap<String,NewsSearchResponse> newsResponseCache = new HashMap<String,NewsSearchResponse>(); 
 	
 	private void ircGoogleNews(Message m) 
@@ -175,25 +189,8 @@ public class Google extends Module {
 //		for (int newsItem = 0; newsItem < results.length; newsItem++)
 //			reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
 		newsResponseCache.put(m.channame, nsr);
+		lastCachedResultType = "news";
 		m.createPagedReply(reply).send();
-	}
-	
-	private String getDateLine(Date date, TimeZone zone) {
-		Date now = new Date();
-		DateFormat df = new SimpleDateFormat("ha zzz");
-		if(now.getTime() - date.getTime() > (1000L * 60L * 60L * 24L))
-			df = new SimpleDateFormat("d MMM");
-		else if(now.getTime() - date.getTime() > (1000L * 60L * 60L * 24L * 365L))
-			df = new SimpleDateFormat("d MMM, yyyy");
-		df.setTimeZone(zone);
-		String ret = df.format(date);
-		ret = ret.replace("AM ", "am ");
-		ret = ret.replace("PM ", "pm ");
-		return ret;
-	}
-	
-	private String getDateLine(Date date) {
-		return getDateLine(date, TimeZone.getDefault());
 	}
 	
 	private void ircNewsLink(Message m) {
@@ -234,6 +231,116 @@ public class Google extends Module {
  				
 			m.createPagedReply(reply).send();
 		}
+	}
+	
+	private HashMap<String,BookSearchResponse> booksResponseCache = new HashMap<String,BookSearchResponse>(); 
+	
+	private void ircGoogleBooks(Message m) 
+		throws IOException, SocketTimeoutException, MalformedURLException {
+		BookSearcher bs = new BookSearcher();
+		String query = Message.removeFormattingAndColors(m.modTrailing);
+		BookSearchResponse bsr = bs.search(query);
+		if(null == bsr) {
+			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			return;
+		}
+		if(!bsr.statusNormal()) {
+			m.createReply("Error at Google:  " + bsr.getResponseStatus() + ", " + bsr.getResponseDetails()).send();
+			return;
+		}
+		if(bsr.getResponseData().getResults().length < 1) {
+			m.createReply("I have no news of " + query).send();
+			return;
+		}
+		BookSearchResult results[] = bsr.getResponseData().getResults();
+		String reply = "";
+		
+		for (int book = 0; book < results.length; book++) {
+			reply += Message.BOLD + (book + 1) + ")" + Message.NORMAL;
+			BookSearchResult result = results[book];
+			reply += " " + Message.UNDERLINE + result.getTitleNoFormatting() + Message.NORMAL;
+			reply += ", " + result.getAuthors();
+			if(result.getPublishedYear() != null)
+				reply += ", " + result.getPublishedYear();
+			if(result.getPageCount() != 0)
+				reply += ", " + result.getPageCount() + "pp";
+			if(result.getBookId().startsWith("ISBN"))
+				reply += ";  isbn " + result.getBookId().substring(4);
+			else if (result.getBookId() != null)
+				reply += ",  book id: " + result.getBookId();
+			reply += "  ";
+		}
+//		reply += "   ";
+//		for (int newsItem = 0; newsItem < results.length; newsItem++)
+//			reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
+		booksResponseCache.put(m.channame, bsr);
+		lastCachedResultType = "book";
+		m.createPagedReply(reply).send();
+	}
+	
+	private void ircBookLink(Message m) {
+		if (! booksResponseCache.containsKey(m.channame)) {
+			m.createReply("I'm sorry, I don't have any books cached for this channel.").send();
+			return;
+		}
+		BookSearchResponse bsr = booksResponseCache.get(m.channame);
+		if (null == bsr) {
+			m.createReply("something has gone horribly wrong; my books cache for this channel seems to be null.").send();
+			return;
+		}
+		int resultNum = 0;
+		try {
+			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.modTrailing.matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.modTrailing) - 1;
+				else
+					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+		} catch (NumberFormatException nfe) {
+			m.createReply("There's no need to be like that, qpt.").send();
+		}
+		if(resultNum > bsr.getResponseData().getResults().length) {	
+			m.createReply("I don't have that many results :(").send();
+			return;
+		} else if(resultNum < 0) {
+			m.createReply("Oh, come on.").send();
+			return;
+		} else {
+			BookSearchResult re = bsr.getResponseData().getResults()[resultNum];
+			String reply = re.getUnescapedUrl()
+				+ "  " + Message.UNDERLINE + re.getTitleNoFormatting() + Message.NORMAL
+				+ ", " + re.getPublishedYear()
+				+ ",  " + re.getAuthors(); 				
+			m.createPagedReply(reply).send();
+		}
+	}
+	
+	private void ircCachedLink(Message m) {
+		if(null == lastCachedResultType)
+			m.createReply("I'm afraid I don't have any results cached.").send();
+		if(lastCachedResultType.equalsIgnoreCase("book"))
+			ircBookLink(m);
+		else if(lastCachedResultType.equalsIgnoreCase("news"))
+			ircNewsLink(m);
+		else
+			m.createReply("I'm confused about my results cache, I need help.").send();
+	}
+	
+	private String getDateLine(Date date, TimeZone zone) {
+		Date now = new Date();
+		DateFormat df = new SimpleDateFormat("ha zzz");
+		if(now.getTime() - date.getTime() > (1000L * 60L * 60L * 24L))
+			df = new SimpleDateFormat("d MMM");
+		else if(now.getTime() - date.getTime() > (1000L * 60L * 60L * 24L * 365L))
+			df = new SimpleDateFormat("d MMM, yyyy");
+		df.setTimeZone(zone);
+		String ret = df.format(date);
+		ret = ret.replace("AM ", "am ");
+		ret = ret.replace("PM ", "pm ");
+		return ret;
+	}
+	
+	private String getDateLine(Date date) {
+		return getDateLine(date, TimeZone.getDefault());
 	}
 	
 	private void ircTranslate(Message m) throws MalformedURLException, SocketTimeoutException, IOException {
