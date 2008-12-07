@@ -9,7 +9,7 @@ import java.util.Date;
 public class PatentSearchResult extends SearchResult {
 
 	public String applicationDate;
-	public Long patentNumber;
+	public String patentNumber;
 	public String patentStatus;
 	public String assignee;
 	public String tbUrl;
@@ -63,11 +63,11 @@ public class PatentSearchResult extends SearchResult {
 		this.applicationDate = sdf.format(applicationDate);
 	}
 
-	public Long getPatentNumber() {
+	public String getPatentNumber() {
 		return patentNumber;
 	}
 
-	public void setPatentNumber(Long patentNumber) {
+	public void setPatentNumber(String patentNumber) {
 		this.patentNumber = patentNumber;
 	}
 

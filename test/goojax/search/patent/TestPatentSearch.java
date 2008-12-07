@@ -16,6 +16,8 @@ public class TestPatentSearch extends TestCase {
 					+ "\t" + psr.getResponseData().getResults()[i].getPatentStatus().code
 					+ "\t" + psr.getResponseData().getResults()[i].getTitleNoFormatting()
 					+ " \u2014 " + psr.getResponseData().getResults()[i].getAssignee());
+		query = "toaster";
+		psr = ps.search(query);
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);

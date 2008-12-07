@@ -14,7 +14,6 @@ import java.util.TimeZone;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.text.SimpleDateFormat;
 
 import goat.core.Message ;
 import goat.core.Module ;
@@ -162,6 +161,11 @@ public class Google extends Module {
 	}
 
 	private void ircGoogle (Message m) throws IOException, SocketTimeoutException, MalformedURLException {
+		String query = Message.removeFormattingAndColors(m.modTrailing);
+		if(query.matches("^\\s*$")) {
+			m.createReply("Er, what do you want me to google for you?").send();
+			return;
+		}
 		m.modTrailing += " -site:wikipedia.org";
 		ircGoogleIncludeWikipedia(m);
 	}
@@ -171,8 +175,12 @@ public class Google extends Module {
 
 	private void ircGoogleNews(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		NewsSearcher ns = new NewsSearcher();
 		String query = Message.removeFormattingAndColors(m.modTrailing);
+		if(query.matches("^\\s*$")) {
+			m.createReply("What do you want news of?").send();
+			return;
+		}
+		NewsSearcher ns = new NewsSearcher();
 		NewsSearchResponse nsr = ns.search(query);
 		if(null == nsr) {
 			m.createReply("Something went horribly wrong in my GooJAX processor").send();
@@ -249,8 +257,12 @@ public class Google extends Module {
 
 	private void ircGoogleBooks(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		BookSearcher bs = new BookSearcher();
 		String query = Message.removeFormattingAndColors(m.modTrailing);
+		if(query.matches("^\\s*$")) {
+			m.createReply("Um, what do you want me to look for in all these books?").send();
+			return;
+		}
+		BookSearcher bs = new BookSearcher();
 		BookSearchResponse bsr = bs.search(query);
 		if(null == bsr) {
 			m.createReply("Something went horribly wrong in my GooJAX processor").send();
@@ -332,8 +344,12 @@ public class Google extends Module {
 
 	private void ircGooglePatents(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		PatentSearcher ps = new PatentSearcher();
 		String query = Message.removeFormattingAndColors(m.modTrailing);
+		if(query.matches("^\\s*$")) {
+			m.createReply("Yes, well, what sort of patents am I supposed to look for, then?").send();
+			return;
+		}
+		PatentSearcher ps = new PatentSearcher();
 		PatentSearchResponse psr = ps.search(query);
 		if(null == psr) {
 			m.createReply("Something went horribly wrong in my GooJAX processor").send();
