@@ -24,11 +24,14 @@ import goojax.search.SearchResult;
 import goojax.search.news.*;
 import goojax.search.book.*;
 import goojax.search.patent.*;
+import goojax.search.blog.*;
 import goojax.search.patent.PatentSearchResult.PatentStatus;
 import goojax.search.web.WebSearcher;
 
 /**
  * Module to ask google about stuff.
+ * 
+ * This module is over 1000 lines long now, that's probably too much.
  * 
  * @author encontrado
  *         Created on 27-Feb-2006
@@ -54,7 +57,7 @@ public class Google extends Module {
 		return new String[]{
 				"google", "goatle", 
 				"googlefight", 
-				"pornometer", "pronometer", "pr0nometer",
+		//		"pornometer", "pronometer", "pr0nometer",
 				"sexiness", 
 				"gis", 
 				"yis", 
@@ -72,7 +75,9 @@ public class Google extends Module {
 				"booklink",
 				"patentsearch", "patentgoogle", "googlepatents",
 				"patentlink", "plink",
-		"glink"};
+				"blogsearch", "bloggoogle", "googleblogs",
+				"bloglink",
+				"glink"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -107,6 +112,12 @@ public class Google extends Module {
 			} else if ("patentlink".equalsIgnoreCase(m.modCommand)
 					|| "plink".equalsIgnoreCase(m.modCommand)) {
 				ircPatentLink(m);
+			} else if ("googleblogs".equalsIgnoreCase(m.modCommand) || 
+					"bloggoogle".equalsIgnoreCase(m.modCommand) ||
+					"blogsearch".equalsIgnoreCase(m.modCommand)) {
+				ircGoogleBlogs(m);
+			} else if ("bloglink".equalsIgnoreCase(m.modCommand)) {
+				ircBlogLink(m);
 			} else if ("glink".equalsIgnoreCase(m.modCommand)) {
 				ircCachedLink(m);
 			} else if ("translate".equalsIgnoreCase(m.modCommand)) {
@@ -341,7 +352,7 @@ public class Google extends Module {
 	}
 
 	private HashMap<String,PatentSearchResponse> patentsResponseCache = new HashMap<String,PatentSearchResponse>(); 
-
+	
 	private void ircGooglePatents(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = Message.removeFormattingAndColors(m.modTrailing);
@@ -378,9 +389,7 @@ public class Google extends Module {
 			reply += " :  " + result.getTitleNoFormatting() + "  ";
 
 		}
-		//	reply += "   ";
-		//	for (int newsItem = 0; newsItem < results.length; newsItem++)
-		//		reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
+		reply += "   ";
 		patentsResponseCache.put(m.channame, psr);
 		lastCachedResultType = "patent";
 		m.createPagedReply(reply).send();
@@ -415,20 +424,113 @@ public class Google extends Module {
 		} else {
 			PatentSearchResult re = psr.getResponseData().getResults()[resultNum];
 			String reply = re.getUnescapedUrl()
-			+ ", " + re.getTitleNoFormatting();
+			+ " " + re.getTitleNoFormatting();
 			m.createPagedReply(reply).send();
 		}
 	}
 
+	private HashMap<String,BlogSearchResponse> blogsResponseCache = new HashMap<String,BlogSearchResponse>(); 
+
+	private void ircGoogleBlogs(Message m) 
+	throws IOException, SocketTimeoutException, MalformedURLException {
+		String query = Message.removeFormattingAndColors(m.modTrailing);
+		if(query.matches("^\\s*$")) {
+			m.createReply("What kind of blogging were you looking for?").send();
+			return;
+		}
+		BlogSearcher bs = new BlogSearcher();
+		BlogSearchResponse bsr = bs.search(query);
+		if(null == bsr) {
+			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			return;
+		}
+		if(!bsr.statusNormal()) {
+			m.createReply("Error at Google:  " + bsr.getResponseStatus() + ", " + bsr.getResponseDetails()).send();
+			return;
+		}
+		if(bsr.getResponseData().getResults().length < 1) {
+			m.createReply("I found no blogging about " + query).send();
+			return;
+		}
+		BlogSearchResult results[] = bsr.getResponseData().getResults();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, yyyy");
+		String reply = "";
+
+		for (int post = 0; post < results.length; post++) {
+			reply += Message.BOLD + (post + 1) + ")" + Message.NORMAL;
+			BlogSearchResult result = results[post];
+			reply += " " + sdf.format(result.getPublishedDate());
+			reply += " " + HTMLUtil.textFromHTML(result.getTitle());
+			reply += " (" + extractDomainName(result.getBlogUrl()) + ")";
+			reply += "  ";
+		}
+		reply += "  ";
+		blogsResponseCache.put(m.channame, bsr);
+		lastCachedResultType = "blog";
+		m.createPagedReply(reply).send();
+	}
+	
+	private String extractDomainName(String url) {
+		String ret = "";
+		if(url.startsWith("http")) {
+			int startOffset = 7; // position after "http://"
+			if(url.startsWith("https"))
+				startOffset++;
+			if(url.length() <= startOffset)
+				return ret;
+			ret = url.substring(startOffset);
+			if(ret.contains("/"))
+				ret = ret.substring(0, ret.indexOf('/'));
+		}
+		return ret;
+	}
+	
+	private void ircBlogLink(Message m) {
+		if (! blogsResponseCache.containsKey(m.channame)) {
+			m.createReply("I'm sorry, I don't have any blogs cached for this channel.").send();
+			return;
+		}
+		BlogSearchResponse bsr = blogsResponseCache.get(m.channame);
+		if (null == bsr) {
+			m.createReply("something has gone horribly wrong; my blogs cache for this channel seems to be null.").send();
+			return;
+		}
+		int resultNum = 0;
+		try {
+			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.modTrailing.matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.modTrailing) - 1;
+				else
+					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+		} catch (NumberFormatException nfe) {
+			m.createReply("There's no need to be like that, qpt.").send();
+		}
+		if(resultNum > bsr.getResponseData().getResults().length) {	
+			m.createReply("I don't have that many results :(").send();
+			return;
+		} else if(resultNum < 0) {
+			m.createReply("Oh, come on.").send();
+			return;
+		} else {
+			BlogSearchResult re = bsr.getResponseData().getResults()[resultNum];
+			String reply = re.getPostUrl()
+			+ "  " + HTMLUtil.textFromHTML(re.getContent());
+			m.createPagedReply(reply).send();
+		}
+	}
+
+
 	private void ircCachedLink(Message m) {
 		if(null == lastCachedResultType)
 			m.createReply("I'm afraid I don't have any results cached.").send();
-		if(lastCachedResultType.equalsIgnoreCase("book"))
+		else if(lastCachedResultType.equalsIgnoreCase("book"))
 			ircBookLink(m);
 		else if(lastCachedResultType.equalsIgnoreCase("news"))
 			ircNewsLink(m);
 		else if(lastCachedResultType.equalsIgnoreCase("patent"))
 			ircPatentLink(m);
+		else if(lastCachedResultType.equalsIgnoreCase("blog"))
+			ircBlogLink(m);
 		else
 			m.createReply("I'm confused about my results cache, I need help.").send();
 	}

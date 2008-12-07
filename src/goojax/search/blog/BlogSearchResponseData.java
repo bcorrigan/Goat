@@ -8,4 +8,12 @@ public class BlogSearchResponseData extends SearchResponseData {
 	public BlogSearchResponseData() {
 		super();
 	}
+
+	public BlogSearchResult[] getResults() {
+		return results;
+	}
+
+	public void setResults(BlogSearchResult[] results) {
+		this.results = results;
+	}
 }
