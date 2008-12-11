@@ -1,23 +1,24 @@
 package goojax.search.local;
 
 import static java.net.URLEncoder.encode;
-
-
 import goojax.search.AbstractSearcher;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class LocalSearcher extends AbstractSearcher {
 
-	protected Float latitude = 91f;
-	protected Float longitude = 181f;
+	public Float latitude = 91f;
+	public Float longitude = 181f;
 
-	protected Float boundingBoxLatitude = 0f;
-	protected Float boundingBoxLongitude = 0f;
+	public Float boundingBoxLatitude = 0f;
+	public Float boundingBoxLongitude = 0f;
 	
-	protected ResultType resultType = null;
+	public ResultType resultType = null;
+	
+	public LocalSearcher() {
+		super();
+	}
 	
 	public enum ResultType {
 		BLENDED ("blended"),

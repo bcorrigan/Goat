@@ -8,4 +8,12 @@ public class VideoSearchResponse extends SearchResponse {
 	public VideoSearchResponse() {
 		super();
 	}
+
+	public VideoSearchResponseData getResponseData() {
+		return responseData;
+	}
+
+	public void setResponseData(VideoSearchResponseData responseData) {
+		this.responseData = responseData;
+	}
 }

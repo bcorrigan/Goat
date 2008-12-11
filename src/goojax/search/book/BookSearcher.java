@@ -1,26 +1,19 @@
 package goojax.search.book;
 
 import static java.net.URLEncoder.encode;
-
-
 import goojax.search.AbstractSearcher;
-import goojax.search.AbstractSearcher.SearchType;
-import goojax.search.web.WebSearchResponse;
-
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.google.gson.Gson;
-
 public class BookSearcher extends AbstractSearcher {
 
-	protected boolean fullViewOnly = false;
-	protected String libraryName = null;
+	public boolean fullViewOnly = false;
+	public String libraryName = null;
+	
+	public BookSearcher() {
+		super();
+	}
 	
 	public String encodeExtraSearchOpts() {
 		ArrayList<String> tokes = new ArrayList<String>();
@@ -42,19 +35,6 @@ public class BookSearcher extends AbstractSearcher {
 		while(iter.hasNext())
 			ret += "&" + iter.next();
 		return ret;	
-	}
-
-	public BookSearchResponse search() throws MalformedURLException, IOException, SocketTimeoutException {
-		Gson gson = new Gson();
-		URL url = getURL(getSearchType().baseUrl, encodeStandardOpts(), encodeExtraSearchOpts());
-		String goojax = getGoojax(url);
-
-		return gson.fromJson(goojax, BookSearchResponse.class);
-	}
-	
-	public BookSearchResponse search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
-		this.query = query;
-		return search();
 	}
 	
 	public SearchType getSearchType() {

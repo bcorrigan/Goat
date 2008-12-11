@@ -3,9 +3,9 @@ package goojax.search.news;
 import goojax.search.SearchResponseData;
 
 public class NewsSearchResponseData extends SearchResponseData {
-	protected NewsSearchResult results[];
+	public NewsSearchResult results[];
 
-	NewsSearchResponseData() { super(); }
+	public NewsSearchResponseData() { super(); }
 	
 	public NewsSearchResult[] getResults() {
 		return results;

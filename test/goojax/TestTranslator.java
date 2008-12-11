@@ -1,8 +1,5 @@
 package goojax;
 
-
-import goojax.*;
-import goojax.search.news.*;
 import junit.framework.*;
 import static goojax.GooJAXFetcher.Language;
 

@@ -3,13 +3,13 @@ package goojax.search.book;
 import goojax.search.SearchResult;
 
 public class BookSearchResult extends SearchResult {
-	String authors;
-	String bookId;
-	String publishedYear;
-	Integer pageCount;
-	String thumbnailHtml;
+	public String authors;
+	public String bookId;
+	public String publishedYear;
+	public Integer pageCount;
+	public String thumbnailHtml;
 	
-	BookSearchResult() {
+	public BookSearchResult() {
 		super();
 	}
 	

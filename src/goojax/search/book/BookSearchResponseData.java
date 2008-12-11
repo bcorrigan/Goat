@@ -3,7 +3,7 @@ package goojax.search.book;
 import goojax.search.SearchResponseData;
 
 public class BookSearchResponseData extends SearchResponseData {
-	BookSearchResult results[];
+	public BookSearchResult results[];
 	
 	public BookSearchResponseData() {
 		super();

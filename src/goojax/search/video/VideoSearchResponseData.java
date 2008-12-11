@@ -4,8 +4,16 @@ import goojax.search.SearchResponseData;
 
 public class VideoSearchResponseData extends SearchResponseData {
 	public VideoSearchResult results[];
-	
-	VideoSearchResponseData() {
-		super();
+	//public VideoSearchResponseData() {
+		//super();
+	//}
+
+	public VideoSearchResult[] getResults() {
+		return results;
 	}
+
+	public void setResults(VideoSearchResult[] results) {
+		this.results = results;
+	}
+	
 }

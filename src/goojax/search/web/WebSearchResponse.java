@@ -3,9 +3,9 @@ package goojax.search.web;
 import goojax.search.SearchResponse;
 
 public class WebSearchResponse extends SearchResponse {
-	protected WebSearchResponseData responseData;
+	public WebSearchResponseData responseData;
 	
-	protected WebSearchResponse() {
+	public WebSearchResponse() {
 		super();
 	}
 }

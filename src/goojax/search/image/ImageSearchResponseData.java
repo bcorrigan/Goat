@@ -9,4 +9,11 @@ public class ImageSearchResponseData extends SearchResponseData {
 		super();
 	}
 
+	public ImageSearchResult[] getResults() {
+		return results;
+	}
+
+	public void setResults(ImageSearchResult[] results) {
+		this.results = results;
+	}
 }

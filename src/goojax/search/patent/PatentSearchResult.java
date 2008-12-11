@@ -1,8 +1,6 @@
 package goojax.search.patent;
 
 import goojax.search.SearchResult;
-
-import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -44,23 +42,13 @@ public class PatentSearchResult extends SearchResult {
 	public void setPatentStatus(PatentStatus status) {
 		patentStatus = status.code;
 	}
-
-	static final String DATE_FORMAT_STRING = "EEE, dd MMM yyyy HH:mm:ss Z";
-	static final SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_STRING);
 	
 	public Date getApplicationDate() {
-		Date ret = null;
-		try {
-			if(applicationDate != null)
-				ret = sdf.parse(applicationDate);
-		} catch (ParseException pe) {
-			pe.printStackTrace();
-		}
-		return ret;
+		return parseDate(applicationDate);
 	}
 
 	public void setApplicationDate(Date applicationDate) {
-		this.applicationDate = sdf.format(applicationDate);
+		this.applicationDate = formatDate(applicationDate);
 	}
 
 	public String getPatentNumber() {

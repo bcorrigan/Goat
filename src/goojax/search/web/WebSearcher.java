@@ -1,31 +1,25 @@
 package goojax.search.web;
 
 import static java.net.URLEncoder.encode;
-
-
 import goojax.search.AbstractSearcher;
-
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import com.google.gson.Gson;
 
 public class WebSearcher extends AbstractSearcher {
 
 	public SearchType getSearchType() {
-		// TODO Auto-generated method stub
 		return SearchType.WEB;
 	}
 
-	protected SafeSearch safeSearch = null;
-	protected String restrictLanguage = null;
-	protected String customSearchIdCode = null;
-	protected String customSearchReference = null;
+	public SafeSearch safeSearch = null;
+	public String restrictLanguage = null;
+	public String customSearchIdCode = null;
+	public String customSearchReference = null;
+	
+	public WebSearcher() {
+		super();
+	}
 	
 	public String encodeExtraSearchOpts() {
 		ArrayList<String> tokes = new ArrayList<String>();
@@ -49,19 +43,6 @@ public class WebSearcher extends AbstractSearcher {
 		while(iter.hasNext())
 			ret += "&" + iter.next();
 		return ret;
-	}
-
-	public WebSearchResponse search() throws MalformedURLException, IOException, SocketTimeoutException {
-		Gson gson = new Gson();
-		URL url = getURL(getSearchType().baseUrl, encodeStandardOpts(), encodeExtraSearchOpts());
-		String goojax = getGoojax(url);
-
-		return gson.fromJson(goojax, WebSearchResponse.class);
-	}
-	
-	public WebSearchResponse search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
-		this.query = query;
-		return search();
 	}
 	
 	public SafeSearch getSafeSearch() {

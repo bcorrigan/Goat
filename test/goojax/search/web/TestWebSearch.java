@@ -1,8 +1,6 @@
 package goojax.search.web;
 
 import goojax.search.SearchResponse;
-import goojax.search.image.ImageSearcher;
-import goojax.search.video.VideoSearcher;
 import junit.framework.TestCase;
 
 public class TestWebSearch extends TestCase {
@@ -14,38 +12,23 @@ public class TestWebSearch extends TestCase {
 	*/
 		public void testWebSearch() {
 			try {
-				String query = "2 liters to ounces";
+				System.out.println("Testing web search:");
 				
 				WebSearcher ws = new WebSearcher();
-				SearchResponse srs = ws.search(query);
-				assertTrue(srs != null);
-				
-				for(int i = 0; i < srs.getResponseData().getResults().length; i++)
-					System.out.println(i + "\t" + srs.getResponseData().getResults()[i].getTitle());
-				
-				System.out.println();
+				SearchResponse srs;
 	
-				query = "cats and dogs";
-	
-				
-				ImageSearcher  is  = new ImageSearcher();
-
-				VideoSearcher  vs  = new VideoSearcher();
-				
+				String query = "cats and dogs";
+				System.out.println("\tquery: \"" + query + "\"");
+			
 				srs = ws.search(query);
+				System.out.println("\testimated results: " + srs.getEstimatedResultCount());
+				assertTrue(srs.statusNormal());
 				for(int i=0;i<srs.getResponseData().getResults().length;i++)
-					System.out.println(i + "\t" + srs.getResponseData().getResults()[i].getGsearchResultClass() + "\t" + srs.getResponseData().getResults()[i].getTitleNoFormatting());			
-				srs = is.search(query);
-				for(int i=0;i<srs.getResponseData().getResults().length;i++)
-					System.out.println(i + "\t" + srs.getResponseData().getResults()[i].getGsearchResultClass() + "\t" + srs.getResponseData().getResults()[i].getTitleNoFormatting());			
-				srs = vs.search(query);
-				for(int i=0;i<srs.getResponseData().getResults().length;i++)
-					System.out.println(i + "\t" + srs.getResponseData().getResults()[i].getGsearchResultClass() + "\t" + srs.getResponseData().getResults()[i].getTitleNoFormatting());			
-				//ns.setQuery("");
-				//srs = ns.search();
-				//assertTrue(null != srs);
-				//for(int i=0;i<srs.responseData.results.length;i++)
-				//	System.out.println(i + "\t" + srs.responseData.results[i].GsearchResultClass + "\t" + srs.responseData.results[i].titleNoFormatting);
+					System.out.println(
+							"\t" + (i + 1) 
+							+ "  " + srs.getResponseData().getResults()[i].getTitleNoFormatting()
+							+ "\t" + srs.getResponseData().getResults()[i].getUnescapedUrl() 
+							);			
 			} catch (Exception e) {
 				e.printStackTrace();
 				assertTrue(false);

@@ -3,9 +3,9 @@ package goojax.search.patent;
 import goojax.search.SearchResponseData;
 
 public class PatentSearchResponseData extends SearchResponseData {
-	PatentSearchResult results[];
+	public PatentSearchResult results[];
 	
-	PatentSearchResponseData() {
+	public PatentSearchResponseData() {
 		super();
 	}
 

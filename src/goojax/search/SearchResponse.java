@@ -2,11 +2,11 @@ package goojax.search;
 
 import goojax.GooJAXResponse;
 
-public class SearchResponse extends GooJAXResponse {
+public abstract class SearchResponse extends GooJAXResponse {
 	
-	protected SearchResponseData responseData;
+	public SearchResponseData responseData;
 	
-	protected SearchResponse() {
+	public SearchResponse() {
 		super();
 	}
 

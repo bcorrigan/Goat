@@ -1,10 +1,16 @@
 package goojax.search;
 
-import static goojax.GooJAXFetcher.*;
 import static java.net.URLEncoder.encode;
 
 import goojax.GooJAXFetcher;
-import goojax.GooJAXFetcher.ResultSize;
+import goojax.search.blog.BlogSearchResponse;
+import goojax.search.book.BookSearchResponse;
+import goojax.search.image.ImageSearchResponse;
+import goojax.search.local.LocalSearchResponse;
+import goojax.search.news.NewsSearchResponse;
+import goojax.search.patent.PatentSearchResponse;
+import goojax.search.video.VideoSearchResponse;
+import goojax.search.web.WebSearchResponse;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -19,19 +25,21 @@ import com.google.gson.Gson;
 public abstract class AbstractSearcher extends GooJAXFetcher {
 	
 	public enum SearchType {
-		WEB (BASE_SEARCH_URL + "web"),
-		LOCAL (BASE_SEARCH_URL + "local"),
-		VIDEO (BASE_SEARCH_URL + "video"),
-		BLOGS (BASE_SEARCH_URL + "blogs"),
-		NEWS (BASE_SEARCH_URL + "news"),
-		BOOKS (BASE_SEARCH_URL + "books"),
-		IMAGES (BASE_SEARCH_URL + "images"),
-		PATENT (BASE_SEARCH_URL + "patent");
+		WEB (BASE_SEARCH_URL + "web", WebSearchResponse.class),
+		LOCAL (BASE_SEARCH_URL + "local", LocalSearchResponse.class),
+		VIDEO (BASE_SEARCH_URL + "video", VideoSearchResponse.class),
+		BLOGS (BASE_SEARCH_URL + "blogs", BlogSearchResponse.class),
+		NEWS (BASE_SEARCH_URL + "news", NewsSearchResponse.class),
+		BOOKS (BASE_SEARCH_URL + "books", BookSearchResponse.class),
+		IMAGES (BASE_SEARCH_URL + "images", ImageSearchResponse.class),
+		PATENT (BASE_SEARCH_URL + "patent", PatentSearchResponse.class);
 			
 		public final String baseUrl;
+		public final Class<? extends SearchResponse> responseClass;
 		
-		SearchType(String url) {
+		SearchType(String url, Class<? extends SearchResponse> responseClass) {
 			this.baseUrl = url;
+			this.responseClass = responseClass;
 		}
 	}
 	
@@ -91,15 +99,16 @@ public abstract class AbstractSearcher extends GooJAXFetcher {
 		return ret;
 	}
 	
-	public SearchResponse search() throws MalformedURLException, IOException, SocketTimeoutException {
+	@SuppressWarnings("unchecked")
+	public <T extends SearchResponse> T search() throws MalformedURLException, IOException, SocketTimeoutException {
 		Gson gson = new Gson();
 		URL url = getURL(getSearchType().baseUrl, encodeStandardOpts(), encodeExtraSearchOpts());
 		String goojax = getGoojax(url);
-
-		return gson.fromJson(goojax, SearchResponse.class);
+		T ret = (T) gson.fromJson(goojax, getSearchType().responseClass);
+		return ret;
 	}
 	
-	public SearchResponse search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
+	public <T extends SearchResponse> T search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
 		this.query = query;
 		return search();
 	}

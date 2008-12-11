@@ -4,16 +4,17 @@ import static java.net.URLEncoder.encode;
 
 
 import goojax.search.AbstractSearcher;
-import goojax.search.AbstractSearcher.Scoring;
-import goojax.search.AbstractSearcher.SearchType;
-
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class VideoSearcher extends AbstractSearcher {
 
-	protected Scoring scoring = null;
+	public Scoring scoring = null;
+	
+	public VideoSearcher() {
+		super();
+	}
 	
 	public String encodeExtraSearchOpts() {
 		ArrayList<String> tokes = new ArrayList<String>();
@@ -34,7 +35,7 @@ public class VideoSearcher extends AbstractSearcher {
 			ret += "&" + iter.next();
 		return ret;	
 	}
-
+	
 	public SearchType getSearchType() {
 		return SearchType.VIDEO;
 	}

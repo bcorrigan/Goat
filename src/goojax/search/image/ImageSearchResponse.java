@@ -3,9 +3,17 @@ package goojax.search.image;
 import goojax.search.SearchResponse;
 
 public class ImageSearchResponse extends SearchResponse {
-	ImageSearchResponseData responseData;
+	public ImageSearchResponseData responseData;
 	
-	ImageSearchResponse() {
+	public ImageSearchResponse() {
 		super();
+	}
+
+	public ImageSearchResponseData getResponseData() {
+		return responseData;
+	}
+
+	public void setResponseData(ImageSearchResponseData responseData) {
+		this.responseData = responseData;
 	}
 }

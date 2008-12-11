@@ -1,17 +1,24 @@
 package goojax.search;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /* this would make a fine inner class, if GSON played nice with inner classes */
 
 public class SearchResult {
-	String GsearchResultClass;
-	String url;
-	String unescapedUrl;
-	String title;
-	String titleNoFormatting;
-	String content;
+	public String GsearchResultClass;
+	public String url;
+	public String unescapedUrl;
+	public String title;
+	public String titleNoFormatting;
+	public String content;
 	
-	protected SearchResult() {}
-
+	final public static String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
+	private SimpleDateFormat sdf = null;
+	
+	public SearchResult() {}
+	
 	public String getGsearchResultClass() {
 		return GsearchResultClass;
 	}
@@ -20,6 +27,24 @@ public class SearchResult {
 		GsearchResultClass = gsearchResultClass;
 	}
 
+	public Date parseDate(String dateString) {
+		Date ret = null;
+		if(null == sdf)
+			sdf = new SimpleDateFormat(DATE_FORMAT);
+		try {
+			ret = sdf.parse(dateString);
+		} catch (ParseException pe) {
+			pe.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public String formatDate(Date date) {
+		if(null == sdf)
+			sdf = new SimpleDateFormat(DATE_FORMAT);
+		return sdf.format(date);
+	}
+	
 	public String getUrl() {
 		return url;
 	}

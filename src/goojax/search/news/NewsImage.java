@@ -1,12 +1,12 @@
 package goojax.search.news;
 
 public class NewsImage {
-	protected String url;
-	protected String originalContextUrl;
-	protected String publisher;
-	protected int tbHeight;
-	protected int tbWidth;
-	protected String tbUrl;
+	public String url;
+	public String originalContextUrl;
+	public String publisher;
+	public Integer tbHeight;
+	public Integer tbWidth;
+	public String tbUrl;
 	
 	public NewsImage() {}
 	

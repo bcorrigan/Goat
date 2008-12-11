@@ -12,6 +12,7 @@ import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.TimeZone;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
@@ -57,7 +58,7 @@ public class Google extends Module {
 		return new String[]{
 				"google", "goatle", 
 				"googlefight", 
-		//		"pornometer", "pronometer", "pr0nometer",
+				//		"pornometer", "pronometer", "pr0nometer",
 				"sexiness", 
 				"gis", 
 				"yis", 
@@ -77,7 +78,7 @@ public class Google extends Module {
 				"patentlink", "plink",
 				"blogsearch", "bloggoogle", "googleblogs",
 				"bloglink",
-				"glink"};
+		"glink"};
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -211,7 +212,9 @@ public class Google extends Module {
 		for (int newsItem = 0; newsItem < results.length; newsItem++) {
 			reply += Message.BOLD + (newsItem + 1) + ")" + Message.NORMAL;
 			NewsSearchResult result = results[newsItem];
-			reply += " " + getDateLine(result.getPublishedDate());
+			Date date = result.getPublishedDate();
+			if(date != null)
+				reply += " " + getDateLine(date);
 			reply += ", " + result.getLocation();
 			reply += " " + Message.BOLD + "\u2014" + Message.NORMAL + " " + HTMLUtil.convertCharacterEntities(result.getTitleNoFormatting());
 			reply += " (" + result.getPublisher() + ")  ";
@@ -253,9 +256,11 @@ public class Google extends Module {
 		} else {
 			NewsSearchResult re = nsr.getResponseData().getResults()[resultNum];
 			String reply = re.getUnescapedUrl()
-			+ "  " + re.getTitleNoFormatting()
-			+ "  " + getDateLine(re.getPublishedDate())
-			+ ", " + re.getLocation()
+			+ "  " + re.getTitleNoFormatting();
+			Date date = re.getPublishedDate();
+			if(date != null)
+				reply += "  " + getDateLine(re.getPublishedDate());
+			reply += ", " + re.getLocation()
 			+ " (" + re.getPublisher() + ")  "
 			+ "  " + Message.BOLD + "\u2014" + Message.NORMAL + "  "
 			+ HTMLUtil.textFromHTML(re.getContent());
@@ -352,7 +357,7 @@ public class Google extends Module {
 	}
 
 	private HashMap<String,PatentSearchResponse> patentsResponseCache = new HashMap<String,PatentSearchResponse>(); 
-	
+
 	private void ircGooglePatents(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = Message.removeFormattingAndColors(m.modTrailing);
@@ -385,7 +390,7 @@ public class Google extends Module {
 			if(result.getPatentStatus().equals(PatentStatus.PENDING))
 				reply += " (pending)";
 			if(result.getApplicationDate() != null)
-			reply += ", " + sdf.format(result.getApplicationDate());
+				reply += ", " + sdf.format(result.getApplicationDate());
 			reply += " :  " + result.getTitleNoFormatting() + "  ";
 
 		}
@@ -469,7 +474,7 @@ public class Google extends Module {
 		lastCachedResultType = "blog";
 		m.createPagedReply(reply).send();
 	}
-	
+
 	private String extractDomainName(String url) {
 		String ret = "";
 		if(url.startsWith("http")) {
@@ -484,7 +489,7 @@ public class Google extends Module {
 		}
 		return ret;
 	}
-	
+
 	private void ircBlogLink(Message m) {
 		if (! blogsResponseCache.containsKey(m.channame)) {
 			m.createReply("I'm sorry, I don't have any blogs cached for this channel.").send();

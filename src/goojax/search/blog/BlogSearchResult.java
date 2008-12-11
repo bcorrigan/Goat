@@ -2,8 +2,6 @@ package goojax.search.blog;
 
 import goojax.search.SearchResult;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class BlogSearchResult extends SearchResult {
@@ -40,21 +38,11 @@ public class BlogSearchResult extends SearchResult {
 		this.blogUrl = blogUrl;
 	}
 
-	final static String DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss Z";
-	final static SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-
 	public Date getPublishedDate() {
-		Date ret = null;
-		if(publishedDate != null)
-			try {
-				ret = sdf.parse(publishedDate);
-			} catch (ParseException pe) {
-				pe.printStackTrace();
-			}
-			return ret;
+		return parseDate(publishedDate);
 	}
 
 	public void setPublishedDate(Date publishedDate) {
-		this.publishedDate = sdf.format(publishedDate);
+		this.publishedDate = formatDate(publishedDate);
 	}
 }

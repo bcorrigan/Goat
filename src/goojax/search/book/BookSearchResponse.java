@@ -5,7 +5,7 @@ import goojax.search.SearchResponse;
 public class BookSearchResponse extends SearchResponse {
 	public BookSearchResponseData responseData;
 	
-	BookSearchResponse() {
+	public BookSearchResponse() {
 		super();
 	}
 

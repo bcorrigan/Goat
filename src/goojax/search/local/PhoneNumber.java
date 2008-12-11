@@ -4,7 +4,7 @@ public class PhoneNumber {
 	public String number;
 	public String type;
 	
-	PhoneNumber() {}
+	public PhoneNumber() {}
 	
 	public enum PhoneNumberType {
 		MAIN	("main"),

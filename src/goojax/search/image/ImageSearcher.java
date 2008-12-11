@@ -4,10 +4,11 @@ import static java.net.URLEncoder.encode;
 
 
 import goojax.search.AbstractSearcher;
-import goojax.search.AbstractSearcher.SafeSearch;
-import goojax.search.AbstractSearcher.SearchType;
+
+
 
 import java.io.UnsupportedEncodingException;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -59,12 +60,16 @@ public class ImageSearcher extends AbstractSearcher {
 		}
 	}
 	
-	protected SafeSearch safeSearch = null;
-	protected ImageSize imageSize = null;
-	protected ImageColor imageColor = null;
-	protected ImageType imageType = null;
-	protected FileType fileType = null;
-	protected String site = null;
+	public SafeSearch safeSearch = null;
+	public ImageSize imageSize = null;
+	public ImageColor imageColor = null;
+	public ImageType imageType = null;
+	public FileType fileType = null;
+	public String site = null;
+	
+	public ImageSearcher() {
+		super();
+	}
 	
 	public String encodeExtraSearchOpts() {
 		ArrayList<String> tokes = new ArrayList<String>();

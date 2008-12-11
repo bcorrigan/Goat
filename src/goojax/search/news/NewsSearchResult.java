@@ -2,20 +2,22 @@ package goojax.search.news;
 
 import goojax.search.SearchResult;
 import goojax.GooJAXFetcher.Language;
+
+import java.text.ParseException;
 import java.util.Date;
 
 public class NewsSearchResult extends SearchResult {
 	
-	protected String clusterUrl;
-	protected NewsImage image;
-	protected String language;
-	protected String location;
-	protected Date publishedDate;
-	protected String publisher;
-	protected String signedRedirectUrl;
-	protected NewsSearchResult relatedStories[];
+	public String clusterUrl;
+	public NewsImage image;
+	public String language;
+	public String location;
+	public String publishedDate;
+	public String publisher;
+	public String signedRedirectUrl;
+	public NewsSearchResult relatedStories[];
 	
-	protected String author; //used only for searches where qsid= is used, result is person quoted.
+	public String author; //used only for searches where qsid= is used, result is person quoted.
 		
 	public NewsSearchResult() { super(); }
 
@@ -52,11 +54,11 @@ public class NewsSearchResult extends SearchResult {
 	}
 
 	public Date getPublishedDate() {
-		return publishedDate;
+		return parseDate(publishedDate);
 	}
 
 	public void setPublishedDate(Date publishedDate) {
-		this.publishedDate = publishedDate;
+		this.publishedDate = formatDate(publishedDate);
 	}
 
 	public String getPublisher() {

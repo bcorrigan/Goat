@@ -4,9 +4,13 @@ import goojax.search.SearchResult;
 
 public class WebSearchResult extends SearchResult {
 
-	String cacheUrl;
-	String visibleUrl; // not documented in google's AJAX class reference, but sometimes present
+	public String cacheUrl;
+	public String visibleUrl; // not documented in google's AJAX class reference, but sometimes present
 
+	public WebSearchResult() {
+		super();
+	}
+	
 	public String getCacheUrl() {
 		return cacheUrl;
 	}

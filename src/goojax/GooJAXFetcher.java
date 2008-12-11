@@ -13,8 +13,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.SocketTimeoutException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+//uncomment (and make sure you've got the org.json.* libs available) for debugging
+//import org.json.JSONException;
+//import org.json.JSONObject;
 
 public abstract class GooJAXFetcher {
 	
@@ -33,7 +34,6 @@ public abstract class GooJAXFetcher {
 	protected String key = defaultKey;
 	protected String httpReferer = defaultHttpReferrer;
 	
-	//TODO -- let's have dynamic global defaults for these
 	private static String defaultEncoding = DEFAULT_ENCODING;
 	private static int defaultConnectTimeout = 0;
 	private static int defaultReadTimeout = 0;
@@ -238,13 +238,17 @@ public abstract class GooJAXFetcher {
 			builder.append(line);
 		}
 		String ret = builder.toString();
+		
+		/* uncomment to see all JSON on the console for debugging
 		try {
 			JSONObject job = new JSONObject(ret);
-			// System.out.println(job.toString(3));
+			System.out.println(job.toString(3));
 		} catch (JSONException je) {
 			je.printStackTrace();
 		}
-		return builder.toString();
+		*/
+		
+		return ret;
 	}
 	
 	public String getGoojax(String baseUrl, String nonStandardOptions) throws IOException, SocketTimeoutException {

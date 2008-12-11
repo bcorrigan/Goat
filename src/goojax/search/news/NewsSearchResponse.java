@@ -3,7 +3,7 @@ package goojax.search.news;
 import goojax.search.SearchResponse;
 
 public class NewsSearchResponse extends SearchResponse {
-	protected NewsSearchResponseData responseData;
+	public NewsSearchResponseData responseData;
 
 	public NewsSearchResponse() { super();}
 	

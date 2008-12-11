@@ -2,8 +2,8 @@ package goojax;
 
 public abstract class GooJAXResponse {
 	
-	private int responseStatus;
-	private String responseDetails;
+	public int responseStatus;
+	public String responseDetails;
 	
 	protected GooJAXResponse() {}
 	

@@ -2,14 +2,18 @@ package goojax.search;
 
 import goojax.Cursor;
 
-/* There's really no need for this to be sitting in a file of its own, apart from GSON's inability to deal with inner classes */
+/* There's really no need for this to be sitting in a file of its own, 
+ * apart from GSON's inability to deal with inner classes.
+ * 
+ *  Similarly, there's no reason this shouldn't be an abstract
+ *  class, apart from GSON's tendency to choke on them */
 
 public class SearchResponseData {
 
-	protected Cursor cursor;
-	protected SearchResult results[];
+	public Cursor cursor;
+	public SearchResult results[];
 
-	protected SearchResponseData() {}
+	// public SearchResponseData() {}
 
 	public Cursor getCursor() {
 		return cursor;
