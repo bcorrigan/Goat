@@ -108,9 +108,10 @@ public abstract class AbstractSearcher extends GooJAXFetcher {
 		return ret;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public <T extends SearchResponse> T search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
 		this.query = query;
-		return search();
+		return (T) search();
 	}
 	
 	abstract public String encodeExtraSearchOpts();
