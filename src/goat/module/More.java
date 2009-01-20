@@ -19,7 +19,7 @@ public class More extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
    public static String[] getCommands() {
-		return new String[]{"more"};
+		return new String[]{"more", "moar"};
    }
 	
 	public More() {

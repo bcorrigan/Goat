@@ -197,6 +197,12 @@ public class ShutUp extends Module {
 			if (random.nextInt(100) < 20 + (commandCount - commandThreshold)*5)
 				randomReply(overworkWhinges, m) ;
 		}
+		
+		
+		if(m.trailing.toLowerCase().matches(".*i miss joey\\s*"))
+			m.createReply("we all do").send();
+		
+		
 		//debug
 		//System.out.println("blatherer: " + blatherer + "  count: " + blatherCount + "  commands: " + commandCount + "  kipisms: " + kipismCount) ;
 	}
