@@ -758,7 +758,7 @@ public class Google extends Module {
 	 */
 
 	/**
-	 * Half of this probably belongs in its own method.
+	 * 
 	 */
 	private void ircGoogleFight (Message m)
 	throws SocketTimeoutException, MalformedURLException, IOException {
@@ -781,9 +781,10 @@ public class Google extends Module {
 			break;
 		default : // tie
 			String winnerString = Message.BOLD + contestants[winners[0]] + Message.BOLD ;
-		for (int i=1 ; i < winners.length ; i++)
-			winnerString += " and " + Message.BOLD + contestants[winners[i]] + Message.BOLD ;
-		m.createReply("We have a tie!  " + winnerString + " tied with a score of " + scores[winners[0]]).send() ;
+			for (int i=1 ; i < winners.length ; i++)
+				winnerString += " and " + Message.BOLD + contestants[winners[i]] + Message.BOLD ;
+			m.createReply("We have a tie!  " + winnerString + " tied with a score of " + scores[winners[0]]).send() ;
+			break;
 		}
 	}
 
@@ -904,17 +905,19 @@ public class Google extends Module {
 		if (indices.length == 0) 
 			return indices ;
 		indices[0] = 0 ;
-		int lastIndex = 0 ;
-		for (int i = 1 ; i < scores.length ; i++ ) {
-			if (scores[i] > scores[indices[0]]) { // new high
-				indices[0] = i ;
-				lastIndex = 0 ;
-			} else if (scores[i] == scores[indices[0]]) { // tie
-				indices[++lastIndex] = i ;
-			}
+		int lastIndex = -1 ;
+		for (int i = 0 ; i < scores.length ; i++ ) {
+			if(scores[i] > 0)
+				if (scores[i] > scores[indices[0]]) { // new high
+					indices[0] = i ;
+					lastIndex = 0 ;
+				} else if (scores[i] == scores[indices[0]]) { // tie
+					indices[++lastIndex] = i ;
+				}
 		}
 		int [] ret = new int[lastIndex + 1] ;
-		System.arraycopy(indices, 0, ret, 0, lastIndex + 1) ;
+		if(ret.length > 0)
+			System.arraycopy(indices, 0, ret, 0, lastIndex + 1) ;
 		return ret ;
 	}
 
