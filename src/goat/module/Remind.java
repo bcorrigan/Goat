@@ -37,15 +37,19 @@ public class Remind extends Module implements Runnable {
         users = goat.Goat.getUsers() ;
     }
     
+    public boolean isThreadSafe() {
+    	return false;
+    }
+    
     public void processChannelMessage(Message m) {
-        User user ;
-		if (users.hasUser(m.sender)) {
-			user = users.getUser(m.sender) ;
-		} else {
-			user = new User(m.sender) ;
-		}
+        //User user ;
+		//if (users.hasUser(m.sender)) {
+		//	user = users.getUser(m.sender) ;
+		//} else {
+		//	user = new User(m.sender) ;
+		//}
         Pattern messagePattern = Pattern.compile("^\\s*\\w*\\s+in\\s+(((\\d+\\.?\\d*|\\.\\d+)\\s+(weeks?|days?|hours?|hrs?|minutes?|mins?|seconds?|secs?)[\\s,]*(and)?\\s+)+)(.*)\\s*$");
-        Matcher matcher = messagePattern.matcher(m.modTrailing);
+        Matcher matcher = messagePattern.matcher(m.getModTrailing());
         if (matcher.matches()) {
             String reminderMessage = matcher.group(6);
             String periods = matcher.group(2);
@@ -55,15 +59,10 @@ public class Remind extends Module implements Runnable {
 
 
             GregorianCalendar cal;
-            String timeZone;
-            if (! user.getTimeZoneString().equals("")) {
-                TimeZone tz = TimeZone.getTimeZone(user.getTimeZoneString());
-                cal = new GregorianCalendar(tz);
-                timeZone = user.getTimeZoneString();
-            } else {
-                cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-                timeZone = "GMT";
-            }
+            String timeZone = "GMT";
+            if (users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getTimeZoneString().equals(""))
+            	timeZone = users.getUser(m.getSender()).getTimeZoneString();
+            cal = new GregorianCalendar(TimeZone.getTimeZone(timeZone));
 
 
 
@@ -85,10 +84,10 @@ public class Remind extends Module implements Runnable {
                 return;
             }
 
-            Reminder reminder = new Reminder(m.channame, getName(m), m.sender, reminderMessage, set, due);
+            Reminder reminder = new Reminder(m.getChanname(), getName(m), m.getSender(), reminderMessage, set, due);
             String name = getName(m);
             String replyName = null;
-            if(name.equals(m.sender))
+            if(name.equals(m.getSender()))
                 replyName = "you";
             else
                 replyName = name;
@@ -96,16 +95,16 @@ public class Remind extends Module implements Runnable {
             cal.setTimeInMillis( reminder.getDueTime() );
             
             String date = String.format(Locale.UK, "%1$td/%1$tm/%1$ty %1$tR", cal);
-            m.createReply(m.sender + ": Okay, I'll remind " + replyName + " about that on " + date + " " + timeZone).send();
+            m.createReply(m.getSender() + ": Okay, I'll remind " + replyName + " about that on " + date + " " + timeZone).send();
             reminders.add(reminder);
             dispatchThread.interrupt();
         }
     }
 
     private String getName(Message m) {
-        String[] words = m.modTrailing.split(" ");
+        String[] words = m.getModTrailing().split(" ");
         if(words[0].equals("me"))
-            return m.sender;
+            return m.getSender();
         return words[0];
     }
 
@@ -185,7 +184,7 @@ public class Remind extends Module implements Runnable {
     private void loadReminders() {
         try {
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(REMINDER_FILE)));
-            reminders = (LinkedList) in.readObject();
+            reminders = (LinkedList<Reminder>) in.readObject();
             in.close();
         }
         catch (Exception e) {
@@ -194,6 +193,6 @@ public class Remind extends Module implements Runnable {
     }    
     
     private Thread dispatchThread;
-    private LinkedList reminders = new LinkedList();
+    private LinkedList<Reminder> reminders = new LinkedList<Reminder>();
     
 }

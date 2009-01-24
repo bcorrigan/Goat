@@ -22,11 +22,11 @@ public class Auth extends Module {
     }
 
     public void processPrivateMessage(Message m) {
-        if (checkPassword(m.modTrailing.trim().toLowerCase())) {
-            BotStats.owner = m.prefix;
+        if (checkPassword(m.getModTrailing().trim().toLowerCase())) {
+            BotStats.owner = m.getPrefix();
             m.createReply("Authorisation successful.").send();
-            m.createReply("You (" + m.prefix + ") are now my registered owner.").send();	//TODO: This still needs to watch the user to determine if they drop.
-            new Message("", "MODE", m.channame + " +o " + BotStats.owner, "").send();
+            m.createReply("You (" + m.getPrefix() + ") are now my registered owner.").send();	//TODO: This still needs to watch the user to determine if they drop.
+            new Message("", "MODE", m.getChanname() + " +o " + BotStats.owner, "").send();
         } else
             m.createReply("Invalid login.").send();
     }

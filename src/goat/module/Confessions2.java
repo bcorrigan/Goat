@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goojax.search.SearchResponse;
@@ -127,19 +128,19 @@ public class Confessions2 extends Module {
 
 	public void processChannelMessage(Message m) {
 		try {
-			if("confesscount".equalsIgnoreCase(m.modCommand)
-					|| "guiltiness".equalsIgnoreCase(m.modCommand))
+			if("confesscount".equalsIgnoreCase(m.getModCommand())
+					|| "guiltiness".equalsIgnoreCase(m.getModCommand()))
 				confessionCount(m);
-			else if("guiltfight".equalsIgnoreCase(m.modCommand))
+			else if("guiltfight".equalsIgnoreCase(m.getModCommand()))
 				guiltfight(m);
-			else if("confess".equalsIgnoreCase(m.modCommand)
-					|| "confession".equalsIgnoreCase(m.modCommand)) {
-				Matcher matcher = queryPattern.matcher(m.modTrailing);
+			else if("confess".equalsIgnoreCase(m.getModCommand())
+					|| "confession".equalsIgnoreCase(m.getModCommand())) {
+				Matcher matcher = queryPattern.matcher(m.getModTrailing());
 				if(matcher.find()) {
 					searchConfession(m, matcher.group(1));
-				} else if(m.modTrailing.matches("\\s*random.*")) {
+				} else if(m.getModTrailing().matches("\\s*random.*")) {
 					randomConfession(m);
-				} else if(m.modTrailing.toLowerCase().startsWith("stat")) {
+				} else if(m.getModTrailing().toLowerCase().startsWith("stat")) {
 					status(m);
 				} else {
 					defaultConfession(m);
@@ -160,18 +161,18 @@ public class Confessions2 extends Module {
 			m.createReply("I'm sorry, but I'm having problems with my database.").send();
 			dbe.printStackTrace();
 		} catch (TooManyClauses tme) {
-			if(m.prefix.trim().matches(".*\\.nyc\\.res\\.rr\\.com$"))  //TODO isQpt()
+			if(m.getPrefix().trim().matches(".*\\.nyc\\.res\\.rr\\.com$"))  //TODO isQpt()
 				m.createReply("You can go right to hell, qpt!").send();
 			else
 				m.createReply("I'm terribly sorry, but that query had way too many terms in it after I was done parsing and expanding it.").send();
-			System.out.println("Confessions2:  search casued TooManyTerms exception in query parser:\n   " + m.modTrailing.replaceFirst("(?i)about", ""));
+			System.out.println("Confessions2:  search casued TooManyTerms exception in query parser:\n   " + m.getModTrailing().replaceFirst("(?i)about", ""));
 		}
 
 	}
 
 	private void confessionCount(Message m) 
 	throws ParseException, CorruptIndexException, IOException {
-		String query = Message.removeFormattingAndColors(m.modTrailing).trim();
+		String query = Constants.removeFormattingAndColors(m.getModTrailing()).trim();
 		int count = searchCount(query);
 		if(0 == count)
 			m.createReply("Sorry, I have no regrets about " + query + ".").send();
@@ -227,7 +228,7 @@ public class Confessions2 extends Module {
 
 	private void searchConfession(Message m, String queryString) 
 	throws ParseException, DatabaseException, CorruptIndexException, IOException {
-		queryString = Message.removeFormattingAndColors(queryString).trim();
+		queryString = Constants.removeFormattingAndColors(queryString).trim();
 		if (resultsQueue.hasNext(queryString))
 			m.createPagedReply(textFromHTML(dbGet(resultsQueue.next(queryString)).content)).send();
 		else {
@@ -236,7 +237,7 @@ public class Confessions2 extends Module {
 				m.createPagedReply("I just don't feel guilty about " + queryString).send();
 			} else if(hits.size() > 1) {
 				int count = searchCount(queryString);
-				m.createReply("I have " + count + " things to confess about " + Message.BOLD + queryString + Message.NORMAL + ", starting with:").send();
+				m.createReply("I have " + count + " things to confess about " + Constants.BOLD + queryString + Constants.NORMAL + ", starting with:").send();
 				String reply = textFromHTML(dbGet(hits.get(0)).content);
 				m.createPagedReply(reply).send();
 				hits.remove(0);
@@ -248,8 +249,7 @@ public class Confessions2 extends Module {
 
 	private void guiltfight(Message m) 
 	throws ParseException, CorruptIndexException, IOException {
-		m.removeFormattingAndColors() ;
-		String [] contestants = m.modTrailing.split("\\s+[vV][sS]\\.?\\s+") ;
+		String [] contestants = Constants.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
 			m.createReply("Usage:  \"guiltfight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
 			return ;
@@ -263,12 +263,12 @@ public class Confessions2 extends Module {
 			m.createReply("I don't feel guilty about any of that.").send() ;
 			break;
 		case 1 : // normal, one winner
-			m.createReply("I feel guiltiest about " + Message.BOLD + contestants[winners[0]] + Message.BOLD + ", I've got " + scores[winners[0]] + " regrets about it.").send() ;
+			m.createReply("I feel guiltiest about " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", I've got " + scores[winners[0]] + " regrets about it.").send() ;
 			break;
 		default : // tie
-			String winnerString = Message.BOLD + contestants[winners[0]] + Message.BOLD ;
+			String winnerString = Constants.BOLD + contestants[winners[0]] + Constants.BOLD ;
 			for (int i=1 ; i < winners.length ; i++)
-				winnerString += " and " + Message.BOLD + contestants[winners[i]] + Message.BOLD ;
+				winnerString += " and " + Constants.BOLD + contestants[winners[i]] + Constants.BOLD ;
 			m.createReply("I'm torn, I feel equally guilty about " + winnerString + ", with " + scores[winners[0]] + " regrets about each.").send() ;
 			break;
 		}

@@ -1,60 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<java version="1.5.0" class="java.beans.XMLDecoder"> 
- <object class="java.util.HashMap"> 
+<java version="1.6.0_07" class="java.beans.XMLDecoder"> 
+ <object class="java.util.concurrent.ConcurrentHashMap"> 
   <void method="put"> 
-   <string>nethers</string> 
+   <string>ubu_</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484251</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232671586419</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>ubu_</string> 
+    </void> 
+    <void property="timeZone"> 
+     <object class="sun.util.calendar.ZoneInfo"> 
+      <void property="ID"> 
+       <string>US/Central</string> 
       </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~mc@cloak-B5F480E7.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>shows</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>kip, for instance </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>nethers!~mc@cloak-B5F480E7.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>nethers</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>shows kip, for instance </string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>shows</string> 
-        </void> 
-        <void method="add"> 
-         <string>kip</string> 
-        </void> 
-        <void method="add"> 
-         <string>for</string> 
-        </void> 
-        <void method="add"> 
-         <string>instance</string> 
-        </void> 
-       </object> 
+      <void property="rawOffset"> 
+       <int>-21600000</int> 
       </void> 
      </object> 
     </void> 
+    <void property="weatherStation"> 
+     <string>KDTO</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>bugs</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
     <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484259</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232773214287</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>Bugs</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KNYC</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>nethers</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484264</long> 
+     </void> 
      <void method="put"> 
       <string>#jism</string> 
       <long>1232695780520</long> 
@@ -70,564 +85,37 @@
    </object> 
   </void> 
   <void method="put"> 
-   <string>ido</string> 
+   <string>zuul</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~chatzilla@cloak-A16B5CF4.vie.surfer.at</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>weather</string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>ido!~chatzilla@cloak-A16B5CF4.vie.surfer.at</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>ido</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>weather</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>weather</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
+    <void property="lastChannel"> 
+     <string></string> 
     </void> 
     <void property="lastMessageTimestamps"> 
      <void method="put"> 
+      <string></string> 
+      <long>1232789484271</long> 
+     </void> 
+     <void method="put"> 
       <string>#jism</string> 
-      <long>1232697192971</long> 
+      <long>1232689133089</long> 
      </void> 
     </void> 
     <void property="name"> 
-     <string>ido</string> 
-    </void> 
-    <void property="weatherStation"> 
-     <string>LOWW</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>hawk</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~chatzilla@cloak-B5F480E7.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>dance</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>singles do, i&apos;d reckon </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>hawk!~chatzilla@cloak-B5F480E7.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>hawk</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>dance singles do, i&apos;d reckon</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>dance</string> 
-        </void> 
-        <void method="add"> 
-         <string>singles</string> 
-        </void> 
-        <void method="add"> 
-         <string>do</string> 
-        </void> 
-        <void method="add"> 
-         <string>i&apos;d</string> 
-        </void> 
-        <void method="add"> 
-         <string>reckon</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232682314872</long> 
-     </void> 
-     <void method="put"> 
-      <string>#wordgame</string> 
-      <long>1232603961468</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>hawk</string> 
-    </void> 
-    <void property="weatherStation"> 
-     <string>KPAE</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>aaron1</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~aaronlove@A726891A.FB404D68.9439201C.IP</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>yea</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>thats because u dont know </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>aaron1!~aaronlove@A726891A.FB404D68.9439201C.IP</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>aaron1</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>yea thats because u dont know </string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>yea</string> 
-        </void> 
-        <void method="add"> 
-         <string>thats</string> 
-        </void> 
-        <void method="add"> 
-         <string>because</string> 
-        </void> 
-        <void method="add"> 
-         <string>u</string> 
-        </void> 
-        <void method="add"> 
-         <string>dont</string> 
-        </void> 
-        <void method="add"> 
-         <string>know</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232621182871</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>aaron1</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>mjl</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~mjl@cloak-3CF054C5.dsl.dyn.ihug.co.nz</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>gis</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>heat shower </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>mjl!~mjl@cloak-3CF054C5.dsl.dyn.ihug.co.nz</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>mjl</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>gis heat shower</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>gis</string> 
-        </void> 
-        <void method="add"> 
-         <string>heat</string> 
-        </void> 
-        <void method="add"> 
-         <string>shower</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232690133314</long> 
-     </void> 
-     <void method="put"> 
-      <string>#wordgame</string> 
-      <long>1232664105731</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>mjl</string> 
-    </void> 
-    <void property="timeZone"> 
-     <object class="sun.util.calendar.ZoneInfo"> 
-      <void property="ID"> 
-       <string>Pacific/Auckland</string> 
-      </void> 
-      <void property="rawOffset"> 
-       <int>43200000</int> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="weatherStation"> 
-     <string>NZAA</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>guest1727066104</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~chemicalj@cloak-A0A2E691.lv.lv.cox.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>aww</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>I missed zz </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>Guest1727066104!~chemicalj@cloak-A0A2E691.lv.lv.cox.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>Guest1727066104</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>aww I missed zz</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>aww</string> 
-        </void> 
-        <void method="add"> 
-         <string>I</string> 
-        </void> 
-        <void method="add"> 
-         <string>missed</string> 
-        </void> 
-        <void method="add"> 
-         <string>zz</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232689088265</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>Guest1727066104</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>bugsraper</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~rs@cloak-529BE618.sea1.dsl.speakeasy.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>thx,</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>bc! </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>bugsraper!~rs@cloak-529BE618.sea1.dsl.speakeasy.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>bugsraper</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>thx, bc!</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>thx</string> 
-        </void> 
-        <void method="add"> 
-         <string>bc</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232609368714</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>bugsraper</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>x_x</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~lucky@cloak-C368E836.nyc.res.rr.com</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>rape</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>rape rape rape rape rape rape rape rape RAPE RAPE RAPE </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>x_x!~lucky@cloak-C368E836.nyc.res.rr.com</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>x_x</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>rape rape rape rape rape rape rape rape rape RAPE RAPE RAPE</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>rape</string> 
-        </void> 
-        <void method="add"> 
-         <string>RAPE</string> 
-        </void> 
-        <void method="add"> 
-         <string>RAPE</string> 
-        </void> 
-        <void method="add"> 
-         <string>RAPE</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232603658249</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>x_x</string> 
+     <string>zuul</string> 
     </void> 
    </object> 
   </void> 
   <void method="put"> 
    <string>mtrainier</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~SG@cloak-87022F21.atgi.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>ooooh,</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>viral goodness http://www.youtube.com/watch?v=nd5cInmK6LQ </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>MtRainier!~SG@cloak-87022F21.atgi.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>MtRainier</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>ooooh, viral goodness http://www.youtube.com/watch?v=nd5cInmK6LQ</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>ooooh</string> 
-        </void> 
-        <void method="add"> 
-         <string>viral</string> 
-        </void> 
-        <void method="add"> 
-         <string>goodness</string> 
-        </void> 
-        <void method="add"> 
-         <string>http</string> 
-        </void> 
-        <void method="add"> 
-         <string>www</string> 
-        </void> 
-        <void method="add"> 
-         <string>youtube</string> 
-        </void> 
-        <void method="add"> 
-         <string>com</string> 
-        </void> 
-        <void method="add"> 
-         <string>watch</string> 
-        </void> 
-        <void method="add"> 
-         <string>v</string> 
-        </void> 
-        <void method="add"> 
-         <string>nd5cInmK6LQ</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
+    <void property="lastChannel"> 
+     <string></string> 
     </void> 
     <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484277</long> 
+     </void> 
      <void method="put"> 
       <string>#jism</string> 
       <long>1232671909326</long> 
@@ -655,289 +143,16 @@
    </object> 
   </void> 
   <void method="put"> 
-   <string>ubu</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~mjpeck@cloak-7FB74C6.reverse.softlayer.com</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>she&apos;s</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>pretty darn hot at the moment. </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>ubu!~mjpeck@cloak-7FB74C6.reverse.softlayer.com</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>ubu</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>she&apos;s pretty darn hot at the moment.</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>she&apos;s</string> 
-        </void> 
-        <void method="add"> 
-         <string>pretty</string> 
-        </void> 
-        <void method="add"> 
-         <string>darn</string> 
-        </void> 
-        <void method="add"> 
-         <string>hot</string> 
-        </void> 
-        <void method="add"> 
-         <string>at</string> 
-        </void> 
-        <void method="add"> 
-         <string>the</string> 
-        </void> 
-        <void method="add"> 
-         <string>moment</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232688455522</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>ubu</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>zuul</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~zuul@957B58CB.7BBE28E9.AA1E3123.IP</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>lb</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>was last seen on #jism 153 days, 11 hours, 1 minutes and 56 seconds ago, saying: that&apos;s ambiguous. did he want it added to his tab, or balanced on his face? [Fri Aug 22 11:39:52 2008] </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>zuul!~zuul@957B58CB.7BBE28E9.AA1E3123.IP</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>zuul</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>lb was last seen on #jism 153 days, 11 hours, 1 minutes and 56 seconds ago, saying: that&apos;s ambiguous.  did he want it added to his tab, or balanced on his face? [Fri Aug 22 11:39:52 2008]</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>lb</string> 
-        </void> 
-        <void method="add"> 
-         <string>was</string> 
-        </void> 
-        <void method="add"> 
-         <string>last</string> 
-        </void> 
-        <void method="add"> 
-         <string>seen</string> 
-        </void> 
-        <void method="add"> 
-         <string>on</string> 
-        </void> 
-        <void method="add"> 
-         <string>jism</string> 
-        </void> 
-        <void method="add"> 
-         <string>153</string> 
-        </void> 
-        <void method="add"> 
-         <string>days</string> 
-        </void> 
-        <void method="add"> 
-         <string>11</string> 
-        </void> 
-        <void method="add"> 
-         <string>hours</string> 
-        </void> 
-        <void method="add"> 
-         <string>1</string> 
-        </void> 
-        <void method="add"> 
-         <string>minutes</string> 
-        </void> 
-        <void method="add"> 
-         <string>and</string> 
-        </void> 
-        <void method="add"> 
-         <string>56</string> 
-        </void> 
-        <void method="add"> 
-         <string>seconds</string> 
-        </void> 
-        <void method="add"> 
-         <string>ago</string> 
-        </void> 
-        <void method="add"> 
-         <string>saying</string> 
-        </void> 
-        <void method="add"> 
-         <string>that&apos;s</string> 
-        </void> 
-        <void method="add"> 
-         <string>ambiguous</string> 
-        </void> 
-        <void method="add"> 
-         <string>did</string> 
-        </void> 
-        <void method="add"> 
-         <string>he</string> 
-        </void> 
-        <void method="add"> 
-         <string>want</string> 
-        </void> 
-        <void method="add"> 
-         <string>it</string> 
-        </void> 
-        <void method="add"> 
-         <string>added</string> 
-        </void> 
-        <void method="add"> 
-         <string>to</string> 
-        </void> 
-        <void method="add"> 
-         <string>his</string> 
-        </void> 
-        <void method="add"> 
-         <string>tab</string> 
-        </void> 
-        <void method="add"> 
-         <string>or</string> 
-        </void> 
-        <void method="add"> 
-         <string>balanced</string> 
-        </void> 
-        <void method="add"> 
-         <string>on</string> 
-        </void> 
-        <void method="add"> 
-         <string>his</string> 
-        </void> 
-        <void method="add"> 
-         <string>face</string> 
-        </void> 
-        <void method="add"> 
-         <string>Fri</string> 
-        </void> 
-        <void method="add"> 
-         <string>Aug</string> 
-        </void> 
-        <void method="add"> 
-         <string>22</string> 
-        </void> 
-        <void method="add"> 
-         <string>11</string> 
-        </void> 
-        <void method="add"> 
-         <string>39</string> 
-        </void> 
-        <void method="add"> 
-         <string>52</string> 
-        </void> 
-        <void method="add"> 
-         <string>2008</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232689133089</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>zuul</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
    <string>humpcunian</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~mc@cloak-B5F480E7.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>hmm</string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>humpcunian!~mc@cloak-B5F480E7.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>humpcunian</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>hmm</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>hmm</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
+    <void property="lastChannel"> 
+     <string></string> 
     </void> 
     <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484280</long> 
+     </void> 
      <void method="put"> 
       <string>#jism</string> 
       <long>1232616935632</long> 
@@ -949,866 +164,40 @@
    </object> 
   </void> 
   <void method="put"> 
-   <string>rats</string> 
+   <string>alline</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~walid@cloak-133BDB77.zone2.bethere.co.uk</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>i</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>am less good at talking in this channel than i used to be </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>rats!~walid@cloak-133BDB77.zone2.bethere.co.uk</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>rats</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>i am less good at talking in this channel than i used to be</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>i</string> 
-        </void> 
-        <void method="add"> 
-         <string>am</string> 
-        </void> 
-        <void method="add"> 
-         <string>less</string> 
-        </void> 
-        <void method="add"> 
-         <string>good</string> 
-        </void> 
-        <void method="add"> 
-         <string>at</string> 
-        </void> 
-        <void method="add"> 
-         <string>talking</string> 
-        </void> 
-        <void method="add"> 
-         <string>in</string> 
-        </void> 
-        <void method="add"> 
-         <string>this</string> 
-        </void> 
-        <void method="add"> 
-         <string>channel</string> 
-        </void> 
-        <void method="add"> 
-         <string>than</string> 
-        </void> 
-        <void method="add"> 
-         <string>i</string> 
-        </void> 
-        <void method="add"> 
-         <string>used</string> 
-        </void> 
-        <void method="add"> 
-         <string>to</string> 
-        </void> 
-        <void method="add"> 
-         <string>be</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
+    <void property="lastChannel"> 
+     <string></string> 
     </void> 
     <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484285</long> 
+     </void> 
      <void method="put"> 
       <string>#jism</string> 
-      <long>1232669452670</long> 
+      <long>1232757623540</long> 
      </void> 
     </void> 
     <void property="name"> 
-     <string>rats</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>ct</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~jeremy@81249722.82CEDE0F.3E071043.IP</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>I</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>think the president&apos;s helicopter might be called Marine One </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>ct!~jeremy@81249722.82CEDE0F.3E071043.IP</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>ct</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>I think the president&apos;s helicopter might be called Marine One</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>I</string> 
-        </void> 
-        <void method="add"> 
-         <string>think</string> 
-        </void> 
-        <void method="add"> 
-         <string>the</string> 
-        </void> 
-        <void method="add"> 
-         <string>president&apos;s</string> 
-        </void> 
-        <void method="add"> 
-         <string>helicopter</string> 
-        </void> 
-        <void method="add"> 
-         <string>might</string> 
-        </void> 
-        <void method="add"> 
-         <string>be</string> 
-        </void> 
-        <void method="add"> 
-         <string>called</string> 
-        </void> 
-        <void method="add"> 
-         <string>Marine</string> 
-        </void> 
-        <void method="add"> 
-         <string>One</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232665041106</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>ct</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>goat2</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#wordgame</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~goat2@cloak-ADCF517D.sea1.dsl.speakeasy.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>I</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>have 37039 regrets about sex. </string> 
-      </void> 
-      <void property="params"> 
-       <string>#wordgame</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>goat2!~goat2@cloak-ADCF517D.sea1.dsl.speakeasy.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#wordgame</string> 
-      </void> 
-      <void property="sender"> 
-       <string>goat2</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>I have 37039 regrets about sex.</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>I</string> 
-        </void> 
-        <void method="add"> 
-         <string>have</string> 
-        </void> 
-        <void method="add"> 
-         <string>37039</string> 
-        </void> 
-        <void method="add"> 
-         <string>regrets</string> 
-        </void> 
-        <void method="add"> 
-         <string>about</string> 
-        </void> 
-        <void method="add"> 
-         <string>sex</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#wordgame</string> 
-      <long>1232584905051</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>goat2</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>zikzak</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>zikzak@cloak-2243004E.austin.res.rr.com</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>goin&apos;</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>to bed now </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>zikzak!zikzak@cloak-2243004E.austin.res.rr.com</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>zikzak</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>goin&apos; to bed now</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>goin&apos;</string> 
-        </void> 
-        <void method="add"> 
-         <string>to</string> 
-        </void> 
-        <void method="add"> 
-         <string>bed</string> 
-        </void> 
-        <void method="add"> 
-         <string>now</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232684479896</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>zikzak</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>chemicalnova</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~chemicalj@cloak-A0A2E691.lv.lv.cox.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>I&apos;m</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>a busy man, I&apos;m working 2.5 jobs </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>chemicalnova!~chemicalj@cloak-A0A2E691.lv.lv.cox.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>chemicalnova</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>I&apos;m a busy man, I&apos;m working 2.5 jobs</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>I&apos;m</string> 
-        </void> 
-        <void method="add"> 
-         <string>a</string> 
-        </void> 
-        <void method="add"> 
-         <string>busy</string> 
-        </void> 
-        <void method="add"> 
-         <string>man</string> 
-        </void> 
-        <void method="add"> 
-         <string>I&apos;m</string> 
-        </void> 
-        <void method="add"> 
-         <string>working</string> 
-        </void> 
-        <void method="add"> 
-         <string>2</string> 
-        </void> 
-        <void method="add"> 
-         <string>5</string> 
-        </void> 
-        <void method="add"> 
-         <string>jobs</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232689166655</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>chemicalnova</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>bugs</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~lucky@cloak-C368E836.nyc.res.rr.com</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>damn</string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>Bugs!~lucky@cloak-C368E836.nyc.res.rr.com</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>Bugs</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>damn</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>damn</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232689212876</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>Bugs</string> 
-    </void> 
-    <void property="weatherStation"> 
-     <string>KNYC</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>giggitygiggity</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~booya@cloak-6861DA16.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>em</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>zuul alline bc Bugs chemicalnova ct goat hawk ido mb mjl nethers rats rs ubu ubu_ </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>GiggityGiggity!~booya@cloak-6861DA16.hsd1.wa.comcast.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>GiggityGiggity</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>em zuul  alline  bc Bugs  chemicalnova  ct goat  hawk  ido  mb mjl nethers  rats  rs ubu ubu_</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>em</string> 
-        </void> 
-        <void method="add"> 
-         <string>zuul</string> 
-        </void> 
-        <void method="add"> 
-         <string>alline</string> 
-        </void> 
-        <void method="add"> 
-         <string>bc</string> 
-        </void> 
-        <void method="add"> 
-         <string>Bugs</string> 
-        </void> 
-        <void method="add"> 
-         <string>chemicalnova</string> 
-        </void> 
-        <void method="add"> 
-         <string>ct</string> 
-        </void> 
-        <void method="add"> 
-         <string>goat</string> 
-        </void> 
-        <void method="add"> 
-         <string>hawk</string> 
-        </void> 
-        <void method="add"> 
-         <string>ido</string> 
-        </void> 
-        <void method="add"> 
-         <string>mb</string> 
-        </void> 
-        <void method="add"> 
-         <string>mjl</string> 
-        </void> 
-        <void method="add"> 
-         <string>nethers</string> 
-        </void> 
-        <void method="add"> 
-         <string>rats</string> 
-        </void> 
-        <void method="add"> 
-         <string>rs</string> 
-        </void> 
-        <void method="add"> 
-         <string>ubu</string> 
-        </void> 
-        <void method="add"> 
-         <string>ubu</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232697293683</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>GiggityGiggity</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>em</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~martinez@cloak-96173097.dsl.static.sonic.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>have</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>the music build up and wind down </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>em!~martinez@cloak-96173097.dsl.static.sonic.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>em</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>have the music build up and wind down</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>have</string> 
-        </void> 
-        <void method="add"> 
-         <string>the</string> 
-        </void> 
-        <void method="add"> 
-         <string>music</string> 
-        </void> 
-        <void method="add"> 
-         <string>build</string> 
-        </void> 
-        <void method="add"> 
-         <string>up</string> 
-        </void> 
-        <void method="add"> 
-         <string>and</string> 
-        </void> 
-        <void method="add"> 
-         <string>wind</string> 
-        </void> 
-        <void method="add"> 
-         <string>down</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232684412185</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>em</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>ubu_</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~mjpeck@B62616A8.6BD903BD.43FF4E29.IP</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>it&apos;s</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>nice that sunset is getting later again. </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>ubu_!~mjpeck@B62616A8.6BD903BD.43FF4E29.IP</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>ubu_</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>it&apos;s nice that sunset is getting later again.</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>it&apos;s</string> 
-        </void> 
-        <void method="add"> 
-         <string>nice</string> 
-        </void> 
-        <void method="add"> 
-         <string>that</string> 
-        </void> 
-        <void method="add"> 
-         <string>sunset</string> 
-        </void> 
-        <void method="add"> 
-         <string>is</string> 
-        </void> 
-        <void method="add"> 
-         <string>getting</string> 
-        </void> 
-        <void method="add"> 
-         <string>later</string> 
-        </void> 
-        <void method="add"> 
-         <string>again</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232671586419</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>ubu_</string> 
-    </void> 
-    <void property="timeZone"> 
-     <object class="sun.util.calendar.ZoneInfo"> 
-      <void property="ID"> 
-       <string>US/Central</string> 
-      </void> 
-      <void property="rawOffset"> 
-       <int>-21600000</int> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="weatherStation"> 
-     <string>KDTO</string> 
-    </void> 
-   </object> 
-  </void> 
-  <void method="put"> 
-   <string>bc</string> 
-   <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~me@cloak-133BDB77.zone2.bethere.co.uk</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>bikely</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>tho is just the ticket </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>bc!~me@cloak-133BDB77.zone2.bethere.co.uk</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>bc</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>bikely tho is just the ticket</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>bikely</string> 
-        </void> 
-        <void method="add"> 
-         <string>tho</string> 
-        </void> 
-        <void method="add"> 
-         <string>is</string> 
-        </void> 
-        <void method="add"> 
-         <string>just</string> 
-        </void> 
-        <void method="add"> 
-         <string>the</string> 
-        </void> 
-        <void method="add"> 
-         <string>ticket</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="lastMessageTimestamps"> 
-     <void method="put"> 
-      <string>#jism</string> 
-      <long>1232669396384</long> 
-     </void> 
-    </void> 
-    <void property="name"> 
-     <string>bc</string> 
-    </void> 
-    <void property="timeZone"> 
-     <object class="sun.util.calendar.ZoneInfo"> 
-      <void property="ID"> 
-       <string>Zulu</string> 
-      </void> 
-     </object> 
-    </void> 
-    <void property="weatherStation"> 
-     <string>EGPF</string> 
+     <string>alline</string> 
     </void> 
    </object> 
   </void> 
   <void method="put"> 
    <string>av</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~user@cloak-B9C202DF.nw.nuvox.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>So</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>the limo ought to be Army One </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>av!~user@cloak-B9C202DF.nw.nuvox.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>av</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>So the limo ought to be Army One</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>So</string> 
-        </void> 
-        <void method="add"> 
-         <string>the</string> 
-        </void> 
-        <void method="add"> 
-         <string>limo</string> 
-        </void> 
-        <void method="add"> 
-         <string>ought</string> 
-        </void> 
-        <void method="add"> 
-         <string>to</string> 
-        </void> 
-        <void method="add"> 
-         <string>be</string> 
-        </void> 
-        <void method="add"> 
-         <string>Army</string> 
-        </void> 
-        <void method="add"> 
-         <string>One</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
+    <void property="lastChannel"> 
+     <string></string> 
     </void> 
     <void property="lastMessageTimestamps"> 
      <void method="put"> 
+      <string></string> 
+      <long>1232789484290</long> 
+     </void> 
+     <void method="put"> 
       <string>#jism</string> 
-      <long>1232665072139</long> 
+      <long>1232752260343</long> 
      </void> 
     </void> 
     <void property="name"> 
@@ -1830,50 +219,168 @@
    </object> 
   </void> 
   <void method="put"> 
-   <string>rs</string> 
+   <string>mjl</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484294</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232769405238</long> 
+     </void> 
+     <void method="put"> 
+      <string>#wordgame</string> 
+      <long>1232664105731</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>mjl</string> 
+    </void> 
+    <void property="timeZone"> 
+     <object class="sun.util.calendar.ZoneInfo"> 
+      <void property="ID"> 
+       <string>Pacific/Auckland</string> 
       </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~rs@cloak-529BE618.sea1.dsl.speakeasy.net</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>bandname</string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>rs!~rs@cloak-529BE618.sea1.dsl.speakeasy.net</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>rs</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>bandname</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>bandname</string> 
-        </void> 
-       </object> 
+      <void property="rawOffset"> 
+       <int>43200000</int> 
       </void> 
      </object> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>NZAA</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>goat2</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484299</long> 
+     </void> 
+     <void method="put"> 
+      <string>#wordgame</string> 
+      <long>1232584905051</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>goat2</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>hawk</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484303</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232760946901</long> 
+     </void> 
+     <void method="put"> 
+      <string>#wordgame</string> 
+      <long>1232603961468</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>hawk</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KPAE</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>rats</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484309</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232669452670</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>rats</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>x_x</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789484314</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232603658249</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>x_x</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>goat3</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string>#jism</string> 
     </void> 
     <void property="lastMessageTimestamps"> 
      <void method="put"> 
       <string>#jism</string> 
-      <long>1232694198321</long> 
+      <long>1232793344039</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>goat3</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>rs</string> 
+   <object class="goat.core.User"> 
+    <void property="currency"> 
+     <string>USD</string> 
+    </void> 
+    <void property="lastChannel"> 
+     <string>#jism</string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485008</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232798681500</long> 
      </void> 
      <void method="put"> 
       <string>#wordgame</string> 
@@ -1883,62 +390,158 @@
     <void property="name"> 
      <string>rs</string> 
     </void> 
+    <void property="timeZone"> 
+     <object class="sun.util.calendar.ZoneInfo"> 
+      <void property="ID"> 
+       <string>America/Los_Angeles</string> 
+      </void> 
+      <void property="rawOffset"> 
+       <int>-28800000</int> 
+      </void> 
+     </object> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KBFI</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>zikzak</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485014</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232684479896</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>zikzak</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>bugsraper</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485018</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232609368714</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>bugsraper</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>guest1727066104</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485022</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232689088265</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>Guest1727066104</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>giggitygiggity</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485026</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232697293683</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>GiggityGiggity</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>chemicalnova</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485029</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232689166655</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>chemicalnova</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>em</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485031</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232780453512</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>em</string> 
+    </void> 
    </object> 
   </void> 
   <void method="put"> 
    <string>mb</string> 
    <object class="goat.core.User"> 
-    <void property="lastMessage"> 
-     <object class="goat.core.Message"> 
-      <void property="channame"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="command"> 
-       <string>PRIVMSG</string> 
-      </void> 
-      <void property="hostmask"> 
-       <string>~mb@cloak-6D68E190.stoweaccess.com</string> 
-      </void> 
-      <void property="modCommand"> 
-       <string>like</string> 
-      </void> 
-      <void property="modTrailing"> 
-       <string>he meant it </string> 
-      </void> 
-      <void property="params"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="prefix"> 
-       <string>mb!~mb@cloak-6D68E190.stoweaccess.com</string> 
-      </void> 
-      <void property="replyTo"> 
-       <string>#jism</string> 
-      </void> 
-      <void property="sender"> 
-       <string>mb</string> 
-      </void> 
-      <void property="trailing"> 
-       <string>like he meant it</string> 
-      </void> 
-      <void property="words"> 
-       <object class="java.util.ArrayList"> 
-        <void method="add"> 
-         <string>like</string> 
-        </void> 
-        <void method="add"> 
-         <string>he</string> 
-        </void> 
-        <void method="add"> 
-         <string>meant</string> 
-        </void> 
-        <void method="add"> 
-         <string>it</string> 
-        </void> 
-       </object> 
-      </void> 
-     </object> 
+    <void property="lastChannel"> 
+     <string></string> 
     </void> 
     <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485034</long> 
+     </void> 
      <void method="put"> 
       <string>#jism</string> 
       <long>1232614372427</long> 
@@ -1946,6 +549,130 @@
     </void> 
     <void property="name"> 
      <string>mb</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>ct</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485037</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232665041106</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>ct</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>bc</string> 
+   <object class="goat.core.User"> 
+    <void property="currency"> 
+     <string>GBP</string> 
+    </void> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485040</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232762848966</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>bc</string> 
+    </void> 
+    <void property="timeZone"> 
+     <object class="sun.util.calendar.ZoneInfo"> 
+      <void property="ID"> 
+       <string>Zulu</string> 
+      </void> 
+     </object> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>EGPF</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>ubu</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485044</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232780181689</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>ubu</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>KDTO</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>ido</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485045</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232697192971</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>ido</string> 
+    </void> 
+    <void property="weatherStation"> 
+     <string>LOWW</string> 
+    </void> 
+   </object> 
+  </void> 
+  <void method="put"> 
+   <string>aaron1</string> 
+   <object class="goat.core.User"> 
+    <void property="lastChannel"> 
+     <string></string> 
+    </void> 
+    <void property="lastMessageTimestamps"> 
+     <void method="put"> 
+      <string></string> 
+      <long>1232789485048</long> 
+     </void> 
+     <void method="put"> 
+      <string>#jism</string> 
+      <long>1232621182871</long> 
+     </void> 
+    </void> 
+    <void property="name"> 
+     <string>aaron1</string> 
     </void> 
    </object> 
   </void> 

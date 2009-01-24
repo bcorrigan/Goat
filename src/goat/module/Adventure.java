@@ -48,17 +48,21 @@ public class Adventure extends Module implements ZScreen, Runnable {
     //for random numbers, to give to ZMachine
     private Random r = new Random();
 
+    public boolean isThreadSafe() {
+    	return false;
+    }
+    
     public void processPrivateMessage(Message m) {
-        if (m.modCommand.equals("adv")) {
+        if (m.getModCommand().equals("adv")) {
             Iterator it = adventures.iterator();
             for (Object adventure : adventures) {
                 Adventure adv = (Adventure) adventure;
-                if (adv.target.channame.equals(m.channame)) {
+                if (adv.target.getChanname().equals(m.getChanname())) {
                     //this channel has a running adventure
                     //first we check for "save" and "restore" commands, because they are going to be treated specially
-                    if (m.modTrailing.startsWith("save")) {
+                    if (m.getModTrailing().startsWith("save")) {
                         //look for the int argument
-                        String intArg = m.modTrailing.replaceAll("save", "");
+                        String intArg = m.getModTrailing().replaceAll("save", "");
                         intArg = intArg.trim();
                         String number = "";
                         String stringArg = "";
@@ -95,9 +99,9 @@ public class Adventure extends Module implements ZScreen, Runnable {
                         adv.input.addLast("save");
                         return;
                     }
-                    if (m.modTrailing.startsWith("restore")) {
+                    if (m.getModTrailing().startsWith("restore")) {
                         //look for the int argument
-                        String intArg = m.modTrailing.replaceAll("restore", "");
+                        String intArg = m.getModTrailing().replaceAll("restore", "");
                         intArg = intArg.trim();
                         if (intArg.length() == 0) {//oh-ho, no int argument given, so lets use the default slot
                             if (adv.loadSlot >= 1 && adv.loadSlot <= 10)
@@ -122,21 +126,21 @@ public class Adventure extends Module implements ZScreen, Runnable {
                         adv.input.addLast("restore");
                         return;
                     }
-                    adv.input.addLast(m.modTrailing.trim());
+                    adv.input.addLast(m.getModTrailing().trim());
                     return;
                 }
             }
-        } else if (m.modCommand.equals("startadv")) {
+        } else if (m.getModCommand().equals("startadv")) {
             Iterator it = adventures.iterator();
             for (Object adventure : adventures) {
                 Adventure adv = (Adventure) adventure;
-                if (adv.target.channame.equals(m.channame)) {
+                if (adv.target.getChanname().equals(m.getChanname())) {
                     m.createReply("Umm, we seem to be already playing an Adventure game in here.").send();
                     return; //this channel already has a running adventure
                 }
             }
             File gameImage;
-            String intArg = m.modTrailing.replaceAll("startadv", "");
+            String intArg = m.getModTrailing().replaceAll("startadv", "");
             intArg = intArg.trim();
             try {
                 int zmNum = Integer.parseInt(intArg);
@@ -162,11 +166,11 @@ public class Adventure extends Module implements ZScreen, Runnable {
             adv.gameImage = gameImage;
             adventures.add(adv);
             adv.zgameTh.start();
-        } else if (m.modCommand.equals("stopadv")) {
+        } else if (m.getModCommand().equals("stopadv")) {
             Iterator it = adventures.iterator();
             for (Object adventure : adventures) {
                 Adventure adv = (Adventure) adventure;
-                if (adv.target.channame.equals(m.channame)) {
+                if (adv.target.getChanname().equals(m.getChanname())) {
                     //this channel has a running adventure
                     adventures.remove(adv);
                     // adv.playing = false;  //we don't use this anywhere
@@ -175,13 +179,13 @@ public class Adventure extends Module implements ZScreen, Runnable {
                     return;
                 }
             }
-        } else if (m.modCommand.equals("lsgames")) {
+        } else if (m.getModCommand().equals("lsgames")) {
             listFiles(m);
-        } else if (m.modCommand.equals("lssaves")) {
+        } else if (m.getModCommand().equals("lssaves")) {
             Iterator it = adventures.iterator();
             for (Object adventure : adventures) {
                 Adventure adv = (Adventure) adventure;
-                if (adv.target.channame.equals(m.channame)) {
+                if (adv.target.getChanname().equals(m.getChanname())) {
                     listSaves(m, adv);
                     return;
                 }
@@ -201,7 +205,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
         for (File file1 : files) {
             String[] parts = file1.getName().split("\\."); //parts of the file name
             if (parts[0].equals(adv.gameName))
-                if (parts[1].equals(m.channame))
+                if (parts[1].equals(m.getChanname()))
                     slots += " " + parts[3] + ")" + parts[2];
         }
         m.createReply("\"" + adv.gameName.replaceAll("_", " ") + "\" slots used: " + slots).send();
@@ -389,13 +393,13 @@ public class Adventure extends Module implements ZScreen, Runnable {
         for (File file1 : files) {
             String[] parts = file1.getName().split("\\."); //parts of the file name
             if (parts[0].equals(gameName))
-                if (parts[1].equals(target.channame))
+                if (parts[1].equals(target.getChanname()))
                     if (parts[3].equals(Integer.toString(saveSlot))) {
                         file = file1;                             //slot is taken! delete old occupant of slot
                         file.delete();
                     }
         }
-        File savefile = new File("resources/adventureData/saves/" + gameName + "." + target.channame + "." + saveGameName + "." + saveSlot);
+        File savefile = new File("resources/adventureData/saves/" + gameName + "." + target.getChanname() + "." + saveGameName + "." + saveSlot);
         loadSlot = saveSlot; //set default restore point
         try {
             savefile.createNewFile();
@@ -417,7 +421,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
         for (File file1 : files) {
             String[] parts = file1.getName().split("\\."); //parts of the file name
             if (parts[0].equals(gameName))
-                if (parts[1].equals(target.channame))
+                if (parts[1].equals(target.getChanname()))
                     if (parts[3].equals(Integer.toString(loadSlot)))
                         file = file1;
         }

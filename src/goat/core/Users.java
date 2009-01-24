@@ -9,98 +9,168 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /* Goat keeps one nice static Users object in Goat.users.  Use that one instead of 
   creating your own and writing all over goat's files.
 */
 
-public class Users {
-	private HashMap<String,User> usersHash = new HashMap<String,User>() ;
+public class Users implements Runnable {
+	
+	
 
-	private String usersFilename = "resources/users.xml";
+	public final static String DEFAULT_USERS_FILENAME = "resources/users.xml" ;
+	
+	private ConcurrentHashMap<String,User> usersHash = new ConcurrentHashMap<String,User>() ;
+	private String usersFilename = DEFAULT_USERS_FILENAME;
+	private Boolean updatesPending = false;
+	protected Object writeLock = new Object();
 	
 	public Users() {
 		try {
-			usersHash = readFromDisk(usersFilename) ;
+			readUsersFromDisk() ;
 		} catch (Exception e) {
-			usersHash = new HashMap<String, User>();
+			// usersHash = new ConcurrentHashMap<String, User>();
 		}
+		new Thread(this).start();
 	}
 
+	/*
 	public void save() {
-		saveToDisk(usersHash, usersFilename) ;
+		saveToDisk() ;
 	}
+	*/
 	
-	private void saveToDisk(HashMap<String, User> saveUsers, String filename) {
+	private void saveUsersToDisk() {
 		FileOutputStream fos = null;
         XMLEncoder XMLenc = null;
-        if(! saveUsers.isEmpty()) {
-        	try {
-        		fos = new FileOutputStream(filename);
-        		XMLenc = new XMLEncoder(new BufferedOutputStream(fos));
-        		XMLenc.writeObject(saveUsers);
-        	} catch (FileNotFoundException fnfe) {
-        		fnfe.printStackTrace();
-        		// This seems to happen on Windows sometimes
-        		System.out.println("Users:  users.xml not saved.");
-        	} finally {
-        		if(XMLenc!=null) XMLenc.close();
+        synchronized (writeLock) {
+        	if(! usersHash.isEmpty()) {
         		try {
-        			if(fos != null) fos.close();
+        			fos = new FileOutputStream(usersFilename);
+        			XMLenc = new XMLEncoder(new BufferedOutputStream(fos));
+        			synchronized(usersHash) {
+        				XMLenc.writeObject(usersHash);
+        			}
+        			updatesPending = false;
+        		} catch (FileNotFoundException fnfe) {
+        			fnfe.printStackTrace();
+        			// This seems to happen on Windows sometimes
+        			System.out.println("Users:  users.xml not saved.");
+        		} finally {
+        			if(XMLenc!=null) XMLenc.close();
+        			try {
+        				if(fos != null) fos.close();
+        			} catch (IOException ioe) {
+        				System.out.println("I couldn't close the users.xml file after writing it!");
+        				ioe.printStackTrace();
+        			}
+        		}
+        	}
+        }
+	}
+	
+	private void readUsersFromDisk() {
+        FileInputStream fis = null;
+        XMLDecoder XMLdec = null;
+        synchronized (writeLock) {
+        	try {
+        		fis = new FileInputStream(usersFilename);
+        		XMLdec = new XMLDecoder(new BufferedInputStream(fis));
+        			usersHash = (ConcurrentHashMap<String,User>) XMLdec.readObject();
+        			for(String key: usersHash.keySet()) {
+        				usersHash.get(key).setContainer(this);
+        		}
+        	} catch (FileNotFoundException e) {
+        		e.printStackTrace();
+        		// not sure why this was here...
+        		//		} catch (NoSuchElementException e) {
+        		//			diskUsers = new HashMap<String,User>();
+        		//			e.printStackTrace();
+        	} catch (ArrayIndexOutOfBoundsException e) {
+        		e.printStackTrace();
+        	} finally {
+        		if(XMLdec!=null) XMLdec.close();
+        		try {
+        			if(fis!=null) fis.close();
         		} catch (IOException ioe) {
-        			System.out.println("I couldn't close the users.xml file after writing it!");
+        			System.out.println("I couldn't close the users.xml file after reading it!");
         			ioe.printStackTrace();
         		}
         	}
         }
 	}
 	
-	private HashMap<String, User> readFromDisk(String filename) {
-        FileInputStream fis = null;
-        XMLDecoder XMLdec = null;
-        HashMap<String, User> diskUsers = new HashMap<String, User>() ;
-		try {
-			fis = new FileInputStream(filename);
-			XMLdec = new XMLDecoder(new BufferedInputStream(fis));
-			diskUsers = (HashMap<String,User>) XMLdec.readObject();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			diskUsers = new HashMap<String,User>();
-// not sure why this was here...
-//		} catch (NoSuchElementException e) {
-//			diskUsers = new HashMap<String,User>();
-//			e.printStackTrace();
-		} catch (ArrayIndexOutOfBoundsException e) {
-			e.printStackTrace();
-		} finally {
-            if(XMLdec!=null) XMLdec.close();
-            try {
-            	if(fis!=null) fis.close();
-            } catch (IOException ioe) {
-            	System.out.println("I couldn't close the users.xml file after reading it!");
-            	ioe.printStackTrace();
-            }
-        }
-		return diskUsers ;
-	}
 	
 	public boolean hasUser(String name) {
 		return usersHash.containsKey(name.toLowerCase()) ;
 	}
 	
+	
+	/* possibly misleading
 	public boolean hasUser(User u) {
 		return usersHash.containsKey(u.getName().toLowerCase()) ;
 	}
+	*/
 	
 	public User getUser(String name) {
 		return usersHash.get(name.toLowerCase()) ;
 	}
 	
-	public void addUser(User u) {
-		if (! u.getName().equals("")) {
-			usersHash.put(u.getName().toLowerCase(), u) ;
+	private User putUserIfAbsent(User u) 
+	throws NullPointerException {
+		User ret;
+		if(null != u) {
+			u.setContainer(this);
+			if(u.getName().equals(""))
+				throw new IllegalArgumentException("empty string not allowed as a user name");
 		}
-		save() ;
+		ret = usersHash.putIfAbsent(u.getName().toLowerCase(), u) ;
+		//Uncomment here if we start using this method for anything other than adding
+		//   new, empty User (ie, User with no member data set)
+		//if(null == ret)
+		//	notifyUpdatesPending();
+		return ret;
+	}
+	
+	public User getOrCreateUser(String uname) 
+	throws NullPointerException, IllegalArgumentException {
+		User u = new User(uname);
+		User ret;
+		ret = putUserIfAbsent(u);
+		if(null == ret)
+			ret = u;
+		return ret;
+	}
+	
+	private Boolean running = false;
+	private Boolean stop = false;
+	private Integer updateIntervalInSeconds = 6;
+	
+	protected void notifyUpdatesPending() {
+		synchronized(writeLock) {
+			updatesPending = true;
+		}
+	}
+	
+	public void run() {
+		running = true;
+		while(!stop) {
+			try {
+				Thread.sleep(updateIntervalInSeconds * 1000);
+			} catch (InterruptedException ie) {}
+			if(updatesPending) {
+				saveUsersToDisk();
+			}
+		}
+		running = false;
+	}
+	
+	public synchronized void stop() {
+		stop = true;
+	}
+	
+	public synchronized boolean isRunning() {
+		return running;
 	}
 }

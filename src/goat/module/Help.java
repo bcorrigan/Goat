@@ -1,8 +1,14 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import java.io.*;
+
+
+//TODO - rethink this, we're not attending to it.  
+//  Perhaps we should try something along the lines of an abstract String help() in core.Module, so
+//  it's right there nagging you when you build a module.
 
 
 /**
@@ -10,7 +16,6 @@ import java.io.*;
  * 
  * @version 1.0
  */
-
 public class Help extends Module {
 
 	public int messageType() {
@@ -25,16 +30,16 @@ public class Help extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-		m.replyTo = m.sender ;
+		// m.setReplyTo(m.getSender());
 		processPrivateMessage(m) ;
 	}
 
 	public void processPrivateMessage(Message m) {
-		if (m.modCommand.equals("help")) {
-			if (m.modTrailing.trim().equals("")) {
+		if (m.getModCommand().equals("help")) {
+			if (m.getModTrailing().trim().equals("")) {
 				printFile("index", m);
 			} else {
-				printFile(m.modTrailing.trim() + ".txt", m);
+				printFile(m.getModTrailing().trim() + ".txt", m);
 			}
 		}
 	}
@@ -65,7 +70,7 @@ public class Help extends Module {
 				break;
 			reply += line.trim() + " " ;
 		}
-		reply = reply.replaceAll("#", Message.BOLD) ;
+		reply = reply.replaceAll("#", Constants.BOLD) ;
 		m.createPagedReply(reply.trim()).send() ;
 		try {
 			in.close();

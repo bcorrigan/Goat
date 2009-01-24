@@ -8,8 +8,8 @@ import goat.core.Message;
  */
 public class Say extends Module {
 	public void processPrivateMessage(Message m) {
-		if(m.isAuthorised) {
-			String[] words = m.modTrailing.split(" ");
+		if(m.isAuthorised()) {
+			String[] words = m.getModTrailing().split(" ");
 			String trailing="";
 			for(int i=1;i<words.length;i++)
 				trailing+=words[i] + ' ';

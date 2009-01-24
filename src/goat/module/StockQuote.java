@@ -1,6 +1,7 @@
 package goat.module;
 
 import goat.Goat;
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import goat.util.YahooStockQuote;
@@ -19,16 +20,21 @@ public class StockQuote extends Module {
 	 * Returns the specified stock quote.
 	 */
 	
+	public boolean isThreadSafe() {
+		return false;
+	}
+	
 	public void processChannelMessage(Message m) {
         ircQuote(m);
 	}
 	
 	public void ircQuote(Message m) {
+		// System.out.println("getting stock quote in channel " + m.channame);
 		TimeZone tz = null;
-		if(Goat.getUsers().hasUser(m.sender))
-			tz = Goat.getUsers().getUser(m.sender).getTimeZone();
+		if(Goat.getUsers().hasUser(m.getSender()))
+			tz = Goat.getUsers().getUser(m.getSender()).getTimeZone();
 		try {
-			ArrayList<YahooStockQuote> quotes = YahooStockQuote.getQuotes(m.modTrailing);
+			ArrayList<YahooStockQuote> quotes = YahooStockQuote.getQuotes(m.getModTrailing());
 			if(quotes.size() < 1) {
 				m.createReply("You didn't give me any valid ticker symbols.  Look up symbols here:  http://finance.yahoo.com/lookup").send();
 				return;
@@ -40,7 +46,7 @@ public class StockQuote extends Module {
 			} else if(quotes.size() > 1) {
 				String reply = mediumQuote(quotes.get(0), tz);
 				for(int i = 1; i < quotes.size(); i++)
-					reply += Message.BOLD + "  \u00a4\u00a4  " + Message.NORMAL + mediumQuote(quotes.get(i), tz);
+					reply += Constants.BOLD + "  \u00a4\u00a4  " + Constants.NORMAL + mediumQuote(quotes.get(i), tz);
 				m.createPagedReply(reply).send();
 			} else {
 				m.createPagedReply(longQuote(quotes.get(0), tz)).send();
@@ -48,9 +54,10 @@ public class StockQuote extends Module {
 		} catch (SocketTimeoutException ste) {
 			m.createReply("I got bored waiting for yahoo to give me quotes.").send();
 		} catch (YahooStockQuoteException ysqe) {
-			m.createReply("I had a problem talking to Yahoo:  " + ysqe.getMessage());
+			m.createReply("I had a problem talking to Yahoo:  " + ysqe.getMessage()).send();
 			ysqe.printStackTrace();
 		}
+		//System.out.println("Finished stock quote for channel " + m.channame);
 	}
 
     public void processPrivateMessage(Message m) {
@@ -64,57 +71,57 @@ public class StockQuote extends Module {
     private String longQuote(YahooStockQuote quote, TimeZone tz) {
     	NumberFormat nf = NumberFormat.getInstance();
     	nf.setMaximumFractionDigits(2);
-    	String ret = quote.name + " (" + Message.BOLD + quote.symbol + Message.NORMAL + "):  ";
+    	String ret = quote.name + " (" + Constants.BOLD + quote.symbol + Constants.NORMAL + "):  ";
     	ret += nf.format(quote.lastTrade) + " ";
     	if(quote.change != 0) {
     		if(quote.change > 0)
     			ret += "+";
     		if(quote.change < 0)
-    			ret += Message.RED;
+    			ret += Constants.RED;
     		ret += nf.format(quote.change);
     		if(quote.percentChange != 0)
     			ret += " (" + nf.format(quote.percentChange) + "%)";
     		if(quote.change < 0)
-    			ret += Message.NORMAL;
+    			ret += Constants.NORMAL;
     		ret += ", " + compactDate(quote.lastTradeTimestamp, tz);
     	}
     	if(quote.open != null)
-    		ret += " " + Message.BOLD + "Open: " + Message.NORMAL + nf.format(quote.open);
+    		ret += " " + Constants.BOLD + "Open: " + Constants.NORMAL + nf.format(quote.open);
     	if(quote.dayLow != null)
-    		ret += " "  + Message.BOLD + "Range: " + Message.NORMAL + nf.format(quote.dayLow) + " - " + nf.format(quote.dayHigh);
+    		ret += " "  + Constants.BOLD + "Range: " + Constants.NORMAL + nf.format(quote.dayLow) + " - " + nf.format(quote.dayHigh);
      	if(quote.volume != 0)
-    		ret += " " + Message.BOLD + "Volume: " + Message.NORMAL + abbreviateNumber(quote.volume);
+    		ret += " " + Constants.BOLD + "Volume: " + Constants.NORMAL + abbreviateNumber(quote.volume);
     	if(quote.marketCap != null)
-    		ret += " " + Message.BOLD + "Market cap: " + Message.NORMAL + abbreviateNumber(quote.marketCap);
+    		ret += " " + Constants.BOLD + "Market cap: " + Constants.NORMAL + abbreviateNumber(quote.marketCap);
     	if(quote.ebitda != null) 
-    		ret += " " + Message.BOLD + "EBITDA: " + Message.NORMAL + abbreviateNumber(quote.ebitda);
+    		ret += " " + Constants.BOLD + "EBITDA: " + Constants.NORMAL + abbreviateNumber(quote.ebitda);
     	if(quote.priceEarningsRatio != null)
-    		ret += " " + Message.BOLD + "P/E: " + Message.NORMAL + nf.format(quote.priceEarningsRatio);
+    		ret += " " + Constants.BOLD + "P/E: " + Constants.NORMAL + nf.format(quote.priceEarningsRatio);
     	if(quote.bookValue != null)
-    		ret += " " + Message.BOLD + "Book: " + Message.NORMAL + nf.format(quote.bookValue);
+    		ret += " " + Constants.BOLD + "Book: " + Constants.NORMAL + nf.format(quote.bookValue);
     	if(quote.yearHigh != 0) 
-    		ret += " "  + Message.BOLD + "52-week Range: " + Message.NORMAL + nf.format(quote.yearLow) + " - " + nf.format(quote.yearHigh);
+    		ret += " "  + Constants.BOLD + "52-week Range: " + Constants.NORMAL + nf.format(quote.yearLow) + " - " + nf.format(quote.yearHigh);
     	if(quote.floatShares != null)
-    		ret += " " + Message.BOLD + "Float: " + Message.NORMAL + abbreviateNumber(quote.floatShares);
+    		ret += " " + Constants.BOLD + "Float: " + Constants.NORMAL + abbreviateNumber(quote.floatShares);
     	if(quote.shortRatio != null)
-    		ret += " " + Message.BOLD + "Short Ratio: " + Message.NORMAL + nf.format(quote.shortRatio);
+    		ret += " " + Constants.BOLD + "Short Ratio: " + Constants.NORMAL + nf.format(quote.shortRatio);
     	if(! quote.notes.equals("-"))
-    		ret += " " + Message.BOLD + "Notes: " + Message.NORMAL + quote.notes;
+    		ret += " " + Constants.BOLD + "Notes: " + Constants.NORMAL + quote.notes;
     	return ret;
     }
     
     private String mediumQuote(YahooStockQuote quote, TimeZone tz) {
     	NumberFormat nf = NumberFormat.getInstance();
     	nf.setMaximumFractionDigits(2);
-    	String ret = quote.name + " (" + Message.BOLD + quote.symbol + Message.NORMAL + "):  ";
+    	String ret = quote.name + " (" + Constants.BOLD + quote.symbol + Constants.NORMAL + "):  ";
     	ret += nf.format(quote.lastTrade) + " (";
     	if(quote.percentChange < 0)
-    		ret += Message.RED;
+    		ret += Constants.RED;
     	else
     		ret += "+";
     	ret += quote.percentChange + "%";
     	if(quote.percentChange < 0)
-    		ret += Message.NORMAL;
+    		ret += Constants.NORMAL;
     	ret += "), " + compactDate(quote.lastTradeTimestamp, tz);
     	return ret;
     }
@@ -123,14 +130,14 @@ public class StockQuote extends Module {
     	Date now = new Date();
        	NumberFormat nf = NumberFormat.getInstance();
     	nf.setMaximumFractionDigits(2);
-    	String ret = Message.BOLD + quote.symbol + Message.NORMAL;
+    	String ret = Constants.BOLD + quote.symbol + Constants.NORMAL;
     	ret += " " + nf.format(quote.lastTrade) + " (";
     	if(quote.percentChange < 0)
-    		ret += Message.RED;
+    		ret += Constants.RED;
     	else ret += "+";
     	ret += quote.percentChange + "%";
     	if(quote.percentChange < 0)
-    		ret += Message.NORMAL;
+    		ret += Constants.NORMAL;
     	ret += ")";
     	if (now.getTime() - quote.lastTradeTimestamp.getTime() > 1000*60*25) // only add time if quote is older than 25 min
     		ret += " " + compactDate(quote.lastTradeTimestamp, tz);

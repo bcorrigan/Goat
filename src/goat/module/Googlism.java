@@ -28,10 +28,10 @@ public class Googlism extends Module {
     private String[] stripWords = {"and","the","of","is","are", "those", "these", "was", "a", "in", "for"};
 
     public void processChannelMessage(Message m) {
-        if(!m.directlyAddressed) {
+        if(!m.isDirectlyAddressed()) {
             return;
         }
-        String query = m.modTrailing.trim();
+        String query = m.getModTrailing().trim();
         query = stripInsubstantialWords(query);
         query = query.replaceAll("\\?","");
         if(query.length()==0) {
@@ -45,16 +45,16 @@ public class Googlism extends Module {
         String googlismUrl;
 
         String failureTerm;
-        if(m.modCommand.trim().toLowerCase().equals("who")) {
+        if(m.getModCommand().trim().toLowerCase().equals("who")) {
             googlismUrl = WHO_URL;
             failureTerm = "that person";
-        } else if(m.modCommand.trim().toLowerCase().equals("what")) {
+        } else if(m.getModCommand().trim().toLowerCase().equals("what")) {
             googlismUrl = WHAT_URL;
             failureTerm = "that";
-        } else if(m.modCommand.trim().toLowerCase().equals("where")) {
+        } else if(m.getModCommand().trim().toLowerCase().equals("where")) {
             googlismUrl = WHERE_URL;
             failureTerm = "that place";
-        } else if(m.modCommand.trim().toLowerCase().equals("when")) {
+        } else if(m.getModCommand().trim().toLowerCase().equals("when")) {
             googlismUrl = WHEN_URL;
             failureTerm = "when that happened";
         } else {
@@ -67,11 +67,11 @@ public class Googlism extends Module {
 			connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-				m.createReply("I don't know anything about that, " + m.sender + ", sorry.").send();
+				m.createReply("I don't know anything about that, " + m.getSender() + ", sorry.").send();
                 return;
             }
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-			    m.createReply( "Hmmmn, " + m.sender + ", the googlism server is giving me HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
+			    m.createReply( "Hmmmn, " + m.getSender() + ", the googlism server is giving me HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
 			    return;
             }
 			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -93,7 +93,7 @@ public class Googlism extends Module {
             if(results.length()>0)
                 m.createPagedReply(results).send();
             else
-                m.createReply("I don't know anything about " + failureTerm + ", " + m.sender + ".").send();
+                m.createReply("I don't know anything about " + failureTerm + ", " + m.getSender() + ".").send();
         }
 		catch (IOException e) {
 			m.createReply("I'm broken!").send();

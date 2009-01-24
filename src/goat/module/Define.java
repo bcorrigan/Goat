@@ -1,6 +1,7 @@
 package goat.module ;
 
 import goat.Goat;
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import goat.util.DICTClient;
@@ -52,17 +53,17 @@ public class Define extends Module {
 		//parse out args
 
 		if(debug)
-			System.out.println("processing command: " + m.modCommand) ;
-		if (m.modCommand.equalsIgnoreCase("define") || m.modCommand.equalsIgnoreCase("thesaurus")) {
+			System.out.println("processing command: " + m.getModCommand()) ;
+		if (m.getModCommand().equalsIgnoreCase("define") || m.getModCommand().equalsIgnoreCase("thesaurus")) {
 			define(m) ;
-		} else if (m.modCommand.equalsIgnoreCase("randef")) { 
+		} else if (m.getModCommand().equalsIgnoreCase("randef")) { 
 			randef(m) ;
-		} else if (m.modCommand.equalsIgnoreCase("dictionaries")) { 
+		} else if (m.getModCommand().equalsIgnoreCase("dictionaries")) { 
 			dictionaries(m) ;
-		} else if (m.modCommand.equalsIgnoreCase("dictionary")) {
+		} else if (m.getModCommand().equalsIgnoreCase("dictionary")) {
 			dictionary(m) ;
-		} else if (m.modCommand.equalsIgnoreCase("oed")) {
-			m.createReply(oedUrl(m.modTrailing)).send() ;
+		} else if (m.getModCommand().equalsIgnoreCase("oed")) {
+			m.createReply(oedUrl(m.getModTrailing())).send() ;
 		}
 	}
 
@@ -73,7 +74,7 @@ public class Define extends Module {
 			dictionary = parser.get("dictionary") ;
 		else if (parser.has("dict") ) 
 			dictionary = parser.get("dict");
-		if (m.modCommand.equalsIgnoreCase("thesaurus"))
+		if (m.getModCommand().equalsIgnoreCase("thesaurus"))
 			dictionary = "moby-thes";
 		int num = 1 ;
 		if (parser.has("number"))
@@ -89,9 +90,9 @@ public class Define extends Module {
 		String text = "" ;
 		//make sure we've got a word, if not, ask wordgame mod what its last answer for this channel is, if any, and use that.
 		if(null == word || word.equals("") ) {
-			WordGame wordgameMod = (WordGame) Goat.modController.get("WordGame") ;
-			if ((wordgameMod != null) && (wordgameMod.inChannel(m.params))) {
-				String lastWord = wordgameMod.getLastAnswer(m.params) ;
+			WordGame wordgameMod = (WordGame) Goat.modController.getLoaded("WordGame") ;
+			if ((wordgameMod != null) && (wordgameMod.inChannel(m.getParams()))) {
+				String lastWord = wordgameMod.getLastAnswer(m.getParams()) ;
 				if(lastWord != null)
 					word = lastWord ;
 				else {
@@ -419,15 +420,15 @@ public class Define extends Module {
 
 				// massage our definition into one line of readable ascii
 				if (!example.equals(""))
-					definition += Message.BOLD + " Ex:" + Message.NORMAL
+					definition += Constants.BOLD + " Ex:" + Constants.NORMAL
 							+ " \"" + example + "\"";
 				definition = definition.replaceAll("\\n", " ");
 				definition = definition.replaceAll("&quot;", "\"");
 				definition = definition.replaceAll("&amp;", "&");
 				definition = definition.replaceAll("<br\\s*/>", "  ");
 				definition = definition
-						.replaceAll("<a .*?>", Message.UNDERLINE);
-				definition = definition.replaceAll("</a>", Message.NORMAL);
+						.replaceAll("<a .*?>", Constants.UNDERLINE);
+				definition = definition.replaceAll("</a>", Constants.NORMAL);
 				// insert new Definition object into definitionList
 				definitionList.addElement(new Definition("urban",
 						urbandictionaryDescription, word, definition));
@@ -453,7 +454,7 @@ public class Define extends Module {
 	
 	private void dictionary(Message m) {
 		DICTClient dc = getDICTClient(m) ;
-		String code = m.modTrailing.trim() ;
+		String code = m.getModTrailing().trim() ;
 		String line = "" ;
 		String[][] dbList = dc.getDatabases() ;
 		dc.close() ;

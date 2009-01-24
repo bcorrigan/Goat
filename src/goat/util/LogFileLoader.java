@@ -11,8 +11,8 @@ import java.sql.Timestamp;
 import java.sql.SQLException;
 
 import goat.Goat;
+import goat.core.Constants;
 import goat.core.ModuleController;
-import goat.core.Message;
 import goat.db.IRCLogger;
 
 /**
@@ -199,7 +199,7 @@ public class LogFileLoader {
 				// don't log blank user messages
 				return id ;
 			}
-			firstWord = Message.removeFormattingAndColors(firstWord);
+			firstWord = Constants.removeFormattingAndColors(firstWord);
 			if (modController.isCommand(firstWord)) {
 				botCommand = firstWord ;
 			}

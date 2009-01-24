@@ -3,9 +3,9 @@ package goat.module;
  * TestDice - Test the Dice module.
  * @author bc
  */
+import goat.core.Constants;
 import goat.core.MockMessage;
 import goat.core.BotStats;
-import goat.core.Message;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -153,13 +153,13 @@ public class TestDiceRoll {
 
     private void roll(String roll, String modCommand) {
         testMessage = new MockMessage("test1","test2","test3","test4");
-        testMessage.sender = "bc";
-        testMessage.modTrailing = roll;
-        testMessage.modCommand = modCommand;
+        testMessage.setSender("bc");
+        testMessage.setModTrailing(roll);
+        testMessage.setModCommand(modCommand);
         dice.processChannelMessage(testMessage);
     }
 
     private String cleanMessage(String msg) {
-        return msg.replaceAll(Message.BOLD, "").replaceAll(Message.UNDERLINE, "").replaceAll(Message.NORMAL, "");
+        return msg.replaceAll(Constants.BOLD, "").replaceAll(Constants.UNDERLINE, "").replaceAll(Constants.NORMAL, "");
     }
 }

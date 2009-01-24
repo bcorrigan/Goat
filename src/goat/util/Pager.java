@@ -42,20 +42,23 @@ public class Pager {
 	/**
 	 * @param text to put in the buffer, blowing away anything already there
 	 */
-	public void init(String text) {
+	private void init(String text) {
 		buffer = smush(text) ;	
 		untapped = true ;
 	}
 	/**
 	 * @param text to add to the end of the buffer
 	 */
-	public void add(String text) {
-		buffer = buffer + " " + smush(text) ;
+	public synchronized void add(String text) {
+		if(buffer.equals(""))
+			buffer = smush(text);
+		else
+			buffer += " " + smush(text) ;
 	}
 	/**
 	 * @return the next block of text, which is removed from the buffer, and prettied up with prefix and suffix, as appropriate.
 	 */
-	public String getNext() {
+	public synchronized String getNext() {
 		String ret = "" ;
 		if (untapped) {
 			if (remaining() <= maxMessageLength) {
@@ -76,7 +79,7 @@ public class Pager {
 	/**
 	 * @return true if there's nothing in the buffer
 	 */
-	public boolean isEmpty() {
+	public synchronized boolean isEmpty() {
 		if (buffer.equals("")) {
 			return true ;
 		} else {
@@ -86,7 +89,7 @@ public class Pager {
 	/**
 	 * @return length of buffer remaining
 	 */
-	public int remaining() {
+	public synchronized int remaining() {
 		return buffer.length() ;
 	}
 	
@@ -108,11 +111,9 @@ public class Pager {
 	//pop the first num chars off the buffer, after first walking num back
 	//to the nearest whitespace (but not walking back further than maxWalkback
 	private String getPoliteChunk(int num) {
-		boolean found = false;
 		if ( remaining() > num )
 			for (int i = num; i>=num-maxWalkback; i--) 
 				if(buffer.substring(i, i+1).matches("\\s")) {
-					found = true;
 					num = i;
 					break;
 				}
@@ -124,7 +125,6 @@ public class Pager {
 		text = text.replaceAll("\\s", " ") ;
 		// condense all multi-whitespace down to two spaces
 		text = text.replaceAll("\\s{3,}", "  ") ;
-		text = text.trim() ;
 		return text ;
 	}
 	

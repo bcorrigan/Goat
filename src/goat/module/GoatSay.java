@@ -24,15 +24,15 @@ public class GoatSay extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-		if (m.trailing.toLowerCase().matches("^\\s*goat\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*")) {
 			m.createReply("Goat!").send();
 		}
 
-		if (m.trailing.toLowerCase().matches("^\\s*moo*\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*moo*\\W*")) {
 			moo(m);
 		}
 
-		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+moo*\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+moo*\\W*")) {
 			moo(m);
 		}
 
@@ -41,12 +41,12 @@ public class GoatSay extends Module {
 			System.out.print("PRIVATE: ");
 		System.out.println(m.sender + ": " + m.trailing);
 		*/	
-		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+mem\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
 			m.createReply(mem + "kb").send();
 		}
 
-		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+uptime\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+uptime\\W*")) {
 			long uptime = System.currentTimeMillis() - init;
 			long seconds = uptime / 1000;
 			int days = (int) (seconds / 86400);

@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import goat.core.BotStats;
@@ -35,11 +36,11 @@ public class Threat extends Module implements Runnable {
 
 	static {
 		THREATS[UNKNOWN] = "UNKNOWN";
-		THREATS[GREEN] = Message.GREEN + "GREEN" + Message.NORMAL + " (low danger)";
-		THREATS[BLUE] = Message.BLUE + "BLUE" + Message.NORMAL + " (be guarded)";
-		THREATS[YELLOW] = Message.YELLOW + "YELLOW" + Message.NORMAL + " (elevated danger level)";
-		THREATS[ORANGE] = Message.BROWN + "ORANGE" + Message.NORMAL + " (high danger level)";
-		THREATS[RED] = Message.RED + "RED" + Message.NORMAL + " (severe danger level)";
+		THREATS[GREEN] = Constants.GREEN + "GREEN" + Constants.NORMAL + " (low danger)";
+		THREATS[BLUE] = Constants.BLUE + "BLUE" + Constants.NORMAL + " (be guarded)";
+		THREATS[YELLOW] = Constants.YELLOW + "YELLOW" + Constants.NORMAL + " (elevated danger level)";
+		THREATS[ORANGE] = Constants.BROWN + "ORANGE" + Constants.NORMAL + " (high danger level)";
+		THREATS[RED] = Constants.RED + "RED" + Constants.NORMAL + " (severe danger level)";
 	}
 
 	private int threatLevel;
@@ -51,6 +52,10 @@ public class Threat extends Module implements Runnable {
 		t.start();
 	}
 
+	public boolean isThreadSafe() {
+		return false;
+	}
+	
 	public void processPrivateMessage(Message m) {
 		processChannelMessage(m);
 	}
@@ -144,31 +149,31 @@ public class Threat extends Module implements Runnable {
 			threatLevel = newThreat;
 			switch (threatLevel) {
 				case BLUE:
-					broadcast(Message.BOLD + "Caution: " + Message.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Message.BLUE + "Blue" + Message.NORMAL + ", this is not dangerous, but please be guarded.");
+					broadcast(Constants.BOLD + "Caution: " + Constants.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Constants.BLUE + "Blue" + Constants.NORMAL + ", this is not dangerous, but please be guarded.");
 					break;
 				case YELLOW:
-					broadcast(Message.BOLD + "Caution: " + Message.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Message.YELLOW + "Yellow" + Message.NORMAL + ", there is now a significant risk of terrorist attacks. Please take appropriate measures to safeguard yourself and your loved ones.");
+					broadcast(Constants.BOLD + "Caution: " + Constants.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Constants.YELLOW + "Yellow" + Constants.NORMAL + ", there is now a significant risk of terrorist attacks. Please take appropriate measures to safeguard yourself and your loved ones.");
 					break;
 				case ORANGE:
-					broadcast(Message.BOLD + "Caution: " + Message.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Message.BROWN + "Orange" + Message.NORMAL + ", there is now a " + Message.BOLD + "very high" + Message.BOLD + " risk of terrorist attack! Please stay away from urban areas and consider stockpiling essential supplies.");
+					broadcast(Constants.BOLD + "Caution: " + Constants.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Constants.BROWN + "Orange" + Constants.NORMAL + ", there is now a " + Constants.BOLD + "very high" + Constants.BOLD + " risk of terrorist attack! Please stay away from urban areas and consider stockpiling essential supplies.");
 					break;
 				case RED:
-					broadcast(Message.BOLD + "Caution: " + Message.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Message.RED + "Red" + Message.NORMAL + ", the risk of terrorist attack is now " + Message.BOLD + "severe" + Message.BOLD + ", you should leave the country if possible (not by plane) and convert your assets into gold.");
+					broadcast(Constants.BOLD + "Caution: " + Constants.BOLD + "The Department of Homeland Security has upgraded the threat level to " + Constants.RED + "Red" + Constants.NORMAL + ", the risk of terrorist attack is now " + Constants.BOLD + "severe" + Constants.BOLD + ", you should leave the country if possible (not by plane) and convert your assets into gold.");
 			}
 		} else if (newThreat < threatLevel) {
 			threatLevel = newThreat;
 			switch (threatLevel) {
 				case GREEN:
-					broadcast(Message.BOLD + "Update: " + Message.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Message.GREEN + "Green" + Message.NORMAL + ", the risk of terrorist attack is low, but don't take anything for granted.");
+					broadcast(Constants.BOLD + "Update: " + Constants.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Constants.GREEN + "Green" + Constants.NORMAL + ", the risk of terrorist attack is low, but don't take anything for granted.");
 					break;
 				case BLUE:
-					broadcast(Message.BOLD + "Update: " + Message.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Message.BLUE + "Blue" + Message.NORMAL + ", this is still dangerous, so please be guarded.");
+					broadcast(Constants.BOLD + "Update: " + Constants.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Constants.BLUE + "Blue" + Constants.NORMAL + ", this is still dangerous, so please be guarded.");
 					break;
 				case YELLOW:
-					broadcast(Message.BOLD + "Update: " + Message.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Message.YELLOW + "Yellow" + Message.NORMAL + ", there is still a significant risk of terrorist attacks. Continue take appropriate measures to safeguard yourself and your loved ones.");
+					broadcast(Constants.BOLD + "Update: " + Constants.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Constants.YELLOW + "Yellow" + Constants.NORMAL + ", there is still a significant risk of terrorist attacks. Continue take appropriate measures to safeguard yourself and your loved ones.");
 					break;
 				case ORANGE:
-					broadcast(Message.BOLD + "Update: " + Message.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Message.BROWN + "Orange" + Message.NORMAL + ", there is still a " + Message.BOLD + "very high" + Message.BOLD + " risk of terrorist attack! You can relax a little, but times are still grave.");
+					broadcast(Constants.BOLD + "Update: " + Constants.BOLD + "The Department of Homeland Security has downgraded the threat level to " + Constants.BROWN + "Orange" + Constants.NORMAL + ", there is still a " + Constants.BOLD + "very high" + Constants.BOLD + " risk of terrorist attack! You can relax a little, but times are still grave.");
 					break;
 
 			}

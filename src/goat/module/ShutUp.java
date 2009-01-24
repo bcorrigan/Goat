@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import java.util.Random;
@@ -109,7 +110,7 @@ public class ShutUp extends Module {
 			"give it a fucking rest",
 			"please shut the fuck up",
 			"you're being fucking boring",
-			"you're fucking boring us.  " + Message.BOLD + "Again" + Message.NORMAL,
+			"you're fucking boring us.  " + Constants.BOLD + "Again" + Constants.NORMAL,
 			"I think you've forgotten to take your fucking medicine", 
 			"get your greasy little fingers away from the fucking computer",
 	} ;
@@ -127,7 +128,7 @@ public class ShutUp extends Module {
 		"I'm starting to hate you",
 		"don't be such a goddamned ballbuster",
 		"you're getting on my nerves",
-		"you're " + Message.BOLD + "really" + Message.NORMAL + " getting on my nerves",
+		"you're " + Constants.BOLD + "really" + Constants.NORMAL + " getting on my nerves",
 		"you're being a little compulsive",
 		"you must get sexually aroused, pushing me around like this"
 	} ;
@@ -158,11 +159,11 @@ public class ShutUp extends Module {
 	public void processChannelMessage(Message m) {
 
 		// per-line joey shutting-up
-		int joeyscore = score(m.trailing, joeyisms) ;
+		int joeyscore = score(m.getTrailing(), joeyisms) ;
 		if (joeyscore > 0) {
 			// debug
 			// System.out.println("JOEYISM detected from umask: " + m.prefix) ;
-			if(m.prefix.matches(".*\\.pacbell\\.net.*")) {
+			if(m.getPrefix().matches(".*\\.pacbell\\.net.*")) {
 				// for now, we'll only respond to joey himself occasionally, 
 				//  since he seems to be getting off on this.
 				if (random.nextInt(100) < (30 + 5*joeyscore) )
@@ -175,15 +176,15 @@ public class ShutUp extends Module {
 		}
 		
 		// blather monitor housekeeping
-		if (blatherer.equalsIgnoreCase(m.sender)) {
-			kipismCount += score(m.trailing, kipisms) ;
+		if (blatherer.equalsIgnoreCase(m.getSender())) {
+			kipismCount += score(m.getTrailing(), kipisms) ;
 		} else {
-			blatherer = m.sender ;
+			blatherer = m.getSender() ;
 			blatherCount = 0;
 			commandCount = 0;
 			kipismCount = 0;
 		}
-		if(goat.Goat.modController.isLoadedCommand(m.modCommand)) 
+		if(goat.Goat.modController.isLoadedCommand(m.getModCommand())) 
 			commandCount++;
 		else
 			blatherCount++;
@@ -199,8 +200,10 @@ public class ShutUp extends Module {
 		}
 		
 		
-		if(m.trailing.toLowerCase().matches(".*i miss joey\\s*"))
-			m.createReply("we all do").send();
+		if(m.getTrailing().toLowerCase().matches(".*i miss joey\\s*"))
+			m.createReply("We all do.").send();
+		else if(m.getTrailing().toLowerCase().matches(".*i miss joey.*"))
+			m.createReply("We all miss joey.").send();
 		
 		
 		//debug
@@ -232,11 +235,11 @@ public class ShutUp extends Module {
 		}
 		int rand = random.nextInt(100) ;
 		if (rand < 60) 
-			reply = m.sender + ", " + reply;
+			reply = m.getSender() + ", " + reply;
 		else if(rand < 80)
-			reply = m.sender + ": " + reply;
+			reply = m.getSender() + ": " + reply;
 		else if(rand < 90)
-			reply = capitalise(reply) + ", " + m.sender;
+			reply = capitalise(reply) + ", " + m.getSender();
 		else 
 			reply = capitalise(reply);
 		if(isQuestion)

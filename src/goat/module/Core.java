@@ -16,39 +16,39 @@ import goat.core.BotStats;
 public class Core extends Module {
 
 	public void processPrivateMessage(Message m) {
-		if (m.isAuthorised) {
-			if (m.modCommand.toLowerCase().equals("part")) {
-				if (BotStats.containsChannel(m.modTrailing)) {
-					new Message("", "PART", m.modTrailing, "").send();
-					m.createReply("Channel " + m.modTrailing + " parted!").send();
-					BotStats.removeChannel(m.modTrailing);
+		if (m.isAuthorised()) {
+			if (m.getModCommand().toLowerCase().equals("part")) {
+				if (BotStats.containsChannel(m.getModTrailing())) {
+					new Message("", "PART", m.getModTrailing(), "").send();
+					m.createReply("Channel " + m.getModTrailing() + " parted!").send();
+					BotStats.removeChannel(m.getModTrailing());
 					return;
 				}
-				m.createReply("I'm not on any such channel " + m.modTrailing + " :(").send();
+				m.createReply("I'm not on any such channel " + m.getModTrailing() + " :(").send();
 
 			}
-			else if (m.modCommand.toLowerCase().equals("join"))
-				if (BotStats.isValidChannelName(m.modTrailing)) {
-					new Message("", "JOIN", m.modTrailing, "").send();
-					String response = "Channel " + m.modTrailing + " joined!" ;
+			else if (m.getModCommand().toLowerCase().equals("join"))
+				if (BotStats.isValidChannelName(m.getModTrailing())) {
+					new Message("", "JOIN", m.getModTrailing(), "").send();
+					String response = "Channel " + m.getModTrailing() + " joined!" ;
 					// we do this next dodge to avoid sending messages to nobody on startup
-					if (m.replyTo.equals(""))
+					if (m.getReplyTo().equals(""))
 						System.out.println(response) ;
 					else
 						m.createReply(response).send();
-					BotStats.addChannel(m.modTrailing);
+					BotStats.addChannel(m.getModTrailing());
 				} else
 					m.createReply("Sorry, that's not a valid channel name!").send();
-			else if (m.modCommand.toLowerCase().equals("nick"))
-				new Message("", "NICK", m.modTrailing, "").send();
-			else if (m.modCommand.toLowerCase().equals("quit")) {
-				new Message("", "QUIT", m.modTrailing, "").send();     //@TODO not sending the quit message properly!
+			else if (m.getModCommand().toLowerCase().equals("nick"))
+				new Message("", "NICK", m.getModTrailing(), "").send();
+			else if (m.getModCommand().toLowerCase().equals("quit")) {
+				new Message("", "QUIT", m.getModTrailing(), "").send();     //@TODO not sending the quit message properly!
 				System.exit(0);
 				}
-			else if (m.modCommand.toLowerCase().equals("charset")) {
+			else if (m.getModCommand().toLowerCase().equals("charset")) {
 				Charset charset;
 				try { 
-					charset = Charset.forName( m.modTrailing.trim() );
+					charset = Charset.forName( m.getModTrailing().trim() );
 				} catch(IllegalCharsetNameException icne) {
 					m.createReply("That charset is illegally specified :(").send();
 					return;
@@ -57,10 +57,10 @@ public class Core extends Module {
 					return;
 				}
 				BotStats.setCharset(charset);
-				m.createReply("OK, changed to " + m.modTrailing.trim() + " charset.").send();
+				m.createReply("OK, changed to " + m.getModTrailing().trim() + " charset.").send();
 				}
 			}
-		if (m.modCommand.toLowerCase().equals("showcharset")) {
+		if (m.getModCommand().toLowerCase().equals("showcharset")) {
 			m.createReply( "Current charset is " + BotStats.getCharset().toString()).send();
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.countdown.Solver;
@@ -38,6 +39,10 @@ public class CountDown extends Module implements Runnable {
     //the best possible answer
     private int bestPossibleAnswer;
     
+    public boolean isThreadSafe() {
+    	return false;
+    }
+    
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
@@ -54,15 +59,15 @@ public class CountDown extends Module implements Runnable {
      */
     public void processChannelMessage(Message m) {
         if(gameOn) {
-            String attempt = m.trailing;
+            String attempt = m.getTrailing();
             //first, check attempt is valid. if so, evaluate, else ignore
             if( checkAttemptValid( attempt ) ) {
                 //it is valid, so we evaluate
                 try {
-                    String answer = calc.evaluate_equation( m.trailing );
+                    String answer = calc.evaluate_equation( m.getTrailing() );
                     Answer possibleAnswer;
                     try {
-                        possibleAnswer = new Answer( Integer.parseInt( answer ), m.sender );
+                        possibleAnswer = new Answer( Integer.parseInt( answer ), m.getSender() );
                     } catch( NumberFormatException nfe) {
                         m.createReply("You used a formula that resulted in a non-int answer. This is not allowed!").send();
                         return;
@@ -73,7 +78,7 @@ public class CountDown extends Module implements Runnable {
                             finaliseGame();
                             return;
                         }
-                        m.createReply( Message.BOLD + m.sender + Message.BOLD 
+                        m.createReply( Constants.BOLD + m.getSender() + Constants.BOLD 
                                         + " has the best answer so far: " 
                                         + possibleAnswer.getAnswer() + ". " + "Just " 
                                         + possibleAnswer.getDistance( targetNumber ) 
@@ -94,10 +99,10 @@ public class CountDown extends Module implements Runnable {
             timerThread = new Thread(this);
             timerThread.start();
             bestPossibleAnswer = Solver.getBestVal( sourceNumbers, targetNumber);
-            m.createReply(Message.REVERSE + "***" + Message.REVERSE
-                    + " New Numbers: " + Message.BOLD
+            m.createReply(Constants.REVERSE + "***" + Constants.REVERSE
+                    + " New Numbers: " + Constants.BOLD
                     + formatNumbers( sourceNumbers ) 
-                    + Message.BOLD + " Target: " + Message.BOLD + targetNumber).send();
+                    + Constants.BOLD + " Target: " + Constants.BOLD + targetNumber).send();
         }
     }
     
@@ -112,7 +117,7 @@ public class CountDown extends Module implements Runnable {
             return;
         }
         if( bestAnswer.getAnswer() == bestPossibleAnswer ) {
-            String reply = Message.BOLD + bestAnswer.getUsername() + Message.BOLD
+            String reply = Constants.BOLD + bestAnswer.getUsername() + Constants.BOLD
                                 + " has won with " + bestAnswer.getAnswer() + "!";
             if( bestPossibleAnswer!=targetNumber)
                 reply+=" This was the best possible answer.";
@@ -226,7 +231,7 @@ public class CountDown extends Module implements Runnable {
         } catch (InterruptedException e) {
         }
 
-        target.createReply(Message.BOLD + "10 secs..").send();
+        target.createReply(Constants.BOLD + "10 secs..").send();
 
         try {
             Thread.sleep(10000);

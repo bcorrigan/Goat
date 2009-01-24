@@ -163,7 +163,7 @@ public class YahooStockQuote {
 			SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mmaa");
 			sdf.setTimeZone(TimeZone.getTimeZone("America/New_York"));
 			while (cr.readRecord()) {
-				System.out.println(cr.getRawRecord());
+				// System.out.println(cr.getRawRecord());
 				final String[] fields = cr.getValues();
 				YahooStockQuote quote = new YahooStockQuote();
 				try {

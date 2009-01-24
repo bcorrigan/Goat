@@ -21,16 +21,28 @@ public class User {
 	private String currency = "";
 	private Locale locale = null;
 	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
-	private Message lastMessage = null;
+	private String lastMessage = null;
+	private String lastChannel = null;
+	public String getLastChannel() {
+		return lastChannel;
+	}
+
+	public void setLastChannel(String lastChannel) {
+		this.lastChannel = lastChannel;
+	}
+
 	private String lastfmName = "";
+	
+	private Users container = null;
 	
 	public User() {
 	}
 	
-	public User(String uname) {
+	protected User(String uname) {
 		name = uname ;
 	}
 
+	/* possibly harmful
 	public User(String name, String weatherStation) {
 		this.name = name;
 		this.weatherStation = weatherStation;
@@ -41,35 +53,58 @@ public class User {
 		this.weatherStation = weatherStation;
 		this.timeZoneString = TimeZone.getTimeZone(timezone).getID();
 	}
+	*/
 
-	public String getName() {
+	public synchronized String getName() {
 		return name;
 	}
 
-	public void setName(String userName) {
-		name = userName;
+	public synchronized void setName(String userName) {
+		if(null == container)
+			name = userName;
+		else
+			synchronized (container.writeLock) {
+				name = userName;
+				save();
+			}
 	}
 
-	public String getWeatherStation() {
+	public synchronized String getWeatherStation() {
 		return weatherStation;
 	}
 
-	public void setWeatherStation(String station) {
-		this.weatherStation = station;
+	public synchronized void setWeatherStation(String station) {
+		if(null == container)
+			weatherStation = station;
+		else
+			synchronized (container.writeLock) {
+				weatherStation = station;
+				save();
+			}
 	}
 	
-	public String getTimeZoneString() {
+	public synchronized String getTimeZoneString() {
 		return timeZoneString ;
 	}
 	
-	public TimeZone getTimeZone() {
+	public synchronized TimeZone getTimeZone() {
 		TimeZone ret = null;
 		if (! timeZoneString.equals(""))
 			ret = TimeZone.getTimeZone(timeZoneString);
 		return ret;
 	}
 	
-	public void setTimeZoneString(String tz) {
+	public synchronized void setTimeZoneString(String tz) {
+		if(null == container)
+			reallySetTimeZoneString(tz);
+		else
+			synchronized (container.writeLock) {
+				reallySetTimeZoneString(tz);
+				save();
+			}
+	}
+	
+	private void reallySetTimeZoneString(String tz) {
 		if (tz.equalsIgnoreCase("unset") || tz.equals("")) {
 			this.timeZoneString = "" ;
 			return ;
@@ -90,18 +125,34 @@ public class User {
 		} else {
 			this.timeZoneString = newTZ.getID();
 		}
-				
 	}
 	
-	public void setTimeZone(TimeZone tz) {
-		this.timeZoneString = tz.getID() ;
+	public synchronized void setTimeZone(TimeZone tz) {
+		if(container == null)
+			timeZoneString = tz.getID() ;
+		else
+			synchronized(container.writeLock) {
+				timeZoneString = tz.getID() ;
+				save();
+			}
 	}
 	
-	public String getCurrency() {
+	public synchronized String getCurrency() {
 		return currency;
 	}
 	
-	public void setCurrency(String newCurrency) throws IOException, ParserConfigurationException, SAXException {
+	public synchronized void setCurrency(String newCurrency) throws IOException, ParserConfigurationException, SAXException {
+		if(null == container)
+			reallySetCurrency(newCurrency);
+		else
+			synchronized (container.writeLock) {
+				reallySetCurrency(newCurrency);
+				save();
+			}
+	}
+	
+	private void reallySetCurrency(String newCurrency) 
+	throws IOException, ParserConfigurationException, SAXException {
 		if (newCurrency.equalsIgnoreCase("unset")) {
 			this.currency = "";
 			return;
@@ -111,51 +162,76 @@ public class User {
 		}
 	}
 	
-	public Locale getLocale() {
+	public synchronized Locale getLocale() {
 		return locale;
 	}
 	
-	/* ugly ugly, do later
-	public void setLocale(String loc) {
-		loc = loc.trim();
-		String[] parts  = loc.split("\\s*,\\s*");
+	public synchronized void setLocale(Locale loc) {
+		if(null == container)
+			locale = loc;
+		else
+			synchronized(container.writeLock) {
+				locale = loc;
+				save();
+			}
 	}
-	*/
 	
-	public void setLocale(Locale loc) {
-		locale = loc;
-	}
-	
-	public void setLastMessage(Message m) {
-		lastMessageTimestamps.put(m.channame, System.currentTimeMillis());
-		lastMessage = m;
+	public synchronized void setLastMessage(Message m) {
+		if(null == container) {
+			lastMessageTimestamps.put(m.getChanname(), System.currentTimeMillis());
+			lastMessage = m.getTrailing();
+			lastChannel = m.getChanname();
+		} else
+			synchronized(container.writeLock) {
+				lastMessageTimestamps.put(m.getChanname(), System.currentTimeMillis());
+				lastMessage = m.getTrailing();
+				lastChannel = m.getChanname();
+				save();
+			}
 	}
 
-	public Long getLastMessageTimestamp() {
-		return lastMessageTimestamps.get(lastMessage.channame);
+	public synchronized Long getLastMessageTimestamp() {
+		return lastMessageTimestamps.get(lastChannel);
 	}
 
-	public Long getLastMessageTimestamp(String channel) {
+	public synchronized Long getLastMessageTimestamp(String channel) {
 		return lastMessageTimestamps.get(channel);
 	}
 	
-	public Message getLastMessage() {
+	public synchronized String getLastMessage() {
 		return lastMessage;
 	}
 	
+	// possibly harmful, but required for serialization
 	public HashMap<String, Long> getLastMessageTimestamps() {
 		return lastMessageTimestamps;
 	}
+	 
 
 	public void setLastMessageTimestamps(HashMap<String, Long> lastMessageTimestamps) {
 		this.lastMessageTimestamps = lastMessageTimestamps;
 	}
 	
-	public String getLastfmname() {
+	public synchronized String getLastfmname() {
 		return lastfmName;
 	}
 	
-	public void setLastfmname(String name) {
-		lastfmName = name;
+	public synchronized void setLastfmname(String name) {
+		if(container == null)
+			lastfmName = name;
+		else
+			synchronized (container.writeLock) {
+				lastfmName = name;
+				save();
+			}
+	}
+	
+	private synchronized void save() {
+		if (!(null == container))
+			container.notifyUpdatesPending();
+	}
+	
+	protected void setContainer(Users bucket) {
+		container = bucket;
 	}
 }

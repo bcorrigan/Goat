@@ -4,6 +4,7 @@ import goat.Goat;
 
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * <p>Takes Messages off the inqueue and dispatches them to appropriate Modules</p>
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  *
  */
 public class MessageDispatcher {
-    private static MessageQueue inqueue=Goat.inqueue;
+    private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue;
     private ModuleController modController;
 
 	/**
@@ -29,10 +30,10 @@ public class MessageDispatcher {
 	 */
 	private void monitor() {
         while(true) {
-            if(Goat.inqueue.hasNext()) {
-                Message msg = inqueue.dequeue();
-                processMessage(msg);
-            }
+            try {
+                Message msg = inqueue.take();
+                dispatchMessage(msg);
+            } catch (InterruptedException ie) {}
 		}
 
     }
@@ -51,7 +52,7 @@ public class MessageDispatcher {
 	 * 9)Send msg to all modules interested in *everything*
 	 *
 	 */
-    private void processMessage(Message msg) {
+    private void dispatchMessage(Message msg) {
         Iterator<Module> it = modController.iterator();
         ArrayList<Module> modulesWantingAll = new ArrayList<Module>(),
 				  modulesWantingSome = new ArrayList<Module>(),
@@ -83,7 +84,7 @@ public class MessageDispatcher {
 			mod = it.next();
 			String [] commands = Module.getCommands(mod.getClass()) ;
             for (String command : commands)
-                if (command.equalsIgnoreCase(msg.modCommand)) {
+                if (command.equalsIgnoreCase(msg.getModCommand())) {
                     sendIfChannelsMatch(msg, mod);
                     used = true;
                 }
@@ -99,34 +100,22 @@ public class MessageDispatcher {
     }
 
 	private void sendIfChannelsMatch(Message msg, Module mod) {
-		if (mod.inAllChannels || msg.isPrivate & mod.wantsPrivate)
+		if (mod.inAllChannels || msg.isPrivate() & mod.wantsPrivate)
 			sendMessage(msg, mod);
 		else {
-			ArrayList channels = mod.getChannels();
-			Iterator it = channels.iterator();
+			ArrayList<String> channels = mod.getChannels();
+			Iterator<String> it = channels.iterator();
 			String chan;
 			while (it.hasNext()) {
 				chan = (String) it.next();
-				if (chan.equals(msg.channame))
+				if (chan.equals(msg.getChanname()))
 					sendMessage(msg, mod);
 			}
 		}
     }
-
+	
 	private void sendMessage(Message msg, Module mod) {
-        try {
-            if (msg.isCTCP||!msg.command.equals("PRIVMSG")) {
-                mod.processOtherMessage(msg);
-            } else if (msg.isPrivate) {
-                mod.processPrivateMessage(msg);
-            } else {
-                mod.processChannelMessage(msg);
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-            msg.createReply( mod.getClass().getSimpleName() + " caused an exception: " 
-                    + e.getClass().getSimpleName() + ". You will probably want to fix this. Saving stacktrace to a bugfix file.").send();
-        }
+		mod.processMessage(msg);
 	}
 
 }

@@ -31,8 +31,8 @@ public class CommandParser {
 	 * @param m Message to be parsed
 	 */
 	public CommandParser(Message m) {
-		command = m.modCommand ;
-		parse(m.modTrailing.trim()) ;
+		command = m.getModCommand() ;
+		parse(m.getModTrailing().trim()) ;
 	}
 
 	public CommandParser(String text) {

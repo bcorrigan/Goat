@@ -1,0 +1,115 @@
+package goat.module;
+
+import goat.Goat;
+import goat.core.Constants;
+import goat.core.IrcUser;
+import goat.core.Message;
+import goat.core.Module;
+
+import java.net.SocketTimeoutException;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ServerCommands extends Module {
+
+	ExecutorService pool; 
+	
+	public int messageType() {
+		return WANT_ALL_MESSAGES;
+	}
+	
+	public static String[] getCommands() {
+		return new String[]{"servercommand"};
+	}
+	
+	@Override
+	public void processChannelMessage(Message m) {
+		if("servercommand".equalsIgnoreCase(m.getModCommand()))
+			execute(m, m.getModTrailing());
+		
+	
+	}
+
+	@Override
+	public void processPrivateMessage(Message m) {
+		processChannelMessage(m);
+	}
+	
+	public void processOtherMessage(Message m) {
+		if(m.getCommand().matches("\\d+"))  { // numeric command response {
+			int command = Integer.parseInt(m.getCommand());
+			if(Constants.RPL_WHOREPLY == command) {
+				whoReplies.add(m);
+			} else if(Constants.RPL_ENDOFWHO == command) {
+				buildingWhoReply = false;
+			}
+		}
+	}
+
+	private static boolean buildingWhoReply = false;
+	private static List<Message> whoReplies = Collections.synchronizedList(new ArrayList<Message>());
+	private long whoWaitInterval = 20; //short
+	private long whoMaxWait = 3000; // 3 seconds, no waiting around
+	private Object lockWHO = new Object();
+	
+	public List<Message> who(String channel) throws SocketTimeoutException {
+		synchronized (lockWHO) {
+			buildingWhoReply = true;
+			new Message("","WHO",channel,"").send();
+			int i = 0;
+			while((true == buildingWhoReply) && (i*whoWaitInterval < whoMaxWait)) {
+				try {
+					Thread.sleep(whoWaitInterval);
+				} catch (InterruptedException ie) {}
+				i++;
+			}
+			if (i*whoWaitInterval >= whoMaxWait) {
+				whoReplies = Collections.synchronizedList(new ArrayList<Message>());
+				buildingWhoReply = false;
+				throw new SocketTimeoutException();
+			}
+			List<Message> ret = whoReplies;
+			whoReplies = Collections.synchronizedList(new ArrayList<Message>());
+			buildingWhoReply = false;
+			return ret;
+		}
+	}
+	
+	private void execute(Message m, String command) {
+		if (null == pool)
+			pool = Goat.modController.getPool();
+		if (null == pool) 
+			pool = Executors.newCachedThreadPool();
+		pool.execute(new CommandExecutor(m, command));
+	}
+	
+	private class CommandExecutor implements Runnable {
+		Message m;
+		String command;
+		public CommandExecutor(Message message, String serverCommand) {
+			m = message;
+			command = serverCommand.trim();	
+		}
+		public void run() {
+			if("WHO".equals(command)) {
+				try {
+					List<Message> replies = who(m.getChanname());
+					String reply = "";
+					for(Message msg: replies) {
+						IrcUser iu = IrcUser.getNewInstanceFromWHOReply(msg);
+						reply += iu.getNick() + " ";
+					}
+					m.createReply(reply).send();
+				} catch (SocketTimeoutException ste) {
+					m.createReply("Timed out waiting for WHO response").send();
+				}
+			} else {
+				m.createReply("I don't know that command.").send();
+			}
+		}
+	}
+	
+}

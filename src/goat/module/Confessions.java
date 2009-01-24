@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 
@@ -118,13 +119,13 @@ public class Confessions extends Module {
 	}
 
 	public void processPrivateMessage(Message m) {
-		if (m.modCommand.equalsIgnoreCase("confess")) {
+		if (m.getModCommand().equalsIgnoreCase("confess")) {
 			noConfessions++;
-			if(m.modTrailing.toLowerCase().startsWith("about ")) {
+			if(m.getModTrailing().toLowerCase().startsWith("about ")) {
 				// grab query string
-				String query = m.modTrailing.substring(6);
+				String query = m.getModTrailing().substring(6);
 				// strip away any irc gunk and leading/trailing whitespace
-				query = Message.removeFormattingAndColors(query).trim();
+				query = Constants.removeFormattingAndColors(query).trim();
 				// remove quote marks, we'll put them back later if we need them
 				query = query.replaceAll("\"", "") ;
 				// condense whitespace.  This can change search results, so you might not want to do it
@@ -145,7 +146,7 @@ public class Confessions extends Module {
 			} else {
 				m.createPagedReply(confessions.removeFirst()).send();
 			}
-		} else if(m.modCommand.equalsIgnoreCase("csize"))
+		} else if(m.getModCommand().equalsIgnoreCase("csize"))
 			m.createReply("Number of confessions cached: " + confessions.size() + 
 						  ". Number of confessions asked for: " + noConfessions + 
 						  " Number of page requests sent: " + hits).send();
@@ -174,7 +175,7 @@ public class Confessions extends Module {
 			// which always results in 3?
 			// for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
 				searchString = searchString.trim();
-				searchString = Message.removeFormattingAndColors(searchString);
+				searchString = Constants.removeFormattingAndColors(searchString);
 				String query = searchString;
 				// pop our search string in quotes if it's got spaces in it.
 				if (query.matches(".*\\s+.*"))

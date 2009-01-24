@@ -266,54 +266,54 @@ public class IRCLogger {
 			throws SQLException {
 		// the javaWank(tm) way to do this would be to have Message implement
 		// the SQLData interface. Needless to say, we're not going to do that.
-		if ((null == m)||(null == m.sender)|| m.sender.equals("")) {
+		if ((null == m)||(null == m.getSender())|| m.getSender().equals("")) {
 			// refuse to log message with no sender
 			//System.err.println("logMessage() called with null sender; message not logged: ") ;
 			//System.err.println("   " + m.toString()) ;
 			return -1 ;
 		}
-		if (m.command.equals("MODE")) {
+		if (m.getCommand().equals("MODE")) {
 			// don't log MODE commands
 			return -1 ;
 		}
-		if (m.command.equals("PONG") || m.CTCPCommand.equals("PING")) {
+		if (m.getCommand().equals("PONG") || m.getCTCPCommand().equals("PING")) {
 			// don't log PING or PONG commands
 			return -1 ;
 		}
-		if (m.sender.equalsIgnoreCase("NickServ") || m.sender.equalsIgnoreCase("ChanServ")) {
+		if (m.getSender().equalsIgnoreCase("NickServ") || m.getSender().equalsIgnoreCase("ChanServ")) {
 			// don't log messages from NickServ or ChanServ
 			return -1 ;
 		}
 		String ctcpCommand = "";
-		String body = m.trailing;
+		String body = m.getTrailing();
 		if (body.equals("")) {
-			if (m.params.equals(""))
-				body = m.command ;
+			if (m.getParams().equals(""))
+				body = m.getCommand() ;
 			else
-				body = m.params ;
+				body = m.getParams() ;
 			// System.err.println("No body found for \"" + m.command + "\" message, using \"" + body + "\" for logging purposes") ;
 		}
-		if (m.isCTCP) {
-			ctcpCommand = m.CTCPCommand;
-			if (m.CTCPMessage.equals(""))
-				body = m.CTCPCommand;
+		if (m.isCTCP()) {
+			ctcpCommand = m.getCTCPCommand();
+			if (m.getCTCPMessage().equals(""))
+				body = m.getCTCPCommand();
 			else
-				body = m.CTCPMessage ;
+				body = m.getCTCPMessage() ;
 		}
-		String ircCommand = m.command;
-		String hostmask = m.hostmask;
+		String ircCommand = m.getCommand();
+		String hostmask = m.getHostmask();
 		if ((null == hostmask) || (hostmask.equals(""))) { 
 			// no hostmask passed in;  
 			// this will be the case on all outgoing messages, 
 			// and who knows, maybe some weird incoming irc messages, too.
 			
 			// try to set hostmask to last known hostmask for sender;
-			hostmask = getLastHostmask(m.sender) ;
+			hostmask = getLastHostmask(m.getSender()) ;
 		}
 		String botCommand = "";
-		if (Goat.modController.isLoadedCommand(m.modCommand))
-			botCommand = m.modCommand;
-		return logMessage(m.sender, hostmask, m.channame, network, ircCommand,
+		if (Goat.modController.isLoadedCommand(m.getModCommand()))
+			botCommand = m.getModCommand();
+		return logMessage(m.getSender(), hostmask, m.getChanname(), network, ircCommand,
 				ctcpCommand, botCommand, body);
 	}
 	

@@ -22,7 +22,7 @@ public class IRCLoggerTest extends GoatTest {
 		ok = true ;
 		assertTrue(null != logger) ;
 		Message m = Message.createPrivmsg("#jism", "Shut up, joey.") ;
-		m.sender = "everybody" ;
+		//m.setSender("everybody");
 		try {
 			logger.logMessage(m, IRCLogger.DUMMY_NETWORK_NAME) ;
 			count = logger.numTotalMessages() ;

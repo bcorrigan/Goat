@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import goat.core.BotStats;
@@ -17,10 +18,6 @@ import java.io.IOException;
  */
 public class CTCP extends Module {
 
-	private static final String CONFIG_FILE = "config/goatrc" ;
-	
-	private boolean alreadySeenMOTD = false;
-
 	public CTCP() {
 		inAllChannels = true;
 	}
@@ -33,66 +30,66 @@ public class CTCP extends Module {
 
 	public void processOtherMessage(Message m) {
 		int i, j;
-		if (m.command.equals("PING")) {
-			new Message("", "PONG", "", m.trailing).send();
+		if (m.getCommand().equals("PING")) {
+			new Message("", "PONG", "", m.getTrailing()).send();
 			return;
 		}
 		//dig out the sender
 		String name = "";
-		j = m.prefix.indexOf('!');
+		j = m.getPrefix().indexOf('!');
 		if (j > -1) {
-			name = m.prefix.substring(0, j);
+			name = m.getPrefix().substring(0, j);
 		}
-		if (m.params.trim().equals(BotStats.botname) || m.isCTCP) {
+		if (m.getParams().trim().equals(BotStats.botname) || m.isCTCP()) {
 			//check the command
 			//sort ctcp bits
-			if (m.isCTCP && m.CTCPCommand.equals("VERSION")) {
-				Message.createCTCP(name, "NOTICE", "VERSION", Message.BOLD + BotStats.version + Message.BOLD
+			if (m.isCTCP() && m.getCTCPCommand().equals("VERSION")) {
+				Message.createCTCP(name, "NOTICE", "VERSION", Constants.BOLD + BotStats.version + Constants.BOLD
 						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
 						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
 						+ ')').send() ;
-			} else if (m.isCTCP && m.CTCPCommand.equals("PING")) {
-				Message.createCTCP(name, "NOTICE", "PING", m.CTCPMessage).send() ;
-			} else if (m.isCTCP && m.CTCPCommand.equals("TIME")) {
+			} else if (m.isCTCP() && m.getCTCPCommand().equals("PING")) {
+				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()).send() ;
+			} else if (m.isCTCP() && m.getCTCPCommand().equals("TIME")) {
 				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()).send() ;
-			} else if (m.isCTCP && m.CTCPCommand.equals("CLIENTINFO")) {
+			} else if (m.isCTCP() && m.getCTCPCommand().equals("CLIENTINFO")) {
 				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE").send() ;
-			} else if (m.isCTCP && m.CTCPCommand.equals("SOURCE")) {
+			} else if (m.isCTCP() && m.getCTCPCommand().equals("SOURCE")) {
 				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.").send() ;
-			} else if (m.isCTCP && m.CTCPCommand.equals("USERINFO")) {
+			} else if (m.isCTCP() && m.getCTCPCommand().equals("USERINFO")) {
 				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.").send() ;
-			} else if (m.isCTCP && m.CTCPCommand.equals("ERRMSG")) {
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.CTCPMessage + " : No Error").send() ;
-			} else if (m.isCTCP && !m.CTCPCommand.equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
+			} else if (m.isCTCP() && m.getCTCPCommand().equals("ERRMSG")) {
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error").send() ;
+			} else if (m.isCTCP() && !m.getCTCPCommand().equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
 			{
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.CTCPCommand + " : Unsupported CTCP command").send() ;
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command").send() ;
 			}
-		} else if (m.command.equals("KICK")) {
-			String[] words = m.params.split(" ");
+		} else if (m.getCommand().equals("KICK")) {
+			String[] words = m.getParams().split(" ");
 			new Message("", "JOIN", words[0], "").send();
-		} else if (m.command.equals("NICK")) {
-			if (m.sender.equals(BotStats.botname)) {
-				BotStats.botname = m.trailing;
+		} else if (m.getCommand().equals("NICK")) {
+			if (m.getSender().equals(BotStats.botname)) {
+				BotStats.botname = m.getTrailing();
 			}
 		}
 		// numeric responses
 		int intcommand;
 		try {
-			intcommand = Integer.parseInt(m.command);
-			if (intcommand == Message.RPL_ENDOFNAMES) {    //End of /NAMES list.
-				i = m.params.indexOf(' ');
+			intcommand = Integer.parseInt(m.getCommand());
+			if (intcommand == Constants.RPL_ENDOFNAMES) {    //End of /NAMES list.
+				i = m.getParams().indexOf(' ');
 				if (i > -1) {
-					new Message("", "PRIVMSG", m.params.substring(i + 1), "Goat!").send();
+					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!").send();
 				}
-			} else if (intcommand == Message.ERR_ERRONEUSNICKNAME) {
+			} else if (intcommand == Constants.ERR_ERRONEUSNICKNAME) {
 				BotStats.botname = "Goat";
 				new Message("", "NICK", BotStats.botname, "").send();
 				new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version).send();
-			} else if (intcommand == Message.RPL_ENDOFMOTD) {   //End of /MOTD command.
+			} else if (intcommand == Constants.RPL_ENDOFMOTD) {   //End of /MOTD command.
 				//new Message("", "JOIN", m.channame, "").send();
-				if (!alreadySeenMOTD) {
-					readConfFile();  	//we only want to read the conf file when we've joined the server
-					alreadySeenMOTD = true;
+				if (!Goat.sc.alreadySeenMOTD()) {
+					BotStats.readConfFile();  	//we only want to read the conf file when we've joined the server
+					Goat.sc.setAlreadySeenMOTD(true);
 				}
 			}
 		} catch (NumberFormatException e) {
@@ -107,35 +104,5 @@ public class CTCP extends Module {
 
 	public int messageType() {
 		return WANT_ALL_MESSAGES;
-	}
-
-	private void readConfFile() {
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(CONFIG_FILE));
-			String lineIn;
-
-			while ((lineIn = in.readLine()) != null) {
-				Message m = new Message("", "", "", "");
-				m.isAuthorised = true;
-				m.isPrivate = true;
-				if (lineIn.startsWith("#")) {
-					continue;		//so the file can be commented :-)
-				}
-				String[] words = lineIn.split(" ");
-				m.modCommand = words[0];
-				for (int i = 1; i < words.length; i++) {
-					m.modTrailing += words[i] + ' ';
-				}
-				m.command = "PRIVMSG";
-				Goat.inqueue.enqueue(m);
-			}
-			in.close();
-
-		} catch (FileNotFoundException e) {
-			System.out.println("goatrc not found, starting anyway..");
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		}
-
 	}
 }

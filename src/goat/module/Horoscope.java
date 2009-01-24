@@ -51,39 +51,39 @@ public class Horoscope extends Module {
     }
 
     public void processChannelMessage(Message m) {
-        if (m.modTrailing.matches("\\s*")) {     //if just whitespace
+        if (m.getModTrailing().matches("\\s*")) {     //if just whitespace
             Iterator it = users.iterator();
             for (Object user1 : users) {
                 HoroscopeUser user = (HoroscopeUser) user1;
-                if (user.getName().equals(m.sender.toLowerCase())) {
+                if (user.getName().equals(m.getSender().toLowerCase())) {
                     m.createReply(user.getSign() + ": " + getReport(user)).send();
                     return;
                 }
             }
-            m.createReply("I don't know what sign you are, " + m.sender + ", perhaps you should tell me.").send();
-        } else if (m.modTrailing.trim().toLowerCase().matches("aries") ||
-                m.modTrailing.trim().toLowerCase().matches("taurus") ||
-                m.modTrailing.trim().toLowerCase().matches("gemini") ||
-                m.modTrailing.trim().toLowerCase().matches("cancer") ||
-                m.modTrailing.trim().toLowerCase().matches("leo") ||
-                m.modTrailing.trim().toLowerCase().matches("virgo") ||
-                m.modTrailing.trim().toLowerCase().matches("libra") ||
-                m.modTrailing.trim().toLowerCase().matches("scorpio") ||
-                m.modTrailing.trim().toLowerCase().matches("sagittarius") ||
-                m.modTrailing.trim().toLowerCase().matches("capricorn") ||
-                m.modTrailing.trim().toLowerCase().matches("aquarius") ||
-                m.modTrailing.trim().toLowerCase().matches("pisces")) {
+            m.createReply("I don't know what sign you are, " + m.getSender() + ", perhaps you should tell me.").send();
+        } else if (m.getModTrailing().trim().toLowerCase().matches("aries") ||
+                m.getModTrailing().trim().toLowerCase().matches("taurus") ||
+                m.getModTrailing().trim().toLowerCase().matches("gemini") ||
+                m.getModTrailing().trim().toLowerCase().matches("cancer") ||
+                m.getModTrailing().trim().toLowerCase().matches("leo") ||
+                m.getModTrailing().trim().toLowerCase().matches("virgo") ||
+                m.getModTrailing().trim().toLowerCase().matches("libra") ||
+                m.getModTrailing().trim().toLowerCase().matches("scorpio") ||
+                m.getModTrailing().trim().toLowerCase().matches("sagittarius") ||
+                m.getModTrailing().trim().toLowerCase().matches("capricorn") ||
+                m.getModTrailing().trim().toLowerCase().matches("aquarius") ||
+                m.getModTrailing().trim().toLowerCase().matches("pisces")) {
             Iterator it = users.iterator();
             for (Object user1 : users) {
                 HoroscopeUser user = (HoroscopeUser) user1;
-                if (user.getName().equals(m.sender.toLowerCase())) {
-                    user.setSign(m.modTrailing.split(" ")[0].toUpperCase());
+                if (user.getName().equals(m.getSender().toLowerCase())) {
+                    user.setSign(m.getModTrailing().split(" ")[0].toUpperCase());
                     commit();
                     m.createReply(user.getSign() + ": " + getReport(user)).send();
                     return;
                 }
             }
-            HoroscopeUser user = new HoroscopeUser(m.sender.toLowerCase(), m.modTrailing.split(" ")[0].toUpperCase());
+            HoroscopeUser user = new HoroscopeUser(m.getSender().toLowerCase(), m.getModTrailing().split(" ")[0].toUpperCase());
             users.add(user);
             commit();
             m.createReply(getReport(user)).send();

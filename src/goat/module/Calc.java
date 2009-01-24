@@ -14,6 +14,10 @@ public class Calc extends Module {
 
 	Calculator calc = new Calculator();
 
+	public boolean isThreadSafe() {
+		return false;
+	}
+	
 	public void processPrivateMessage(Message m) {
     	processChannelMessage(m);
 	}
@@ -64,7 +68,7 @@ public class Calc extends Module {
 		public void run() {
 			try {
 
-				answer = calc.evaluate_equation(target.modTrailing);
+				answer = calc.evaluate_equation(target.getModTrailing());
 				if(!tooLong)
 					target.createPagedReply(answer).send();
 			} catch (CalculatorException e) {

@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import java.util.Random ;
@@ -40,7 +41,7 @@ public class Colours extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-		String c = m.modCommand ;
+		String c = m.getModCommand() ;
 		String msg = "" ;
 		if (c.equals("colours") || c.equals("colourguide")) {
 			msg = "" ;
@@ -48,52 +49,50 @@ public class Colours extends Module {
 				msg += colourStrings[i] + i + " ";
 			}
 		} else if(c.equals("colour")) {
-			String t = m.modTrailing.trim() ;
+			String t = m.getModTrailing().trim() ;
 			msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark gray, and light gray." ;
 			if (t.equalsIgnoreCase("white")) 
-				msg = Message.WHITE + "white: " + Message.WHITE.substring(1) ;
+				msg = Constants.WHITE + "white: " + Constants.WHITE.substring(1) ;
 			else if (t.equalsIgnoreCase("black"))
-				msg = Message.BLACK +"black: " + Message.BLACK.substring(1) ;
+				msg = Constants.BLACK +"black: " + Constants.BLACK.substring(1) ;
 			else if (t.equalsIgnoreCase("dark blue"))
-				msg = Message.DARK_BLUE + "dark blue: " + Message.DARK_BLUE.substring(1) ;
+				msg = Constants.DARK_BLUE + "dark blue: " + Constants.DARK_BLUE.substring(1) ;
 			else if (t.equalsIgnoreCase("dark green"))
-				msg = Message.DARK_GREEN + "dark green: " + Message.DARK_GREEN.substring(1) ;
+				msg = Constants.DARK_GREEN + "dark green: " + Constants.DARK_GREEN.substring(1) ;
 			else if (t.equalsIgnoreCase("red"))
-				msg = Message.RED + "red: " + Message.RED.substring(1) ;
+				msg = Constants.RED + "red: " + Constants.RED.substring(1) ;
 			else if (t.equalsIgnoreCase("brown"))
-				msg = Message.BROWN + "brown: " + Message.BROWN.substring(1) ;
+				msg = Constants.BROWN + "brown: " + Constants.BROWN.substring(1) ;
 			else if (t.equalsIgnoreCase("purple"))
-				msg = Message.PURPLE + "purple: " + Message.PURPLE.substring(1) ;
+				msg = Constants.PURPLE + "purple: " + Constants.PURPLE.substring(1) ;
 			else if (t.equalsIgnoreCase("olive"))
-				msg = Message.OLIVE + "olive: " + Message.OLIVE.substring(1) ;
+				msg = Constants.OLIVE + "olive: " + Constants.OLIVE.substring(1) ;
 			else if (t.equalsIgnoreCase("yellow"))
-				msg = Message.YELLOW + "yellow: " + Message.YELLOW.substring(1) ;
+				msg = Constants.YELLOW + "yellow: " + Constants.YELLOW.substring(1) ;
 			else if (t.equalsIgnoreCase("green"))
-				msg = Message.GREEN + "green: " + Message.GREEN.substring(1) ;
+				msg = Constants.GREEN + "green: " + Constants.GREEN.substring(1) ;
 			else if (t.equalsIgnoreCase("teal"))
-				msg = Message.TEAL + "teal: " + Message.TEAL.substring(1) ;
+				msg = Constants.TEAL + "teal: " + Constants.TEAL.substring(1) ;
 			else if (t.equalsIgnoreCase("cyan"))
-				msg = Message.CYAN + "cyan: " + Message.CYAN.substring(1) ;
+				msg = Constants.CYAN + "cyan: " + Constants.CYAN.substring(1) ;
 			else if (t.equalsIgnoreCase("blue"))
-				msg = Message.BLUE + "blue: " + Message.BLUE.substring(1) ;
+				msg = Constants.BLUE + "blue: " + Constants.BLUE.substring(1) ;
 			else if (t.equalsIgnoreCase("magenta"))
-				msg = Message.MAGENTA + "magenta: " + Message.MAGENTA.substring(1) ;
+				msg = Constants.MAGENTA + "magenta: " + Constants.MAGENTA.substring(1) ;
 			else if (t.equalsIgnoreCase("dark gray"))
-				msg = Message.DARK_GRAY + "dark gray: " + Message.DARK_GRAY.substring(1) ;
+				msg = Constants.DARK_GRAY + "dark gray: " + Constants.DARK_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("light gray"))
-				msg = Message.LIGHT_GRAY + "light gray: " + Message.LIGHT_GRAY.substring(1) ;
+				msg = Constants.LIGHT_GRAY + "light gray: " + Constants.LIGHT_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("communism"))
-				msg = Message.RED + "COMMUNISM!" ;
+				msg = Constants.RED + "COMMUNISM!" ;
 			else if (t.equalsIgnoreCase("adequacy"))
-				msg = Message.LIGHT_GRAY + "adequacy: " + Message.LIGHT_GRAY.substring(1) ;
+				msg = Constants.LIGHT_GRAY + "adequacy: " + Constants.LIGHT_GRAY.substring(1) ;
 			else if (t.equalsIgnoreCase("homosexuality"))
 				msg = homosexualise("HOMOSEXUALITY!!!!") ;
 			else if (t.equalsIgnoreCase("camouflage"))
 				msg = camouflage("Camouflage") ;
 		} else if (c.equals("colourise")) {
-			String text = m.modTrailing ;
-			m.removeFormattingAndColors() ;
-			text = m.modTrailing.trim() ;
+			String text = Constants.removeFormattingAndColors(m.getModTrailing()).trim() ;
 			int numColours = colourStrings.length ;
 			int colourNum = text.hashCode() ;
 			if (colourNum < 0) 
@@ -107,7 +106,7 @@ public class Colours extends Module {
 			else if (numColours + 1 == colourNum)
 				msg = camouflage(text) ;
 			else if (numColours + 2 == colourNum) 
-				msg = Message.RED + text.toUpperCase() + "!!!" ;
+				msg = Constants.RED + text.toUpperCase() + "!!!" ;
 			else
 				msg = "I think something has gone wrong in my innards" ;
 		}
@@ -115,7 +114,7 @@ public class Colours extends Module {
 	}
 	
 	private String homosexualise(String arg) {
-		String[] rainbow = { Message.RED, Message.YELLOW, Message.DARK_GREEN, Message.BLUE, Message.PURPLE } ;
+		String[] rainbow = { Constants.RED, Constants.YELLOW, Constants.DARK_GREEN, Constants.BLUE, Constants.PURPLE } ;
 		String out = "" ;
 		for (int i=0; i<arg.length(); i++) 
 			out += rainbow[i % rainbow.length] + arg.charAt(i) ;
@@ -123,7 +122,7 @@ public class Colours extends Module {
 	}
 
 	private String camouflage(String arg) {
-		String[] camo = { Message.DARK_GRAY, Message.DARK_GREEN, Message.DARK_GREEN, Message.OLIVE, Message.OLIVE, Message.OLIVE, Message.WHITE, Message.BLACK } ;
+		String[] camo = { Constants.DARK_GRAY, Constants.DARK_GREEN, Constants.DARK_GREEN, Constants.OLIVE, Constants.OLIVE, Constants.OLIVE, Constants.WHITE, Constants.BLACK } ;
 		String out = "" ;
 		for (int i=0; i<arg.length(); i++) 
 			out += camo[rand.nextInt(camo.length)] + arg.charAt(i) ;

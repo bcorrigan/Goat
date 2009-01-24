@@ -19,18 +19,18 @@ public class ModuleCommands extends Module {
 
 	public void processPrivateMessage(Message msg) {
 		m = msg;
-		if (m.isAuthorised) {
-			if (m.modCommand.equals("insmod")) {
+		if (m.isAuthorised()) {
+			if (m.getModCommand().equals("insmod")) {
 				parse();
-			} else if (m.modCommand.equals("rmmod")) {
+			} else if (m.getModCommand().equals("rmmod")) {
 				rmmod(m);
-			} else if (m.modCommand.equals("chans")) {
+			} else if (m.getModCommand().equals("chans")) {
 				parse();
 			}
 		}
-		if (m.modCommand.equals("lsmod")) {
+		if (m.getModCommand().equals("lsmod")) {
 			lsmod(m);
-		} else if( m.modCommand.equals("showcommands")) {
+		} else if( m.getModCommand().equals("showcommands")) {
 			String listC = "";
 			for( int i=0; i<BotStats.commands.length-1; i++ )
 				listC += BotStats.commands[i] + ", ";
@@ -40,12 +40,12 @@ public class ModuleCommands extends Module {
 	}
 
 	private void parse() {
-		String[] args = m.modTrailing.split(" ");
-		ArrayList chans = new ArrayList();
+		String[] args = m.getModTrailing().split(" ");
+		ArrayList<String> chans = new ArrayList<String>();
 		String moduleName;
 		if (args.length == 0) {
 			m.createReply("You must specify some arguments.\n " +
-										"Format: " + m.modCommand + " <moduleName> <channel1> <channel2> .. [ALL].\n " +
+										"Format: " + m.getModCommand() + " <moduleName> <channel1> <channel2> .. [ALL].\n " +
 										"ALL means the module will be active for all channels.").send();
 			return;
 		}
@@ -58,15 +58,15 @@ public class ModuleCommands extends Module {
 				return;
 			}
 		}
-		if(m.modCommand.equals("insmod"))
+		if(m.getModCommand().equals("insmod"))
 			insmod(moduleName, chans);
 		else {
 			chans(moduleName, chans);
 		}
 	}
 
-	private void chans(String moduleName, ArrayList chans) {
-		Module mod = modControl.get(moduleName);
+	private void chans(String moduleName, ArrayList<String> chans) {
+		Module mod = modControl.getLoaded(moduleName);
 		if(mod!=null) {
 			setChans(chans, mod);
 			m.createReply("Modified registered channels of " + mod.getClass().getName()).send();
@@ -75,8 +75,8 @@ public class ModuleCommands extends Module {
 		}
 	}
 
-	private void setChans(ArrayList chans, Module mod) {
-		Iterator it = chans.iterator();
+	private void setChans(ArrayList<String> chans, Module mod) {
+		Iterator<String> it = chans.iterator();
 		String chan;
 		mod.inAllChannels = false;
 		while (it.hasNext()) {
@@ -93,7 +93,7 @@ public class ModuleCommands extends Module {
 	    processPrivateMessage(m);
 	}
 
-	private void insmod(String moduleName, ArrayList chans) {
+	private void insmod(String moduleName, ArrayList<String> chans) {
 		String response = "" ;
 		try {
 			Module mod = modControl.load(moduleName);
@@ -120,21 +120,24 @@ public class ModuleCommands extends Module {
 		 *  server addressed to "", and the server was sending back error messages, wasting 
 		 *  everyone's time and precious computational fluids.
 		 */  
-		if (m.replyTo.equals(""))
-			System.out.println(response) ;
+		if (m.getReplyTo().equals(""))
+			if(! response.endsWith("' successfully loaded."))
+				System.out.println(response) ;
+			else 
+				; // the ModuleController already reports module loads on the console.
 		else
 			m.createReply(response).send() ;
 	}
 
 	private void rmmod(Message m) {
-		if (m.modTrailing.trim().equalsIgnoreCase("ModCommands")) {
+		if (m.getModTrailing().trim().equalsIgnoreCase("ModCommands")) {
 			m.createReply("ModuleCommands says:  I won't remove myself!").send() ;
 			return ;
 		}
-		if (modControl.unload(m.modTrailing.trim()))
-			m.createReply("Successfully removed module '" + m.modTrailing.trim() + "'!").send();
+		if (modControl.unload(m.getModTrailing().trim()))
+			m.createReply("Successfully removed module '" + m.getModTrailing().trim() + "'!").send();
 		else
-			m.createReply("Module not found: '" + m.modTrailing.trim() + '\'').send();
+			m.createReply("Module not found: '" + m.getModTrailing().trim() + '\'').send();
 	}
 
 	private void lsmod(Message m) {

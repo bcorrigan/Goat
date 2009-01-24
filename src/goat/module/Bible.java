@@ -72,9 +72,9 @@ public class Bible extends Module {
     }
 
     public void processChannelMessage(Message m) {
-        if(m.modCommand.equalsIgnoreCase("bible"))
+        if(m.getModCommand().equalsIgnoreCase("bible"))
             lookup(m);
-        if(m.modCommand.equalsIgnoreCase("bibles"))
+        if(m.getModCommand().equalsIgnoreCase("bibles"))
             m.createPagedReply( supportedBibles ).send();
     }
     
@@ -106,11 +106,11 @@ public class Bible extends Module {
             // connection.setConnectTimeout(3000);
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-                m.createReply( "For some reason the bible server is giving me a 404, " + m.sender + ", sorry." ).send();
+                m.createReply( "For some reason the bible server is giving me a 404, " + m.getSender() + ", sorry." ).send();
                 return;
             }
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                m.createReply( "Hmmmn, " + m.sender + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
+                m.createReply( "Hmmmn, " + m.getSender() + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
                 return;
             }
             in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));

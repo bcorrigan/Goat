@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 import goat.wordgame.Scores;
@@ -39,12 +40,16 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	private static final int NAME = 0;              //Various statics
 	private static final int ANSWER = 1;
 
+	public boolean isThreadSafe() {
+		return false;
+	}
+	
 	public void processPrivateMessage(Message m) {
 	}
 
 	public void processChannelMessage(Message m) {
 		if (!playing) {
-			if (m.modCommand.equalsIgnoreCase("wordgame") || m.modCommand.equalsIgnoreCase("nerdgame")) {
+			if (m.getModCommand().equalsIgnoreCase("wordgame") || m.getModCommand().equalsIgnoreCase("nerdgame")) {
 				playing = true;
 				scores.setTarget(m);
 				target = m;
@@ -54,16 +59,16 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
                 for (Object letter : letters) {
                     letterString += (Character) letter + " ";
                 }
-				m.createReply(Message.REVERSE + "***" + Message.REVERSE
-						+ " New Letters:" + Message.BOLD
+				m.createReply(Constants.REVERSE + "***" + Constants.REVERSE
+						+ " New Letters:" + Constants.BOLD
 						+ letterString.toUpperCase()).send();
 				return;
 			}
-			if (m.modCommand.equalsIgnoreCase("scores") & System.currentTimeMillis() - top10time > 30000L) {
+			if (m.getModCommand().equalsIgnoreCase("scores") & System.currentTimeMillis() - top10time > 30000L) {
 				top10time = System.currentTimeMillis();
 				scores.sendScoreTable(m);
 			}
-			if (m.modCommand.equalsIgnoreCase("matchscores") & System.currentTimeMillis() - matchscorestime > 30000L) {
+			if (m.getModCommand().equalsIgnoreCase("matchscores") & System.currentTimeMillis() - matchscorestime > 30000L) {
 				matchscorestime = System.currentTimeMillis();
 				scores.sendMatchScoreTable(m);
 			}
@@ -88,13 +93,13 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	private void finaliseGame(Message m) {
 		String reply;
         boolean won=false;
-		lastAnswers.put(m.channame, answer) ;
+		lastAnswers.put(m.getChanname(), answer) ;
 		if (currentWinning != null) {
 			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + score + " points! ";
 			if (currentWinning[ANSWER].length() == longestPossible) {
 				reply += " This was the longest possible. ";
                 won=true;
-				lastAnswers.put(m.channame, currentWinning[ANSWER]);
+				lastAnswers.put(m.getChanname(), currentWinning[ANSWER]);
 			}
 		} else {
 			reply = "Nobody guessed a correct answer :( ";
@@ -103,7 +108,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         if(anagrams.size()>1) {
             reply+= anagrams.size() + " possible winning answers: ";
             for (int i=0; i<(anagrams.size()-1); i++) {
-                reply += Message.BOLD + anagrams.get(i) + Message.BOLD + ", ";
+                reply += Constants.BOLD + anagrams.get(i) + Constants.BOLD + ", ";
             }
             
         } else if(!won) {
@@ -111,7 +116,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         }
         
         if( anagrams.size()>1&&won || !won )
-            reply+=Message.BOLD + anagrams.get(anagrams.size()-1) + Message.BOLD + ". ";
+            reply+=Constants.BOLD + anagrams.get(anagrams.size()-1) + Constants.BOLD + ". ";
         
         //bung on 5 highest scoring words as examples of answers
         //potentially there could be a bug here if there is only one possible answers,
@@ -155,30 +160,30 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 
 	private void checkMessageIn(Message m) {
 		//tokenise message into an array of words
-		String[] words = m.trailing.split("[\\s,.;]+");
+		String[] words = m.getTrailing().split("[\\s,.;]+");
 		ArrayList correctWords = new ArrayList();
         for (String word : words) {
             if (wordIsValid(word)) {
                 correctWords.add(word.toLowerCase());
                 if (currentWinning != null) {
                     if (currentWinning[ANSWER].length() < word.length()) {
-                        currentWinning[NAME] = m.sender;
+                        currentWinning[NAME] = m.getSender();
                         currentWinning[ANSWER] = word.toLowerCase();
                         score();
-                        m.createReply(m.sender + " steals the lead with " + word.toLowerCase()
+                        m.createReply(m.getSender() + " steals the lead with " + word.toLowerCase()
                                 + ". score: " + score).send();
                     }
                 } else {
                     currentWinning = new String[3];
-                    currentWinning[NAME] = m.sender;
+                    currentWinning[NAME] = m.getSender();
                     currentWinning[ANSWER] = word.toLowerCase();
                     score();
-                    m.createReply(m.sender + " sets the pace with " + word.toLowerCase()
+                    m.createReply(m.getSender() + " sets the pace with " + word.toLowerCase()
                             + ". score:" + score).send();
                 }
                 if (word.length() == longestPossible) {
                     //We have a winner!
-                    m.createReply(m.sender + " WINS IT!!").send();
+                    m.createReply(m.getSender() + " WINS IT!!").send();
                     finaliseGame(m);
                 }
             }
@@ -247,7 +252,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		} catch (InterruptedException e) {
 		}
 
-		target.createReply(Message.BOLD + "10 secs..").send();
+		target.createReply(Constants.BOLD + "10 secs..").send();
 
 		try {
 			Thread.sleep(10000);

@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.util.zipcode.*;
@@ -17,10 +18,10 @@ public class ZipCodes extends Module {
 	
 	@Override
 	public void processChannelMessage(Message m) {
-		if(m.modCommand.equalsIgnoreCase("zipcode"))
+		if(m.getModCommand().equalsIgnoreCase("zipcode"))
 			zipcode(m);
 		else
-			System.out.println("Module zipcodes failed to process command: " + m.modCommand); 
+			System.out.println("Module zipcodes failed to process command: " + m.getModCommand()); 
 	}
 
 	@Override
@@ -30,7 +31,7 @@ public class ZipCodes extends Module {
 	
 	private void zipcode(Message m) {
 		String ret = "";
-		String code = Message.removeFormattingAndColors(m.modTrailing).trim();
+		String code = Constants.removeFormattingAndColors(m.getModTrailing()).trim();
 		if(code.matches("[0-9]{3}[XxHh]")) {
 			ret = "That's a ZIP Code Tabulation Area, not a ZIP code.  But I'm feeling generous.  "
 				+ Zcta2000.get(code).toVerboseString();
@@ -41,10 +42,10 @@ public class ZipCodes extends Module {
 			else
 				ret = "I don't think " + code + " is a real zip code.";
 		} else {
-			ret = "don't be a " + randomEpithet() + ", " + m.sender;
+			ret = "don't be a " + randomEpithet() + ", " + m.getSender();
 		}
 		if(code.equals("10048") || code.equals("77230"))
-			ret += "  " + Message.REVERSE + "NEVER FORGET" + Message.NORMAL;
+			ret += "  " + Constants.REVERSE + "NEVER FORGET" + Constants.NORMAL;
  		m.createPagedReply(ret).send();
 	}
 	

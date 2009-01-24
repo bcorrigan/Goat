@@ -6,6 +6,7 @@
  */
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
@@ -41,6 +42,11 @@ public class Weather extends Module {
 		users = goat.Goat.getUsers() ;
 	}
 
+	
+	public boolean isThreadSafe() {
+		return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see goat.core.Module#processPrivateMessage(goat.core.Message)
 	 */
@@ -52,29 +58,29 @@ public class Weather extends Module {
 	 * @see goat.core.Module#processChannelMessage(goat.core.Message)
 	 */
 	public void processChannelMessage(Message m) {
-		User user ;
-		if (users.hasUser(m.sender)) {
-			user = users.getUser(m.sender) ;
-		} else {
-			user = new User(m.sender) ;
-		}
-		if (m.modTrailing.matches("\\s*")) {     //if just whitespace
+		//User user ;
+		//if (users.hasUser(m.sender)) {
+		//	user = users.getUser(m.sender) ;
+		//} else {
+		//	user = new User(m.sender) ;
+		//}
+		if (m.getModTrailing().matches("\\s*")) {     //if just whitespace
 			
-
-			if (! user.getWeatherStation().equals("")) {
-				m.createPagedReply(getReport(user, m.modCommand, user.getWeatherStation())).send();
+			if (users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getWeatherStation().equals("")) {
+				m.createPagedReply(getReport(m.getSender(), m.getModCommand(), 
+						users.getUser(m.getSender()).getWeatherStation())).send();
 				return;
 			}
 			
-			if(m.prefix.trim().matches(".*\\.nyc\\.res\\.rr\\.com$")) {
+			if(m.getPrefix().trim().matches(".*\\.nyc\\.res\\.rr\\.com$")) {
 				m.createReply("I'm sorry, qpt, but I can't help you until you start to help yourself.").send();
 			} else {
-				m.createReply("I don't know where you are, " + m.sender + ", perhaps you should tell me " +
-					"by looking at" + Message.BLUE + " " + codes_url + " " + Message.NORMAL +
+				m.createReply("I don't know where you are, " + m.getSender() + ", perhaps you should tell me " +
+					"by looking at" + Constants.BLUE + " " + codes_url + " " + Constants.NORMAL +
 					"and telling me where you are.").send();
 			}
-		} else if (m.modTrailing.matches("\\s*[a-zA-Z0-9]{4}\\s*")) { //if 4 letter code is supplied
-			String station = m.modTrailing.trim().toUpperCase() ;
+		} else if (m.getModTrailing().matches("\\s*[a-zA-Z0-9]{4}\\s*")) { //if 4 letter code is supplied
+			String station = m.getModTrailing().trim().toUpperCase() ;
 			//boolean user_found = false ;
 			//User user = new User(m.sender.toLowerCase(), station) ;
 			//Iterator it = users.iterator();
@@ -86,24 +92,21 @@ public class Weather extends Module {
 					break ;
 				}
 			} */
-			String report = getReport(user, m.modCommand, station);
+			String report = getReport(m.getSender(), m.getModCommand(), station);
 			//debug
             //System.out.println("report:" + report + ":");
             if (report.matches(".*[ (]" + station + "[).].*")) {
             	
-				if (! users.hasUser(user)) {
-					users.addUser(user);
-				}
+            	User user = users.getOrCreateUser(m.getSender());
 				if (! user.getWeatherStation().equals(station)) {
 					user.setWeatherStation(station);
-					users.save();
 				}
 			}
 			m.createPagedReply(report).send();
 		}
 	}
 
-	private String getReport(User user, String command, String station) {
+	private String getReport(String username, String command, String station) {
         HttpURLConnection connection = null;
         BufferedReader in = null;
 		  station = station.toUpperCase() ;
@@ -114,23 +117,23 @@ public class Weather extends Module {
 			connection.setConnectTimeout(5000);  //just five seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-				return "That doesn't seem to be a valid location, " + user.getName() + ", sorry.  See " + codes_url ;
+				return "That doesn't seem to be a valid location, " + username + ", sorry.  See " + codes_url ;
 			}
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				return "Hmmmn, " + user.getName() + ", the NOAA weather server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.";
+				return "Hmmmn. " + username + ", the NOAA weather server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.";
 			}
 			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String inputLine = null ; 
 			String response = "" ;
 			String wind_direction = "";
 			String wind_mph = "";
-            String precipitation = "";
+            //String precipitation = "";
             String wind_gust = "";
 			String temp_f = "";
 			String temp_c = "";
 			String sky_conditions = "";
 			String weather_type = "";
-			//String precipitation = "none";
+			String precipitation = "none";
 			String humidity = "";
 			long minutes_since_report = 0 ;
 			// String report_timezone = "" ;
@@ -144,8 +147,8 @@ public class Weather extends Module {
 					continue;
 				inputLine = inputLine.replaceAll(":0", "");
 				if (inputLine.matches(": ") && inputLine.substring(0, 1).matches("[A-Z]")) {
-					inputLine = inputLine.replaceAll(": ", ':' + Message.BOLD + ' ');
-					inputLine = Message.BOLD + inputLine;
+					inputLine = inputLine.replaceAll(": ", ':' + Constants.BOLD + ' ');
+					inputLine = Constants.BOLD + inputLine;
 				}
 				response += inputLine;
 				
@@ -253,8 +256,8 @@ public class Weather extends Module {
 				e.printStackTrace() ;
 			}
 			TimeZone tz = null ;
-			if (! user.getTimeZoneString().equals("")) {
-				tz = TimeZone.getTimeZone(user.getTimeZoneString()) ;
+			if (users.hasUser(username) && ! users.getUser(username).getTimeZoneString().equals("")) {
+				tz = TimeZone.getTimeZone(users.getUser(username).getTimeZoneString()) ;
 			}
 			sunrise_string = sunString(sunrise_UTC, longitude, tz) ;
 			sunset_string = sunString(sunset_UTC, longitude, tz) ;

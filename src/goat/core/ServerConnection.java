@@ -7,6 +7,7 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.io.*;
 import java.sql.SQLException;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Maintains the connection with the server. A seperate thread, this.
@@ -17,13 +18,14 @@ import java.sql.SQLException;
 
 public class ServerConnection extends Thread {
 
-    private static MessageQueue inqueue = Goat.inqueue; //Queue of messages FROM the server
-    private static MessageQueue outqueue = Goat.outqueue; //Queue of messages TO the server
+    private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue; //Queue of messages FROM the server
+    private static LinkedBlockingQueue<Message> outqueue = Goat.outqueue; //Queue of messages TO the server
     private Socket IrcServer;
     private InputHandler ih;
     private OutputHandler oh;
     private String serverName;
     private boolean connected = false;
+    private boolean alreadySeenMOTD = false;
 
     /**
      * Connects us to a server.
@@ -111,10 +113,10 @@ public class ServerConnection extends Thread {
 
                         if (!connected) {
                             try {
-                                int intcommand = Integer.parseInt(m.command);
-                                if (intcommand == Message.RPL_ENDOFMOTD)
+                                int intcommand = Integer.parseInt(m.getCommand());
+                                if (intcommand == Constants.RPL_ENDOFMOTD)
                                     connected = true;
-                                else if (intcommand == Message.ERR_NICKNAMEINUSE) {
+                                else if (intcommand == Constants.ERR_NICKNAMEINUSE) {
                                     namecount++;
                                     BotStats.botname = botdefaultname + namecount;
                                     new Message("", "NICK", BotStats.botname, "").send();
@@ -127,10 +129,10 @@ public class ServerConnection extends Thread {
                             }
                         }
 
-                        if (m.command.equals("PING"))
-                            outqueue.enqueue(new Message("", "PONG", "", m.trailing));
+                        if (m.getCommand().equals("PING"))
+                            outqueue.add(new Message("", "PONG", "", m.getTrailing()));
                         else
-                            inqueue.enqueue(m); //add to inqueue
+                            inqueue.add(m); //add to inqueue
                         // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
                         //		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
@@ -160,7 +162,6 @@ public class ServerConnection extends Thread {
 
         PrintWriter out;
         private boolean keeprunning;
-        int clearcount;
 
         void disconnect() {
             keeprunning = false;
@@ -174,95 +175,18 @@ public class ServerConnection extends Thread {
 
         public void run() {
             while (keeprunning) {
-                synchronized (outqueue) {
-                    if (!outqueue.isQueueEmpty()) {
-                        sendMessage(outqueue.dequeue());
-
-                        clearcount = 0;
-                    } else
-                        clearcount++;
-                }
-                if (clearcount == 100 && bufused > 0) {	//guess that the server has flushed the buffer if I haven't written a message in under two seconds.
-                    clearcount = 0;
-                    bufused -= 512;
-                    if (bufused < 0)
-                        bufused = 0;
-                }
-
                 try {
-                    sleep(20);    //TODO: only do this if we've sent our fill of proper messages
+                	Message m = outqueue.take();
+                	if(!keeprunning)
+                		break;
+            		//synchronized (out) { // shouldn't need to synchronize here, there's only one thread running this
+        			out.println(m.toString());
+        			//}
                 } catch (InterruptedException e) {
                 }
             }
         }
 
-        int bufused;
-
-        // should block until posting won't flood us off
-		public void sendMessage(Message m) {
-			byte[] outbuffer;
-			synchronized (out) {
-				// System.out.println("outbuffer:" + String.valueOf(
-				// m.toString() ));
-				outbuffer = m.toByteArray();
-				if (bufused + outbuffer.length > 1024) {
-					// hope that sleeping for two seconds will empty the buffer.
-					// System.out.println(2000 + bufused * 3);
-					try {
-						sleep(2000 + bufused * 3);
-					} catch (InterruptedException e) {
-					}
-
-					bufused >>= 1;
-				}
-
-				out.println(m.toString());
-				// System.out.println("Outbuffer: prefix: " + m.prefix + "
-				// params: " + m.params + " trailing:" + m.trailing);
-
-				bufused += outbuffer.length;
-			}
-
-			/*
-			 * Log the message, if the Logger module is loaded. Doing DB stuff
-			 * in a blocking subroutine might be a little short-sighted, but
-			 * this is the only point in the goat code that I'm sure will
-			 * capture all outgoing goat messages. There might be a better spot
-			 * for this in goat.core.Message, but my eyes go all swimmy when I
-			 * try to read that file. --rs
-			 */
-			Logger lm = (Logger) Goat.modController.get("Logger");
-			int id;
-			if (null != lm) {
-				try {
-					// TODO "slashnet" should not be hard-coded here.
-					id = lm.logger.logOutgoingMessage(m, "slashnet");
-
-					// uncomment the next bit if you want everything you log
-					// retrieved from the db and echoed to the console for debuggo.
-					/*
-					if (id > -1) 
-						lm.logger.printResultSet(lm.logger.getMessage(id));
-					else
-						if (m.isCTCP) 
-							System.out.println("(Did not log outgoing CTCP " + m.CTCPCommand + " message)") ;
-						else
-							System.out.println("(Did not log outgoing " + m.command + " message)") ;
-					*/
-				} catch (SQLException e) {
-					System.out.println("ERROR -- DB problem while trying to log outgoing message");
-					e.printStackTrace();
-				}
-			} else {
-				// uncomment below to console-view messages sent before the Logger is loaded
-				// security note:  passwords.
-				
-				//System.err.println("Couldn't find Logger module for outgoing message, skipping:");
-				//System.err.println("   " + m.toString()) ;
-				
-			}
-		}
-        
         protected void setOSW( PrintWriter pw) {
         	out = pw;
         }
@@ -278,4 +202,12 @@ public class ServerConnection extends Thread {
 			e.printStackTrace();
 		}   
     }
+
+	public void setAlreadySeenMOTD(boolean alreadySeenMOTD) {
+		this.alreadySeenMOTD = alreadySeenMOTD;
+	}
+
+	public boolean alreadySeenMOTD() {
+		return alreadySeenMOTD;
+	}
 }

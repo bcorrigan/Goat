@@ -77,7 +77,7 @@ public class Dict {
 			numWords = (int) rafIndex.length() / 4 - 1;
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.exit(1);
+			//System.exit(1);  // this is a Bad Thing.
 		}
 	}
 
@@ -99,12 +99,12 @@ public class Dict {
 	 * @param targetWord The word you are seeking all matches with.
 	 * @return An ArrayList of the matching words
 	 */
-	public ArrayList getMatchingWords(String targetWord) {
+	public ArrayList<String> getMatchingWords(String targetWord) {
 		targetWord = targetWord.trim();
 		char[] targetWordArray = targetWord.toLowerCase().toCharArray();
 		Arrays.sort(targetWordArray);	//presort this, save some time later
 		String word;
-		ArrayList validWords = new ArrayList(750);
+		ArrayList<String> validWords = new ArrayList<String>(750);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(DICTFILE));
 			while ((word = br.readLine()) != null) {
@@ -322,7 +322,7 @@ public class Dict {
 		System.out.println(dict.getWord(0));
 		System.out.println("\n\nSmall index file check:\n\n");
 		System.out.println("Finding matches for \"rubellas\"") ;
-		ArrayList matches = dict.getMatchingWords("rubellas") ;
+		ArrayList<String> matches = dict.getMatchingWords("rubellas") ;
 		System.out.println(matches.size() + " matches found:") ;
 		System.out.println(matches) ;
 		
@@ -350,7 +350,7 @@ public class Dict {
 		int maxMatches = 0 ;
 		String maxMatchWords = "" ;
 		int progressIndicator = 1 ;
-		ArrayList wordMatches = new ArrayList() ;
+		ArrayList<String> wordMatches = new ArrayList<String>() ;
 		for (int i = 1; i <= dict.numWords; i++) {
 			String word = dict.getWord(i) ;
 			wordMatches = dict.getMatchingWords(word) ;

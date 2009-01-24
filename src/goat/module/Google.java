@@ -16,6 +16,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 
+import goat.core.Constants;
 import goat.core.Message ;
 import goat.core.Module ;
 import goat.util.HTMLUtil;
@@ -88,72 +89,72 @@ public class Google extends Module {
 	public void processChannelMessage(Message m) {
 		//debug
 		//System.out.println("PROCESSING:  " + m.modCommand) ;
-		m.removeFormattingAndColors() ;
+		String command = Constants.removeFormattingAndColors(m.getModCommand()) ;
 		try {
-			if ("google".equalsIgnoreCase(m.modCommand) || 
-					"goatle".equalsIgnoreCase(m.modCommand)) {
+			if ("google".equalsIgnoreCase(command) || 
+					"goatle".equalsIgnoreCase(command)) {
 				ircGoogle(m) ;
-			} else if ("gnews".equalsIgnoreCase(m.modCommand) || 
-					"googlenews".equalsIgnoreCase(m.modCommand)) {
+			} else if ("gnews".equalsIgnoreCase(command) || 
+					"googlenews".equalsIgnoreCase(command)) {
 				ircGoogleNews(m);
-			} else if ("nlink".equalsIgnoreCase(m.modCommand) || 
-					"newslink".equalsIgnoreCase(m.modCommand)) {
+			} else if ("nlink".equalsIgnoreCase(command) || 
+					"newslink".equalsIgnoreCase(command)) {
 				ircNewsLink(m);
-			} else if ("googlebooks".equalsIgnoreCase(m.modCommand) || 
-					"bookgoogle".equalsIgnoreCase(m.modCommand) ||
-					"booksgoogle".equalsIgnoreCase(m.modCommand) ||
-					"booksearch".equalsIgnoreCase(m.modCommand)) {
+			} else if ("googlebooks".equalsIgnoreCase(command) || 
+					"bookgoogle".equalsIgnoreCase(command) ||
+					"booksgoogle".equalsIgnoreCase(command) ||
+					"booksearch".equalsIgnoreCase(command)) {
 				ircGoogleBooks(m);
-			} else if ("booklink".equalsIgnoreCase(m.modCommand)) {
+			} else if ("booklink".equalsIgnoreCase(command)) {
 				ircBookLink(m);
-			} else if ("googlepatents".equalsIgnoreCase(m.modCommand) || 
-					"patentgoogle".equalsIgnoreCase(m.modCommand) ||
-					"patentsearch".equalsIgnoreCase(m.modCommand)) {
+			} else if ("googlepatents".equalsIgnoreCase(command) || 
+					"patentgoogle".equalsIgnoreCase(command) ||
+					"patentsearch".equalsIgnoreCase(command)) {
 				ircGooglePatents(m);
-			} else if ("patentlink".equalsIgnoreCase(m.modCommand)
-					|| "plink".equalsIgnoreCase(m.modCommand)) {
+			} else if ("patentlink".equalsIgnoreCase(command)
+					|| "plink".equalsIgnoreCase(command)) {
 				ircPatentLink(m);
-			} else if ("googleblogs".equalsIgnoreCase(m.modCommand) || 
-					"bloggoogle".equalsIgnoreCase(m.modCommand) ||
-					"blogsearch".equalsIgnoreCase(m.modCommand)) {
+			} else if ("googleblogs".equalsIgnoreCase(command) || 
+					"bloggoogle".equalsIgnoreCase(command) ||
+					"blogsearch".equalsIgnoreCase(command)) {
 				ircGoogleBlogs(m);
-			} else if ("bloglink".equalsIgnoreCase(m.modCommand)) {
+			} else if ("bloglink".equalsIgnoreCase(command)) {
 				ircBlogLink(m);
-			} else if ("glink".equalsIgnoreCase(m.modCommand)) {
+			} else if ("glink".equalsIgnoreCase(command)) {
 				ircCachedLink(m);
-			} else if ("translate".equalsIgnoreCase(m.modCommand)) {
+			} else if ("translate".equalsIgnoreCase(command)) {
 				ircTranslate(m);
-			} else if ("detectlang".equalsIgnoreCase(m.modCommand) ||
-					"langdetect".equalsIgnoreCase(m.modCommand) ||
-					"detectlanguage".equalsIgnoreCase(m.modCommand) ||
-					"languagedetect".equalsIgnoreCase(m.modCommand)) {
+			} else if ("detectlang".equalsIgnoreCase(command) ||
+					"langdetect".equalsIgnoreCase(command) ||
+					"detectlanguage".equalsIgnoreCase(command) ||
+					"languagedetect".equalsIgnoreCase(command)) {
 				ircDetectLanguage(m);
-			} else if ("languages".equalsIgnoreCase(m.modCommand)) {
+			} else if ("languages".equalsIgnoreCase(command)) {
 				ircLanguages(m);
-			} else if ("googlefight".equalsIgnoreCase(m.modCommand)) {
+			} else if ("googlefight".equalsIgnoreCase(command)) {
 				ircGoogleFight(m) ;
 				//			} else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
 				//					"pronometer".equalsIgnoreCase(m.modCommand) ||
 				//					"pr0nometer".equalsIgnoreCase(m.modCommand)) {
 				//				ircPornometer(m) ;
-			} else if ("sexiness".equalsIgnoreCase(m.modCommand)) {
+			} else if ("sexiness".equalsIgnoreCase(command)) {
 				ircSexiness(m) ;
-			} else if ("gayness".equalsIgnoreCase(m.modCommand)) {
+			} else if ("gayness".equalsIgnoreCase(command)) {
 				ircGayness(m) ;
-			} else if ("gis".equalsIgnoreCase(m.modCommand)) {
-				m.createReply(imageGoogleUrl(m.modTrailing)).send() ;
-			} else if ("yis".equalsIgnoreCase(m.modCommand)) {
-				m.createReply(imageYahooUrl(m.modTrailing)).send() ;
-			} else if ("wikipedia".equalsIgnoreCase(m.modCommand)) {
-				m.createReply(wikipediaUrl(m.modTrailing)).send() ;
-			} else if ("youtube".equalsIgnoreCase(m.modCommand)) {
-				m.createReply(youtubeUrl(m.modTrailing)).send() ;
-			} else if ("imdb".equalsIgnoreCase(m.modCommand)) {
-				m.createReply(imdbUrl(m.modTrailing)).send() ;
-			} else if ("flickr".equalsIgnoreCase(m.modCommand)) {
-				m.createReply(flickrUrl(m.modTrailing)).send() ;
+			} else if ("gis".equalsIgnoreCase(command)) {
+				m.createReply(imageGoogleUrl(m.getModTrailing())).send() ;
+			} else if ("yis".equalsIgnoreCase(command)) {
+				m.createReply(imageYahooUrl(m.getModTrailing())).send() ;
+			} else if ("wikipedia".equalsIgnoreCase(command)) {
+				m.createReply(wikipediaUrl(m.getModTrailing())).send() ;
+			} else if ("youtube".equalsIgnoreCase(command)) {
+				m.createReply(youtubeUrl(m.getModTrailing())).send() ;
+			} else if ("imdb".equalsIgnoreCase(command)) {
+				m.createReply(imdbUrl(m.getModTrailing())).send() ;
+			} else if ("flickr".equalsIgnoreCase(command)) {
+				m.createReply(flickrUrl(m.getModTrailing())).send() ;
 			} else {
-				m.createReply("No one has gotten around to implementing " + m.modCommand + ".").send() ;
+				m.createReply("No one has gotten around to implementing " + command + ".").send() ;
 			}
 		} catch (MalformedURLException mue) {
 			m.createReply("I'm retarded, I couldn't figure out how to make a goojax URL").send();
@@ -166,20 +167,18 @@ public class Google extends Module {
 		}
 	}
 
-	private void ircGoogleIncludeWikipedia (Message m) 
+	private void ircGoogleIncludeWikipedia (Message m, String query) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		m.removeFormattingAndColors() ;
-		m.createReply(luckyString(m.modTrailing)).send() ;
+		m.createReply(luckyString(Constants.removeFormattingAndColors(query))).send() ;
 	}
 
 	private void ircGoogle (Message m) throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Message.removeFormattingAndColors(m.modTrailing);
+		String query = Constants.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("Er, what do you want me to google for you?").send();
 			return;
 		}
-		m.modTrailing += " -site:wikipedia.org";
-		ircGoogleIncludeWikipedia(m);
+		ircGoogleIncludeWikipedia(m, m.getModTrailing() + " -site:wikipedia.org");
 	}
 
 	private String lastCachedResultType = null;
@@ -187,7 +186,7 @@ public class Google extends Module {
 
 	private void ircGoogleNews(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Message.removeFormattingAndColors(m.modTrailing);
+		String query = Constants.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("What do you want news of?").send();
 			return;
@@ -210,40 +209,40 @@ public class Google extends Module {
 		String reply = "";
 
 		for (int newsItem = 0; newsItem < results.length; newsItem++) {
-			reply += Message.BOLD + (newsItem + 1) + ")" + Message.NORMAL;
+			reply += Constants.BOLD + (newsItem + 1) + ")" + Constants.NORMAL;
 			NewsSearchResult result = results[newsItem];
 			Date date = result.getPublishedDate();
 			if(date != null)
 				reply += " " + getDateLine(date);
 			reply += ", " + result.getLocation();
-			reply += " " + Message.BOLD + "\u2014" + Message.NORMAL + " " + HTMLUtil.convertCharacterEntities(result.getTitleNoFormatting());
+			reply += " " + Constants.BOLD + "\u2014" + Constants.NORMAL + " " + HTMLUtil.convertCharacterEntities(result.getTitleNoFormatting());
 			reply += " (" + result.getPublisher() + ")  ";
 		}
 		//		reply += "   ";
 		//		for (int newsItem = 0; newsItem < results.length; newsItem++)
 		//			reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
-		newsResponseCache.put(m.channame, nsr);
+		newsResponseCache.put(m.getChanname(), nsr);
 		lastCachedResultType = "news";
 		m.createPagedReply(reply).send();
 	}
 
 	private void ircNewsLink(Message m) {
-		if (! newsResponseCache.containsKey(m.channame)) {
+		if (! newsResponseCache.containsKey(m.getChanname())) {
 			m.createReply("I'm sorry, I don't have any news for this channel.").send();
 			return;
 		}
-		NewsSearchResponse nsr = newsResponseCache.get(m.channame);
+		NewsSearchResponse nsr = newsResponseCache.get(m.getChanname());
 		if (null == nsr) {
 			m.createReply("something has gone horribly wrong; my news for this channel seems to be null.").send();
 			return;
 		}
 		int resultNum = 0;
 		try {
-			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
-				if(m.modTrailing.matches("^\\d+$"))
-					resultNum = Integer.parseInt(m.modTrailing) - 1;
+			if (m.getModTrailing().matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.getModTrailing().matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.getModTrailing()) - 1;
 				else
-					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
 			m.createReply("There's no need to be like that, qpt.").send();
 		}
@@ -262,7 +261,7 @@ public class Google extends Module {
 				reply += "  " + getDateLine(re.getPublishedDate());
 			reply += ", " + re.getLocation()
 			+ " (" + re.getPublisher() + ")  "
-			+ "  " + Message.BOLD + "\u2014" + Message.NORMAL + "  "
+			+ "  " + Constants.BOLD + "\u2014" + Constants.NORMAL + "  "
 			+ HTMLUtil.textFromHTML(re.getContent());
 
 			m.createPagedReply(reply).send();
@@ -273,7 +272,7 @@ public class Google extends Module {
 
 	private void ircGoogleBooks(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Message.removeFormattingAndColors(m.modTrailing);
+		String query = Constants.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("Um, what do you want me to look for in all these books?").send();
 			return;
@@ -296,9 +295,9 @@ public class Google extends Module {
 		String reply = "";
 
 		for (int book = 0; book < results.length; book++) {
-			reply += Message.BOLD + (book + 1) + ")" + Message.NORMAL;
+			reply += Constants.BOLD + (book + 1) + ")" + Constants.NORMAL;
 			BookSearchResult result = results[book];
-			reply += " " + Message.UNDERLINE + result.getTitleNoFormatting() + Message.NORMAL;
+			reply += " " + Constants.UNDERLINE + result.getTitleNoFormatting() + Constants.NORMAL;
 			reply += ", " + result.getAuthors();
 			if(result.getPublishedYear() != null)
 				reply += ", " + result.getPublishedYear();
@@ -313,7 +312,7 @@ public class Google extends Module {
 		//	reply += "   ";
 		//	for (int newsItem = 0; newsItem < results.length; newsItem++)
 		//		reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
-		booksResponseCache.put(m.channame, bsr);
+		booksResponseCache.put(m.getChanname(), bsr);
 		lastCachedResultType = "book";
 		m.createPagedReply(reply).send();
 	}
@@ -321,22 +320,22 @@ public class Google extends Module {
 
 
 	private void ircBookLink(Message m) {
-		if (! booksResponseCache.containsKey(m.channame)) {
+		if (! booksResponseCache.containsKey(m.getChanname())) {
 			m.createReply("I'm sorry, I don't have any books cached for this channel.").send();
 			return;
 		}
-		BookSearchResponse bsr = booksResponseCache.get(m.channame);
+		BookSearchResponse bsr = booksResponseCache.get(m.getChanname());
 		if (null == bsr) {
 			m.createReply("something has gone horribly wrong; my books cache for this channel seems to be null.").send();
 			return;
 		}
 		int resultNum = 0;
 		try {
-			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
-				if(m.modTrailing.matches("^\\d+$"))
-					resultNum = Integer.parseInt(m.modTrailing) - 1;
+			if (m.getModTrailing().matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.getModTrailing().matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.getModTrailing()) - 1;
 				else
-					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
 			m.createReply("There's no need to be like that, qpt.").send();
 		}
@@ -349,7 +348,7 @@ public class Google extends Module {
 		} else {
 			BookSearchResult re = bsr.getResponseData().getResults()[resultNum];
 			String reply = re.getUnescapedUrl()
-			+ "  " + Message.UNDERLINE + re.getTitleNoFormatting() + Message.NORMAL
+			+ "  " + Constants.UNDERLINE + re.getTitleNoFormatting() + Constants.NORMAL
 			+ ", " + re.getPublishedYear()
 			+ ",  " + re.getAuthors(); 				
 			m.createPagedReply(reply).send();
@@ -360,7 +359,7 @@ public class Google extends Module {
 
 	private void ircGooglePatents(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Message.removeFormattingAndColors(m.modTrailing);
+		String query = Constants.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("Yes, well, what sort of patents am I supposed to look for, then?").send();
 			return;
@@ -384,7 +383,7 @@ public class Google extends Module {
 		String reply = "";
 
 		for (int patent = 0; patent < results.length; patent++) {
-			reply += Message.BOLD + (patent + 1) + ")" + Message.NORMAL;
+			reply += Constants.BOLD + (patent + 1) + ")" + Constants.NORMAL;
 			PatentSearchResult result = results[patent];
 			reply += " #" + result.getPatentNumber();
 			if(result.getPatentStatus().equals(PatentStatus.PENDING))
@@ -395,28 +394,28 @@ public class Google extends Module {
 
 		}
 		reply += "   ";
-		patentsResponseCache.put(m.channame, psr);
+		patentsResponseCache.put(m.getChanname(), psr);
 		lastCachedResultType = "patent";
 		m.createPagedReply(reply).send();
 	}
 
 	private void ircPatentLink(Message m) {
-		if (! patentsResponseCache.containsKey(m.channame)) {
+		if (! patentsResponseCache.containsKey(m.getChanname())) {
 			m.createReply("I'm sorry, I don't have any patents cached for this channel.").send();
 			return;
 		}
-		PatentSearchResponse psr = patentsResponseCache.get(m.channame);
+		PatentSearchResponse psr = patentsResponseCache.get(m.getChanname());
 		if (null == psr) {
 			m.createReply("something has gone horribly wrong; my patents cache for this channel seems to be null.").send();
 			return;
 		}
 		int resultNum = 0;
 		try {
-			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
-				if(m.modTrailing.matches("^\\d+$"))
-					resultNum = Integer.parseInt(m.modTrailing) - 1;
+			if (m.getModTrailing().matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.getModTrailing().matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.getModTrailing()) - 1;
 				else
-					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
 			m.createReply("There's no need to be like that, qpt.").send();
 		}
@@ -438,7 +437,7 @@ public class Google extends Module {
 
 	private void ircGoogleBlogs(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Message.removeFormattingAndColors(m.modTrailing);
+		String query = Constants.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("What kind of blogging were you looking for?").send();
 			return;
@@ -462,7 +461,7 @@ public class Google extends Module {
 		String reply = "";
 
 		for (int post = 0; post < results.length; post++) {
-			reply += Message.BOLD + (post + 1) + ")" + Message.NORMAL;
+			reply += Constants.BOLD + (post + 1) + ")" + Constants.NORMAL;
 			BlogSearchResult result = results[post];
 			reply += " " + sdf.format(result.getPublishedDate());
 			reply += " " + HTMLUtil.textFromHTML(result.getTitle());
@@ -470,7 +469,7 @@ public class Google extends Module {
 			reply += "  ";
 		}
 		reply += "  ";
-		blogsResponseCache.put(m.channame, bsr);
+		blogsResponseCache.put(m.getChanname(), bsr);
 		lastCachedResultType = "blog";
 		m.createPagedReply(reply).send();
 	}
@@ -491,22 +490,22 @@ public class Google extends Module {
 	}
 
 	private void ircBlogLink(Message m) {
-		if (! blogsResponseCache.containsKey(m.channame)) {
+		if (! blogsResponseCache.containsKey(m.getChanname())) {
 			m.createReply("I'm sorry, I don't have any blogs cached for this channel.").send();
 			return;
 		}
-		BlogSearchResponse bsr = blogsResponseCache.get(m.channame);
+		BlogSearchResponse bsr = blogsResponseCache.get(m.getChanname());
 		if (null == bsr) {
 			m.createReply("something has gone horribly wrong; my blogs cache for this channel seems to be null.").send();
 			return;
 		}
 		int resultNum = 0;
 		try {
-			if (m.modTrailing.matches("(^\\d+$|^\\d+ +.*)"))
-				if(m.modTrailing.matches("^\\d+$"))
-					resultNum = Integer.parseInt(m.modTrailing) - 1;
+			if (m.getModTrailing().matches("(^\\d+$|^\\d+ +.*)"))
+				if(m.getModTrailing().matches("^\\d+$"))
+					resultNum = Integer.parseInt(m.getModTrailing()) - 1;
 				else
-					resultNum = Integer.parseInt(m.modTrailing.substring(0, m.modTrailing.indexOf(' '))) - 1;
+					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
 			m.createReply("There's no need to be like that, qpt.").send();
 		}
@@ -559,7 +558,7 @@ public class Google extends Module {
 	}
 
 	private void ircTranslate(Message m) throws MalformedURLException, SocketTimeoutException, IOException {
-		String text = Message.removeFormattingAndColors(m.modTrailing);
+		String text = Constants.removeFormattingAndColors(m.getModTrailing());
 		GooJAXFetcher.Language toLanguage = DEFAULT_GOAT_LANGUAGE; 
 		GooJAXFetcher.Language fromLanguage = null;
 
@@ -651,12 +650,12 @@ public class Google extends Module {
 
 	private void ircDetectLanguage(Message m) {
 		Translator tranny = new Translator();
-		if(m.modTrailing.matches("^\\s*$")) {
-			m.createReply("I detect a " + Message.BOLD + "jerk" + Message.NORMAL + ", with a confidence of 1.0").send();
+		if(m.getModTrailing().matches("^\\s*$")) {
+			m.createReply("I detect a " + Constants.BOLD + "jerk" + Constants.NORMAL + ", with a confidence of 1.0").send();
 			return;
 		}
 		try {
-			DetectLanguageResponse dls = tranny.detect(m.modTrailing);
+			DetectLanguageResponse dls = tranny.detect(m.getModTrailing());
 			if(! dls.statusNormal()) {
 				m.createPagedReply("I had a problem talking to Google:  " 
 						+ dls.getResponseStatus() + ", " 
@@ -664,13 +663,13 @@ public class Google extends Module {
 				return;
 			}
 			if(dls.getResponseData().isReliable())
-				m.createReply("I think that's " + Message.BOLD 
-						+ dls.getResponseData().getLanguage().getEnglishName() + Message.NORMAL
+				m.createReply("I think that's " + Constants.BOLD 
+						+ dls.getResponseData().getLanguage().getEnglishName() + Constants.NORMAL
 						+ ", with a confidence of " 
 						+ dls.getResponseData().getConfidence()).send();
 			else if(dls.getResponseData().getLanguage() != null)
-				m.createReply("That might be " + Message.BOLD 
-						+ dls.getResponseData().getLanguage().getEnglishName() + Message.NORMAL
+				m.createReply("That might be " + Constants.BOLD 
+						+ dls.getResponseData().getLanguage().getEnglishName() + Constants.NORMAL
 						+ ", but I'm not sure, my confidence is only " 
 						+ dls.getResponseData().getConfidence()).send();
 			else
@@ -701,7 +700,7 @@ public class Google extends Module {
 
 	private void ircSexiness (Message m) 
 	throws SocketTimeoutException, MalformedURLException, IOException {
-		String query = quoteAndClean(m.modTrailing) ;
+		String query = quoteAndClean(m.getModTrailing()) ;
 		int sexyPercentage = Math.round((float) 100 * sexiness(query)) ;
 		if (sexyPercentage < 0) {
 			m.createReply(query + " does not exist, and therefore can not be appraised for sexiness.").send() ;
@@ -712,7 +711,7 @@ public class Google extends Module {
 
 	private void ircGayness (Message m) 
 	throws SocketTimeoutException, MalformedURLException, IOException {
-		String query = quoteAndClean(m.modTrailing) ;
+		String query = quoteAndClean(m.getModTrailing()) ;
 		int sexyPercentage = Math.round((float) 100 * gayness(query)) ;
 		if (sexyPercentage < 0) {
 			m.createReply(query + " does not exist, and therefore can not be appraised for faggotry.").send() ;
@@ -762,8 +761,7 @@ public class Google extends Module {
 	 */
 	private void ircGoogleFight (Message m)
 	throws SocketTimeoutException, MalformedURLException, IOException {
-		m.removeFormattingAndColors() ;
-		String [] contestants = m.modTrailing.split("\\s+[vV][sS]\\.?\\s+") ;
+		String [] contestants = Constants.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
 			m.createReply("Usage:  \"googlefight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
 			return ;
@@ -777,12 +775,12 @@ public class Google extends Module {
 			m.createReply("There was no winner, only losers.  Try fighting with things that actually exist.") ;
 			break;
 		case 1 : // normal
-			m.createReply("The winner is " + Message.BOLD + contestants[winners[0]] + Message.BOLD + ", with a score of " + scores[winners[0]] + "!").send() ;
+			m.createReply("The winner is " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", with a score of " + scores[winners[0]] + "!").send() ;
 			break;
 		default : // tie
-			String winnerString = Message.BOLD + contestants[winners[0]] + Message.BOLD ;
+			String winnerString = Constants.BOLD + contestants[winners[0]] + Constants.BOLD ;
 			for (int i=1 ; i < winners.length ; i++)
-				winnerString += " and " + Message.BOLD + contestants[winners[i]] + Message.BOLD ;
+				winnerString += " and " + Constants.BOLD + contestants[winners[i]] + Constants.BOLD ;
 			m.createReply("We have a tie!  " + winnerString + " tied with a score of " + scores[winners[0]]).send() ;
 			break;
 		}
@@ -802,7 +800,7 @@ public class Google extends Module {
 	 *	all of the convenience methods in goat.core.Message
 	 */
 	public String quoteAndClean(String s) {
-		s = Message.removeFormattingAndColors(s) ;
+		s = Constants.removeFormattingAndColors(s) ;
 		s = "\"" + s + "\"" ;
 		s = s.replaceAll("\\s*\"\\s*", "\"") ; //remove space around quotes
 		s = s.replaceAll("\"+", "\"") ; //strip away multiple quotes
@@ -811,7 +809,7 @@ public class Google extends Module {
 
 	public String imageGoogleUrl(String s) {
 		try {
-			return "http://images.google.com/images?safe=off&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+			return "http://images.google.com/images?safe=off&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -830,7 +828,7 @@ public class Google extends Module {
 
 	public String imageYahooUrl(String s) {
 		try {
-			return "http://images.search.yahoo.com/search/images?&p=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+			return "http://images.search.yahoo.com/search/images?&p=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -839,7 +837,7 @@ public class Google extends Module {
 
 	public String wikipediaUrl(String s) {
 		try {
-			return "http://www.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+			return "http://www.wikipedia.org/wiki/Special:Search?search=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -848,7 +846,7 @@ public class Google extends Module {
 
 	public String youtubeUrl(String s) {
 		try {
-			return "http://youtube.com/results?search_query=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+			return "http://youtube.com/results?search_query=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -857,7 +855,7 @@ public class Google extends Module {
 
 	public String imdbUrl(String s) {
 		try {
-			return "http://imdb.com/find?s=all&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+			return "http://imdb.com/find?s=all&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -866,7 +864,7 @@ public class Google extends Module {
 
 	public String flickrUrl(String s) {
 		try {
-			return "http://flickr.com/search/?q=" + URLEncoder.encode(s.trim(), encoding) + " " + Message.BOLD + " "  ;
+			return "http://flickr.com/search/?q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -948,7 +946,7 @@ public class Google extends Module {
 			if(srs.getResponseData().getResults().length > 0)
 				ret = simpleResultString(srs.getResponseData().getResults()[0]);
 			else
-				ret = noResultString + " for \"" + Message.removeFormattingAndColors(query) + "\"";
+				ret = noResultString + " for \"" + Constants.removeFormattingAndColors(query) + "\"";
 		else
 			ret = "Error at Google:  " + srs.getResponseStatus() + ", " + srs.getResponseDetails();
 		return ret ;
@@ -963,7 +961,7 @@ public class Google extends Module {
 	 * Convert html &lt;b&gt; tags in a string to irc BOLD formatting characters
 	 */
 	public String boldConvert (String s) {
-		return s.replaceAll("<[/ ]*[bB] *>", Message.BOLD) ;
+		return s.replaceAll("<[/ ]*[bB] *>", Constants.BOLD) ;
 	}
 
 	/**

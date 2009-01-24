@@ -2,6 +2,8 @@ package goat.core;
 
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.lang.reflect.*;
 
 /**
@@ -10,9 +12,9 @@ import java.lang.reflect.*;
  * @version 1.0
  */
 
-public abstract class Module {
+public abstract class Module implements Runnable {
 
-	private ArrayList channels = new ArrayList();
+	private ArrayList<String> channels = new ArrayList<String>();
 
 	public boolean inAllChannels;
 	public boolean wantsPrivate = true;
@@ -46,7 +48,7 @@ public abstract class Module {
 	 * @param channelsArray An array of channel names the module receives messages from.
 	 */
 	public final void setChannels(String[] channelsArray) {
-		channels = new ArrayList();
+		channels = new ArrayList<String>();
         for (String aChannelsArray : channelsArray) channels.add(aChannelsArray);
     }
 
@@ -54,7 +56,7 @@ public abstract class Module {
 	 * <p>Gets all the channel names the module receives messages from.</p>
 	 * @return An array of the channel names the module receives messages from.
 	 */
-	public final ArrayList getChannels() {
+	public final ArrayList<String> getChannels() {
 		return channels;
 	}
 	
@@ -151,4 +153,69 @@ public abstract class Module {
 	 * (ie. a message sent to everyone in a channel by a user).
 	 */
 	public abstract void processChannelMessage(Message m);
+	
+	public void processMessage(Message m) {
+		if(isThreadSafe()) {
+			queueIncomingMessage(m);
+		} else
+			reallyProcessMessage(m);
+	}
+	
+	private void reallyProcessMessage(Message m) {
+	       try {
+	            if (m.isCTCP()||!m.getCommand().equals("PRIVMSG")) {
+	                processOtherMessage(m);
+	            } else if (m.isPrivate()) {
+	                processPrivateMessage(m);
+	            } else {
+	                processChannelMessage(m);
+	            }
+	        } catch(Exception e) {
+	            e.printStackTrace();
+	            m.createReply( this.getClass().getSimpleName() + " caused an exception: " 
+	                    + e.getClass().getSimpleName() + ". You will probably want to fix this. Saving stacktrace to a bugfix file.").send();
+	        }
+		
+	}
+	
+	
+	
+	// Begin thready stuff
+	
+	public boolean isThreadSafe() {
+		return true;
+	}
+	
+	protected LinkedBlockingQueue<Message> incomingQueue = new LinkedBlockingQueue<Message>();
+	
+	public void queueIncomingMessage(Message m) {
+		if(running)
+			incomingQueue.add(m);
+		else
+			; //TODO throw an exception here?
+	}
+	
+	protected boolean stop = false;
+	protected boolean running = false;
+	
+	public boolean isRunning() {
+		return running;
+	}
+	
+	public synchronized void stopThread() {
+		stop = true;
+	}
+	
+	public void run() {
+		running = true;
+		while (!stop) {
+			try {
+				Message m = incomingQueue.take();
+				if(stop)  // we do it this in addition to while(!stop) because we might have been stopped while take() was waiting for something new to enter the queue  
+					break;
+				reallyProcessMessage(m);
+			} catch (InterruptedException ie) {}
+		}
+		running = false;
+	}
 }

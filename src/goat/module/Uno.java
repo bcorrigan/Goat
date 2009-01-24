@@ -5,6 +5,7 @@ package goat.module;
 
 import goat.uno.*;
 import goat.uno.cards.*;
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 
@@ -25,8 +26,8 @@ public class Uno extends Module implements Output, Runnable {
     Message target;        //the target channel, effectively. The message that started the game
     String longReply;            //Reply string for multiple events
     private static final String[] SPACES = new String[20];    //spaces for formatting purposes
-    private static final String BG = Message.COLCODE + ",1";  //bg colour
-    private static final String NORMAL = Message.WHITE + BG; //reset to normal + BG
+    private static final String BG = Constants.COLCODE + ",1";  //bg colour
+    private static final String NORMAL = Constants.WHITE + BG; //reset to normal + BG
 
     static {
         for (int i = 0; i < 20; i++) {
@@ -37,11 +38,14 @@ public class Uno extends Module implements Output, Runnable {
         }
     }
 
+    public boolean isThreadSafe() {
+    	return false;
+    }
+    
     public void processChannelMessage(Message m) {
-        m.modCommand = m.modCommand.toLowerCase();
         if (waiting || playing)
-            if (m.modCommand.equals("botjoin")) {
-                String[] botNames = m.modTrailing.split(" ");
+            if (m.getModCommand().equalsIgnoreCase("botjoin")) {
+                String[] botNames = m.getModTrailing().split(" ");
                 for (String botName : botNames) {
                     if (getPlayer(botName) == null) {
                         if (game.players.size() > 10) {
@@ -56,27 +60,28 @@ public class Uno extends Module implements Output, Runnable {
                 }
             }
         if (!playing) {
-            if (m.modCommand.equals("uno") && !waiting) {
+            if (m.getModCommand().equalsIgnoreCase("uno") && !waiting) {
                 target = m;
-                game = new Game(this, m.sender);
+                game = new Game(this, m.getSender());
                 longReply = "";
                 Thread t = new Thread(this);
                 t.start();
                 waiting = true;
             }
             if (waiting)
-                if (m.modCommand.equals("join"))
-                    if (getPlayer(m.sender) == null) {
-                        game.join(m.sender, false);
+                if (m.getModCommand().equalsIgnoreCase("join"))
+                    if (getPlayer(m.getSender()) == null) {
+                        game.join(m.getSender(), false);
                         hasJoined = true;
                     }
         } else {
             if (!game.needColour) {
-                if (m.modCommand.equals("play") || m.modCommand.equals("p")) {
+                if (m.getModCommand().equalsIgnoreCase("play") 
+                		|| m.getModCommand().equalsIgnoreCase("p")) {
                     try {
-                        Player player = getPlayer(m.sender);
+                        Player player = getPlayer(m.getSender());
                         if (player != null) {
-                            Card card = getCard(m.modTrailing, player);
+                            Card card = getCard(m.getModTrailing(), player);
                             if (card != null) {
                                 game.play(player, card);
                             }
@@ -86,45 +91,54 @@ public class Uno extends Module implements Output, Runnable {
                     } catch (InvalidCardNumberException e) {
                         e.printStackTrace();
                     }
-                } else if (m.modCommand.equals("draw") || m.modCommand.equals("<")) {
-                    Player player = getPlayer(m.sender);
+                } else if (m.getModCommand().equalsIgnoreCase("draw") 
+                		|| m.getModCommand().equalsIgnoreCase("<")) {
+                    Player player = getPlayer(m.getSender());
                     if (player != null)
                         game.draw(player);
-                } else if (m.modCommand.equals("pass") || m.modCommand.equals(">")) {
-                    Player player = getPlayer(m.sender);
+                } else if (m.getModCommand().equalsIgnoreCase("pass") 
+                		|| m.getModCommand().equalsIgnoreCase(">")) {
+                    Player player = getPlayer(m.getSender());
                     if (player != null)
                         game.pass(player);
                 }
             } else {
-                if (m.modCommand.equals("red") || m.modCommand.equals("r"))
-                    game.setColour(getPlayer(m.sender), Card.RED);
-                else if (m.modCommand.equals("blue") || m.modCommand.equals("b"))
-                    game.setColour(getPlayer(m.sender), Card.BLUE);
-                else if (m.modCommand.equals("green") || m.modCommand.equals("g"))
-                    game.setColour(getPlayer(m.sender), Card.GREEN);
-                else if (m.modCommand.equals("red") || m.modCommand.equals("r"))
-                    game.setColour(getPlayer(m.sender), Card.RED);
-                else if (m.modCommand.equals("yellow") || m.modCommand.equals("y"))
-                    game.setColour(getPlayer(m.sender), Card.YELLOW);
+                if (m.getModCommand().equalsIgnoreCase("red") 
+                		|| m.getModCommand().equalsIgnoreCase("r"))
+                    game.setColour(getPlayer(m.getSender()), Card.RED);
+                else if (m.getModCommand().equalsIgnoreCase("blue") 
+                		|| m.getModCommand().equalsIgnoreCase("b"))
+                    game.setColour(getPlayer(m.getSender()), Card.BLUE);
+                else if (m.getModCommand().equalsIgnoreCase("green") 
+                		|| m.getModCommand().equalsIgnoreCase("g"))
+                    game.setColour(getPlayer(m.getSender()), Card.GREEN);
+                else if (m.getModCommand().equalsIgnoreCase("red") 
+                		|| m.getModCommand().equalsIgnoreCase("r"))
+                    game.setColour(getPlayer(m.getSender()), Card.RED);
+                else if (m.getModCommand().equalsIgnoreCase("yellow") 
+                		|| m.getModCommand().equalsIgnoreCase("y"))
+                    game.setColour(getPlayer(m.getSender()), Card.YELLOW);
             }
-            if (m.modCommand.equals("join")) {
-                if (getPlayer(m.sender) == null)
-                    game.join(m.sender, false);
-            } else if (m.modCommand.equals("hand") || m.modCommand.equals("h")) {
-                Player player = getPlayer(m.sender);
+            if (m.getModCommand().equalsIgnoreCase("join")) {
+                if (getPlayer(m.getSender()) == null)
+                    game.join(m.getSender(), false);
+            } else if (m.getModCommand().equalsIgnoreCase("hand") 
+            		|| m.getModCommand().equalsIgnoreCase("h")) {
+                Player player = getPlayer(m.getSender());
                 if (player != null)
                     game.hand(player);
-            } else if (m.modCommand.equals("show") || m.modCommand.equals("s")) {
+            } else if (m.getModCommand().equalsIgnoreCase("show") 
+            		|| m.getModCommand().equalsIgnoreCase("s")) {
                 game.show();
-            } else if (m.modCommand.equals("stopgame")) {
-                m.createReply(Message.BOLD + "Uno" + Message.BOLD + " has been stopped.").send();
+            } else if (m.getModCommand().equalsIgnoreCase("stopgame")) {
+                m.createReply(Constants.BOLD + "Uno" + Constants.BOLD + " has been stopped.").send();
                 playing = false;
-            } else if (m.modCommand.equals("order")) {
+            } else if (m.getModCommand().equalsIgnoreCase("order")) {
                 game.order();
             }
         }
 
-        if (m.modCommand.equals("unoscore")) {
+        if (m.getModCommand().equalsIgnoreCase("unoscore")) {
             ArrayList records = Scores.getRecords();
             if (records.size() == 0) {
                 m.createReply("Nobody's got any scores yet :(").send();
@@ -150,7 +164,7 @@ public class Uno extends Module implements Output, Runnable {
                     lgE = Integer.toString(record.getGamesEntered()).length();
 
             }
-            m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[lNick + 3 - 4]
+            m.createReply("   " + Constants.UNDERLINE + "Name" + SPACES[lNick + 3 - 4]
                             + "HiScore" + SPACES[lHScore + 7 - 7]
                             + "Won" + SPACES[lgW + 3 - 3]
                             + "Games" + SPACES[lgE + 5 - 5]
@@ -174,7 +188,7 @@ public class Uno extends Module implements Output, Runnable {
                         ratio = ratio.substring(0, 5) + "% ";
                 } else
                     ratio = "0%   ";
-                m.createReply(Message.BOLD + count + Message.BOLD + SPACES[3 - Integer.toString(count).length()] + record.getName()
+                m.createReply(Constants.BOLD + count + Constants.BOLD + SPACES[3 - Integer.toString(count).length()] + record.getName()
                                 + SPACES[lNick + 3 - record.getName().length()]
                                 + record.getHiScore() + SPACES[lHScore + 7 - Integer.toString(record.getHiScore()).length()]
                                 + record.getGamesWon() + SPACES[lgW + 3 - Integer.toString(record.getGamesWon()).length()]
@@ -286,74 +300,74 @@ public class Uno extends Module implements Output, Runnable {
             case Card.NORMALCARD:
                 switch (card.getColour()) {
                     case Card.RED:
-                        return Message.RED + "Red " + card.getNumber() + NORMAL;
+                        return Constants.RED + "Red " + card.getNumber() + NORMAL;
                     case Card.BLUE:
-                        return Message.BLUE + "Blue " + card.getNumber() + NORMAL;
+                        return Constants.BLUE + "Blue " + card.getNumber() + NORMAL;
                     case Card.YELLOW:
-                        return Message.YELLOW + "Yellow " + card.getNumber() + NORMAL;
+                        return Constants.YELLOW + "Yellow " + card.getNumber() + NORMAL;
                     case Card.GREEN:
-                        return Message.GREEN + "Green " + card.getNumber() + NORMAL;
+                        return Constants.GREEN + "Green " + card.getNumber() + NORMAL;
                 }
             case Card.REVERSE:
                 switch (card.getColour()) {
                     case Card.RED:
-                        return Message.RED + "Red Reverse" + NORMAL;
+                        return Constants.RED + "Red Reverse" + NORMAL;
                     case Card.BLUE:
-                        return Message.BLUE + "Blue Reverse" + NORMAL;
+                        return Constants.BLUE + "Blue Reverse" + NORMAL;
                     case Card.YELLOW:
-                        return Message.YELLOW + "Yellow Reverse" + NORMAL;
+                        return Constants.YELLOW + "Yellow Reverse" + NORMAL;
                     case Card.GREEN:
-                        return Message.GREEN + "Green Reverse" + NORMAL;
+                        return Constants.GREEN + "Green Reverse" + NORMAL;
                 }
             case Card.SKIP:
                 switch (card.getColour()) {
                     case Card.RED:
-                        return Message.RED + "Red Skip" + NORMAL;
+                        return Constants.RED + "Red Skip" + NORMAL;
                     case Card.BLUE:
-                        return Message.BLUE + "Blue Skip" + NORMAL;
+                        return Constants.BLUE + "Blue Skip" + NORMAL;
                     case Card.YELLOW:
-                        return Message.YELLOW + "Yellow Skip" + NORMAL;
+                        return Constants.YELLOW + "Yellow Skip" + NORMAL;
                     case Card.GREEN:
-                        return Message.GREEN + "Green Skip" + NORMAL;
+                        return Constants.GREEN + "Green Skip" + NORMAL;
                 }
             case Card.DRAW:
                 switch (card.getColour()) {
                     case Card.RED:
-                        return Message.RED + "Red Draw Two" + NORMAL;
+                        return Constants.RED + "Red Draw Two" + NORMAL;
                     case Card.BLUE:
-                        return Message.BLUE + "Blue Draw Two" + NORMAL;
+                        return Constants.BLUE + "Blue Draw Two" + NORMAL;
                     case Card.YELLOW:
-                        return Message.YELLOW + "Yellow Draw Two" + NORMAL;
+                        return Constants.YELLOW + "Yellow Draw Two" + NORMAL;
                     case Card.GREEN:
-                        return Message.GREEN + "Green Draw Two" + NORMAL;
+                        return Constants.GREEN + "Green Draw Two" + NORMAL;
                 }
             case Card.FAKE:
                 switch (card.getColour()) {
                     case Card.RED:
-                        return Message.RED + "Red" + NORMAL;
+                        return Constants.RED + "Red" + NORMAL;
                     case Card.BLUE:
-                        return Message.BLUE + "Blue" + NORMAL;
+                        return Constants.BLUE + "Blue" + NORMAL;
                     case Card.YELLOW:
-                        return Message.YELLOW + "Yellow" + NORMAL;
+                        return Constants.YELLOW + "Yellow" + NORMAL;
                     case Card.GREEN:
-                        return Message.GREEN + "Green" + NORMAL;
+                        return Constants.GREEN + "Green" + NORMAL;
                 }
             case Card.WILD:
-                return Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + 'd' + NORMAL;
+                return Constants.YELLOW + 'W' + Constants.BLUE + 'i' + Constants.RED + 'l' + Constants.GREEN + 'd' + NORMAL;
             case Card.WDF:
-                return Message.YELLOW + 'W' + Message.BLUE + 'i' + Message.RED + 'l' + Message.GREEN + "d "
-                        + Message.BLUE + 'D' + Message.YELLOW + 'r' + Message.GREEN + 'a' + Message.RED + "w "
-                        + Message.GREEN + 'F' + Message.RED + 'o' + Message.BLUE + 'u' + Message.YELLOW + 'r' + NORMAL;
+                return Constants.YELLOW + 'W' + Constants.BLUE + 'i' + Constants.RED + 'l' + Constants.GREEN + "d "
+                        + Constants.BLUE + 'D' + Constants.YELLOW + 'r' + Constants.GREEN + 'a' + Constants.RED + "w "
+                        + Constants.GREEN + 'F' + Constants.RED + 'o' + Constants.BLUE + 'u' + Constants.YELLOW + 'r' + NORMAL;
         }
         return null;
     }
 
     public void gameInit() {
-        target.createReply(Message.BOLD + "Uno" + Message.BOLD + " has started!").send();
+        target.createReply(Constants.BOLD + "Uno" + Constants.BOLD + " has started!").send();
     }
 
     public void playerStart(Player player) {
-        target.createReply(Message.BOLD + player.getName() + Message.BOLD + " is ready to play uno!").send();
+        target.createReply(Constants.BOLD + player.getName() + Constants.BOLD + " is ready to play uno!").send();
     }
 
     public void hand(Player player) {
@@ -377,8 +391,8 @@ public class Uno extends Module implements Output, Runnable {
     public void playerWon(Player player, int score, Player[] players) {
         //flush longReply first
         target.createReply(longReply).send();
-        target.createReply(Message.BOLD + player.getName() + Message.YELLOW + " has won Uno!!!").send();
-        target.createReply(Message.BOLD + player.getName() + Message.YELLOW + " got " + score + " points.").send();
+        target.createReply(Constants.BOLD + player.getName() + Constants.YELLOW + " has won Uno!!!").send();
+        target.createReply(Constants.BOLD + player.getName() + Constants.YELLOW + " got " + score + " points.").send();
         target.createReply("This is everybody's hand: ").send();
         for (Player player1 : players) {
             ArrayList hand = player1.getHand();
@@ -387,19 +401,19 @@ public class Uno extends Module implements Output, Runnable {
             while (it.hasNext()) {
                 cards += getStringForCard((Card) it.next()) + ' ';
             }
-            target.createReply(NORMAL + Message.BOLD + player1.getName() + Message.BOLD + ": " + cards).send();
+            target.createReply(NORMAL + Constants.BOLD + player1.getName() + Constants.BOLD + ": " + cards).send();
         }
         playing = false;
     }
 
     public void swapDrawAndDiscard() {
-        new Message("", "ACTION", target.channame, "turns over the discard pile and makes it the draw pile.").send();
+        new Message("", "ACTION", target.getChanname(), "turns over the discard pile and makes it the draw pile.").send();
     }
 
     public void playerDrewCard(Player player, Card card) {
         if (!playing)
             return;
-        target.createReply(Message.BOLD + player.getName() + Message.BOLD + " has drawn a card.").send();
+        target.createReply(Constants.BOLD + player.getName() + Constants.BOLD + " has drawn a card.").send();
         if (!player.isABot)
             new Message("", "NOTICE", player.getName(), NORMAL + "You drew: " + getStringForCard(card)).send();
     }
@@ -407,16 +421,16 @@ public class Uno extends Module implements Output, Runnable {
     public void playerPassed(Player player) {
         if (!playing)
             return;
-        target.createReply(Message.BOLD + player.getName() + Message.BOLD + " has passed.").send();
+        target.createReply(Constants.BOLD + player.getName() + Constants.BOLD + " has passed.").send();
     }
 
     public void nextPlayer(Player player) {
         if (!playing)
             return;
         if (longReply == null)
-            target.createReply("It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
+            target.createReply("It is now the turn of " + Constants.BOLD + player.getName() + Constants.BOLD + '.').send();
         else {
-            target.createReply(NORMAL + longReply + "It is now the turn of " + Message.BOLD + player.getName() + Message.BOLD + '.').send();
+            target.createReply(NORMAL + longReply + "It is now the turn of " + Constants.BOLD + player.getName() + Constants.BOLD + '.').send();
             longReply = "";
         }
         if (!player.isABot)
@@ -442,18 +456,18 @@ public class Uno extends Module implements Output, Runnable {
         if (!playing)
             return;
         if (longReply == null)
-            longReply = Message.BOLD + player.getName() + Message.BOLD + " has played a " + getStringForCard(card) + ". ";
+            longReply = Constants.BOLD + player.getName() + Constants.BOLD + " has played a " + getStringForCard(card) + ". ";
         else
-            longReply = Message.BOLD + player.getName() + Message.BOLD + " has played a " + getStringForCard(card) + ". ";
+            longReply = Constants.BOLD + player.getName() + Constants.BOLD + " has played a " + getStringForCard(card) + ". ";
     }
 
     public void playerSkipped(Player player) {
         if (!playing)
             return;
         if (longReply == null)
-            longReply = Message.BOLD + player.getName() + Message.BOLD + " is skipped! ";
+            longReply = Constants.BOLD + player.getName() + Constants.BOLD + " is skipped! ";
         else
-            longReply += Message.BOLD + player.getName() + Message.BOLD + " is skipped! ";
+            longReply += Constants.BOLD + player.getName() + Constants.BOLD + " is skipped! ";
     }
 
     public void playerReversed(Player player) {
@@ -463,9 +477,9 @@ public class Uno extends Module implements Output, Runnable {
     public void drawnCards(Player player, Card[] cards) {
         String reply = "";
         if (longReply == null)
-            longReply = Message.BOLD + player.getName() + Message.BOLD + " draws " + cards.length + " cards. ";
+            longReply = Constants.BOLD + player.getName() + Constants.BOLD + " draws " + cards.length + " cards. ";
         else
-            longReply += Message.BOLD + player.getName() + Message.BOLD + " draws " + cards.length + " cards. ";
+            longReply += Constants.BOLD + player.getName() + Constants.BOLD + " draws " + cards.length + " cards. ";
         if(player.isABot)
             return;
         for (Card card : cards) reply += ' ' + getStringForCard(card);
@@ -499,18 +513,18 @@ public class Uno extends Module implements Output, Runnable {
             return;
         if (game.currentPlayer.isABot) {
             if (longReply == null)
-                longReply = NORMAL + Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + 'U' + Message.BLUE + 'N' + Message.RED + 'O' + NORMAL + "!! ";
+                longReply = NORMAL + Constants.BOLD + player.getName() + Constants.BOLD + " has " + Constants.YELLOW + 'U' + Constants.BLUE + 'N' + Constants.RED + 'O' + NORMAL + "!! ";
             else
-                longReply += NORMAL + Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + 'U' + Message.BLUE + 'N' + Message.RED + 'O' + NORMAL + "!! ";
+                longReply += NORMAL + Constants.BOLD + player.getName() + Constants.BOLD + " has " + Constants.YELLOW + 'U' + Constants.BLUE + 'N' + Constants.RED + 'O' + NORMAL + "!! ";
             return;
         }
-        target.createReply(NORMAL + Message.BOLD + player.getName() + Message.BOLD + " has " + Message.YELLOW + 'U' + Message.BLUE + 'N' + Message.RED + 'O' + NORMAL + "!!").send();
+        target.createReply(NORMAL + Constants.BOLD + player.getName() + Constants.BOLD + " has " + Constants.YELLOW + 'U' + Constants.BLUE + 'N' + Constants.RED + 'O' + NORMAL + "!!").send();
     }
 
     public void order(Player[] allPlayers, int[] noCards) {
         String reply = "";
         for (int i = 0; i < allPlayers.length; i++) {
-            reply += Message.BOLD + allPlayers[i].getName() + Message.BOLD + '(' + noCards[i] + ") ";
+            reply += Constants.BOLD + allPlayers[i].getName() + Constants.BOLD + '(' + noCards[i] + ") ";
         }
         target.createReply(NORMAL + reply).send();
     }
@@ -522,7 +536,7 @@ public class Uno extends Module implements Output, Runnable {
         } catch (InterruptedException e) {
         }
 
-        target.createReply(Message.BOLD + "10 secs..").send();
+        target.createReply(Constants.BOLD + "10 secs..").send();
 
         try {
             Thread.sleep(10000);

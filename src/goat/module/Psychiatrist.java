@@ -26,7 +26,7 @@ public class Psychiatrist extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-		String answer = eliza.processInput(m.modTrailing);
+		String answer = eliza.processInput(m.getModTrailing());
 		answer = answer.replaceAll("\\s\\s*", " "); //replace all multiple spaces with a single space
 		answer = answer.replaceAll("\\s\\?", "?");	//replace " ?" with "?"
 		m.createReply(answer).send();

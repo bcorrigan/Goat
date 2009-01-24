@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.HashMap;
@@ -20,9 +22,15 @@ import java.util.HashMap;
  */
 public class ModuleController  {
 
+	private ExecutorService pool = Executors.newCachedThreadPool();
+	
+	public ExecutorService getPool() {
+		return pool;
+	}
+
 	private ArrayList<Module> loadedModules = new ArrayList<Module>();
 	
-	private ArrayList<String> allModules = new ArrayList<String>() ;
+	private ArrayList<Class<?>> allModules = new ArrayList<Class<?>>() ;
 	private ArrayList<String> allCommands = new ArrayList<String>() ;
 	
 	public ModuleController() {
@@ -44,30 +52,67 @@ public class ModuleController  {
 	 * @throws NoClassDefFoundError
 	 * @throws ClassCastException
 	 */
-	public Module load(String moduleName) throws IllegalAccessException, InstantiationException, ClassNotFoundException,
-													NoClassDefFoundError, ClassCastException {
-		if( null != get(moduleName))
-			return null ; // return null if module is already loaded
-		Module newmod = (Module) ClassLoader.getSystemClassLoader().loadClass("goat.module." + moduleName).newInstance();
-		//Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-		//Module newmod = (Module) getClass().getClassLoader().loadClass("goat.module." + moduleName).newInstance();
-		loadedModules.add(newmod) ;
-		return newmod;  
+	public Module load(String moduleName) 
+	throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+		if(! moduleName.startsWith("goat.module."))
+			moduleName = "goat.module." + moduleName;
+		return load(Class.forName(moduleName));
 	}
 
-	public Module load(Module mod) {
-		if( null != get(mod))
-			return null;    // return null if module is already loaded
-		loadedModules.add(mod);
-		return mod;
+	public Module loadInAllChannels(String moduleName) 
+	throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+		Module ret = load(moduleName);
+		if (null == ret) // wasn't loaded
+			ret = getLoaded(moduleName);
+		ret.inAllChannels = true;
+		return ret;
 	}
+	
+	public Module load(Class<?> modClass) throws IllegalAccessException, InstantiationException {
+		if (null == modClass)
+			return null;
+		System.out.print("Loading Module " + modClass.getName() + " ... ");
+		
+		Module module = null;
+		// return null if module is already loaded
+		if(null != getLoaded(modClass))
+			return null;
 
+		module = (Module) modClass.newInstance();
+
+		if(null == module)
+			return null;
+		if(module.isThreadSafe()) {
+			System.out.print("is threaded ... ");
+ 			pool.execute(module);
+ 			while(! module.isRunning()) // wait to make sure module is running before adding it to loaded module list
+ 				try {
+ 					Thread.sleep(5);  // short wait, it shouldn't take too long for the thread pool to start the module
+ 				} catch (InterruptedException ie) {}
+ 			System.out.print("running ... ");
+		}
+		loadedModules.add(module);
+		System.out.println("loaded.");
+		return module;
+	}
+	
+	public Module loadInAllChannels(Class<?> modClass)
+	throws IllegalAccessException, InstantiationException {
+		Module ret = load(modClass);
+		if(null != ret)
+			ret.inAllChannels = true;
+		return ret;
+	}
+	
 	public boolean unload(String moduleName) {
-		Module mod = get(moduleName);
+		Module mod = getLoaded(moduleName);
 		if (null == mod)
 			return false ;
-		else 
+		else {
 			loadedModules.remove(mod) ;
+			if(mod.isThreadSafe())
+				mod.stopThread();
+		}
 		return true ;
 	}
 
@@ -81,26 +126,30 @@ public class ModuleController  {
 		return modNames;
 	}
 
-	public Module get(int i) {
+	public Module getLoaded(int i) {
 		return loadedModules.get(i);
 	}
-
-	public Module get(String moduleName) {
+	
+	public Module getLoaded(Class<?> modClass) {
 		Iterator<Module> it = loadedModules.listIterator();
-		Module mod;
-		while (it.hasNext()) {
-			mod = it.next();
-			if (mod.getClass().getName().toLowerCase().equals("goat.module." + moduleName.toLowerCase())) {
-				return mod;
+		Module ret = null;
+		if(!modClass.equals(goat.core.Module.class) && !modClass.equals(Object.class))
+			while(it.hasNext()) {
+				Module mod = it.next();
+				if(modClass.isInstance(mod))
+					ret = mod;
 			}
-		}
-		return null;
+		return ret;
 	}
 	
-	public Module get(Module mod) {
-		if( null == mod )
-			return null ;
-		return get(mod.getClass().getName().replace("goat.module.", "")) ;
+	public Module getLoaded(String className) {
+		if(!className.startsWith("goat.module."))
+			className = "goat.module." + className;
+		Class<?> modClass = null;
+		try {
+			modClass = Class.forName(className);
+		} catch (ClassNotFoundException cnfe) {}
+		return getLoaded(modClass) ;
 	}
 
 	public Iterator<Module> iterator() {
@@ -130,18 +179,23 @@ public class ModuleController  {
         	if(je.getName().matches(".*goat/module/[^\\$]*\\.class")) {
         		// System.out.println(je.toString()) ;
         		try {
-        			Class modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
+        			Class<?> modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
         			if(modClass.getSuperclass().getName().equals("goat.core.Module"))
-        				allModules.add(modClass.getCanonicalName()) ;
+        				allModules.add(modClass) ;
         		} catch (ClassNotFoundException e) {
         			System.err.println("Error while building goat modules list, jar entry: \"" + je.getName() + "\", skipping") ;
         		}
         	}
         }
-        Collections.sort(allModules) ;
+
+        ArrayList<String> tempList = new ArrayList<String>();
+        for (Class<?> modClass : allModules) {
+        	tempList.add(modClass.getName());
+        }
+        Collections.sort(tempList);
         System.out.println("Available Modules: ") ;
-        for (String allModule : allModules) {
-            System.out.println("   " + allModule);
+        for (String modName : tempList) {
+        	System.out.println("   " + modName);
         }
         System.out.println() ;
 	}
@@ -158,22 +212,14 @@ public class ModuleController  {
 		//this has to be called after the allModules list it built.  With buildAllModulesList().
 		HashMap<String, String> commands = new HashMap<String, String>() ;
 		boolean collisions = false ;
-        for (String allModule : allModules) {
-            Class modClass;
-            try {
-                modClass = Class.forName(allModule);
-            } catch (ClassNotFoundException e) {
-                System.err.println("Couldn't find module class: " + allModule);
-                e.printStackTrace();
-                continue;
-            }
+        for (Class<?> modClass : allModules) {
             String[] modCommands = Module.getCommands(modClass);
             for (String modCommand : modCommands) {
                 if (commands.containsKey(modCommand)) {
-                    commands.put(modCommand, commands.get(modCommand) + ", " + allModule);
+                    commands.put(modCommand, commands.get(modCommand) + ", " + modClass.getName());
                     collisions = true;
                 } else {
-                    commands.put(modCommand, allModule);
+                    commands.put(modCommand, modClass.getName());
                 }
             }
         }
@@ -188,8 +234,8 @@ public class ModuleController  {
 		}
 	}
 	
-	public String [] getAllModules() {
-		return allModules.toArray(new String[0]) ;
+	public Class<?> [] getAllModules() {
+		return allModules.toArray(new Class<?>[0]) ;
 	}
 	
 	public String [] getAllCommands() {
@@ -203,7 +249,7 @@ public class ModuleController  {
 	public String [] getLoadedCommands() {
 		ArrayList<String> lcommands = new ArrayList<String>() ;
 		for(int i=0; i<loadedModules.size(); i++) {
-			lcommands.addAll(Arrays.asList(Module.getCommands(get(i).getClass()))) ;
+			lcommands.addAll(Arrays.asList(Module.getCommands(getLoaded(i).getClass()))) ;
 		}
 		Collections.sort(lcommands) ;
 		return lcommands.toArray(new String[0]) ;

@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 
@@ -31,6 +32,10 @@ public class Quiz extends Module implements Runnable {
         }
     }
 
+    public boolean isThreadSafe() {
+    	return false;
+    }
+    
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
@@ -42,12 +47,12 @@ public class Quiz extends Module implements Runnable {
             Thread t = new Thread(this);
             t.start();
         } else {
-            if(m.modCommand.equals("stopquiz")) {
+            if(m.getModCommand().equals("stopquiz")) {
                 playing = false;
                 return;
             }
-            if (m.trailing.toLowerCase().trim().matches(answer.toLowerCase().trim()) && !answered) {
-                m.createReply(m.sender + ": Congratulations, you got the correct answer, \"" + answer + "\".").send();
+            if (m.getTrailing().toLowerCase().trim().matches(answer.toLowerCase().trim()) && !answered) {
+                m.createReply(m.getSender() + ": Congratulations, you got the correct answer, \"" + answer + "\".").send();
                 answered = true;
             }
         }
@@ -78,7 +83,7 @@ public class Quiz extends Module implements Runnable {
                 }
                 if (!answered&&playing)
                     if(tip==null || (canTip() && tip.size()>2))
-                        target.createReply(Message.BOLD + "tip: " + Message.BOLD + getTip()).send();
+                        target.createReply(Constants.BOLD + "tip: " + Constants.BOLD + getTip()).send();
                     else {
                         target.createReply("Nobody got the answer! it was \"" + answer + "\".").send();
                         answered = true;
@@ -125,7 +130,7 @@ public class Quiz extends Module implements Runnable {
             do {
                 result = questions.readLine();
             } while (!result.startsWith("Category:"));
-            result = Message.BOLD + result.replaceFirst("Category: ", "") + Message.BOLD;
+            result = Constants.BOLD + result.replaceFirst("Category: ", "") + Constants.BOLD;
             result += ". " + questions.readLine().replaceFirst("Question:", "");
             answer = questions.readLine().replaceAll("Answer: ", "");
             answer = answer.replaceAll("#", "");

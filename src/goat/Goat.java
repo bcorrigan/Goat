@@ -8,11 +8,12 @@ import java.io.*;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Goat {
 	private static boolean showhelp;
-	public static MessageQueue inqueue = new MessageQueue();
-	public static MessageQueue outqueue = new MessageQueue();
+	public static LinkedBlockingQueue<Message> inqueue = new LinkedBlockingQueue<Message>();
+	public static LinkedBlockingQueue<Message> outqueue = new LinkedBlockingQueue<Message>();
 	public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};
     public static ServerConnection sc;
@@ -49,14 +50,15 @@ public class Goat {
 
 	public Goat() {
 		Locale.setDefault(Locale.UK);  // goat is UKian, damn it.
-      setDefaultStats();
+		setDefaultStats();
 		parseArgs(argv);
         if (showhelp) {
 			showHelp();
             System.exit(0);
         }
-
+        System.out.print("Connecting to " + BotStats.servername + " ... ");
 		sc = new ServerConnection(BotStats.servername); //lets init the connection..
+		System.out.println("connected.\n");
 		loadDefaultModules(modController);
 		try {
 			Thread.sleep(100);   //lets give the logon a chance to progress before adding messages to queues
@@ -121,28 +123,25 @@ public class Goat {
 	}
 
 	private void loadDefaultModules(ModuleController modController) {
+		Class<?>[] defaultModules = {
+				goat.module.CTCP.class,
+				goat.module.ModuleCommands.class,
+				goat.module.NickServ.class,
+				goat.module.Help.class,
+				goat.module.Auth.class,
+				goat.module.Core.class,
+				goat.module.Users.class,
+				goat.module.ServerCommands.class
+		} ;
 		try {
-			modController.load("CTCP");
-			modController.load("ModuleCommands");
-            modController.load("NickServ");
-			ModuleCommands moduleCommands = (ModuleCommands) modController.get(1);
+			for(int i=0; i<defaultModules.length; i++)
+				modController.loadInAllChannels(defaultModules[i]);
+			ModuleCommands moduleCommands = (ModuleCommands) modController.getLoaded("ModuleCommands");
 			moduleCommands.modControl = modController;
 			moduleCommands.inAllChannels = true;
-			modController.load("Help");
-			if (modController.get("Help") != null)
-				modController.get("Help").inAllChannels = true ;
-			modController.load("Auth");
-			modController.load("Core");
-			Core core = (Core) modController.get(5);
-			core.inAllChannels = true;
-			modController.load("Users");
-			if (modController.get("Users") != null)
-				modController.get("Users").inAllChannels = true ;
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

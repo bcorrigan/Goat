@@ -36,8 +36,8 @@ public class NickServ extends Module {
 	}
 
 	public void processChannelMessage(Message m) {  //TODO really need notice functionality in this thing
-		if(m.sender.equals("NickServ")) 
-			if(m.prefix.equals("NickServ!services@services.slashnet.org"))
+		if(m.getSender().equals("NickServ")) 
+			if(m.getPrefix().equals("NickServ!services@services.slashnet.org"))
 					new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
 	}
 

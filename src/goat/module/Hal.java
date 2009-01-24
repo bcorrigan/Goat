@@ -43,24 +43,24 @@ public class Hal extends Module {
 	}
     //@TODO Some ugly stuff here from when Goat couldn't tell if a message was used by another module..
 	public void processChannelMessage(Message m) {
-		if (m.trailing.toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+confess\\W*"))
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+confess\\W*"))
 			return;
-		if (m.trailing.toLowerCase().matches("^\\s*goat\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*")) {
 			return;
 		}
-		if (m.trailing.toLowerCase().matches("^\\s*goat\\W*.*")) {
-			m.createReply(hal.getSentence(m.trailing.toLowerCase())).send();
-			hal.add(m.trailing.toLowerCase());
+		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*.*")) {
+			m.createReply(hal.getSentence(m.getTrailing().toLowerCase())).send();
+			hal.add(m.getTrailing().toLowerCase());
 		}
-		if (m.trailing.toLowerCase().matches("^\\s*rant\\W*"))
+		if (m.getTrailing().toLowerCase().matches("^\\s*rant\\W*"))
 			rant = !rant;
 		if (rant) {
-			m.createReply(hal.getSentence(m.trailing.toLowerCase())).send();
-			hal.add(m.trailing.toLowerCase());
+			m.createReply(hal.getSentence(m.getTrailing().toLowerCase())).send();
+			hal.add(m.getTrailing().toLowerCase());
 		} else {
 			if(time<=0) {
-				m.createReply(hal.getSentence(m.modTrailing)).send();
-				hal.add(m.modTrailing);
+				m.createReply(hal.getSentence(m.getModTrailing())).send();
+				hal.add(m.getModTrailing());
 				time = (int) (Math.random() * 40 + 10);
 			} else
 				time--;

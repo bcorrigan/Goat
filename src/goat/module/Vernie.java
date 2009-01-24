@@ -38,32 +38,32 @@ public class Vernie extends Module {
 
 		String message;
 
-		channel = m.channame;
+		channel = m.getChanname();
 
-		String towho = m.channame;
+		String towho = m.getChanname();
 
-		message = m.trailing;
+		message = m.getTrailing();
 
-		if (m.params.equals(BotStats.botname)) {
-			towho = m.sender;
+		if (m.getParams().equals(BotStats.botname)) {
+			towho = m.getSender();
 		}
 
-		if (m.isCTCP && m.CTCPCommand.equals("ACTION"))
-			message = m.CTCPMessage;
+		if (m.isCTCP() && m.getCTCPCommand().equals("ACTION"))
+			message = m.getCTCPMessage();
 
-		findLinks(message, towho, m.sender);
+		findLinks(message, towho, m.getSender());
 
-		if (m.isPrivate) {
+		if (m.isPrivate()) {
 			//check the command
 
-			towho = m.sender;
+			towho = m.getSender();
 
 			if (message.equals("link history") || message.equals("show history"))
 				performaction = true;
 		} else if (message.length() > BotStats.botname.length() && message.toLowerCase().substring(0, BotStats.botname.length()).equals(BotStats.botname.toLowerCase())) {
 			//check the command
 
-			towho = m.sender;
+			towho = m.getSender();
 
 			int i = message.indexOf(' ');
 			message = message.substring(i + 1);
@@ -72,9 +72,9 @@ public class Vernie extends Module {
 				performaction = true;
 		}
 
-		if (m.isAuthorised) {
+		if (m.isAuthorised()) {
 			//check the command
-			towho = m.sender;
+			towho = m.getSender();
 
 			if (message.equals("post titles") || message.equals("show titles")) {
 				posttitles = !posttitles;

@@ -19,7 +19,7 @@ public class TODO extends Module {
 	}
 	
 	public void processPrivateMessage(Message m) {
-		if (m.command.equalsIgnoreCase("reallytodo"))
+		if (m.getCommand().equalsIgnoreCase("reallytodo"))
 			m.createPagedReply(todo) ;
 		else
 			m.createPagedReply("Not implemented.").send() ;

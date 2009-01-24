@@ -44,6 +44,7 @@ import java.text.NumberFormat;
 import java.io.IOException;
 import java.util.*;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
@@ -96,23 +97,26 @@ public class CurrencyConverter extends Module {
         		return;
         	}
         }
-        Users users = new Users();
-        User user = new User();
-        if (users.hasUser(m.sender)) 
-        	user = users.getUser(m.sender);
+        String userCurrency = "";
+        Users users = goat.Goat.getUsers();
+        if(users.hasUser(m.getSender()))
+        	userCurrency = users.getUser(m.getSender()).getCurrency();
+        //User user = new User();
+        //if (users.hasUser(m.sender)) 
+        //	user = users.getUser(m.sender);
         if (!exchangeRates.isEmpty()) {
         	String fromCurrency="";
         	double fromAmount = 1.0;
         	String toCurrency="";
         	String[] args = {};
-    		String trailing = Message.removeFormattingAndColors(m.modTrailing);
+    		String trailing = Constants.removeFormattingAndColors(m.getModTrailing());
     		trailing = trailing.replaceAll(",", "");
     		trailing = translateCurrencyAliases(trailing);
     		trailing = trailing.trim();
     		if(trailing.matches(".*\\s+.*"))
     			args = trailing.split("\\s+");
         	if(DEBUG)
-        		System.out.println("convert: modTrailing is \"" + m.modTrailing + "\"");
+        		System.out.println("convert: modTrailing is \"" + m.getModTrailing() + "\"");
         	try {
         		if (trailing.matches("(?i)\\d+(\\.\\d+)?\\s+[a-z]{3}\\s+to\\s+[a-z]{3}.*")) {
         			fromCurrency = args[1];
@@ -122,29 +126,29 @@ public class CurrencyConverter extends Module {
         			fromCurrency = args[0];
         			toCurrency = args[2].substring(0,3);
         		} else if(trailing.matches("(?i)\\d+(\\.\\d+)?\\s+to\\s+[a-z]{3}.*")) {
-        			if(user.getCurrency().equals("")) {
-        				m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        			if(userCurrency.equals("")) {
+        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
         				return;
         			} else {
-        				fromCurrency = user.getCurrency();
+        				fromCurrency = userCurrency;
         				fromAmount = Double.parseDouble(args[0]);
         				toCurrency = args[2].substring(0,3);
         			}
         		} else if(trailing.matches("(?i)\\d+(\\.\\d+)?\\s+[a-z]{3}.*")) {
-        			if(user.getCurrency().equals("")) {
-        				m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        			if(userCurrency.equals("")) {
+        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
         				return;
         			} else {
-        				toCurrency = user.getCurrency();
+        				toCurrency = userCurrency;
         				fromAmount = Double.parseDouble(args[0]);
         				fromCurrency = args[1].substring(0,3);
         			}
         		} else if(trailing.matches("(?i)to\\s+[a-z]{3}.*")) {
-        			if(user.getCurrency().equals("")) {
-        				m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        			if(userCurrency.equals("")) {
+        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
         				return;
         			} else {
-        				fromCurrency = user.getCurrency();
+        				fromCurrency = userCurrency;
         				fromAmount = 1.0;
         				toCurrency = args[1].substring(0,3);
         			}
@@ -163,11 +167,11 @@ public class CurrencyConverter extends Module {
         			m.createPagedReply(buff.toString()).send();
         			return;
         		} else if(trailing.matches("[a-zA-Z]{3}.*")) {
-        			if(user.getCurrency().equals("")) {
-        				m.createReply("I don't know your currency, " + m.sender + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        			if(userCurrency.equals("")) {
+        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
         				return;
         			} else {
-        				toCurrency = user.getCurrency();
+        				toCurrency = userCurrency;
         				fromAmount = 1.0;
         				fromCurrency = trailing.substring(0,3);
         			}
@@ -207,7 +211,7 @@ public class CurrencyConverter extends Module {
         			
         		} catch (NullPointerException e) {
         			m.createPagedReply("The supported currencies are: " + exchangeRates.keySet().toString()).send();
-        			e.printStackTrace();
+        			// e.printStackTrace();
         		} catch (NumberFormatException nfe) {
         			m.createReply("I got confused by a number in my exchange rate table.").send();
         			nfe.printStackTrace();

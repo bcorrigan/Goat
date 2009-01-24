@@ -48,8 +48,8 @@ public class BookTitle extends Module {
 		if (! wordsLoaded) {
 			loadWords() ;
 		}
-		if (m.modCommand.equalsIgnoreCase("title")) {
-			String arg = m.modTrailing.trim() ;
+		if (m.getModCommand().equalsIgnoreCase("title")) {
+			String arg = m.getModTrailing().trim() ;
 			String noun1 = getRandomNoun() ;
 			String noun2 = getRandomNoun() ;
 			String adj = getRandomAdjective() ;
@@ -76,19 +76,19 @@ public class BookTitle extends Module {
 			titles.add("The " + noun1 + " of the " + noun2) ;
 			titles.add(noun1 + " in the " + noun2) ;
 			m.createReply((String) titles.remove(random.nextInt(titles.size()))).send();
-		} else if(m.modCommand.equalsIgnoreCase("titlenouns")) {
+		} else if(m.getModCommand().equalsIgnoreCase("titlenouns")) {
 			String reply = num_nouns + " nouns:  " ;
 			for(int i=0;i<num_nouns;i++) {
 				reply += nouns[i] + " " ;
 			}
 			m.createPagedReply(reply).send() ;
-		} else if(m.modCommand.equalsIgnoreCase("titleadjectives")) {
+		} else if(m.getModCommand().equalsIgnoreCase("titleadjectives")) {
 			String reply = num_adjs + " adjectives:  " ;
 			for(int i=0;i<num_adjs;i++) {
 				reply += adjectives[i] + " " ;
 			}
 			m.createPagedReply(reply).send() ;
-		} else if(m.modCommand.equalsIgnoreCase("titlewords")) {
+		} else if(m.getModCommand().equalsIgnoreCase("titlewords")) {
 			m.createReply("I'm not telling.").send() ;
 		}
 	}

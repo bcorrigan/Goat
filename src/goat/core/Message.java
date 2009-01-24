@@ -4,8 +4,9 @@ import goat.Goat;
 import goat.util.Pager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * <P>This class encapsulates an IRC Message. An IRC message is one line of communication, either from the server to the
@@ -30,45 +31,45 @@ public class Message {
     /**
 	 * The outqueue instance for sending messages
 	 */
-	private static MessageQueue outqueue = Goat.outqueue;
+	private static LinkedBlockingQueue<Message> outqueue = Goat.outqueue;
 	/**
 	 * True if this message is sent by the owner.
 	 */
-	public boolean isAuthorised;
+	private boolean isAuthorised;
 	/**
 	 * The prefix of a message. Usually the hostmask who sent the message. The sender field is a substring of this.
 	 */
-	public String prefix = "";
+	private String prefix = "";
 
 	/**
 	 * The content of a message. Often a line of chat.
 	 * <p/>
 	 * In the case of PRIVMSG, this is the chat line.
 	 */
-	public String trailing = "";
+	private String trailing = "";
 
 	/**
 	 * The first word of the content of the message - eg the "command" that modules may be interested in
 	 */
-	public String modCommand = "";
+	private String modCommand = "";
 
 	/**
 	 * All the trailing part of the message beyond the first word which may be the module command
 	 */
-	public String modTrailing = "";
+	private String modTrailing = "";
 
 	/**
 	 * The command embodied by a message. Typical commands include PRIVMSG (most user communication), NOTICE (communication
 	 * that must not be automatically responded to), JOIN (join a channel), MODE (change the status of something), and PART
 	 * (leave a channel).
 	 */
-	public String command = "";
+	private String command = "";
 
 	/**
 	 * The parameters of the message command. Often the addressee of a communication. For PRIVMSG, this is either a channel
 	 * or the user receiving the message.
 	 */
-	public String params = "";
+	private String params = "";
 
 	/**
 	 * The nickname part of the sending prefix.
@@ -76,36 +77,36 @@ public class Message {
 	 * This is the nick of the person who sent the message. Not to be confused with the hostmask, which contains other
 	 * details.
 	 */
-	public String sender = "";
+	private String sender = "";
 	
 	/**
 	 * The hostmask of the sending prefix.
 	 * <p/>
 	 * This is the hostmask of the person who sent the message.  Not to be confused with the nick, which is the other part of the prefix.
 	 */
-	public String hostmask = "";
+	private String hostmask = "";
 
 	/**
 	 * Whether this message was sent one to one. False if sent to a channel, true if only to one user.
 	 */
-	public boolean isPrivate;
+	private boolean isPrivate;
 
 	/**
 	 * The Channel name
 	 */
-	public String channame = "";
+	private String channame = "";
 
 	/**
 	 * Where replies to this message should be sent.  Should be equal to sender if isPrivate is true, otherwise equal to channame.  Changing this will change the behavior of createReply() and createPagedReply().
 	 */
-	public String replyTo = "" ;
+	private String replyTo = "" ;
 
     /**
      * If goat has been directly addressed, this is true.
      * That is to say, if the user has said "goat, blah blah blah" it is true,
      * but if they have said merely "blah blah blah" it is false
      */
-    public boolean directlyAddressed;
+    private boolean directlyAddressed;
 
     /**
 	 * CTCP is a slight addition to the protocol. Effectively, this allows extension commands to be supplied, which can be
@@ -114,21 +115,21 @@ public class Message {
 	 * <p/>
 	 * The most common example of CTCP is the CTCP ACTION, which is used by typing /me in most clients.
 	 */
-	public boolean isCTCP;
+	private boolean isCTCP;
 
 	/**
 	 * The CTCP command (if isCTCP is true). eg. 'ACTION' for an action/emote
 	 */
-	public String CTCPCommand = "";
+	private String CTCPCommand = "";
 
 	/**
 	 * The CTCP message (if isCTCP is true). eg. 'giggles' in '/me giggles'
 	 */
-	public String CTCPMessage = "";
+	private String CTCPMessage = "";
 
-	private ArrayList words;
+	private ArrayList<String> words;
 
-	private static HashMap pagerCache = new HashMap() ;
+	private static ConcurrentHashMap<String, Pager> pagerCache = new ConcurrentHashMap<String, Pager>() ;
 
 	
 	public Message() {
@@ -140,280 +141,11 @@ public class Message {
 	 * empty (but not null) with most outgoing messages.
 	 */
 	public Message(String prefix, String command, String params, String trailing) {
-		this.prefix = prefix;
-		this.command = command;
-		this.params = params;
-		this.trailing = trailing;
+		this.setPrefix(prefix);
+		this.setCommand(command);
+		this.setParams(params);
+		this.setTrailing(trailing);
 	}
-
-	/**
-	 * Removes all previously applied color and formatting attributes.
-	 */
-	public static final String NORMAL = "\u000f";
-
-
-	/**
-	 * Bold text.
-	 */
-	public static final String BOLD = "\u0002";
-
-
-	/**
-	 * Underlined text.
-	 */
-	public static final String UNDERLINE = "\u001f";
-
-
-	/**
-	 * Reversed text (may be rendered as italic text in some clients).
-	 */
-	public static final String REVERSE = "\u0016";
-
-    /**
-     * A colour code, provided for doing bg colours and stuff
-     */
-    public static final String COLCODE = "\u0003";
-    
-	/**
-	 * White coloured text.
-	 */
-	public static final String WHITE = "\u000300";
-
-
-	/**
-	 * Black coloured text.
-	 */
-	public static final String BLACK = "\u000301";
-
-
-	/**
-	 * Dark blue coloured text.
-	 */
-	public static final String DARK_BLUE = "\u000302";
-
-
-	/**
-	 * Dark green coloured text.
-	 */
-	public static final String DARK_GREEN = "\u000303";
-
-
-	/**
-	 * Red coloured text.
-	 */
-	public static final String RED = "\u000304";
-
-
-	/**
-	 * Brown coloured text.
-	 */
-	public static final String BROWN = "\u000305";
-
-
-	/**
-	 * Purple coloured text.
-	 */
-	public static final String PURPLE = "\u000306";
-
-
-	/**
-	 * Olive coloured text.
-	 */
-	public static final String OLIVE = "\u000307";
-
-
-	/**
-	 * Yellow coloured text.
-	 */
-	public static final String YELLOW = "\u000308";
-
-
-	/**
-	 * Green coloured text.
-	 */
-	public static final String GREEN = "\u000309";
-
-
-	/**
-	 * Teal coloured text.
-	 */
-	public static final String TEAL = "\u000310";
-
-
-	/**
-	 * Cyan coloured text.
-	 */
-	public static final String CYAN = "\u000311";
-
-
-	/**
-	 * Blue coloured text.
-	 */
-	public static final String BLUE = "\u000312";
-
-
-	/**
-	 * Magenta coloured text.
-	 */
-	public static final String MAGENTA = "\u000313";
-
-
-	/**
-	 * Dark gray coloured text.
-	 */
-	public static final String DARK_GRAY = "\u000314";
-
-
-	/**
-	 * Light gray coloured text.
-	 */
-	public static final String LIGHT_GRAY = "\u000315";
-
-	//Various response codes follow:
-	
-	// Error Replies.
-	public static final int ERR_NOSUCHNICK = 401;
-	public static final int ERR_NOSUCHSERVER = 402;
-	public static final int ERR_NOSUCHCHANNEL = 403;
-	public static final int ERR_CANNOTSENDTOCHAN = 404;
-	public static final int ERR_TOOMANYCHANNELS = 405;
-	public static final int ERR_WASNOSUCHNICK = 406;
-	public static final int ERR_TOOMANYTARGETS = 407;
-	public static final int ERR_NOORIGIN = 409;
-	public static final int ERR_NORECIPIENT = 411;
-	public static final int ERR_NOTEXTTOSEND = 412;
-	public static final int ERR_NOTOPLEVEL = 413;
-	public static final int ERR_WILDTOPLEVEL = 414;
-	public static final int ERR_UNKNOWNCOMMAND = 421;
-	public static final int ERR_NOMOTD = 422;
-	public static final int ERR_NOADMININFO = 423;
-	public static final int ERR_FILEERROR = 424;
-	public static final int ERR_NONICKNAMEGIVEN = 431;
-	public static final int ERR_ERRONEUSNICKNAME = 432;
-	public static final int ERR_NICKNAMEINUSE = 433;
-	public static final int ERR_NICKCOLLISION = 436;
-	public static final int ERR_USERNOTINCHANNEL = 441;
-	public static final int ERR_NOTONCHANNEL = 442;
-	public static final int ERR_USERONCHANNEL = 443;
-	public static final int ERR_NOLOGIN = 444;
-	public static final int ERR_SUMMONDISABLED = 445;
-	public static final int ERR_USERSDISABLED = 446;
-	public static final int ERR_NOTREGISTERED = 451;
-	public static final int ERR_NEEDMOREPARAMS = 461;
-	public static final int ERR_ALREADYREGISTRED = 462;
-	public static final int ERR_NOPERMFORHOST = 463;
-	public static final int ERR_PASSWDMISMATCH = 464;
-	public static final int ERR_YOUREBANNEDCREEP = 465;
-	public static final int ERR_KEYSET = 467;
-	public static final int ERR_CHANNELISFULL = 471;
-	public static final int ERR_UNKNOWNMODE = 472;
-	public static final int ERR_INVITEONLYCHAN = 473;
-	public static final int ERR_BANNEDFROMCHAN = 474;
-	public static final int ERR_BADCHANNELKEY = 475;
-	public static final int ERR_NOPRIVILEGES = 481;
-	public static final int ERR_CHANOPRIVSNEEDED = 482;
-	public static final int ERR_CANTKILLSERVER = 483;
-	public static final int ERR_NOOPERHOST = 491;
-	public static final int ERR_UMODEUNKNOWNFLAG = 501;
-	public static final int ERR_USERSDONTMATCH = 502;
-
-
-	// Command Responses.
-	public static final int RPL_TRACELINK = 200;
-	public static final int RPL_TRACECONNECTING = 201;
-	public static final int RPL_TRACEHANDSHAKE = 202;
-	public static final int RPL_TRACEUNKNOWN = 203;
-	public static final int RPL_TRACEOPERATOR = 204;
-	public static final int RPL_TRACEUSER = 205;
-	public static final int RPL_TRACESERVER = 206;
-	public static final int RPL_TRACENEWTYPE = 208;
-	public static final int RPL_STATSLINKINFO = 211;
-	public static final int RPL_STATSCOMMANDS = 212;
-	public static final int RPL_STATSCLINE = 213;
-	public static final int RPL_STATSNLINE = 214;
-	public static final int RPL_STATSILINE = 215;
-	public static final int RPL_STATSKLINE = 216;
-	public static final int RPL_STATSYLINE = 218;
-	public static final int RPL_ENDOFSTATS = 219;
-	public static final int RPL_UMODEIS = 221;
-	public static final int RPL_STATSLLINE = 241;
-	public static final int RPL_STATSUPTIME = 242;
-	public static final int RPL_STATSOLINE = 243;
-	public static final int RPL_STATSHLINE = 244;
-	public static final int RPL_LUSERCLIENT = 251;
-	public static final int RPL_LUSEROP = 252;
-	public static final int RPL_LUSERUNKNOWN = 253;
-	public static final int RPL_LUSERCHANNELS = 254;
-	public static final int RPL_LUSERME = 255;
-	public static final int RPL_ADMINME = 256;
-	public static final int RPL_ADMINLOC1 = 257;
-	public static final int RPL_ADMINLOC2 = 258;
-	public static final int RPL_ADMINEMAIL = 259;
-	public static final int RPL_TRACELOG = 261;
-	public static final int RPL_NONE = 300;
-	public static final int RPL_AWAY = 301;
-	public static final int RPL_USERHOST = 302;
-	public static final int RPL_ISON = 303;
-	public static final int RPL_UNAWAY = 305;
-	public static final int RPL_NOWAWAY = 306;
-	public static final int RPL_WHOISUSER = 311;
-	public static final int RPL_WHOISSERVER = 312;
-	public static final int RPL_WHOISOPERATOR = 313;
-	public static final int RPL_WHOWASUSER = 314;
-	public static final int RPL_ENDOFWHO = 315;
-	public static final int RPL_WHOISIDLE = 317;
-	public static final int RPL_ENDOFWHOIS = 318;
-	public static final int RPL_WHOISCHANNELS = 319;
-	public static final int RPL_LISTSTART = 321;
-	public static final int RPL_LIST = 322;
-	public static final int RPL_LISTEND = 323;
-	public static final int RPL_CHANNELMODEIS = 324;
-	public static final int RPL_NOTOPIC = 331;
-	public static final int RPL_TOPIC = 332;
-	public static final int RPL_TOPICINFO = 333;
-	public static final int RPL_INVITING = 341;
-	public static final int RPL_SUMMONING = 342;
-	public static final int RPL_VERSION = 351;
-	public static final int RPL_WHOREPLY = 352;
-	public static final int RPL_NAMREPLY = 353;
-	public static final int RPL_LINKS = 364;
-	public static final int RPL_ENDOFLINKS = 365;
-	public static final int RPL_ENDOFNAMES = 366;
-	public static final int RPL_BANLIST = 367;
-	public static final int RPL_ENDOFBANLIST = 368;
-	public static final int RPL_ENDOFWHOWAS = 369;
-	public static final int RPL_INFO = 371;
-	public static final int RPL_MOTD = 372;
-	public static final int RPL_ENDOFINFO = 374;
-	public static final int RPL_MOTDSTART = 375;
-	public static final int RPL_ENDOFMOTD = 376;
-	public static final int RPL_YOUREOPER = 381;
-	public static final int RPL_REHASHING = 382;
-	public static final int RPL_TIME = 391;
-	public static final int RPL_USERSSTART = 392;
-	public static final int RPL_USERS = 393;
-	public static final int RPL_ENDOFUSERS = 394;
-	public static final int RPL_NOUSERS = 395;
-
-
-	// Reserved Numerics.
-	public static final int RPL_TRACECLASS = 209;
-	public static final int RPL_STATSQLINE = 217;
-	public static final int RPL_SERVICEINFO = 231;
-	public static final int RPL_ENDOFSERVICES = 232;
-	public static final int RPL_SERVICE = 233;
-	public static final int RPL_SERVLIST = 234;
-	public static final int RPL_SERVLISTEND = 235;
-	public static final int RPL_WHOISCHANOP = 316;
-	public static final int RPL_KILLDONE = 361;
-	public static final int RPL_CLOSING = 362;
-	public static final int RPL_CLOSEEND = 363;
-	public static final int RPL_INFOSTART = 373;
-	public static final int RPL_MYPORTIS = 384;
-	public static final int ERR_YOUWILLBEBANNED = 466;
-	public static final int ERR_BADCHANMASK = 476;
-	public static final int ERR_NOSERVICEHOST = 492;
-
 
 	/**
 	 * Creates a new outgoing NOTICE.
@@ -440,10 +172,14 @@ public class Message {
 		return new Message("", "PRIVMSG", to, message);
 	}
 
-	public static Message createPagedPrivmsg(String to, String message) {
-		Pager pager = new Pager(message) ;
-		pagerCache.put(to, pager) ;
-		return new Message("", "PRIVMSG", to, pager.getNext()) ;
+	public static synchronized Message createPagedPrivmsg(String to, String message) {
+		Message ret;
+		synchronized (pagerCache) {
+			Pager pager = new Pager(message) ;
+			pagerCache.put(to, pager) ;
+			ret = new Message("", "PRIVMSG", to, pager.getNext()) ;
+		}
+		return ret;
 	}
 
 	/**
@@ -459,12 +195,12 @@ public class Message {
 		if ((null != CTCPparams) && (! CTCPparams.equals("")))
 			payload = CTCPcommand + ' ' + CTCPparams ;
 		Message m = new Message("", command, to, (char) 0x01 + payload + (char) 0x01);
-		m.CTCPCommand = CTCPcommand ;
+		m.setCTCPCommand(CTCPcommand);
 		if (null != CTCPparams) 
-			m.CTCPMessage = CTCPparams ;
+			m.setCTCPMessage(CTCPparams);
 		else
-			m.CTCPMessage = "" ;
-		m.isCTCP = true ;
+			m.setCTCPMessage("");
+		m.setCTCP(true);
 		return m;
 	}
 
@@ -479,57 +215,57 @@ public class Message {
 		{
 			k = messagestring.indexOf(' ');
 			if (k > 0)
-				prefix = messagestring.substring(1, k);
+				setPrefix(messagestring.substring(1, k));
 			i = messagestring.indexOf(' ', k + 1);
-			command = messagestring.substring(k + 1, i);
+			setCommand(messagestring.substring(k + 1, i));
 			j = messagestring.indexOf(" :", i);
 
 			if (j == -1)
-				params = messagestring.substring(i + 1);
+				setParams(messagestring.substring(i + 1));
 			else {
 				if (j != i)
-					params = messagestring.substring(i + 1, j);
-				trailing = messagestring.substring(j + 2);
+					setParams(messagestring.substring(i + 1, j));
+				setTrailing(messagestring.substring(j + 2));
 			}
 		} else    //non prefix form - this doesn't happen in client communications
 		{
 			i = messagestring.indexOf(' ');
-			command = messagestring.substring(0, i);
+			setCommand(messagestring.substring(0, i));
 			j = messagestring.indexOf(" :", i);
 
 			if (j < 0)
-				params = messagestring.substring(i + 1);
+				setParams(messagestring.substring(i + 1));
 			else {
 				if (j != i)
-					params = messagestring.substring(i + 1, j);
-				trailing = messagestring.substring(j + 2);
+					setParams(messagestring.substring(i + 1, j));
+				setTrailing(messagestring.substring(j + 2));
 			}
 		}
 
 		//Extended parsing decodes the message further.
 		String CTCP;
 
-		if (trailing != null && trailing.length() > 1 && trailing.charAt(0) == 0x01 && trailing.charAt(trailing.length() - 1) == 0x01) {
-			CTCP = trailing.substring(1, trailing.length() - 1);
+		if (getTrailing() != null && getTrailing().length() > 1 && getTrailing().charAt(0) == 0x01 && getTrailing().charAt(getTrailing().length() - 1) == 0x01) {
+			CTCP = getTrailing().substring(1, getTrailing().length() - 1);
 
 			if ((i = CTCP.indexOf(' ')) > -1) {
-				CTCPCommand = CTCP.substring(0, i);
-				CTCPMessage = CTCP.substring(i);
+				setCTCPCommand(CTCP.substring(0, i));
+				setCTCPMessage(CTCP.substring(i));
 			} else {
-				CTCPCommand = CTCP;
+				setCTCPCommand(CTCP);
 			}
 
-			isCTCP = true;
-		} else if (trailing != null) {
-			words = new ArrayList(30);
+			setCTCP(true);
+		} else if (getTrailing() != null) {
+			words = new ArrayList<String>(30);
 
 			int state = 0;
 
 			char ch;
 			String currentword = "";
 
-			for (i = 0; i < trailing.length(); i++) {
-				ch = trailing.charAt(i);
+			for (i = 0; i < getTrailing().length(); i++) {
+				ch = getTrailing().charAt(i);
 
 				switch (Character.getType(ch)) {
 					case Character.DECIMAL_DIGIT_NUMBER:
@@ -562,30 +298,32 @@ public class Message {
 
 			words.trimToSize();
 		}
-		if (prefix != null) {
-			j = prefix.indexOf('!');
+		if (getPrefix() != null) {
+			j = getPrefix().indexOf('!');
 			if (j > -1) { 
-				sender = prefix.substring(0, j);
-				hostmask = prefix.substring(j + 1) ;
+				setSender(getPrefix().substring(0, j));
+				setHostmask(getPrefix().substring(j + 1));
 			}
 		}
-		if (command.equals("PRIVMSG")) {
-			if (params.equals(BotStats.botname)) {
-				isPrivate = true;
-				replyTo = sender;
+		if (getCommand().equals("PRIVMSG")) {
+			if (getParams().equals(BotStats.botname)) {
+				setPrivate(true);
+				setReplyTo(getSender());
+			} else {
+				setChanname(getParams());
+				setReplyTo(getChanname());
+			}
+		} else if(getCommand().equals("PART")) {
+			setChanname(getParams());
+		} else if (getCommand().equals("JOIN")) {
+			setChanname(getTrailing());
+		} else if(getCommand().equals("NOTICE")) {
+			if (getParams().equals(BotStats.botname)) {
+				setPrivate(true);
+				setReplyTo(""); // never reply to a NOTICE
 			} else 
-				replyTo = channame = params ;
-		} else if(command.equals("PART")) {
-			channame = params ;
-		} else if (command.equals("JOIN")) {
-			channame = trailing ;
-		} else if(command.equals("NOTICE")) {
-			if (params.equals(BotStats.botname)) {
-				isPrivate = true;
-				replyTo = "" ; // never reply to a NOTICE
-			} else 
-				channame = params ;
-				replyTo = "" ; // never reply to a NOTICE
+				setChanname(getParams());
+				setReplyTo(""); // never reply to a NOTICE
 		}
 
 		/* this ain't right.  --rs.
@@ -594,8 +332,8 @@ public class Message {
 		else
 			replyTo = channame ;
 		*/
-		if (isPrivate) {  //if private, set modTrailing (everything after command), modCommand (first word) and ignore "goat"
-			String words = trailing;
+		if (isPrivate()) {  //if private, set modTrailing (everything after command), modCommand (first word) and ignore "goat"
+			String words = getTrailing();
 			StringTokenizer st = new StringTokenizer(words);
 			String firstWord = "";
 			if (st.hasMoreTokens()) {
@@ -603,20 +341,20 @@ public class Message {
 			}
 			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
                     && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
-                directlyAddressed = true;
+                setDirectlyAddressed(true);
                 if (st.hasMoreTokens()) {
-					modCommand = st.nextToken();
+					setModCommand(st.nextToken());
 					while (st.hasMoreTokens())
-						modTrailing += st.nextToken() + ' ';         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
+						setModTrailing(getModTrailing() + (st.nextToken() + ' '));         //TODO all this String concatenation in loops is nae use, need to replace with StringBuffer. But StringBuilder comes with jdk1.5, so will just wait till it is widespread
 				}
 			} else {
-                directlyAddressed = false;
-                modCommand = removeFormattingAndColors(firstWord);
+                setDirectlyAddressed(false);
+                setModCommand(Constants.removeFormattingAndColors(firstWord));
 				while (st.hasMoreTokens())
-					modTrailing += st.nextToken() + ' ';
+					setModTrailing(getModTrailing() + (st.nextToken() + ' '));
 			}
-		} else if (!isCTCP) {
-			String words = trailing;
+		} else if (!isCTCP()) {
+			String words = getTrailing();
 			StringTokenizer st = new StringTokenizer(words);
 			String firstWord = "";
 			if (st.hasMoreTokens()) {
@@ -624,25 +362,25 @@ public class Message {
 			}
 			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
                     && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
-                directlyAddressed = true;
+                setDirectlyAddressed(true);
                 if (st.hasMoreTokens())
-					modCommand = st.nextToken();
+					setModCommand(st.nextToken());
 			} else {
-                directlyAddressed = false;
-                modCommand = removeFormattingAndColors(firstWord);
+                setDirectlyAddressed(false);
+                setModCommand(Constants.removeFormattingAndColors(firstWord));
 			}
 
 			while (st.hasMoreTokens()) {
-				modTrailing += st.nextToken() + ' ';
+				setModTrailing(getModTrailing() + (st.nextToken() + ' '));
 			}
 		}
 
-		if (isPrivate && prefix.equals(BotStats.owner))
-			isAuthorised = true;
+		if (isPrivate() && getPrefix().equals(BotStats.owner))
+			setAuthorised(true);
 	}
 
 	byte[] toByteArray() {
-		String message = (prefix.length() > 0 ? ':' + prefix + ' ' : "") + command + (params.length() > 0 ? " " : "") + params + (trailing.length() > 0 ? " :" + trailing : "");
+		String message = (getPrefix().length() > 0 ? ':' + getPrefix() + ' ' : "") + getCommand() + (getParams().length() > 0 ? " " : "") + getParams() + (getTrailing().length() > 0 ? " :" + getTrailing() : "");
 
 		char[] chars = message.toCharArray();
 
@@ -662,7 +400,7 @@ public class Message {
 	}
 	
 	public String toString() {
-		return ( (prefix.length() > 0 ? ':' + prefix + ' ' : "") + command + (params.length() > 0 ? " " : "") + params + (trailing.length() > 0 ? " :" + trailing : "") );
+		return ( (getPrefix().length() > 0 ? ':' + getPrefix() + ' ' : "") + getCommand() + (getParams().length() > 0 ? " " : "") + getParams() + (getTrailing().length() > 0 ? " :" + getTrailing() : "") );
 	}
 
 	/**
@@ -692,10 +430,12 @@ public class Message {
 	 * @param trailing The message to send to the person.
 	 */
 	public Message createReply(String trailing) {
-		if (!command.equals("PRIVMSG")) {
-			return new Message("", "", "", ""); //hopefully this will be accepted and ignored
-		}
-		return new Message("", "PRIVMSG", replyTo, trailing);
+		Message ret;
+		if (getCommand().equals("PRIVMSG"))
+			ret = createPrivmsg(getReplyTo(), trailing);
+		else
+			ret = new Message("", "", "", ""); //hopefully this will be accepted and ignored
+		return ret;
 	}
 
 	/** 
@@ -706,13 +446,16 @@ public class Message {
 	 * @return a message containing the first chunk of paged text, which the caller will most likely want to send()
 	 */
 	public Message createPagedReply(String trailing) {
-		if (trailing.length() <= Pager.maxMessageLength) 
-			return createReply(Pager.smush(trailing)) ;
-		else {
-			Pager pager = new Pager(trailing) ;
-			pagerCache.put(replyTo, pager) ;
-			return createReply(pager.getNext()) ;
-		}
+		Message ret;
+		String smushedPayload = Pager.smush(trailing);
+		if(getCommand().equals("PRIVMSG"))
+			if (smushedPayload.length() <= Pager.maxMessageLength) 
+				ret = createReply(smushedPayload) ;
+			else
+				ret = createPagedPrivmsg(getReplyTo(), trailing);
+		else
+			ret = new Message("","","",""); //hopefully this will be accepted and ignored
+		return ret;
 	}
 	
 	/**
@@ -721,26 +464,47 @@ public class Message {
 	 * @return true if there's more text to be had.
 	 */
 	public boolean hasNextPage() {
-		if ( ! pagerCache.containsKey(replyTo) ) 
-			return false ;
-		Pager pager = (Pager) pagerCache.get(replyTo) ;
-		if (pager.isEmpty()) {
-			pagerCache.remove(replyTo) ;
-			return false ;
-		}
-		return true ;
+		return hasNextPage(getReplyTo());
 	}
 
+	public static boolean hasNextPage(String key) {
+		boolean ret = false;
+		synchronized (pagerCache) {
+			if (pagerCache.containsKey(key) ) {
+				Pager pager = pagerCache.get(key) ;
+				if (pager.isEmpty()) 
+					pagerCache.remove(key);
+				else
+					ret = true;
+			}
+		}
+		return ret ;
+	}
+	
 	/** 
 	 * returns a reply message via createReply containing the next page of text, if any, from the pager cache for the current channel/nick (ie, "params")
 	 *
-	 * @return aforsaid message, if there is more text in the buffer, else an empty message.
+	 * @return aforesaid message, if there is more text in the buffer, else an empty message.
 	 */
 	public Message createNextPage() {
-		if (! hasNextPage() ) 
-			return new Message("", "", "", "") ;
-		Pager pager = (Pager) pagerCache.get(replyTo)  ;
-		return createReply(pager.getNext()) ;
+		Message ret = new Message("", "", "", "") ;
+		synchronized (pagerCache) {
+			if (hasNextPage() ) 
+				ret = createReply(nextPage(getReplyTo())) ;
+		}
+		return ret ;
+	}
+	
+	public static String nextPage(String key) {
+		String ret = "";
+		if (hasNextPage(key) )
+			synchronized (pagerCache) {
+				Pager pager = pagerCache.get(key);
+				ret = pager.getNext();
+				if(pager.isEmpty())
+					pagerCache.remove(key);
+			}
+		return ret;
 	}
 
 	/**
@@ -752,142 +516,57 @@ public class Message {
 	 * @param trailing The message to send.
 	 */
 	public Message createReply(String command, String trailing) {
-		if (!this.command.equals("PRIVMSG")) {
+		if (!this.getCommand().equals("PRIVMSG")) {
 			return new Message("", "", "", ""); //hopefully this will be accepted and ignored
 		}
-		return new Message("", command, replyTo, trailing);
+		return new Message("", command, getReplyTo(), trailing);
 	}
 
-	/**
-	 * Removes all colours from a line of text. nicked from pircbot
-	 */
-	public static String removeColors(String line) {
-		int length = line.length();
-		StringBuffer buffer = new StringBuffer(length);
-		int i = 0;
-		while (i < length) {
-			char ch = line.charAt(i);
-			if (ch == '\u0003') {
-				i++;
-				// Skip "x" or "xy" (foreground color).
-				if (i < length) {
-					ch = line.charAt(i);
-					if (Character.isDigit(ch)) {
-						i++;
-						if (i < length) {
-							ch = line.charAt(i);
-							if (Character.isDigit(ch)) {
-								i++;
-							}
-						}
-						// Now skip ",x" or ",xy" (background color).
-						if (i < length) {
-							ch = line.charAt(i);
-							if (ch == ',') {
-								i++;
-								if (i < length) {
-									ch = line.charAt(i);
-									if (Character.isDigit(ch)) {
-										i++;
-										if (i < length) {
-											ch = line.charAt(i);
-											if (Character.isDigit(ch)) {
-												i++;
-											}
-										}
-									} else {
-										// Keep the comma.
-										i--;
-									}
-								} else {
-									// Keep the comma.
-									i--;
-								}
-							}
-						}
-					}
-				}
-			} else if (ch == '\u000f') {
-				i++;
-			} else {
-				buffer.append(ch);
-				i++;
-			}
-		}
-		return buffer.toString();
-	}
 
-	/**
-	 * Removes all colours from this message (from trailing and modTrailing fields)
-	 */
-	public void removeColors() {
-		trailing = removeColors(trailing);
-		modTrailing = removeColors(modTrailing);
-	}
+	
+//	/**
+//	 * Removes all colours from this message (from trailing and modTrailing fields)
+//	 */
+//	public void removeColors() {
+//		setTrailing(Constants.removeColors(getTrailing()));
+//		setModTrailing(Constants.removeColors(getModTrailing()));
+//	}
+//
+//	/**
+//	 * Removes all formatting from this message. So removes all bold, underlining, reverse etc from the fields trailing & modTrailing.
+//	 */
+//	public void removeFormatting() {
+//		setTrailing(Constants.removeFormatting(getTrailing()));
+//		setModTrailing(Constants.removeFormatting(getModTrailing()));
+//	}
+//
+//	/**
+//	 * Removes all formatting and colors from this message.
+//	 */
+//	public void removeFormattingAndColors() {
+//		removeFormatting();
+//		removeColors();
+//	}
 
-	/**
-	 * Remove formatting from a line of IRC text. From pircbot
-	 *
-	 * @param line the input text.
-	 * @return the same text, but without any bold, underlining, reverse, etc.
-	 */
-	public static String removeFormatting(String line) {
-		int length = line.length();
-		StringBuffer buffer = new StringBuffer(length);
-		for (int i = 0; i < length; i++) {
-			char ch = line.charAt(i);
-			if (ch == '\u000f' || ch == '\u0002' || ch == '\u001f' || ch == '\u0016') {
-				// Don't add this character.
-			} else {
-				buffer.append(ch);
-			}
-		}
-		return buffer.toString();
-	}
-
-	/**
-	 * Removes all formatting from this message. So removes all bold, underlining, reverse etc from the fields trailing & modTrailing.
-	 */
-	public void removeFormatting() {
-		trailing = removeFormatting(trailing);
-		modTrailing = removeFormatting(modTrailing);
-	}
-
-	/**
-	 * Removes all formatting and colors from this message.
-	 */
-	public void removeFormattingAndColors() {
-		removeFormatting();
-		removeColors();
-	}
-
-	/**
-	 * Removes all formatting and colours from a string.
-	 */
-	public static String removeFormattingAndColors(String s) {
-		s = removeColors(s) ;
-		s = removeFormatting(s) ;
-		return s ;
-	}
 
 	/**
 	 * Sends a generic message using the current connection.
 	 */
 	public static void send(Message m) {
 		// Do a little sanity checking and final adjusting before we queue this outgoing message
-		if (m.command.equalsIgnoreCase("PRIVMSG") || m.command.equalsIgnoreCase("NOTICE")) {
-			if (0 == m.params.indexOf("#"))
-				m.channame = m.params ;
-			else if (m.params.equals("")) {
-				System.err.println(m.command + " message has no valid recipient; not sending:") ;
-				System.err.println("   " + m.command + " " + m.params + " | " + m.trailing) ;
+		if (m.getCommand().equalsIgnoreCase("PRIVMSG") || m.getCommand().equalsIgnoreCase("NOTICE")) {
+			if (0 == m.getParams().indexOf("#"))
+				m.setChanname(m.getParams());
+			else if (m.getParams().equals("")) {
+				System.err.println(m.getCommand() + " message has no valid recipient; not sending:") ;
+				System.err.println("   " + m.getCommand() + " " + m.getParams() + " | " + m.getTrailing()) ;
 				return ;
 			}
 		}
-		if (m.sender.equals("")) {
-			m.sender = BotStats.botname ;
+		if (m.getSender().equals("")) {
+			m.setSender(BotStats.botname);
 		}
-		outqueue.enqueue(m);
+		outqueue.add(m);
 	}
 
 	/**
@@ -903,7 +582,7 @@ public class Message {
 		return channame;
 	}
 
-	public void setChanname(String channame) {
+	protected void setChanname(String channame) {
 		this.channame = channame;
 	}
 
@@ -911,7 +590,7 @@ public class Message {
 		return command;
 	}
 
-	public void setCommand(String command) {
+	protected void setCommand(String command) {
 		this.command = command;
 	}
 
@@ -919,7 +598,7 @@ public class Message {
 		return CTCPCommand;
 	}
 
-	public void setCTCPCommand(String command) {
+	protected void setCTCPCommand(String command) {
 		CTCPCommand = command;
 	}
 
@@ -927,7 +606,7 @@ public class Message {
 		return CTCPMessage;
 	}
 
-	public void setCTCPMessage(String message) {
+	protected void setCTCPMessage(String message) {
 		CTCPMessage = message;
 	}
 
@@ -935,7 +614,7 @@ public class Message {
 		return directlyAddressed;
 	}
 
-	public void setDirectlyAddressed(boolean directlyAddressed) {
+	protected void setDirectlyAddressed(boolean directlyAddressed) {
 		this.directlyAddressed = directlyAddressed;
 	}
 
@@ -943,7 +622,7 @@ public class Message {
 		return hostmask;
 	}
 
-	public void setHostmask(String hostmask) {
+	protected void setHostmask(String hostmask) {
 		this.hostmask = hostmask;
 	}
 
@@ -951,7 +630,7 @@ public class Message {
 		return isCTCP;
 	}
 
-	public void setCTCP(boolean isCTCP) {
+	protected void setCTCP(boolean isCTCP) {
 		this.isCTCP = isCTCP;
 	}
 
@@ -959,7 +638,7 @@ public class Message {
 		return modCommand;
 	}
 
-	public void setModCommand(String modCommand) {
+	protected void setModCommand(String modCommand) {
 		this.modCommand = modCommand;
 	}
 
@@ -967,7 +646,7 @@ public class Message {
 		return params;
 	}
 
-	public void setParams(String params) {
+	protected void setParams(String params) {
 		this.params = params;
 	}
 
@@ -975,7 +654,7 @@ public class Message {
 		return prefix;
 	}
 
-	public void setPrefix(String prefix) {
+	protected void setPrefix(String prefix) {
 		this.prefix = prefix;
 	}
 
@@ -983,7 +662,7 @@ public class Message {
 		return sender;
 	}
 
-	public void setSender(String sender) {
+	protected void setSender(String sender) {
 		this.sender = sender;
 	}
 
@@ -991,7 +670,7 @@ public class Message {
 		return trailing;
 	}
 
-	public void setTrailing(String trailing) {
+	protected void setTrailing(String trailing) {
 		this.trailing = trailing;
 	}
 
@@ -999,23 +678,25 @@ public class Message {
 		return isAuthorised;
 	}
 
-	public void setAuthorised(boolean isAuthorised) {
+	protected void setAuthorised(boolean isAuthorised) {
 		this.isAuthorised = isAuthorised;
 	}
 
+	/*
 	public boolean isPrivate() {
-		return isPrivate;
+		return isPrivateMessage();
 	}
 
 	public void setPrivate(boolean isPrivate) {
-		this.isPrivate = isPrivate;
+		this.setPrivateMessage(isPrivate);
 	}
+*/
 
 	public String getModTrailing() {
 		return modTrailing;
 	}
 
-	public void setModTrailing(String modTrailing) {
+	protected void setModTrailing(String modTrailing) {
 		this.modTrailing = modTrailing;
 	}
 
@@ -1023,15 +704,65 @@ public class Message {
 		return replyTo;
 	}
 
-	public void setReplyTo(String replyTo) {
+	protected void setReplyTo(String replyTo) {
 		this.replyTo = replyTo;
 	}
 
-	public ArrayList getWords() {
+	public ArrayList<String> getWords() {
 		return words;
 	}
 
-	public void setWords(ArrayList words) {
+	protected void setWords(ArrayList<String> words) {
 		this.words = words;
+	}
+
+	protected void setPrivate(boolean isPrivate) {
+		this.isPrivate = isPrivate;
+	}
+
+	public boolean isPrivate() {
+		return isPrivate;
+	}
+	
+	public String dataDump() {
+		String ret = toString();
+		if(!"".equals(channame))
+			ret += "\n   channame:           " + channame;
+		if(!"".equals(command))
+			ret += "\n   command:            " + command;
+		if (!"".equals(CTCPCommand))
+			ret += "\n   CTCPCommand:        " + CTCPCommand;
+		if(!"".equals(CTCPMessage))
+			ret += "\n   CTCPMessage:        " + CTCPMessage;
+		if(directlyAddressed) 
+			ret += "\n   directlyAddressed.";
+		if(!"".equals(hostmask))
+			ret += "\n   hostmask            " + hostmask;
+		if(isAuthorised) 
+			ret += "\n   isAuthorised.";
+		if(isCTCP) 
+			ret += "\n   isCTCP.";
+		if(isPrivate) 
+			ret += "\n   isPrivate.";
+		if(!"".equals(modCommand))
+			ret += "\n   modCommand:          " + modCommand;
+		if(!"".equals(modTrailing))
+			ret += "\n   modTrailing:         " + modTrailing;
+		if(!"".equals(params))
+			ret += "\n   params:              " + params;
+		if(!"".equals(prefix))
+			ret += "\n   prefix:              " + prefix;
+		if(!"".equals(replyTo))
+			ret += "\n   replyTo:             " + replyTo;
+		if(!"".equals(sender))
+			ret += "\n   sender:              " + sender;
+		if(!"".equals(trailing))
+			ret += "\n   trailing:            " + trailing;
+		if(! words.isEmpty()) {
+			ret += "\n   words:              ";
+			for(String w: words)
+				ret += " " + w; 
+		}
+		return ret;
 	}
 }

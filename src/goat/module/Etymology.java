@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 
@@ -26,9 +27,9 @@ public class Etymology extends Module {
 	@Override
 	public void processChannelMessage(Message m) {
 		// grab query string
-		String query = m.modTrailing;
+		String query = m.getModTrailing();
 		// strip away any irc gunk and leading/trailing whitespace
-		query = Message.removeFormattingAndColors(query).trim();
+		query = Constants.removeFormattingAndColors(query).trim();
 		// remove quote marks, we'll put them back later if we need them
 		query = query.replaceAll("\"", "") ;
 		query=query.trim();
@@ -83,7 +84,7 @@ public class Etymology extends Module {
         HttpURLConnection connection = null;
 		try {
 			searchString = searchString.trim();
-			searchString = Message.removeFormattingAndColors(searchString);
+			searchString = Constants.removeFormattingAndColors(searchString);
 			String query = searchString;
 			//spaces between words need ot be +'s
 			query = query.replaceAll("\\s+", "+");

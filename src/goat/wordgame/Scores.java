@@ -1,5 +1,6 @@
 package goat.wordgame;
 
+import goat.core.Constants;
 import goat.core.Message;
 
 import java.io.*;
@@ -80,13 +81,13 @@ public class Scores implements Comparator {
 				largestsScore = entry[1].length();
 		}
 
-		m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[largestNick + 3 - 4]
+		m.createReply("   " + Constants.UNDERLINE + "Name" + SPACES[largestNick + 3 - 4]
 				+ "HiScore" + SPACES[largesthScore + 7 - 7]
 				+ "TotalScore").send();
 		for (int i = 0; i < top; i++) {
 			String[] entry = (String[]) scores.get(i);
 			String is = Integer.toString(i + 1);
-			m.createReply(Message.BOLD + is + Message.BOLD + SPACES[3 - is.length()] + entry[NAME] +
+			m.createReply(Constants.BOLD + is + Constants.BOLD + SPACES[3 - is.length()] + entry[NAME] +
 					SPACES[largestNick + 3 - entry[NAME].length()] +
 					entry[HIGHEST_SCORE] + SPACES[largesthScore + 7 - entry[HIGHEST_SCORE].length()] + entry[TOTAL_SCORE]).send();
 		}
@@ -114,12 +115,12 @@ public class Scores implements Comparator {
 				largestsScore = entry[TOTAL_SCORE].length();
 		}
 
-		m.createReply("   " + Message.UNDERLINE + "Name" + SPACES[largestNick + 3 - 4]
+		m.createReply("   " + Constants.UNDERLINE + "Name" + SPACES[largestNick + 3 - 4]
 				+ "Matches Won").send();
 		for (int i = 0; i < top; i++) {
 			String[] entry = (String[]) matchScores.get(i);
 			String is = Integer.toString(i + 1);
-			m.createReply(Message.BOLD + is + Message.BOLD + SPACES[3 - is.length()] + entry[NAME] +
+			m.createReply(Constants.BOLD + is + Constants.BOLD + SPACES[3 - is.length()] + entry[NAME] +
 					SPACES[largestNick + 3 - entry[NAME].length()] + entry[TOTAL_SCORE]).send();
 		}
 	}
@@ -138,7 +139,7 @@ public class Scores implements Comparator {
 					if (tscore >= 168)
 						winner = true;
 					if (tscore >= 140 & !warninggiven) {
-						target.createReply(Message.BOLD + "Warning: " + Message.BOLD + roundWinner[NAME] + " is within striking distance of victory!").send();
+						target.createReply(Constants.BOLD + "Warning: " + Constants.BOLD + roundWinner[NAME] + " is within striking distance of victory!").send();
 						warninggiven = true;
 					}
 					//giveWarning();
@@ -185,8 +186,8 @@ public class Scores implements Comparator {
 	private void commitTopScores(String[] matchWinner) {
 		boolean match = false;
 		boolean no_contest = false;
-		target.createReply(Message.BOLD + matchWinner[NAME].toUpperCase() + Message.BOLD
-				+ Message.YELLOW + " has " + Message.RED + Message.UNDERLINE
+		target.createReply(Constants.BOLD + matchWinner[NAME].toUpperCase() + Constants.BOLD
+				+ Constants.YELLOW + " has " + Constants.RED + Constants.UNDERLINE
 				+ "WON THE MATCH!!!").send();
         target.createReply("Scores at close of play: ");
         sendScoreTable(target);
@@ -198,11 +199,11 @@ public class Scores implements Comparator {
 			int difference = Integer.parseInt(entry1[1]) - Integer.parseInt(entry2[1]);
 			target.createReply(matchWinner[NAME] + " won by a clear " + difference + " points.").send();
 			if (difference > 150) {
-				target.createReply("The scorekeeper has declared this match a " + Message.UNDERLINE + "no contest" + Message.UNDERLINE + ", by reason of overwhelming margin of victory.").send() ;
+				target.createReply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of overwhelming margin of victory.").send() ;
 				no_contest = true ;
 			}
 		} else {
-			target.createReply("The scorekeeper has declared this match a " + Message.UNDERLINE + "no contest" + Message.UNDERLINE + ", by reason of \"no one else was playing.\"").send() ;
+			target.createReply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of \"no one else was playing.\"").send() ;
 			no_contest = true ;
 		}
 		

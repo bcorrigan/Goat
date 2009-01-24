@@ -1,5 +1,11 @@
 package goat.core;
 
+import goat.Goat;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -11,6 +17,11 @@ import java.util.ArrayList;
  */
 public class BotStats {
 
+	/*
+	 * Where to find the config file.
+	 */
+	public static final String CONFIG_FILE = "config/goatrc" ;
+	
 	/**
 	 * The bot's name.
 	 */
@@ -18,7 +29,7 @@ public class BotStats {
 	/**
 	 * The channels we are in.
 	 */
-	private static ArrayList channels = new ArrayList();
+	private static ArrayList<String> channels = new ArrayList<String>();
 	/**
 	 * The authenticated owner of the bot.
 	 */
@@ -34,7 +45,7 @@ public class BotStats {
 	public static String clientName;
 
 	public static String[] commands;
-	public static String[] modules;
+	public static Class<?>[] modules;
 	
     /**
      * Set to true in unit test context
@@ -86,5 +97,37 @@ public class BotStats {
 	 */
 	public static Charset getCharset() {
 		return charset;
+	}
+	
+	
+	public static void readConfFile() {
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(CONFIG_FILE));
+			String lineIn;
+
+			while ((lineIn = in.readLine()) != null) {
+				Message m = new Message("", "", "", "");
+				m.setAuthorised(true);
+				m.setPrivate(true);
+				if (lineIn.startsWith("#")) {
+					continue;		//so the file can be commented :-)
+				}
+				String[] words = lineIn.split(" ");
+				m.setModCommand(words[0]);
+				for (int i = 1; i < words.length; i++) {
+					m.setModTrailing(m.getModTrailing()
+							+ (words[i] + ' '));
+				}
+				m.setCommand("PRIVMSG");
+				Goat.inqueue.add(m);
+			}
+			in.close();
+
+		} catch (FileNotFoundException e) {
+			System.out.println("goatrc not found, starting anyway..");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
 	}
 }

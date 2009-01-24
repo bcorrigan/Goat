@@ -15,13 +15,13 @@ import java.beans.XMLDecoder;
  *
  * @author bc
  */
-public class Scores implements Comparator {
-    ArrayList records;
+public class Scores implements Comparator<Record> {
+    ArrayList<Record> records;
 
     public Scores() {
         try {
             XMLDecoder XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/unoscores.xml")));
-            records = (ArrayList) XMLdec.readObject();
+            records = (ArrayList<Record>) XMLdec.readObject();
             XMLdec.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -36,7 +36,7 @@ public class Scores implements Comparator {
     public void commit(Player winningPlayer, int score, Player[] players) {
         boolean winMatch = false;
         for (Player player : players) {
-            Iterator it = records.iterator();
+            Iterator<Record> it = records.iterator();
             boolean match = false;
             while (it.hasNext()) {
                 Record record = (Record) it.next();
@@ -86,9 +86,7 @@ public class Scores implements Comparator {
 
     }
 
-    public int compare(Object o, Object o1) {
-        Record record1 = (Record) o;
-        Record record2 = (Record) o1;
+    public int compare(Record record1, Record record2) {
         if (record1.getTotalScore() > record2.getTotalScore())
             return -1;
         if (record1.getTotalScore() < record2.getTotalScore())
@@ -98,11 +96,11 @@ public class Scores implements Comparator {
         return 0;
     }
 
-    public static ArrayList getRecords() {
+    public static ArrayList<Record> getRecords() {
 
         try {
             XMLDecoder XMLdec = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/unoscores.xml")));
-            ArrayList records = (ArrayList) XMLdec.readObject();
+            ArrayList<Record> records = (ArrayList<Record>) XMLdec.readObject();
             return records;
         } catch (FileNotFoundException e) {
             e.printStackTrace();

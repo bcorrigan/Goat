@@ -3,6 +3,7 @@ package goat.module;
 import java.util.Collection;
 
 import goat.Goat;
+import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.Users;
@@ -11,7 +12,7 @@ import goat.util.CommandParser;
 
 import net.roarsoftware.lastfm.User;
 import net.roarsoftware.lastfm.Track;
-import net.roarsoftware.lastfm.Event;
+//import net.roarsoftware.lastfm.Event;
 import net.roarsoftware.lastfm.Album;
 import net.roarsoftware.lastfm.Artist;
 import net.roarsoftware.lastfm.MusicEntry;
@@ -24,10 +25,14 @@ import net.roarsoftware.lastfm.Geo;
  * @author bc
  */
 public class Lastfm extends Module {
+	
+	public boolean isThreadSafe() {
+		return true;
+	}
 
 	private static final String TRACKS_USAGE = "lastfm [user=LASTFM_USER_NAME]";
-	private static final String CHARTS_USAGE = "lastfm chart=(artists|albums|tracks) [type=(" + Message.BOLD + "weekly" + Message.NORMAL + "|loved|alltime)] [user=LASTFM_USER_NAME]";
-	private static final String COUNTRY_CHART_USAGE = "lastfm country=\"FULL COUNTRY NAME\" [chart=(artists|" + Message.BOLD + "tracks" + Message.NORMAL + ")]";
+	private static final String CHARTS_USAGE = "lastfm chart=(artists|albums|tracks) [type=(" + Constants.BOLD + "weekly" + Constants.NORMAL + "|loved|alltime)] [user=LASTFM_USER_NAME]";
+	private static final String COUNTRY_CHART_USAGE = "lastfm country=\"FULL COUNTRY NAME\" [chart=(artists|" + Constants.BOLD + "tracks" + Constants.NORMAL + ")]";
 	private static final String SETUSER_USAGE = "lastfm setuser LASTFM_USER_NAME";
 	private static final String GENERAL_USAGE = "Defaults are in bold.  If your user name has been set with the setuser form of the command, then the user=LASTFM_USER_NAME parameter is optional.";
 
@@ -35,11 +40,11 @@ public class Lastfm extends Module {
 
 
 	private String apiKey = "3085fb38b1bec1a008690cf4011c66e8";
-	private String secret = "6d87a0b1ea6f89f23546c5cd30eb92c3";
+	//private String secret = "6d87a0b1ea6f89f23546c5cd30eb92c3";
 	private Users users = Goat.getUsers();
 	private CommandParser parser;
-	private goat.core.User user;
-	private String lastfmUser = "";
+	//private goat.core.User user;
+	//private String lastfmUser = "";
 
 	enum ChartCoverage {
 		WEEKLY,LOVED,ALLTIME;	
@@ -73,25 +78,20 @@ public class Lastfm extends Module {
 
 	@Override
 	public void processChannelMessage(Message m) {
-		if (users.hasUser(m.sender)) {
-			user = users.getUser(m.sender);
-		} else {
-			user = new goat.core.User(m.sender);
-		}
-		parser = new CommandParser(m.modTrailing);
-		lastfmUser = getLastfmUser(m);
+		parser = new CommandParser(m.getModTrailing());
+		String lastfmUser = getLastfmUser(m);
 		if(parser.has("country"))
 			ircCountry(m);
 		else if(parser.has("chart"))
-			ircChart(m);
+			ircChart(m, lastfmUser);
 		else if ("setuser".equalsIgnoreCase(parser.command()))
 			ircSetUser(m);
 		else if("tracks".equalsIgnoreCase(parser.command()))
-			ircTracks(m);
+			ircTracks(m, lastfmUser);
 		else if("".equals(parser.command()) && !lastfmUser.equals(""))  // default, as long as we've got a lastfm user name
-			ircTracks(m); 
+			ircTracks(m, lastfmUser); 
 		else
-			ircUsage(m );
+			ircUsage(m, lastfmUser);
 	}
 
 	private String getLastfmUser(Message m) {
@@ -108,12 +108,12 @@ public class Lastfm extends Module {
 			}
 			else
 				m.createReply("I've never heard of \"" + parser.get("ircuser") + "\".").send();
-		else
-			lastfmUser = user.getLastfmname();
+		else if(users.hasUser(m.getSender()))
+			lastfmUser = users.getUser(m.getSender()).getLastfmname();
 		return lastfmUser;
 	}
 
-	private void ircTracks(Message m) {
+	private void ircTracks(Message m, String lastfmUser) {
 		if (lastfmUser.equals("")) {
 			m.createReply("I don't know your lastfm username; set it with \"lastfm setuser [yourname]\", or specify a name with \"lastfm tracks user=[lastfm_user_name]\"").send();
 			return;
@@ -128,22 +128,16 @@ public class Lastfm extends Module {
 
 	private void ircSetUser(Message m) {
 		if(parser.remaining().length()==0) {
-			m.createReply(m.sender + ": You have to supply a username you enormous tit.").send();
+			m.createReply(m.getSender() + ": You have to supply a username you enormous tit.").send();
 		} else if (parser.remainingAsArrayList().size()>1) {
-			m.createReply(m.sender + ": A lastfm username can't have spaces.").send();
+			m.createReply(m.getSender() + ": A lastfm username can't have spaces.").send();
 		} else {
-			if (! users.hasUser(user)) {
-				users.addUser(user);
-			}
-			if (! user.getLastfmname().equals(parser.remaining())) {
-				user.setLastfmname(parser.remaining().trim());
-				users.save();
-			}
-			m.createReply(m.sender + ":  lastfm username set to \"" + user.getLastfmname() + "\"").send();
+			users.getOrCreateUser(m.getSender()).setLastfmname(parser.remaining().trim());
+			m.createReply(m.getSender() + ":  lastfm username set to \"" + users.getUser(m.getSender()).getLastfmname() + "\"").send();
 		}
 	}
 
-	private void ircChart(Message m) {
+	private void ircChart(Message m, String lastfmUser) {
 		ChartType type = null; // = DEFAULT_CHART_TYPE;
 		ChartCoverage coverage = null; // = DEFAULT_COVERAGE_TYPE;
 
@@ -153,7 +147,7 @@ public class Lastfm extends Module {
 				break;
 			}
 		if(null == type) {
-			m.createReply(m.sender + ": I've never heard of your stupid \"" + parser.get("chart") + "\" chart. Right now I only support:  " + ChartCoverage.valuesAsString().replaceAll(" ", "|").toLowerCase()).send();
+			m.createReply(m.getSender() + ": I've never heard of your stupid \"" + parser.get("chart") + "\" chart. Right now I only support:  " + ChartCoverage.valuesAsString().replaceAll(" ", "|").toLowerCase()).send();
 			return;
 		}
 
@@ -178,7 +172,7 @@ public class Lastfm extends Module {
 			else if(ChartCoverage.WEEKLY == coverage)
 				albums = User.getWeeklyAlbumChart(lastfmUser, apiKey).getEntries();
 			else if(ChartCoverage.LOVED == coverage) {
-				m.createReply(m.sender + ": only tracks can be loved.").send();
+				m.createReply(m.getSender() + ": only tracks can be loved.").send();
 				return;
 			} 
 			if (albums.isEmpty()) {
@@ -193,7 +187,7 @@ public class Lastfm extends Module {
 			else if(ChartCoverage.WEEKLY == coverage)
 				artists = User.getWeeklyArtistChart(lastfmUser, apiKey).getEntries();
 			else if(ChartCoverage.LOVED == coverage) {
-				m.createReply(m.sender + ": only tracks can be loved.").send();
+				m.createReply(m.getSender() + ": only tracks can be loved.").send();
 				return;
 			}
 			if (artists.isEmpty()) {
@@ -220,7 +214,7 @@ public class Lastfm extends Module {
 
 	private void ircCountry(Message m) {
 
-		String country = Message.removeFormattingAndColors(parser.get("country"));
+		String country = Constants.removeFormattingAndColors(parser.get("country"));
 		ChartType type = null;
 		for(ChartType t : ChartType.values())
 			if(t.name().equalsIgnoreCase(parser.get("chart"))) {
@@ -250,11 +244,11 @@ public class Lastfm extends Module {
 			m.createReply("I don't know anything about your weird \"" + parser.get("chart") + "\" chart.  Valid chart types are: artists|tracks" ).send();
 	}
 
-	private void ircUsage(Message m) {
+	private void ircUsage(Message m, String lastfmUser) {
 		String usage = "Usage:  " 
-			+ "\"" + TRACKS_USAGE + "\"  " + Message.BOLD + "OR" + Message.NORMAL 
-			+ "  \"" + CHARTS_USAGE + "\"  " + Message.BOLD + "OR" + Message.NORMAL 
-			+ "  \"" + COUNTRY_CHART_USAGE + "\"  " + Message.BOLD + "OR" + Message.NORMAL 
+			+ "\"" + TRACKS_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
+			+ "  \"" + CHARTS_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
+			+ "  \"" + COUNTRY_CHART_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
 			+ "  \"" + SETUSER_USAGE + "\"  ";
 		m.createPagedReply(usage).send();
 		if("".equals(lastfmUser) 
@@ -269,7 +263,7 @@ public class Lastfm extends Module {
 		int i=0;
 		for( Track track: tracks) {
 			i++;
-			replyString += Message.BOLD + i + ":" + Message.NORMAL + track.getName() + " - " + track.getArtist() +
+			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + track.getName() + " - " + track.getArtist() +
 			":" + track.getPlaycount() + " plays ";
 		}
 		m.createPagedReply(replyString).send(); 
@@ -280,7 +274,7 @@ public class Lastfm extends Module {
 		int i=0;
 		for( Album album: albums) {
 			i++;
-			replyString += Message.BOLD + i + ":" + Message.NORMAL + album.getName() + " - " + album.getArtist() +
+			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + album.getName() + " - " + album.getArtist() +
 			":" + album.getPlaycount() + " plays ";
 		}
 		m.createPagedReply(replyString).send();
@@ -291,7 +285,7 @@ public class Lastfm extends Module {
 		int i=0;
 		for( MusicEntry musicEntry: artists) {
 			i++;
-			replyString += Message.BOLD + i + ":" + Message.NORMAL + musicEntry.getName() + " - "+ musicEntry.getPlaycount() + " plays ";
+			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + musicEntry.getName() + " - "+ musicEntry.getPlaycount() + " plays ";
 		}
 		m.createPagedReply(replyString).send();
 	}

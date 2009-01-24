@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
 
@@ -429,11 +430,11 @@ public class UnitConverter extends Module {
     }
 
     public void processChannelMessage(Message m) {
-        if( m.modCommand.toLowerCase().equals("convert")) {
+        if( m.getModCommand().toLowerCase().equals("convert")) {
             Pattern p = Pattern.compile(".*\\d+([,\\d]+)?(\\.\\d+)? (.+?) to (.*)");
-            Matcher matcher = p.matcher(m.modTrailing);
+            Matcher matcher = p.matcher(m.getModTrailing());
             if(matcher.matches()) {
-                String[] args = m.modTrailing.toLowerCase().split(" ");
+                String[] args = m.getModTrailing().toLowerCase().split(" ");
                 String fromArg = matcher.group(3);
                 String toArg = matcher.group(4);
                 Double valueArg = Double.parseDouble(args[0]);
@@ -455,14 +456,14 @@ public class UnitConverter extends Module {
                 String result = doCalculation( valueArg, multiplierFrom, multiplierTo, unitFrom, unitTo);
                 m.createReply(valueArg + " " + p_multiplier_description[multiplierFrom].split(" ")[0] + p_unit_symbol[unitFrom] + " = " + result + " " + p_multiplier_description[multiplierTo].split(" ")[0] + p_unit_symbol[unitTo]).send();
             }
-        } else if( m.modCommand.toLowerCase().equals("describeunit")) {
-            String unitArg = m.modTrailing;
+        } else if( m.getModCommand().toLowerCase().equals("describeunit")) {
+            String unitArg = m.getModTrailing();
             int unit = extractUnit(unitArg);
             if(!checkUnit(unit,unitArg,m))
                 return;
             m.createPagedReply( p_category_name[ p_unit_category_id[unit] ] +": " + p_unit_description[unit]).send();
-        } else if( m.modCommand.toLowerCase().equals("findunit")) {
-            String searchTerm = m.modTrailing;
+        } else if( m.getModCommand().toLowerCase().equals("findunit")) {
+            String searchTerm = m.getModTrailing();
             String results = "";
             boolean categoryUsed = false;
             int lastCategory = -1;
@@ -475,7 +476,7 @@ public class UnitConverter extends Module {
                 if( p_unit_name[i].toLowerCase().contains(searchTerm.toLowerCase().trim())) {
                     if( !categoryUsed ) {
                         //TODO Why is leading bold not noticed at start of message?
-                        results += " " + Message.BOLD + p_category_name[ p_unit_category_id[i] ] + Message.NORMAL + ": ";
+                        results += " " + Constants.BOLD + p_category_name[ p_unit_category_id[i] ] + Constants.NORMAL + ": ";
                         results += " " + p_unit_name[i];
                         categoryUsed = true;
                     } else {
@@ -492,7 +493,7 @@ public class UnitConverter extends Module {
     private boolean checkUnit(int unit, String arg, Message m) {
         if( unit==-1 ) {
             //if it looks like message might be intended for currency converter, don't error spam!
-            if (!m.modTrailing.matches(".*\\d+([,\\d]+)?(\\.\\d+)? [a-z]{3} to [a-z]{3}.*"))
+            if (!m.getModTrailing().matches(".*\\d+([,\\d]+)?(\\.\\d+)? [a-z]{3} to [a-z]{3}.*"))
                 m.createReply("Unit not found: " + arg).send();
             return false;
         }

@@ -19,11 +19,27 @@ public class MockMessage extends Message {
     }
 
     public void send() {
-        sentMessage = trailing;
+        sentMessage = getTrailing();
     }
 
     public Message createReply(String trailing) {
-        this.trailing = trailing;
+        this.setTrailing(trailing);
         return this; //don't create new Message on createReply
+    }
+    
+    public void setModTrailing(String modTrailing) {
+    	super.setModTrailing(modTrailing);
+    }
+    
+    public void setModCommand(String modCommand) {
+    	super.setModCommand(modCommand);
+    }
+    
+    public void setPrivate(boolean isPrivate) {
+    	super.setPrivate(isPrivate);
+    }
+ 
+    public void setSender(String sender) {
+    	super.setSender(sender);
     }
 }
