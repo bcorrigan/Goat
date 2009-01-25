@@ -165,28 +165,36 @@ public class ModuleController  {
 	private void buildAllModulesList() {
 		if(BotStats.testing)
 			return;
-        JarFile jf = null;
-        try {
-        	jf = new JarFile("goat.jar") ;
-        } catch (IOException e) {
-        	e.printStackTrace() ;
-        	System.err.println("Error while trying to read goat modules from goat.jar, available module list not built.") ;
-        	return ;
-        }
-        Enumeration<JarEntry> jes = jf.entries() ;
-        while(jes.hasMoreElements()) {
-        	JarEntry je = jes.nextElement() ;
-        	if(je.getName().matches(".*goat/module/[^\\$]*\\.class")) {
-        		// System.out.println(je.toString()) ;
-        		try {
-        			Class<?> modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
-        			if(modClass.getSuperclass().getName().equals("goat.core.Module"))
-        				allModules.add(modClass) ;
-        		} catch (ClassNotFoundException e) {
-        			System.err.println("Error while building goat modules list, jar entry: \"" + je.getName() + "\", skipping") ;
-        		}
-        	}
-        }
+		JarFile jf = null;
+		try {
+			jf = new JarFile("goat.jar") ;
+			Enumeration<JarEntry> jes = jf.entries() ;
+			while(jes.hasMoreElements()) {
+				JarEntry je = jes.nextElement() ;
+				if(je.getName().matches(".*goat/module/[^\\$]*\\.class")) {
+					// System.out.println(je.toString()) ;
+					try {
+						Class<?> modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
+						if(modClass.getSuperclass().getName().equals("goat.core.Module"))
+							allModules.add(modClass) ;
+					} catch (ClassNotFoundException e) {
+						System.err.println("Error while building goat modules list, jar entry: \"" + je.getName() + "\", skipping") ;
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace() ;
+			System.err.println("Error while trying to read goat modules from goat.jar, available module list not built.") ;
+			return ;
+		} finally {
+			if(null != jf)
+				try {
+					jf.close();
+				} catch (IOException ioe) {
+					System.out.println("Ach, We couldn't close our own jar file!");
+					ioe.printStackTrace();
+				}
+		}
 
         ArrayList<String> tempList = new ArrayList<String>();
         for (Class<?> modClass : allModules) {

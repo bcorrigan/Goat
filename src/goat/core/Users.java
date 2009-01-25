@@ -10,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /* Goat keeps one nice static Users object in Goat.users.  Use that one instead of 
   creating your own and writing all over goat's files.
@@ -17,8 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Users implements Runnable {
 	
-	
-
 	public final static String DEFAULT_USERS_FILENAME = "resources/users.xml" ;
 	
 	private ConcurrentHashMap<String,User> usersHash = new ConcurrentHashMap<String,User>() ;
@@ -26,9 +26,14 @@ public class Users implements Runnable {
 	private Boolean updatesPending = false;
 	protected Object writeLock = new Object();
 	
+	private boolean isDoneReadingUsersFileOnStartup = false;
+	
 	public Users() {
 		try {
-			readUsersFromDisk() ;
+			synchronized (writeLock) {  // shouldn't have to synchronize in constructor, but do this if it's moved outside the constructor.
+				readUsersFromDisk() ;
+				isDoneReadingUsersFileOnStartup = true;
+			}
 		} catch (Exception e) {
 			// usersHash = new ConcurrentHashMap<String, User>();
 		}
@@ -44,7 +49,7 @@ public class Users implements Runnable {
 	private void saveUsersToDisk() {
 		FileOutputStream fos = null;
         XMLEncoder XMLenc = null;
-        synchronized (writeLock) {
+        //synchronized (writeLock) {
         	if(! usersHash.isEmpty()) {
         		try {
         			fos = new FileOutputStream(usersFilename);
@@ -67,9 +72,25 @@ public class Users implements Runnable {
         			}
         		}
         	}
-        }
+        //}
 	}
 	
+	
+	/*
+	 * Read users in from disk.
+	 * 
+	 * The file should be in XMLEncoder-encoded format.
+	 * 
+	 * Beyond that, it can contain either a single Map (of any kind) of all users,
+	 * or plain User objects listed one after the other.
+	 * 
+	 * When storing the data read in to usersHash, the key will be User.name in the case where
+	 * there are just a bunch of User objects in the file, or whatever key was used for the
+	 * stored Map, in the case of one big Map of all users.
+	 * 
+	 * This should allow us to change the internal Users representation and/or save 
+	 * format a little without having to completely rewrite this method.  
+	 */
 	private void readUsersFromDisk() {
         FileInputStream fis = null;
         XMLDecoder XMLdec = null;
@@ -77,9 +98,45 @@ public class Users implements Runnable {
         	try {
         		fis = new FileInputStream(usersFilename);
         		XMLdec = new XMLDecoder(new BufferedInputStream(fis));
-        			usersHash = (ConcurrentHashMap<String,User>) XMLdec.readObject();
-        			for(String key: usersHash.keySet()) {
-        				usersHash.get(key).setContainer(this);
+        		Object decodedXML = XMLdec.readObject();
+        		if(decodedXML instanceof Map) {
+        			Map<?,?> map = (Map<?,?>) decodedXML;
+        			for(Entry<?,?> entry: map.entrySet()) {
+        				String key;
+        				User value;
+        				if(entry.getValue() instanceof User) {
+        					value = (User) entry.getValue();
+        					value.setContainer(this);
+        					// change the block below if you want to use something other than 
+        					// the saved Map key as the key for the new user in userHash
+        					if(entry.getKey() instanceof String) {
+        						key = (String) entry.getKey();
+        						usersHash.put(key, value);
+        					}
+        				}
+        			}
+        		} else if(decodedXML instanceof User) {
+        			User u = (User) decodedXML;
+        			try {
+        				do {
+        					if (decodedXML instanceof User) {
+        						u = (User) decodedXML;
+        						u.setContainer(this);
+        						// change the next line if we want to key on something other than name
+        						usersHash.put(u.getName(), u);
+        					} else {
+        						String str = "While reading Users save file \"" + usersFilename + "\":"
+        						+ "\n   expected goat.module.User, instead got ";
+        						if(null != decodedXML.getClass().getCanonicalName())
+        							str += decodedXML.getClass().getCanonicalName();
+        						else
+        							str += "an object without a canonical name.  Whoa.";
+        						System.out.println(str);
+        					}
+        				} while ((decodedXML = XMLdec.readObject()) instanceof Object);
+        			} catch (ArrayIndexOutOfBoundsException ioe) {
+        				// end of file, expected
+        			}
         		}
         	} catch (FileNotFoundException e) {
         		e.printStackTrace();
@@ -88,6 +145,7 @@ public class Users implements Runnable {
         		//			diskUsers = new HashMap<String,User>();
         		//			e.printStackTrace();
         	} catch (ArrayIndexOutOfBoundsException e) {
+        		System.out.println("Users savefile \"" + usersFilename + "\" contained no XMLencoded java objects");
         		e.printStackTrace();
         	} finally {
         		if(XMLdec!=null) XMLdec.close();
@@ -159,7 +217,7 @@ public class Users implements Runnable {
 			try {
 				Thread.sleep(updateIntervalInSeconds * 1000);
 			} catch (InterruptedException ie) {}
-			if(updatesPending) {
+			if(updatesPending && isDoneReadingUsersFileOnStartup) {
 				saveUsersToDisk();
 			}
 		}

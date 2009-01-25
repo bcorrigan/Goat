@@ -228,7 +228,9 @@ public class User {
 	
 	private synchronized void save() {
 		if (!(null == container))
-			container.notifyUpdatesPending();
+			synchronized (container.writeLock) {
+				container.notifyUpdatesPending();
+			}
 	}
 	
 	protected void setContainer(Users bucket) {
