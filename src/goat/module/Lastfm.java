@@ -1,6 +1,11 @@
 package goat.module;
 
+import java.net.SocketTimeoutException;
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import goat.Goat;
 import goat.core.Constants;
@@ -8,6 +13,7 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.core.Users;
 import goat.util.CommandParser;
+import goat.core.IrcUser;
 
 
 import net.roarsoftware.lastfm.User;
@@ -17,7 +23,6 @@ import net.roarsoftware.lastfm.Album;
 import net.roarsoftware.lastfm.Artist;
 import net.roarsoftware.lastfm.MusicEntry;
 import net.roarsoftware.lastfm.Geo;
-
 
 /**
  * Allows users to make sure their exquisite music taste is always in other user's faces
@@ -34,7 +39,13 @@ public class Lastfm extends Module {
 	private static final String CHARTS_USAGE = "lastfm chart=(artists|albums|tracks) [type=(" + Constants.BOLD + "weekly" + Constants.NORMAL + "|loved|alltime)] [user=LASTFM_USER_NAME]";
 	private static final String COUNTRY_CHART_USAGE = "lastfm country=\"FULL COUNTRY NAME\" [chart=(artists|" + Constants.BOLD + "tracks" + Constants.NORMAL + ")]";
 	private static final String SETUSER_USAGE = "lastfm setuser LASTFM_USER_NAME";
-	private static final String GENERAL_USAGE = "Defaults are in bold.  If your user name has been set with the setuser form of the command, then the user=LASTFM_USER_NAME parameter is optional.";
+	private static final String GENERAL_USAGE = "Default values are in bold.  If your user name has been " +
+			"set with the " + Constants.UNDERLINE + "setuser" + Constants.NORMAL + " form of the command, " +
+			"then the user=LASTFM_USER_NAME parameter is optional.  The first form of the command, with " +
+			"only the username set, reports recent tracks.  The " + Constants.UNDERLINE + "chart=" +
+			Constants.NORMAL + " form reports various charts for the user specified.  The " +
+			Constants.UNDERLINE + "country=" + Constants.NORMAL + " form supplies track or artist " +
+			"charts for a given nation.";
 
 	// private static final String DEFAULT_COUNTRY = "United Kingdom";
 
@@ -73,14 +84,17 @@ public class Lastfm extends Module {
 	// private static final ChartType DEFAULT_CHART_TYPE = ChartType.TRACKS;
 
 	public static String[] getCommands() {
-		return new String[]{"lastfm"};
+		return new String[]{"lastfm", "nowplaying"};
 	}
 
 	@Override
 	public void processChannelMessage(Message m) {
 		parser = new CommandParser(m.getModTrailing());
 		String lastfmUser = getLastfmUser(m);
-		if(parser.has("country"))
+		if("nowplaying".equalsIgnoreCase(m.getModCommand())
+				|| "nowplaying".equalsIgnoreCase(parser.command()))
+			ircNowPlaying(m);
+		else if(parser.has("country"))
 			ircCountry(m);
 		else if(parser.has("chart"))
 			ircChart(m, lastfmUser);
@@ -88,6 +102,7 @@ public class Lastfm extends Module {
 			ircSetUser(m);
 		else if("tracks".equalsIgnoreCase(parser.command()))
 			ircTracks(m, lastfmUser);
+
 		else if("".equals(parser.command()) && !lastfmUser.equals(""))  // default, as long as we've got a lastfm user name
 			ircTracks(m, lastfmUser); 
 		else
@@ -138,6 +153,11 @@ public class Lastfm extends Module {
 	}
 
 	private void ircChart(Message m, String lastfmUser) {
+		
+		if(null == lastfmUser || lastfmUser.equals("")) {
+			m.createPagedReply("You need to supply a username to chart for, with the user=LASTFM_USER_NAME or ircuser=IRC_USER_NAME options, or with 'lastfm setuser YOUR_USER_NAME' to set a default username.  You can also use the form 'lastfm country=\"FULL NATION NAME\" <type=(artists|tracks)>' for top tracks or artists in a given nation.").send();
+			return;
+		}
 		ChartType type = null; // = DEFAULT_CHART_TYPE;
 		ChartCoverage coverage = null; // = DEFAULT_COVERAGE_TYPE;
 
@@ -244,6 +264,74 @@ public class Lastfm extends Module {
 			m.createReply("I don't know anything about your weird \"" + parser.get("chart") + "\" chart.  Valid chart types are: artists|tracks" ).send();
 	}
 
+	private void ircNowPlaying(Message m) {
+		
+		Module module = Goat.modController.getLoaded(ServerCommands.class);
+		ServerCommands sc = null;
+		if(module instanceof ServerCommands) 
+			sc = (ServerCommands) module;
+		if(null != sc && sc.isRunning()) {
+			if(! m.getChanname().startsWith("#")) {
+				m.createReply("I only do nowplaying for channels, not in private.  Pervert.").send();
+				return;
+			}
+			List<IrcUser> ircUsers;
+			try {
+				 ircUsers = sc.who(m.getChanname());
+			} catch (SocketTimeoutException ste) {
+				m.createReply("Timed out waiting for the server to tell me who's around.").send();
+				return;
+			}
+			List<goat.core.User> usersToCheck = new ArrayList<goat.core.User>();
+			List<goat.core.User> scaredUsers = new ArrayList<goat.core.User>();
+			for (IrcUser iu: ircUsers) {
+				if(users.hasUser(iu.getNick())) {
+					goat.core.User u = users.getUser(iu.getNick());
+					if(u.getLastfmname() != null && !"".equals(u.getLastfmname()))
+						usersToCheck.add(u);
+					else
+						scaredUsers.add(u);
+				}
+			}
+			if(usersToCheck.isEmpty()) {
+				m.createReply("Nobody in this channel wants to share their precious musical tastes " +
+						"with the corporate hegemon at LastFM").send();
+				return;
+			}
+			Map<goat.core.User, Track> results = new HashMap<goat.core.User, Track>();
+			for(goat.core.User u: usersToCheck) {
+				Collection<Track> tracks = User.getRecentTracks(u.getLastfmname(), apiKey);
+				for(Track track: tracks) {
+					if(track.isNowPlaying()) {
+						results.put(u, track);
+					}
+				}
+			}
+			if(results.isEmpty())
+				m.createReply("This channel is sunk in a deep silence, shunning all music and probably all humanity, too.").send();
+			else if(results.size() == 1 && results.keySet().iterator().next().getName().equals(m.getSender())) {
+				Track t = results.values().iterator().next();
+				String reply = "You're the only one in the channel listening to music.  And you want " +
+						"everyone to know it, don't you.  You want them to know that you're listening to ";
+				reply += Constants.BOLD + t.getName() + Constants.NORMAL;
+				reply += " by " + Constants.BOLD + t.getArtist() + Constants.NORMAL;
+				reply += ", and now we all know it, don't we.  Are you happy now?  Are you?";
+				m.createPagedReply(reply).send();
+			} else {
+				String reply = "";
+				for(goat.core.User u: results.keySet()) {
+					Track val = results.get(u);
+					reply += Constants.BOLD + u.getName() + Constants.NORMAL + ": ";
+					reply += val.getName() + " by " + val.getArtist() + "  ";
+				}
+				m.createPagedReply(reply).send();
+			}
+				
+		} else {
+			m.createReply("I can't do that without the ServerCommands module running").send();
+		}			
+	}
+	
 	private void ircUsage(Message m, String lastfmUser) {
 		String usage = "Usage:  " 
 			+ "\"" + TRACKS_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
@@ -261,10 +349,20 @@ public class Lastfm extends Module {
 	private void printTracks(Collection<Track> tracks, Message m ) {
 		String replyString="";
 		int i=0;
+		boolean playsIndicated = false;
 		for( Track track: tracks) {
 			i++;
-			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + track.getName() + " - " + track.getArtist() +
-			":" + track.getPlaycount() + " plays ";
+			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + " "; 
+			replyString += track.getName() + Constants.BOLD + " \u2014 " + Constants.NORMAL + track.getArtist();
+			if(track.getPlaycount() > 1) {
+				replyString += " (" + track.getPlaycount();
+				if(!playsIndicated) {
+					replyString += " plays";
+					playsIndicated = true;
+				}
+				replyString += ")";
+			}
+			replyString += "  ";
 		}
 		m.createPagedReply(replyString).send(); 
 	}
@@ -272,10 +370,20 @@ public class Lastfm extends Module {
 	private void printAlbums(Collection<Album> albums, Message m) {
 		String replyString="";
 		int i=0;
+		boolean playsIndicated = false;
 		for( Album album: albums) {
 			i++;
-			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + album.getName() + " - " + album.getArtist() +
-			":" + album.getPlaycount() + " plays ";
+			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + " "; 
+			replyString += album.getName() + Constants.BOLD + " \u2014 " + Constants.NORMAL + album.getArtist();
+			if(album.getPlaycount() > 1) {
+				replyString += " (" + album.getPlaycount();
+				if(!playsIndicated) {
+					replyString += " plays";
+					playsIndicated = true;
+				}
+				replyString += ")";
+			}
+			replyString += "  ";
 		}
 		m.createPagedReply(replyString).send();
 	}
@@ -283,9 +391,20 @@ public class Lastfm extends Module {
 	private void printArtists(Collection<Artist> artists, Message m) {
 		String replyString="";
 		int i=0;
+		boolean playsIndicated = false;
 		for( MusicEntry musicEntry: artists) {
 			i++;
-			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + musicEntry.getName() + " - "+ musicEntry.getPlaycount() + " plays ";
+			replyString += Constants.BOLD + i + ":" + Constants.NORMAL + " "; 
+			replyString += musicEntry.getName();
+			if(musicEntry.getPlaycount() > 1) {
+				replyString += " (" + musicEntry.getPlaycount();
+				if(!playsIndicated) {
+					replyString += " plays";
+					playsIndicated = true;
+				}
+				replyString += ")";
+			}
+			replyString += "  ";
 		}
 		m.createPagedReply(replyString).send();
 	}
