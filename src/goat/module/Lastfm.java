@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Random;
 
 import goat.Goat;
 import goat.core.Constants;
@@ -13,6 +14,7 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.core.Users;
 import goat.util.CommandParser;
+import goat.util.Pair;
 import goat.core.IrcUser;
 
 
@@ -39,13 +41,15 @@ public class Lastfm extends Module {
 	private static final String CHARTS_USAGE = "lastfm chart=(artists|albums|tracks) [type=(" + Constants.BOLD + "weekly" + Constants.NORMAL + "|loved|alltime)] [user=LASTFM_USER_NAME]";
 	private static final String COUNTRY_CHART_USAGE = "lastfm country=\"FULL COUNTRY NAME\" [chart=(artists|" + Constants.BOLD + "tracks" + Constants.NORMAL + ")]";
 	private static final String SETUSER_USAGE = "lastfm setuser LASTFM_USER_NAME";
+	private static final String NOWPLAYING_USAGE = "[lastfm] nowplaying";
 	private static final String GENERAL_USAGE = "Default values are in bold.  If your user name has been " +
 			"set with the " + Constants.UNDERLINE + "setuser" + Constants.NORMAL + " form of the command, " +
 			"then the user=LASTFM_USER_NAME parameter is optional.  The first form of the command, with " +
 			"only the username set, reports recent tracks.  The " + Constants.UNDERLINE + "chart=" +
 			Constants.NORMAL + " form reports various charts for the user specified.  The " +
 			Constants.UNDERLINE + "country=" + Constants.NORMAL + " form supplies track or artist " +
-			"charts for a given nation.";
+			"charts for a given nation.  The " + Constants.UNDERLINE + "nowplaying" + Constants.NORMAL + 
+			" form tells you what people in the channel are listening to right now.";
 
 	// private static final String DEFAULT_COUNTRY = "United Kingdom";
 
@@ -268,6 +272,9 @@ public class Lastfm extends Module {
 		
 		Module module = Goat.modController.getLoaded(ServerCommands.class);
 		ServerCommands sc = null;
+		goat.core.User senderU = null;
+		if(users.hasUser(m.getSender()))
+			senderU = users.getUser(m.getSender());
 		if(module instanceof ServerCommands) 
 			sc = (ServerCommands) module;
 		if(null != sc && sc.isRunning()) {
@@ -282,35 +289,38 @@ public class Lastfm extends Module {
 				m.createReply("Timed out waiting for the server to tell me who's around.").send();
 				return;
 			}
-			List<goat.core.User> usersToCheck = new ArrayList<goat.core.User>();
-			List<goat.core.User> scaredUsers = new ArrayList<goat.core.User>();
-			for (IrcUser iu: ircUsers) {
-				if(users.hasUser(iu.getNick())) {
-					goat.core.User u = users.getUser(iu.getNick());
-					if(u.getLastfmname() != null && !"".equals(u.getLastfmname()))
-						usersToCheck.add(u);
-					else
-						scaredUsers.add(u);
-				}
-			}
+			Pair<List<goat.core.User>> regUsers = usersWithLastfmUnames(ircUsers);
+			List<goat.core.User> usersToCheck = regUsers.getFirst(); 
+			List<goat.core.User> scaredUsers = regUsers.getSecond();
 			if(usersToCheck.isEmpty()) {
 				m.createReply("Nobody in this channel wants to share their precious musical tastes " +
 						"with the corporate hegemon at LastFM").send();
 				return;
 			}
-			Map<goat.core.User, Track> results = new HashMap<goat.core.User, Track>();
+//			Map<goat.core.User, Track> results = new HashMap<goat.core.User, Track>();
+			Map<String, List<goat.core.User>> results = new HashMap<String, List<goat.core.User>>();
+			Map<String, Track> tracksPlaying = new HashMap<String, Track>();
 			for(goat.core.User u: usersToCheck) {
-				Collection<Track> tracks = User.getRecentTracks(u.getLastfmname(), apiKey);
-				for(Track track: tracks) {
-					if(track.isNowPlaying()) {
-						results.put(u, track);
+				if(results.containsKey(u.getLastfmname()))
+					results.get(u.getLastfmname()).add(u);
+				else {		
+					Collection<Track> tracks = User.getRecentTracks(u.getLastfmname(), apiKey);
+					for(Track track: tracks) {
+						if(track.isNowPlaying()) {
+							results.put(u.getLastfmname(), new ArrayList<goat.core.User>());
+							results.get(u.getLastfmname()).add(u);
+							tracksPlaying.put(u.getLastfmname(), track);
+						}
 					}
 				}
 			}
 			if(results.isEmpty())
 				m.createReply("This channel is sunk in a deep silence, shunning all music and probably all humanity, too.").send();
-			else if(results.size() == 1 && results.keySet().iterator().next().getName().equals(m.getSender())) {
-				Track t = results.values().iterator().next();
+			else if(results.size() == 1 
+					&& senderU != null
+					&& !"".equals(senderU.getLastfmname())
+					&& (results.entrySet().iterator().next().getKey().equals(senderU.getLastfmname()))) {
+				Track t = tracksPlaying.get(senderU.getLastfmname());
 				String reply = "You're the only one in the channel listening to music.  And you want " +
 						"everyone to know it, don't you.  You want them to know that you're listening to ";
 				reply += Constants.BOLD + t.getName() + Constants.NORMAL;
@@ -319,17 +329,73 @@ public class Lastfm extends Module {
 				m.createPagedReply(reply).send();
 			} else {
 				String reply = "";
-				for(goat.core.User u: results.keySet()) {
-					Track val = results.get(u);
-					reply += Constants.BOLD + u.getName() + Constants.NORMAL + ": ";
-					reply += val.getName() + " by " + val.getArtist() + "  ";
+				ArrayList<String> resultUniques = new ArrayList<String>();
+				ArrayList<String> resultDupes = new ArrayList<String>();
+				for(String key: results.keySet()) {
+					if(results.get(key).size() > 1)
+						resultDupes.add(key);
+					else
+						resultUniques.add(key);
+				}
+				for(String lfName: resultUniques) {
+					goat.core.User u = results.get(lfName).get(0);
+					Track t = tracksPlaying.get(lfName);
+					reply += Constants.BOLD + u.getName() + Constants.NORMAL + " : ";
+					reply += t.getName() + " " + Constants.BOLD + "\u2014" + Constants.NORMAL + " " + t.getArtist() + "  ";
+				}
+				for(String lfName: resultDupes) {
+					// goat.core.User u = results.get(lfName).get(0);
+					Track t = tracksPlaying.get(lfName);
+					reply += Constants.BOLD + lfName + Constants.NORMAL + "* : ";
+					reply += t.getName() + " " + Constants.BOLD + "\u2014" + Constants.NORMAL + " " + t.getArtist() + "  ";
+				}
+				if(!resultDupes.isEmpty()) {
+					reply += "  " + Constants.BOLD + "*" + Constants.NORMAL + "LastFM name for multiple nicks";
 				}
 				m.createPagedReply(reply).send();
 			}
-				
+			
+			int minScoldReprieve = 10;
+			int scoldSkips = 0;
+			Random rand = new Random();
+			if(scaredUsers.size() > 0) {
+				if(scoldSkips > minScoldReprieve) {
+					if(rand.nextDouble() < 0.15) {
+						String preamble = scaredUsers.get(0).getName();
+						if(scaredUsers.size() == 1)
+							preamble += " is ";
+						else {
+							for(int i=1; i < scaredUsers.size() - 1; i++) {
+								preamble += ", " + scaredUsers.get(i).getName(); 
+							}
+							preamble += " & " + scaredUsers.get(scaredUsers.size() -1).getName() + " are ";
+						}
+						m.createPagedReply(preamble + " pants-wettingly frighted of sending track-listings to" +
+								" LastFM, or perhaps just deeply resentful of anyone who might use that precious," +
+								" treasured consumer data to make a little money.  There are a few other reasons" +
+								" to eschew setting a lastfm username, but those are by far the most common ones.").send();
+						scoldSkips = 0;
+					}
+				} else
+					scoldSkips++;
+			}
 		} else {
 			m.createReply("I can't do that without the ServerCommands module running").send();
 		}			
+	}
+	
+	private Pair<List<goat.core.User>> usersWithLastfmUnames(List<IrcUser> ircUsers) {
+		Pair<List<goat.core.User>> ret = new Pair<List<goat.core.User>>(new ArrayList<goat.core.User>(), new ArrayList<goat.core.User>());
+		for (IrcUser iu: ircUsers) {
+			if(users.hasUser(iu.getNick())) {
+				goat.core.User u = users.getUser(iu.getNick());
+				if(u.getLastfmname() != null && !"".equals(u.getLastfmname()))
+					ret.getFirst().add(u);
+				else
+					ret.getSecond().add(u);
+			}
+		}
+		return ret;
 	}
 	
 	private void ircUsage(Message m, String lastfmUser) {
@@ -337,6 +403,7 @@ public class Lastfm extends Module {
 			+ "\"" + TRACKS_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
 			+ "  \"" + CHARTS_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
 			+ "  \"" + COUNTRY_CHART_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
+			+ "  \"" + NOWPLAYING_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL
 			+ "  \"" + SETUSER_USAGE + "\"  ";
 		m.createPagedReply(usage).send();
 		if("".equals(lastfmUser) 

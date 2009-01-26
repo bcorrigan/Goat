@@ -9,6 +9,7 @@ import goat.core.Module;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,7 +56,8 @@ public class ServerCommands extends Module {
 	private long whoMaxWait = 3000; // 3 seconds, no waiting around
 	private Object lockWHO = new Object();
 	
-	public List<Message> who(String channel) throws SocketTimeoutException {
+	public List<IrcUser> who(String channel) throws SocketTimeoutException {
+		List<Message> temp;
 		synchronized (lockWHO) {
 			buildingWhoReply = true;
 			new Message("","WHO",channel,"").send();
@@ -71,11 +73,15 @@ public class ServerCommands extends Module {
 				buildingWhoReply = false;
 				throw new SocketTimeoutException();
 			}
-			List<Message> ret = whoReplies;
+			temp = whoReplies;
 			whoReplies = Collections.synchronizedList(new ArrayList<Message>());
 			buildingWhoReply = false;
-			return ret;
-		}
+		}	
+		List<IrcUser> ret = new ArrayList<IrcUser>();
+		Iterator<Message> it = temp.iterator();
+		while(it.hasNext())
+			ret.add(IrcUser.getNewInstanceFromWHOReply(it.next()));
+		return ret;
 	}
 	
 	private void execute(Message m, String command) {
@@ -96,10 +102,9 @@ public class ServerCommands extends Module {
 		public void run() {
 			if("WHO".equals(command)) {
 				try {
-					List<Message> replies = who(m.getChanname());
+					List<IrcUser> ircUsers = who(m.getChanname());
 					String reply = "";
-					for(Message msg: replies) {
-						IrcUser iu = IrcUser.getNewInstanceFromWHOReply(msg);
+					for(IrcUser iu: ircUsers) {
 						reply += iu.getNick() + " ";
 					}
 					m.createReply(reply).send();
