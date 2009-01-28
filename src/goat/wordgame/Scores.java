@@ -43,7 +43,11 @@ public class Scores implements Comparator<String[]> {
 		try {
 			FileInputStream in = new FileInputStream(getScoresFilename());
 			ObjectInputStream s = new ObjectInputStream(in);
-			scores = (ArrayList<String[]>) s.readObject();
+			Object o = s.readObject();
+			if(o instanceof List)
+				for(Object i: (List<?>) o)
+					if(i instanceof String[])
+						scores.add((String[]) i);
 			in.close();
 		} catch (FileNotFoundException e) {
 			// scores = new ArrayList<String[]>();  //score file doesn't exist, just create an empty ArrayList
