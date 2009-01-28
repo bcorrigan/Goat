@@ -62,7 +62,12 @@ public class Scores implements Comparator<String[]> {
 		synchronized (matchScores) {
 			if(! isMatchScoresReadFromFile) 
 				try {
+					File d = new File(getScoresDir());
+					if(! d.exists() )
+						d.mkdirs();
 					File f = new File(MATCHSCORES_FILE);
+					if(! f.exists())
+						f.createNewFile();
 					if(f.exists() && f.isFile()) {
 						if(f.canRead()) {
 							FileInputStream in = new FileInputStream(f);
@@ -214,9 +219,14 @@ public class Scores implements Comparator<String[]> {
 			File f = new File(getScoresFilename());
 			if(! d.isDirectory())
 				d.mkdirs();
-			if(! f.canWrite()) {
-				// might want to do something other than just complain here
-				System.out.println("Can't write scores file '" + f + "'");
+			if(f.exists()) {
+				if(! f.canWrite()) {
+					// might want to do something other than just complain here
+					System.out.println("Can't write scores file '" + f + "'");
+					target.createReply("I couldn't write to the high-scores file :(").send();
+				}
+			} else {
+				f.createNewFile();
 			}
 			FileOutputStream fos = new FileOutputStream(f);
 			ObjectOutput out = new ObjectOutputStream(fos);
