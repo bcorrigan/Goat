@@ -1,5 +1,14 @@
 package goat.module;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import goat.Goat;
 import goat.core.Module;
 import goat.core.Message;
 import goat.jcalc.Calculator;
@@ -13,9 +22,16 @@ import goat.jcalc.CalculatorException;
 public class Calc extends Module {
 
 	Calculator calc = new Calculator();
-
-	public boolean isThreadSafe() {
-		return false;
+	
+	public Calc() {
+		
+		// set up some prevention of obvious qpting
+		//  ... less necessary now that we've added a couple of interruptability knobs to jcalc 
+		//      in addition to these admittedly lame computation limits
+		
+		//calc.setLimitFactorial(15342L);
+		//calc.setLimitUpperPower(100);
+		//calc.setLimitLowerPower(-100);
 	}
 	
 	public void processPrivateMessage(Message m) {
@@ -23,58 +39,49 @@ public class Calc extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-    	Observer ob = new Observer();
-		ob.target = m;
-		ob.start();
-	}
-
-	public void run() {
-
-	}
-	/**
-	 * Keeps tabs on the Cogitate thread. When it is taking too long, it stops it.
-	 */
-	private class Observer extends Thread {
-		private Message target;
-
-		public void run() {
-			Cogitate cog = new Cogitate();
-        	cog.target = target;
-			cog.start();
-            try {
-				sleep(100);     // 1/10th of a second
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			cog.tooLong = true;
-			if(cog.answer==null && cog.error==false) {
-                //TODO we should peacefully inform the other thread that it would be a good idea for it to stop, rather than this brutality.
-				cog.stop();
-				target.createReply("Don't be a wanker. I'm not thinking that hard.").send();
-			}
-
-		}
+		
+		ExecutorService pool = Goat.modController.getPool();
+		Cogitator brain = new Cogitator(m);
+		Future<String> future = pool.submit(brain);
+		String reply;
+		try {
+			reply = future.get(2000, TimeUnit.MILLISECONDS);
+		} catch (CancellationException ce) {
+			reply = "I've gone ahead and cancelled that computation for you.  Asshat.";
+		} catch (TimeoutException te) {
+			
+			// important:  when you get a timeout exception via Future.get(), the underlying
+			//   calculation has not stopped.  This means you might be able to DOS the goat
+			//   with this, so don't tell qpt.
+			
+			future.cancel(true);	// this doesn't actually stop the underlying calculation, either,
+									// unless you've taken pains to make sure it's interruptable.
+									// which we have.
+			
+			reply = "I'm not thinking that hard, wanker.";
+		} catch (ExecutionException ee) {
+			reply = ee.getCause().getLocalizedMessage();
+		} catch (InterruptedException ie) {
+			reply = "I'm sorry, where were we before we were so rudely interrupted?";
+		} 
+		if(reply.length() > 256)
+			reply = reply.length() + " digits:  " + reply;
+		m.createPagedReply(reply).send();
 	}
 
 	/**
 	 * The thinkin' thread
 	 */
-	private class Cogitate extends Thread {
+	private class Cogitator implements Callable<String> {
+		
         private Message target;
-        private String answer;
-        private boolean tooLong = false;
-		private boolean error = false;
+        
+        public Cogitator(Message m) {
+        	target = m;
+        }
 
-		public void run() {
-			try {
-
-				answer = calc.evaluate_equation(target.getModTrailing());
-				if(!tooLong)
-					target.createPagedReply(answer).send();
-			} catch (CalculatorException e) {
-				error = true;
-				target.createReply(e.getLocalizedMessage()).send();
-			}
+		public String call() throws CalculatorException, InterruptedException {
+			return calc.evaluate_equation(target.getModTrailing());
 		}
 	}
 

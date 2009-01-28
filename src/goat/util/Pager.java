@@ -1,5 +1,7 @@
 package goat.util ;
 
+import goat.core.Constants;
+
 /**
  * A wee IRC pager
  * 
@@ -18,8 +20,10 @@ public class Pager {
 	private String innerPre = "\u2026" ;
 	private String innerPost = "\u2026 [more]" ;
 	private int maxWalkback = 32;
-
-	//
+	
+	private String inputExceededMsg = " " + Constants.BOLD + "[" + Constants.NORMAL + "no more \u2014 buffer protection engaged" + Constants.BOLD + "]";
+	private int maxInputLength = maxMessageLength * 17 - inputExceededMsg.length();  // 17 pages of crap should be enough for anyone, but not enough to swamp goat's heap 
+	
 	private boolean untapped = true ; 
 	
 	// various easier-making fiddly numbers
@@ -43,6 +47,8 @@ public class Pager {
 	 * @param text to put in the buffer, blowing away anything already there
 	 */
 	private void init(String text) {
+		if(maxInputLength > 0 && text.length() > maxInputLength)
+			text = text.substring(0, maxInputLength) + inputExceededMsg;
 		buffer = smush(text) ;	
 		untapped = true ;
 	}
@@ -117,7 +123,7 @@ public class Pager {
 					num = i;
 					break;
 				}
-		return getChunk(num).trim();
+		return getChunk(num);
 	}
 
 	public static String smush(String text) {

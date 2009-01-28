@@ -9,8 +9,35 @@ import java.math.*;
 
 public class OperatorControlCenter {
 
-    
-    public int getPrecedence(String s){
+	private long limitUpperPower = 0;
+	private long limitLowerPower = 0;
+	private long limitFactorial = 0;
+	
+    public long getLimitFactorial() {
+		return limitFactorial;
+	}
+
+	public void setLimitFactorial(long limitFactorial) {
+		this.limitFactorial = limitFactorial;
+	}
+
+	public long getLimitUpperPower() {
+		return limitUpperPower;
+	}
+
+	public void setLimitUpperPower(long limitUpperPower) {
+		this.limitUpperPower = limitUpperPower;
+	}
+
+	public long getLimitLowerPower() {
+		return limitLowerPower;
+	}
+
+	public void setLimitLowerPower(long limitLowerPower) {
+		this.limitLowerPower = limitLowerPower;
+	}
+
+	public int getPrecedence(String s){
         return ((Integer)precedenses.get(s)).intValue();
     }
     
@@ -253,7 +280,7 @@ public class OperatorControlCenter {
 
     
 
-    public Object evaluate_operator(String operator, Vector operans) throws CalculatorException {
+    public Object evaluate_operator(String operator, Vector operans) throws CalculatorException, InterruptedException {
         
         int required_params = operandsRequired(operator);
         if(required_params==-1 && operans.size()<1){
@@ -451,6 +478,13 @@ public class OperatorControlCenter {
                 throw new CalculatorException("non-integer exponents are currently not supported");
             }
             
+            if((limitUpperPower > 0) && nums[0].toBigInteger().compareTo(BigInteger.valueOf(limitUpperPower)) == 1) {
+            	throw new CalculatorException("the power function has been limited to " + limitUpperPower);
+            }
+            
+            if((limitLowerPower < 0) && nums[0].toBigInteger().compareTo(BigInteger.valueOf(limitLowerPower)) == -1 ) {
+            	throw new CalculatorException("the power function has been limited to " + limitLowerPower);
+            }
             
             BigInteger integer_power = nums[0].toBigInteger();
             int int_power = nums[0].abs().intValue();
@@ -477,6 +511,8 @@ public class OperatorControlCenter {
             BigInteger maxValue = BigInteger.valueOf((long)Integer.MAX_VALUE);
             if(maxValue.compareTo(integer_power)>0){
                 for(; int_power>1; int_power--){
+                	if(Thread.interrupted())
+                		throw new InterruptedException();
                 //for(; integer_power.compareTo(BigInteger.ONE)>=1; integer_power = integer_power.subtract(BigInteger.ONE)){
                     //last = last.multiply(left).setScale((5+scale), BigDecimal.ROUND_HALF_EVEN);
                     //last = last.multiply(left);
@@ -562,8 +598,12 @@ public class OperatorControlCenter {
             }
             
             BigInteger i = big_ints[0].subtract(BigInteger.ONE);
+            if(limitFactorial > 0 && i.compareTo(BigInteger.valueOf(limitFactorial)) == 1)
+            	throw new CalculatorException("factorial has been limited to " + limitFactorial);
             BigInteger sum = big_ints[0];
             while(i.compareTo(BigInteger.ONE)>0){
+            	if(Thread.interrupted())
+            		throw new InterruptedException();
                 sum = sum.multiply(i);
                 i=i.subtract(BigInteger.ONE);
             }

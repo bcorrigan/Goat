@@ -154,14 +154,14 @@ public abstract class Module implements Runnable {
 	 */
 	public abstract void processChannelMessage(Message m);
 	
-	public void processMessage(Message m) {
+	public void dispatchMessage(Message m) {
 		if(isThreadSafe()) {
 			queueIncomingMessage(m);
 		} else
-			reallyProcessMessage(m);
+			processMessage(m);
 	}
 	
-	private void reallyProcessMessage(Message m) {
+	public void processMessage(Message m) {
 	       try {
 	            if (m.isCTCP()||!m.getCommand().equals("PRIVMSG")) {
 	                processOtherMessage(m);
@@ -202,8 +202,12 @@ public abstract class Module implements Runnable {
 		return running;
 	}
 	
-	public synchronized void stopThread() {
+	public synchronized void stopDispatcher() {
 		stop = true;
+		
+		// send a dummy message through the queue to make sure run() doesn't get stuck
+		// waiting on a take() for a message that will never come
+		incomingQueue.add(new Message());
 	}
 	
 	public void run() {
@@ -211,9 +215,8 @@ public abstract class Module implements Runnable {
 		while (!stop) {
 			try {
 				Message m = incomingQueue.take();
-				if(stop)  // we do it this in addition to while(!stop) because we might have been stopped while take() was waiting for something new to enter the queue  
-					break;
-				reallyProcessMessage(m);
+				if(!stop)  // we do it this in addition to while(!stop) because we might have been stopped while take() was waiting for something new to enter the queue  
+					processMessage(m);
 			} catch (InterruptedException ie) {}
 		}
 		running = false;

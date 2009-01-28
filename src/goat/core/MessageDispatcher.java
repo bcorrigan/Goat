@@ -115,7 +115,7 @@ public class MessageDispatcher {
     }
 	
 	private void sendMessage(Message msg, Module mod) {
-		mod.processMessage(msg);
+		mod.dispatchMessage(msg);
 	}
 
 }

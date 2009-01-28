@@ -170,7 +170,7 @@ public class Goat {
 		BotStats.botname = "goat";
 		BotStats.clientName = "goat";
 		BotStats.owner = "rs";
-		BotStats.servername = "irc.slashnet.org";
+		BotStats.servername = "moo.slashnet.org";
 
 	}
 

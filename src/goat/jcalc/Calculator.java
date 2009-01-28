@@ -491,13 +491,16 @@ public class Calculator {
      *
      *  @param polish_vector - an equation in reverse polilsh notation
      *  @return String - the result
+     * @throws InterruptedException 
      *
      */
-    public String evaluate_rpn(Vector polish_vector) throws CalculatorException {
+    public String evaluate_rpn(Vector polish_vector) throws CalculatorException, InterruptedException {
 
         Stack num_stack = new Stack();
         
         for(int i=0; i<polish_vector.size(); i++){
+        	if(Thread.interrupted())
+        		throw new InterruptedException();
             Object obj = polish_vector.elementAt(i);
             
             if(obj instanceof BigDecimal        || 
@@ -728,9 +731,10 @@ public class Calculator {
      *  @param equation - an expression
      *  @return String - the result
      *  @throws CalculatorException
+     * @throws InterruptedException 
      *  
      */    
-    public String evaluate_equation(String equation) throws CalculatorException {
+    public String evaluate_equation(String equation) throws CalculatorException, InterruptedException {
         if(equation==null || equation.equals("")){
             return "";
         }
@@ -765,8 +769,9 @@ public class Calculator {
      *  @param equation - an expression
      *  @return String - the result
      *  @throws CalculatorException
+     * @throws InterruptedException 
      */    
-    public String evaluate_equation_and_add(String equation) throws CalculatorException {
+    public String evaluate_equation_and_add(String equation) throws CalculatorException, InterruptedException {
         if(equation==null || equation.equals("")){
             return "";
         }        
@@ -898,6 +903,18 @@ public class Calculator {
     VariableTable variables;
     OperatorControlCenter opCon;
 
+    public void setLimitUpperPower (long limit) {
+    	opCon.setLimitUpperPower(limit);
+    }
+    
+    public void setLimitLowerPower (long limit) {
+    	opCon.setLimitLowerPower(limit);
+    }
+    
+    public void setLimitFactorial (long limit) {
+    	opCon.setLimitFactorial(limit);
+    }
+    
     public Calculator(){
         this(32);
         //System.out.println("empty");

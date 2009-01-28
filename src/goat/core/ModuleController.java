@@ -111,7 +111,7 @@ public class ModuleController  {
 		else {
 			loadedModules.remove(mod) ;
 			if(mod.isThreadSafe())
-				mod.stopThread();
+				mod.stopDispatcher();
 		}
 		return true ;
 	}

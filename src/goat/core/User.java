@@ -176,6 +176,8 @@ public class User {
 			}
 	}
 	
+	
+
 	public synchronized void setLastMessage(Message m) {
 		if(null == container) {
 			lastMessageTimestamps.put(m.getChanname(), System.currentTimeMillis());
@@ -198,9 +200,11 @@ public class User {
 		return lastMessageTimestamps.get(channel);
 	}
 	
+	
 	public synchronized String getLastMessage() {
 		return lastMessage;
 	}
+	
 	
 	// possibly harmful, but required for serialization
 	public HashMap<String, Long> getLastMessageTimestamps() {
