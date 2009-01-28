@@ -26,7 +26,7 @@ public class Scores implements Comparator<String[]> {
 	private static boolean isMatchScoresReadFromFile = false;
 	
 	// We're assuming that only one thread will be mucking with our scores collection, so it's not synchronized...
-	private List<String[]> scores;   
+	private List<String[]> scores = new ArrayList<String[]>();   
 
 	public Scores(Message m) {
 		this.target = m;
@@ -46,7 +46,7 @@ public class Scores implements Comparator<String[]> {
 			scores = (ArrayList<String[]>) s.readObject();
 			in.close();
 		} catch (FileNotFoundException e) {
-			scores = new ArrayList<String[]>();  //score file doesn't exist, just create an empty ArrayList
+			// scores = new ArrayList<String[]>();  //score file doesn't exist, just create an empty ArrayList
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
@@ -299,7 +299,7 @@ public class Scores implements Comparator<String[]> {
 			}
 
 			scores = new ArrayList<String[]>();
-			File file = new File("resources/wordgameScores");
+			File file = new File(getScoresFilename());
 			file.delete();
 			warninggiven = false;
 		}
