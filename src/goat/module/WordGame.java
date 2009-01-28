@@ -56,10 +56,12 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		ret.target = target;
 		ret.gamesUnderway = gamesUnderway;
 		ret.playing = true;
-		if(scoresMap.containsKey(target.getChanname()))
+		if(scoresMap.containsKey(target.getChanname())) {
 			ret.scores = scoresMap.get(target);
-		else
+		} else {
 			ret.scores = new Scores(target);
+			scoresMap.put(ret.target.getChanname(), ret.scores);
+		}
 		ret.initGame();
 		return ret;
 	}
