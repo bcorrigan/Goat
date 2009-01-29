@@ -57,9 +57,9 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		ret.gamesUnderway = gamesUnderway;
 		ret.playing = true;
 		if(scoresMap.containsKey(target.getChanname())) {
-			ret.scores = scoresMap.get(target);
+			ret.scores = scoresMap.get(target.getChanname());
 		} else {
-			ret.scores = new Scores(target);
+			ret.scores = new Scores(ret.target);
 			scoresMap.put(ret.target.getChanname(), ret.scores);
 		}
 		ret.initGame();
@@ -80,6 +80,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		if (!playing) {
 			synchronized (gamesUnderway) {
 				String key = m.getChanname();
+				long now = System.currentTimeMillis();
 				if(gamesUnderway.containsKey(key)) {
 					gamesUnderway.get(key).getGame().dispatchMessage(m);		
 				} else if(m.getModCommand().equalsIgnoreCase("wordgame") 
@@ -92,7 +93,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 				} else if ((m.getModCommand().equalsIgnoreCase("scores")
 								|| m.getModCommand().equalsIgnoreCase("matchscores"))
 						&& ((!top10times.containsKey(key)) 
-								|| System.currentTimeMillis() - top10times.get(key) > 30000L)
+								|| now - top10times.get(key) > 3000L)
 						) {
 					Scores s;
 					if(scoresMap.containsKey(key))
@@ -101,7 +102,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 						s = new Scores(m);
 						scoresMap.put(key, s);
 					}
-					top10times.put(key, System.currentTimeMillis());
+					top10times.put(key, now);
 					if(m.getModCommand().equalsIgnoreCase("scores"))
 						s.sendScoreTable();
 					else if (m.getModCommand().equalsIgnoreCase("matchscores"))

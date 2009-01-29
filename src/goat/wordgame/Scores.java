@@ -77,8 +77,8 @@ public class Scores implements Comparator<String[]> {
 							FileInputStream in = new FileInputStream(f);
 							ObjectInputStream s = new ObjectInputStream(in);
 							Object o = s.readObject();
-							if(o instanceof ArrayList) {
-								ArrayList<?> al = (ArrayList<?>) o;
+							if(o instanceof List) {
+								List<?> al = (List<?>) o;
 								for(Object i: al)
 									if(i instanceof String[])
 										matchScores.add((String[])i);
