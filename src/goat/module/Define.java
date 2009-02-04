@@ -91,12 +91,12 @@ public class Define extends Module {
 		//make sure we've got a word, if not, ask wordgame mod what its last answer for this channel is, if any, and use that.
 		if(null == word || word.equals("") ) {
 			WordGame wordgameMod = (WordGame) Goat.modController.getLoaded("WordGame") ;
-			if ((wordgameMod != null) && (wordgameMod.inChannel(m.getParams()))) {
-				String lastWord = wordgameMod.getLastAnswer(m.getParams()) ;
+			if (wordgameMod != null && (wordgameMod.inAllChannels || wordgameMod.getChannels().contains(m.getChanname()))) {
+				String lastWord = WordGame.getLastWinningWord(m.getChanname()) ;
 				if(lastWord != null)
 					word = lastWord ;
 				else {
-					m.createReply("Didn't find last answer; maybe you haven't played a round of wordgame yet?").send() ;
+					m.createReply("I can't decide which word I'm supposed to define for you.").send() ;
 					return ;
 				}
 			} else {

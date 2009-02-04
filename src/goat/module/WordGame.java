@@ -1,18 +1,24 @@
 package goat.module;
 
+//import static goat.util.Scores.NAME;
 import goat.Goat;
 import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
-import goat.wordgame.Scores;
 import goat.util.Dict;
+import goat.util.Scores;
+import static goat.util.Scores.*;
+import goat.util.ScoresWithMatches;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -26,58 +32,50 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	private Map<String, GameTimer> gamesUnderway = Collections.synchronizedMap(new HashMap<String, GameTimer>());
 	//private boolean isTheBoss = true;
 
-	private boolean playing = false;				//True if a game is being played just now
+	private boolean isTheBoss = true;				//True if a game is being played just now
+	private boolean playing = false;
 	private Dict dict = new Dict();					//the entire dictionary
 	private ArrayList<String> validWords; 			//all the valid answers
     private ArrayList<String> anagrams;             //all the winning answers, ie anagrams of answer
 	private ArrayList<Character> letters;			//letters in this match
-	private String answer;							//the answer word
+	private String solution;						//the answer word
 	private int longestPossible;   					//longest possible word length for this game
-	private String[] currentWinning; 				//nick of person currently winning with the shortest word, and the winning word     @TODO Awful choice of data structure, this
-	private int score;           					//score for this one
+
+	private String currentWinningPlayer = null;
+	private String currentWinningWord = null;
+	private int currentWinningScore;
+
+	//private int scoreToWinMatch = 68;
+	private int warningThreshold = 40;
+	private HashMap<String, Boolean> warningsGiven = new HashMap<String, Boolean>();
+	
 	private Message target;							//just the target channel for any given game
 	
-	// only used in manager instance
 	private Map<String, Long> top10times = new HashMap<String, Long>();			//how long since someone asked for the top10 table       <----\
-	private Scores scores;							//scores related stuff
+	private ScoresWithMatches scores;							// running game and match scores
 	
-	// We're going to assume only the manager instance will be accessing the scores map, in a single thread, so it's not synchronized
-	private Map<String, Scores> scoresMap = new HashMap<String, Scores>();				
-
-	private static HashMap<String, String> lastAnswers = new HashMap<String, String>();				//HashMap of last answers across many channels
-
-	private static final int NAME = 0;              //Various statics
-	private static final int ANSWER = 1;
-
 	private ExecutorService pool = Goat.modController.getPool();
 	
-	private WordGame getWorkerInstance(Message target) {
-		WordGame ret = new WordGame();
-		ret.target = target;
-		ret.gamesUnderway = gamesUnderway;
-		ret.playing = true;
-		if(scoresMap.containsKey(target.getChanname())) {
-			ret.scores = scoresMap.get(target.getChanname());
-		} else {
-			ret.scores = new Scores(ret.target);
-			scoresMap.put(ret.target.getChanname(), ret.scores);
-		}
-		ret.initGame();
-		return ret;
+	private static Map<String, String> lastWinningWord;
+	{
+		lastWinningWord = Collections.synchronizedMap(new HashMap<String, String>());
 	}
 	
-	/*
-	public boolean isThreadSafe() {
-		return false;
+	private WordGame getWorkerInstance(Message target) throws IOException {
+		WordGame ret = new WordGame();
+		ret.isTheBoss = false;
+		ret.target = target;
+		ret.gamesUnderway = gamesUnderway;
+		ret.scores = new ScoresWithMatches("wordgame",ret.target.getChanname());
+		return ret;
 	}
-	*/
 	
 	public void processPrivateMessage(Message m) {
 		
 	}
 
 	public void processChannelMessage(Message m) {
-		if (!playing) {
+		if (isTheBoss) {
 			synchronized (gamesUnderway) {
 				String key = m.getChanname();
 				long now = System.currentTimeMillis();
@@ -85,85 +83,99 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 					gamesUnderway.get(key).getGame().dispatchMessage(m);		
 				} else if(m.getModCommand().equalsIgnoreCase("wordgame") 
 						|| m.getModCommand().equalsIgnoreCase("nerdgame")) {
-					WordGame newGame = getWorkerInstance(m);
-					pool.execute(newGame);  // start up the new game's incoming message queue processor
-					GameTimer newTimer = new GameTimer(newGame);
-					gamesUnderway.put(key, newTimer);
-					newTimer.setFuture(pool.submit(newTimer));  // submit() starts the timer, setFuture gives the timer a hook to interrupt its run() thread
+					try {
+						WordGame newGame = getWorkerInstance(m);
+						pool.execute(newGame);  // start up the new game's incoming message queue processor
+						GameTimer newTimer = new GameTimer(newGame);
+						gamesUnderway.put(key, newTimer);
+						pool.submit(newTimer);
+						//newTimer.setFuture(pool.submit(newTimer));  // submit() starts the timer, setFuture gives the timer a hook to interrupt its run() thread
+					} catch (IOException ioe) {
+						m.createReply("I couldn't start a new game due to an i/o exception while setting things up.").send();
+						ioe.printStackTrace();
+					}
 				} else if ((m.getModCommand().equalsIgnoreCase("scores")
 								|| m.getModCommand().equalsIgnoreCase("matchscores"))
 						&& ((!top10times.containsKey(key)) 
 								|| now - top10times.get(key) > 3000L)
 						) {
-					Scores s;
-					if(scoresMap.containsKey(key))
-						s = scoresMap.get(key);
-					else {
-						s = new Scores(m);
-						scoresMap.put(key, s);
-					}
 					top10times.put(key, now);
 					if(m.getModCommand().equalsIgnoreCase("scores"))
-						s.sendScoreTable();
+						sendScoreTable(m);
 					else if (m.getModCommand().equalsIgnoreCase("matchscores"))
-						s.sendMatchScoreTable();
+						sendMatchScoreTable(m);
 				}
 			}
 		} else {
 			//check for words here and whatnot
 			checkMessageIn(m);
 		}
-		
 		return;
 	}
 
 	public int messageType() {
-		if (gamesUnderway.isEmpty() && !playing)
-			return WANT_COMMAND_MESSAGES;
-		else
+		if (gameUnderway())
 			return WANT_UNCLAIMED_MESSAGES;
+		else
+			return WANT_COMMAND_MESSAGES;
 	}
 
+	private boolean gameUnderway() {
+		boolean ret = false;
+		synchronized(gamesUnderway) {
+			for(String chan: gamesUnderway.keySet()) {
+				ret = gamesUnderway.get(chan).thisGame.playing;
+				if(ret)
+					break;
+			}
+		}
+		return ret;
+	}
+	
 	public static String[] getCommands() {
 		return new String[]{"wordgame", "nerdgame", "scores", "matchscores"};
 	}
 
-	private void finaliseGame() {
+	private void finaliseRound() {
 		
-		// order sort of matters here; first we get this game out of the dispatch table, then we 
-		// stop the game timer if it's still running, then we set playing to not true, and 
-		// finally we stop the game object's message dispatcher;
-		GameTimer gt = gamesUnderway.remove(target.getChanname());
-		gt.killTimer();
 		playing = false;
-		gt.getGame().stopDispatcher();
 		
 		String reply;
-        boolean won=false;
-		lastAnswers.put(target.getChanname(), answer) ;
-		if (currentWinning != null) {
-			reply = currentWinning[NAME] + " has won with " + currentWinning[ANSWER] + " and gets " + score + " points! ";
-			if (currentWinning[ANSWER].length() == longestPossible) {
+        boolean wonWithLongest=false;
+		lastWinningWord.remove(target.getChanname());
+        
+		if (currentWinningPlayer != null) {
+			reply = currentWinningPlayer + " has won with " + currentWinningWord + " and gets " + currentWinningScore + " points! ";
+			if (currentWinningWord.length() == longestPossible) {
 				reply += " This was the longest possible. ";
-                won=true;
-				lastAnswers.put(target.getChanname(), currentWinning[ANSWER]);
+                wonWithLongest=true;
 			}
 		} else {
 			reply = "Nobody guessed a correct answer :( ";
 		}
         
+		
+		
         if(anagrams.size()>1) {
             reply+= anagrams.size() + " possible winning answers: ";
             for (int i=0; i<(anagrams.size()-1); i++) {
                 reply += Constants.BOLD + anagrams.get(i) + Constants.BOLD + ", ";
             }
             
-        } else if(!won) {
+        } else if(!wonWithLongest) {
             reply+=" Longest possible: ";
         }
         
-        if( anagrams.size()>1&&won || !won )
+        if(anagrams.size() == 1)
+        	lastWinningWord.put(target.getChanname(), solution);
+        else
+        	lastWinningWord.remove(target.getChanname());
+        
+        if( anagrams.size()>1&&wonWithLongest || !wonWithLongest )
             reply+=Constants.BOLD + anagrams.get(anagrams.size()-1) + Constants.BOLD + ". ";
+        
+        
+    	
         
         //bung on 5 highest scoring words as examples of answers
         //potentially there could be a bug here if there is only one possible answers,
@@ -182,21 +194,84 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         reply += validWords.get(examples-1) + ".";        
         
 		target.createPagedReply(reply).send();
-		if (currentWinning != null) {
-			scores.commit(currentWinning, score);   //commit new score to league table etc
+		
+		if (currentWinningPlayer != null) {
+			scores.add(Scores.newEntry(currentWinningPlayer, currentWinningScore));   //commit new score to league table etc
 		}
+		
+		//if(scores.highScore() > scoreToWinMatch) {
+		//	finaliseMatch();
+		//}
+		
+		//else if (null != currentWinningPlayer
+        //		&& (scores.playerScore(currentWinningPlayer) >= warningThreshold)
+        //		&& (null == warningsGiven.get(currentWinningPlayer))) {
+		//	target.createReply(Constants.BOLD + "Warning: " + Constants.BOLD + currentWinningPlayer + " is within striking distance of victory!").send();
+		//	warningsGiven.put(currentWinningPlayer, true);
+		//}	
+	}
+	
+	private void finaliseMatch() {
+		//System.out.println("finaliseMatch(): finalising match");
+		String[] entry1, entry2;
+		entry1 = scores.copyOfEntry(0);
+		entry2 = scores.copyOfEntry(1);
+		
+		target.createReply(Constants.BOLD + entry1[NAME].toUpperCase() + Constants.BOLD
+				+ Constants.YELLOW + " has " + Constants.RED + Constants.UNDERLINE
+				+ "WON THE MATCH!!!").send();
+		target.createReply("Scores at close of play: ");
+		sendScoreTable(target);
 
+		boolean noContest = false;
+		if (scores.size() > 1) {
+			int difference = 0;
+			difference = Integer.parseInt(entry1[TOTAL_SCORE]) - Integer.parseInt(entry2[TOTAL_SCORE]);
+			target.createReply(entry1[NAME] + " won by a clear " + difference + " points.").send();
+
+			if (difference > 50) {
+				target.createReply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of overwhelming margin of victory.").send() ;
+				noContest = true ;
+			}
+			//System.out.println("finaliseMatch(): finished scores greater than one");
+		} else {
+			target.createReply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of \"no one else was playing.\"").send() ;
+			noContest = true ;
+		}
+		
+		//System.out.println("finaliseMatch(): clearing warnings");
+		warningsGiven.clear();
+		
+		//System.out.println("finaliseMatch(): committing scores");
+		if(noContest) {
+			//System.out.println("finaliseMatch(): no contest, clearing scores");
+			scores.clear();
+		} else {
+			//System.out.println("finaliseMatch(): committing match scores");
+			scores.endMatch();
+		}
+		//System.out.println("finaliseMatch(): scores saved");
 	}
 
-	private void initGame() {
+	private void initRound() {
+        playing = true;
+        currentWinningPlayer = null;
+		currentWinningWord = null;
+		currentWinningScore = 0;
 		getLetters();
-		validWords = dict.getMatchingWords(answer);
+		validWords = dict.getMatchingWords(solution);
         anagrams = new ArrayList<String>();
         for(String word:validWords) {
-            if( word.length() == answer.length() ) //anagram
+            if( word.length() == solution.length() ) //anagram
                 anagrams.add(word);
         }
-		currentWinning = null;
+        String letterString = " ";
+        for (Character letter : letters) {
+            letterString += letter + " ";
+        }
+		target.createReply(Constants.REVERSE + "***" + Constants.REVERSE
+				+ " New Letters:" + Constants.BOLD
+				+ letterString.toUpperCase()).send();
 	}
 
 	private void checkMessageIn(Message m) {
@@ -206,26 +281,27 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         for (String word : words) {
             if (wordIsValid(word)) {
                 correctWords.add(word.toLowerCase());
-                if (currentWinning != null) {
-                    if (currentWinning[ANSWER].length() < word.length()) {
-                        currentWinning[NAME] = m.getSender();
-                        currentWinning[ANSWER] = word.toLowerCase();
+                
+                boolean firstWin = (currentWinningPlayer == null);
+                if (firstWin || currentWinningWord.length() < word.length()) {
+                        currentWinningPlayer = m.getSender();
+                        currentWinningWord = word.toLowerCase();
                         score();
-                        m.createReply(m.getSender() + " steals the lead with " + word.toLowerCase()
-                                + ". score: " + score).send();
-                    }
-                } else {
-                    currentWinning = new String[3];
-                    currentWinning[NAME] = m.getSender();
-                    currentWinning[ANSWER] = word.toLowerCase();
-                    score();
-                    m.createReply(m.getSender() + " sets the pace with " + word.toLowerCase()
-                            + ". score:" + score).send();
-                }
+                        if(firstWin)
+                            m.createReply(currentWinningPlayer + " sets the pace with " + currentWinningWord
+                                    + ". score:" + currentWinningScore).send();
+                        else
+                        	m.createReply(currentWinningPlayer + " steals the lead with " + currentWinningWord
+                                + ". score: " + currentWinningScore).send();
+                    
+                } 
                 if (word.length() == longestPossible) {
                     //We have a winner!
-                    m.createReply(m.getSender() + " WINS IT!!").send();
-                    finaliseGame();
+                    m.createReply(currentWinningPlayer + " WINS IT!!").send();
+                    playing = false;
+                    finaliseRound();
+                    gamesUnderway.get(m.getChanname()).interrupt();
+                    
                 }
             }
         }
@@ -241,27 +317,11 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	}
 
 	private void score() {
-		score = currentWinning[ANSWER].length();
-		if (score == letters.size()) {
-			score *= 2;
+		currentWinningScore = currentWinningWord.length();
+		if (currentWinningScore == letters.size()) {
+			currentWinningScore *= 2;
 		}
 	}
-
-	//unused
-	/*
-	private String getLongest(ArrayList list) {
-		Iterator it = list.iterator();
-		String longestWord = "";
-		while (it.hasNext()) {
-			String word = (String) it.next();
-			if (word.length() == longestPossible) {
-				longestWord = word;
-				break;
-			}
-		}
-		return longestWord;
-	}
-	*/
 
 	/**
 	 * Create random letters.
@@ -274,7 +334,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 			word = dict.getRandomWord();
 			if (word.length() < 6)
 				continue;
-			answer = word;
+			solution = word;
 			longestPossible = word.length();
 			letters = new ArrayList<Character>(word.length());
 			for (int i = 0; i < word.length(); i++) {
@@ -284,78 +344,138 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		}
 		Collections.shuffle(letters);
 	}
+	
+	public static String getLastWinningWord(String channel) {
+		return lastWinningWord.get(channel);
+	}
+	
+	private void sendScoreTable(Message m) {
+		try {
+			Scores s = new ScoresWithMatches("wordgame", m.getChanname());
+			List<String> lines = s.scoreTable();
+			for(String line: lines)
+				m.createReply(line).send();
+		} catch (IOException ioe) {
+			m.createReply("I had an i/o problem while trying to fetch the scores table").send();
+		}
+	}
+	
+	private void sendMatchScoreTable(Message m) {
+		try {
+			Scores s = new ScoresWithMatches("wordgame", m.getChanname());
+			List<String> lines = s.matchScoreTable();
+			for(String line: lines)
+				m.createReply(line).send();
+		} catch (IOException ioe) {
+			m.createReply("I had an i/o problem while trying to fetch the match scores table").send();
+		}
+	} 
 
-	private class GameTimer implements Runnable {
+	private class GameTimer implements Callable<Boolean> {
 		
 		WordGame thisGame;
-		private Future<?> future;
+		//private Future<?> future;
+		private Thread thread = null;
+		
+		private boolean pauseMatch = false;
+		private boolean matchIsPaused = false;
 		
 		// make no-args constructor inaccessible
-		private GameTimer() {
-			// make no-args constructor
-		}
+		//private GameTimer() {
+		//}
 		
 		public GameTimer(WordGame game) {
 			thisGame = game; 
 		}
 
-		public void run() {
-			// Start up the game
-			String letterString = " ";
-	        for (Character letter : thisGame.letters) {
-	            letterString += letter + " ";
-	        }
-			thisGame.target.createReply(Constants.REVERSE + "***" + Constants.REVERSE
-					+ " New Letters:" + Constants.BOLD
-					+ letterString.toUpperCase()).send();
-
-			//wait some seconds, depending on word length
-			try {
-				Thread.sleep((thisGame.letters.size() * 5 - 10) * 1000);
-			} catch (InterruptedException e) {
-				System.out.println("Timer for wordgame in " + thisGame.target.getChanname() + " interrupted, game over.");
-				return;
-			}
-
-			thisGame.target.createReply(Constants.BOLD + "10 secs..").send();
-
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				System.out.println("Timer for wordgame in " + thisGame.target.getChanname() + " interrupted, game over.");
-				return;
-			}
-			thisGame.finaliseGame();
+		public Boolean call() {
+			thread = Thread.currentThread();
+			// do the actual game-playing stuff
+			autoMatch(10);
+			
+			// Debugging line, if we don't see this, we didn't get a clean exit
+			// thisGame.target.createReply("Good game, nerds!").send();
+			
+			// We're done with the game object now, we 
+			//   should stop its message-dispatching thread
+			//   instead of hoping the garbage collector
+			//   will take care of it
+			thisGame.stopDispatcher();
+			//   and take our game object out of the dispatch table
+			gamesUnderway.remove(thisGame.target.getChanname());
+			thread = null;
+			return true;
 		}
 		
-		public void killTimer() {
-			thisGame.stopDispatcher();
-			future.cancel(true);
+		public void autoMatch(int rounds) {
+			for(int round = 0; round < rounds; round++) {		
+				if(round > 0) {
+					thisGame.target.createReply("Round " + (round + 1) + " of " + rounds + " starts in 10 seconds").send();
+					try{
+						Thread.sleep(8000);
+					} catch (InterruptedException ie) {}
+					if(pauseMatch)
+						try {
+							matchIsPaused = true;
+							wait();
+						} catch (InterruptedException ie) {
+							matchIsPaused = false;
+						}
+						
+					// count it down
+					thisGame.target.createReply("Ready!").send();
+					try{
+						Thread.sleep(1000);
+					} catch (InterruptedException ie) {}
+					thisGame.target.createReply("Set!").send();
+					try{
+						Thread.sleep(1000);
+					} catch (InterruptedException ie) {}
+				}
+				// Start up the game
+				thisGame.initRound();
+
+				//wait some seconds, depending on word length
+				try {
+					Thread.sleep((thisGame.letters.size() * 5 - 10) * 1000);
+				} catch (InterruptedException e) {}
+
+				if(thisGame.playing) 
+					thisGame.target.createReply(Constants.BOLD + "10 secs..").send();
+				if(thisGame.playing)
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {}
+				if(thisGame.playing)
+					thisGame.finaliseRound();
+				if(round < rounds - 1)
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException ie) {}			
+			}
+			// System.out.println("autoMatch(): got outside for loop");
+			thisGame.finaliseMatch();
+			// System.out.println("autoMatch(): finalized match");
+		}
+		
+		public void interrupt() {
+			if(thread != null)
+				thread.interrupt();  // send interrupt
 		}
 		
 		public WordGame getGame() {
 			return thisGame;
 		}
-
-		public Future<?> getFuture() {
-			return future;
+		
+		public void pauseMatch() {
+			pauseMatch = true;
 		}
-
-		public void setFuture(Future<?> future) {
-			this.future = future;
+		
+		public void resumeMatch() {
+			pauseMatch = false;
+			if(matchIsPaused)
+				thread.interrupt();
 		}
-	}
-
-	/**
-	 * You can get the answer to the last game played in the channel passed here.
-	 *
-	 * @param chan The channel for which caller wants last answer.
-	 * @return Answer to the last game played in that channel, if any, or null.
-	 */
-	public String getLastAnswer(String chan) {
-		if (lastAnswers.containsKey(chan))
-			return (String) lastAnswers.get(chan);
-		return null;
 	}
 
     public int compare(String o1, String o2) {

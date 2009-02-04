@@ -183,9 +183,39 @@ public class Google extends Module {
 
 	private String lastCachedResultType = null;
 	private HashMap<String,NewsSearchResponse> newsResponseCache = new HashMap<String,NewsSearchResponse>(); 
-
+	private boolean newsLinkMode = false;
+	
 	private void ircGoogleNews(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
+		//for em
+		String mTrail = Constants.removeFormattingAndColors(m.getModTrailing()).toLowerCase().replaceAll("\\s+", " ").trim();
+		if(newsLinkMode && mTrail.matches("^\\d$")) {
+			m.createPagedReply(newsLinkReply(mTrail, m.getChanname())).send();
+			return;
+		} else if(mTrail.startsWith("m-x news-link")) {
+			String r;
+			if(mTrail.matches("^m-x news-link \\d\\s*")) {
+				String nlink = m.getWord(m.getWords().size() - 1);
+				nlink = Constants.removeFormattingAndColors(nlink).trim();
+				r = newsLinkReply(nlink, m.getChanname());
+			} else if(mTrail.equals("m-x news-link-mode")) {
+				newsLinkMode = !newsLinkMode;
+				r = "News-link mode ";
+				if(newsLinkMode) 
+					r += "en";
+				else
+					r += "dis";
+				r += "abled";
+			} else if (mTrail.equals("m-x news-link")) {
+				r = newsLinkReply("", m.getChanname());
+			} else if (mTrail.startsWith("m-x news-link ")){
+				r = "Invalid argument.";
+			} else {
+				r = "[no match]";
+			}
+			m.createPagedReply(r).send();
+			return;
+		}
 		String query = Constants.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("What do you want news of?").send();
@@ -225,36 +255,32 @@ public class Google extends Module {
 		lastCachedResultType = "news";
 		m.createPagedReply(reply).send();
 	}
-
-	private void ircNewsLink(Message m) {
-		if (! newsResponseCache.containsKey(m.getChanname())) {
-			m.createReply("I'm sorry, I don't have any news for this channel.").send();
-			return;
+	
+	private String newsLinkReply(String modTrailing, String channel) {
+		if (! newsResponseCache.containsKey(channel)) {
+			return "I'm sorry, I don't have any news for this channel.";
 		}
-		NewsSearchResponse nsr = newsResponseCache.get(m.getChanname());
+		NewsSearchResponse nsr = newsResponseCache.get(channel);
 		if (null == nsr) {
-			m.createReply("something has gone horribly wrong; my news for this channel seems to be null.").send();
-			return;
+			return "something has gone horribly wrong; my news for this channel seems to be null.";
 		}
 		int resultNum = 0;
 		try {
-			if (m.getModTrailing().matches("(^\\d+$|^\\d+ +.*)"))
-				if(m.getModTrailing().matches("^\\d+$"))
-					resultNum = Integer.parseInt(m.getModTrailing()) - 1;
-				else
-					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
+			String mTrail = Constants.removeFormattingAndColors(modTrailing).trim();
+			if (mTrail.matches("^\\d+$"))
+				resultNum = Integer.parseInt(modTrailing) - 1;
 		} catch (NumberFormatException nfe) {
-			m.createReply("There's no need to be like that, qpt.").send();
+			return "There's no need to be like that, qpt.";
 		}
+		
+		String reply = "";
 		if(resultNum > nsr.getResponseData().getResults().length) {	
-			m.createReply("I don't have that many results :(").send();
-			return;
+			reply = "I don't have that many results :(";
 		} else if(resultNum < 0) {
-			m.createReply("Oh, come on.").send();
-			return;
+			reply = "Oh, come on.";
 		} else {
 			NewsSearchResult re = nsr.getResponseData().getResults()[resultNum];
-			String reply = re.getUnescapedUrl()
+			reply = re.getUnescapedUrl()
 			+ "  " + re.getTitleNoFormatting();
 			Date date = re.getPublishedDate();
 			if(date != null)
@@ -263,9 +289,51 @@ public class Google extends Module {
 			+ " (" + re.getPublisher() + ")  "
 			+ "  " + Constants.BOLD + "\u2014" + Constants.NORMAL + "  "
 			+ HTMLUtil.textFromHTML(re.getContent());
-
-			m.createPagedReply(reply).send();
 		}
+		return reply;
+	}
+
+	private void ircNewsLink(Message m) {
+		m.createPagedReply(newsLinkReply(m.getModTrailing(), m.getChanname())).send();
+//		if (! newsResponseCache.containsKey(m.getChanname())) {
+//			m.createReply("I'm sorry, I don't have any news for this channel.").send();
+//			return;
+//		}
+//		NewsSearchResponse nsr = newsResponseCache.get(m.getChanname());
+//		if (null == nsr) {
+//			m.createReply("something has gone horribly wrong; my news for this channel seems to be null.").send();
+//			return;
+//		}
+//		int resultNum = 0;
+//		try {
+//			if (m.getModTrailing().matches("(^\\d+$|^\\d+ +.*)"))
+//				if(m.getModTrailing().matches("^\\d+$"))
+//					resultNum = Integer.parseInt(m.getModTrailing()) - 1;
+//				else
+//					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
+//		} catch (NumberFormatException nfe) {
+//			m.createReply("There's no need to be like that, qpt.").send();
+//		}
+//		if(resultNum > nsr.getResponseData().getResults().length) {	
+//			m.createReply("I don't have that many results :(").send();
+//			return;
+//		} else if(resultNum < 0) {
+//			m.createReply("Oh, come on.").send();
+//			return;
+//		} else {
+//			NewsSearchResult re = nsr.getResponseData().getResults()[resultNum];
+//			String reply = re.getUnescapedUrl()
+//			+ "  " + re.getTitleNoFormatting();
+//			Date date = re.getPublishedDate();
+//			if(date != null)
+//				reply += "  " + getDateLine(re.getPublishedDate());
+//			reply += ", " + re.getLocation()
+//			+ " (" + re.getPublisher() + ")  "
+//			+ "  " + Constants.BOLD + "\u2014" + Constants.NORMAL + "  "
+//			+ HTMLUtil.textFromHTML(re.getContent());
+//
+//			m.createPagedReply(reply).send();
+//		}
 	}
 
 	private HashMap<String,BookSearchResponse> booksResponseCache = new HashMap<String,BookSearchResponse>(); 
