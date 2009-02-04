@@ -264,11 +264,12 @@ public class Google extends Module {
 		if (null == nsr) {
 			return "something has gone horribly wrong; my news for this channel seems to be null.";
 		}
+		
 		int resultNum = 0;
 		try {
 			String mTrail = Constants.removeFormattingAndColors(modTrailing).trim();
 			if (mTrail.matches("^\\d+$"))
-				resultNum = Integer.parseInt(modTrailing) - 1;
+				resultNum = Integer.parseInt(mTrail) - 1;
 		} catch (NumberFormatException nfe) {
 			return "There's no need to be like that, qpt.";
 		}
