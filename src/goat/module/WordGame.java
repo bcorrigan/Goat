@@ -105,7 +105,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		String key = m.getChanname();	
 		synchronized (gamesUnderway) {
 			if(gamesUnderway.containsKey(key)) {
-				gamesUnderway.get(key).getGame().dispatchMessage(m);		
+				gamesUnderway.get(key).thisGame.dispatchMessage(m);		
 			} else if(m.getModCommand().equalsIgnoreCase("wordgame") 
 					|| m.getModCommand().equalsIgnoreCase("nerdgame")) {
 				try {
@@ -324,7 +324,6 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         for (String word : words) {
             if (wordIsValid(word)) {
                 correctWords.add(word.toLowerCase());
-                
                 boolean firstWin = (currentWinningPlayer == null);
                 if (firstWin || currentWinningWord.length() < word.length()) {
                         currentWinningPlayer = m.getSender();
@@ -394,9 +393,12 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	private void sendScoreTable(Message m) {
 		try {
 			Scores s = new ScoresWithMatches("wordgame", m.getChanname());
-			List<String> lines = s.scoreTable();
-			for(String line: lines)
-				m.createReply(line).send();
+			List<String> lines = s.scoreTable(20);
+			if(lines.size() > 0)
+				for(String line: lines)
+					m.createReply(line).send();
+			else
+				m.createReply("Nobody has a score yet :(").send();
 		} catch (IOException ioe) {
 			m.createReply("I had an i/o problem while trying to fetch the scores table").send();
 		}
@@ -405,9 +407,12 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	private void sendMatchScoreTable(Message m) {
 		try {
 			Scores s = new ScoresWithMatches("wordgame", m.getChanname());
-			List<String> lines = s.matchScoreTable();
-			for(String line: lines)
-				m.createReply(line).send();
+			List<String> lines = s.matchScoreTable(20);
+			if(lines.size() > 0)
+				for(String line: lines)
+					m.createReply(line).send();
+			else
+				m.createReply("Nobody has won a match yet :(").send();
 		} catch (IOException ioe) {
 			m.createReply("I had an i/o problem while trying to fetch the match scores table").send();
 		}
@@ -455,6 +460,9 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		}
 		
 		public void autoMatch(int rounds) {
+			if(rounds < 1)
+				return;
+			thisGame.scores.clear();
 			for(int round = 0; round < rounds; round++) {	
 				
 				if(round > 0) {
@@ -499,12 +507,25 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 				if(thisGame.playingRound)
 					thisGame.finaliseRound();
 
-
+				if(isDisplayScoreRound(round, rounds))
+					thisGame.sendScoreTable(thisGame.target);
 			
 			}
 			// wrap up the match
 			thisGame.finaliseMatch();
 			// System.out.println("autoMatch(): finalized match");
+		}
+		
+		private boolean isDisplayScoreRound(int round, int rounds) {
+			boolean ret = false;
+			int remaining = rounds - round + 1;
+			if(remaining < 6) {
+				if(remaining == 1 || remaining == 3)
+					ret = true;
+			} else {
+				ret = ((round + 1 > 5) && (remaining % 6) == 0);
+			}
+			return ret;
 		}
 		
 		private void waitBetweenRounds(long millis, boolean pauseable) {
@@ -550,10 +571,11 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 				thread.interrupt();  // send interrupt
 		}
 		
+		/*
 		public WordGame getGame() {
 			return thisGame;
 		}
-		
+		*/
 		
 		
 		public synchronized void scheduleMatchPause() {

@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.Goat;
 import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
@@ -7,6 +8,7 @@ import goat.core.BotStats;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
+import java.util.concurrent.ExecutorService;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -44,16 +46,12 @@ public class Threat extends Module implements Runnable {
 	}
 
 	private int threatLevel;
+	private ExecutorService pool = Goat.modController.getPool();
 
 	private boolean firstTime = true;	//true until commitThreat is run at least once, so that channels aren't spammed when module is first loaded
 
 	public Threat() {
-		Thread t = new Thread(this);
-		t.start();
-	}
-
-	public boolean isThreadSafe() {
-		return false;
+		pool.execute(new TerrorChecker(this));
 	}
 	
 	public void processPrivateMessage(Message m) {
@@ -72,13 +70,19 @@ public class Threat extends Module implements Runnable {
 	 * A wee thread that gets the latest threat elvel every ten minutes and sends out messages informing folk of changes in
 	 * the terror level.
 	 */
-	public void run() {
-		while (true) {
-			commitThreat(getLatestThreatLevel());
-			try {
-				Thread.sleep(600000);		//update the threat level every ten minutes
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+	private class TerrorChecker implements Runnable {
+		Threat me;
+		TerrorChecker(Threat threat) {
+			me = threat;
+		}
+		public void run() {
+			while (true) {
+				me.commitThreat(getLatestThreatLevel());
+				try {
+					Thread.sleep(600000);		//update the threat level every ten minutes
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -136,7 +140,7 @@ public class Threat extends Module implements Runnable {
 	 *
 	 * @param newThreat The very latest threat level
 	 */
-	private void commitThreat(int newThreat) {
+	private synchronized void commitThreat(int newThreat) {
 		if (newThreat == UNKNOWN)
 			return;
 		else if (firstTime) {

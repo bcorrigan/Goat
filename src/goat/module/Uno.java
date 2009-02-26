@@ -3,6 +3,7 @@
  */
 package goat.module;
 
+import goat.Goat;
 import goat.uno.*;
 import goat.uno.cards.*;
 import goat.core.Constants;
@@ -12,13 +13,14 @@ import goat.core.Message;
 import java.util.LinkedList;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Handles IO between Goat and Uno
  *
  * @author bc
  */
-public class Uno extends Module implements Output, Runnable {
+public class Uno extends Module implements Output {
     boolean playing; //true if playing a game
     boolean waiting; //true if a game has been started but only one player has joined it
     boolean hasJoined; //signifies whether it is safe to start the game
@@ -29,6 +31,8 @@ public class Uno extends Module implements Output, Runnable {
     private static final String BG = Constants.COLCODE + ",1";  //bg colour
     private static final String NORMAL = Constants.WHITE + BG; //reset to normal + BG
 
+    private ExecutorService pool = Goat.modController.getPool();
+    
     static {
         for (int i = 0; i < 20; i++) {
             SPACES[i] = " ";
@@ -36,10 +40,6 @@ public class Uno extends Module implements Output, Runnable {
                 SPACES[i] += " ";
             }
         }
-    }
-
-    public boolean isThreadSafe() {
-    	return false;
     }
     
     public void processChannelMessage(Message m) {
@@ -64,9 +64,8 @@ public class Uno extends Module implements Output, Runnable {
                 target = m;
                 game = new Game(this, m.getSender());
                 longReply = "";
-                Thread t = new Thread(this);
-                t.start();
                 waiting = true;
+                pool.execute(new GameStarter(this));
             }
             if (waiting)
                 if (m.getModCommand().equalsIgnoreCase("join"))
@@ -529,29 +528,35 @@ public class Uno extends Module implements Output, Runnable {
         target.createReply(NORMAL + reply).send();
     }
 
-    public void run() {
-        target.createReply("Waiting for other players to join..").send();
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-        }
+    private class GameStarter implements Runnable {
+    	private Uno game;
+    	GameStarter(Uno uno) {
+    		game = uno;
+    	}
+    	public void run() {
+    		game.target.createReply("Waiting for other players to join..").send();
+    		try {
+    			Thread.sleep(20000);
+    		} catch (InterruptedException e) {
+    		}
 
-        target.createReply(Constants.BOLD + "10 secs..").send();
+    		game.target.createReply(Constants.BOLD + "10 secs..").send();
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-        }
-        if (hasJoined) {
-            target.createReply("Starting the game now!").send();
-            hasJoined = false;
-            playing = true;
-            waiting = false;
-        } else {
-            target.createReply("Not enough players have joined to start the game :( Abandoning it..").send();
-            waiting = false;
-            playing = false;
-            hasJoined = false;
-        }
+    		try {
+    			Thread.sleep(10000);
+    		} catch (InterruptedException e) {
+    		}
+    		if (hasJoined) {
+    			game.target.createReply("Starting the game now!").send();
+    			game.hasJoined = false;
+    			game.playing = true;
+    			game.waiting = false;
+    		} else {
+    			game.target.createReply("Not enough players have joined to start the game :( Abandoning it..").send();
+    			game.waiting = false;
+    			game.playing = false;
+    			game.hasJoined = false;
+    		}
+    	}
     }
 }

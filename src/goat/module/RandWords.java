@@ -83,7 +83,7 @@ public class RandWords extends Module {
 		} else if (m.getModCommand().equalsIgnoreCase("headline")) {
 			CommandParser parser = new CommandParser(m) ;
 			String reply = "";
-			ArrayList seeds = parser.remainingAsArrayList() ;
+			ArrayList<String> seeds = parser.remainingAsArrayList() ;
 			if (seeds.isEmpty()) {
 				reply = randWordString(4) ;
 			} else if (seeds.size() > 3) {

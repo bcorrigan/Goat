@@ -108,7 +108,7 @@ public class CommandParser {
 		return remaining ;
 	}
 
-	public ArrayList remainingAsArrayList() {
+	public ArrayList<String> remainingAsArrayList() {
 		return remainingAsArrayList ;
 	}
 

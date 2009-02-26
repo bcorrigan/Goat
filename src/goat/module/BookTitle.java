@@ -63,7 +63,7 @@ public class BookTitle extends Module {
 					noun2 = arg ;
 				}
 			}
-			ArrayList titles = new ArrayList() ;
+			ArrayList<String> titles = new ArrayList<String>() ;
 			if (noArg) { 
 				titles.add(adj + " " + noun1);
 				titles.add("The " + adj + " " + noun1);

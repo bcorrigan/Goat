@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.Goat;
 import goat.core.Module;
 import goat.core.Message;
 import goat.util.ZScreen;
@@ -9,7 +10,7 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
 
 /**
  * The ZMachine variously calls all ZScreen methods as it runs. However the ZMachine is very character orientated
@@ -23,40 +24,31 @@ import java.util.Iterator;
  *         Date: 07-Nov-2004
  *         Time: 23:54:04
  */
-public class Adventure extends Module implements ZScreen, Runnable {
+public class Adventure extends Module implements ZScreen {
 
+	private ExecutorService pool = Goat.modController.getPool(); 
     private String gameName;    //the name of the game (ie zork, whatever)
     private String saveGameName; //saveGame string
-
-    private ZMachine zm;
+    
     private char nbuf[] = new char[16];
-    private Thread zgameTh;
-    private Thread zmachineTh;
-    private Message target;
-    private LinkedList input;
-    // private boolean playing = false; // we don't use this anywhere
-    private String buffer = "";
-    private boolean running = true;
 
+    private Message target;
+    private LinkedList<String> input;
+   
     private int saveSlot;
     private int loadSlot;
-
     private File gameImage;
 
-    private static ArrayList adventures = new ArrayList(); //all the adventures being played
+    private static ArrayList<Adventure> adventures = new ArrayList<Adventure>(); //all the adventures being played
 
+    private AdventureRunner runner;
+    
     //for random numbers, to give to ZMachine
     private Random r = new Random();
-
-    public boolean isThreadSafe() {
-    	return false;
-    }
     
     public void processPrivateMessage(Message m) {
         if (m.getModCommand().equals("adv")) {
-            Iterator it = adventures.iterator();
-            for (Object adventure : adventures) {
-                Adventure adv = (Adventure) adventure;
+            for (Adventure adv : adventures) {
                 if (adv.target.getChanname().equals(m.getChanname())) {
                     //this channel has a running adventure
                     //first we check for "save" and "restore" commands, because they are going to be treated specially
@@ -131,9 +123,9 @@ public class Adventure extends Module implements ZScreen, Runnable {
                 }
             }
         } else if (m.getModCommand().equals("startadv")) {
-            Iterator it = adventures.iterator();
-            for (Object adventure : adventures) {
-                Adventure adv = (Adventure) adventure;
+            //Iterator it = adventures.iterator();
+            for (Adventure adv : adventures) {
+                //Adventure adv = (Adventure) adventure;
                 if (adv.target.getChanname().equals(m.getChanname())) {
                     m.createReply("Umm, we seem to be already playing an Adventure game in here.").send();
                     return; //this channel already has a running adventure
@@ -159,17 +151,17 @@ public class Adventure extends Module implements ZScreen, Runnable {
 
             Adventure adv = new Adventure();
             adv.target = m;
-            adv.input = new LinkedList();
+            adv.input = new LinkedList<String>();
             // adv.playing = true; // we don't use this anywhere
-            adv.zgameTh = new Thread(adv);
+            adv.runner = new AdventureRunner(adv);
             adv.gameName = gameImage.getName().replaceAll("\\.z3", "").replaceAll("\\.z5", "");
             adv.gameImage = gameImage;
             adventures.add(adv);
-            adv.zgameTh.start();
+            pool.execute(adv.runner);
         } else if (m.getModCommand().equals("stopadv")) {
-            Iterator it = adventures.iterator();
-            for (Object adventure : adventures) {
-                Adventure adv = (Adventure) adventure;
+            // Iterator it = adventures.iterator();
+            for (Adventure adv : adventures) {
+                //Adventure adv = (Adventure) adventure;
                 if (adv.target.getChanname().equals(m.getChanname())) {
                     //this channel has a running adventure
                     adventures.remove(adv);
@@ -182,9 +174,9 @@ public class Adventure extends Module implements ZScreen, Runnable {
         } else if (m.getModCommand().equals("lsgames")) {
             listFiles(m);
         } else if (m.getModCommand().equals("lssaves")) {
-            Iterator it = adventures.iterator();
-            for (Object adventure : adventures) {
-                Adventure adv = (Adventure) adventure;
+            // Iterator it = adventures.iterator();
+            for (Adventure adv : adventures) {
+                //Adventure adv = (Adventure) adventure;
                 if (adv.target.getChanname().equals(m.getChanname())) {
                     listSaves(m, adv);
                     return;
@@ -252,54 +244,81 @@ public class Adventure extends Module implements ZScreen, Runnable {
         return new String[]{"adv", "startadv", "stopadv", "lsgames", "lssaves"};
     }
 
-    public void run() {
-        //we need to read in the zmachine data file here
-        byte[] data;
-        FileInputStream is = null;
-        try {
-            is = new FileInputStream(gameImage);
-            data = new byte[is.available()];
-            is.read(data);
-        } catch (FileNotFoundException e) {
-            System.err.println("Adventure: game file not found");
-            return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        } finally {
-            if(is!=null)
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-        }
-        zm = new ZMachine(this, data);
-        zmachineTh = new Thread(zm);
-        zmachineTh.start();
-        Thread.currentThread().getName();
-        //zm.run();
+    private class AdventureRunner implements Runnable {
+    	
+    	private String buffer = "";
+        //private Thread zgameTh;
+        private Thread zmachineTh;
+        private boolean running = false;
+        private ZMachine zm;
+    	
+    	private Adventure thisAdventure;
+    	AdventureRunner(Adventure adventure){
+    		thisAdventure = adventure;
+    		running = true;
+    	};
+    	
+    	public void run() {
+    		//we need to read in the zmachine data file here
+    		byte[] data;
+    		FileInputStream is = null;
+    		try {
+    			is = new FileInputStream(thisAdventure.gameImage);
+    			data = new byte[is.available()];
+    			is.read(data);
+    		} catch (FileNotFoundException e) {
+    			System.err.println("Adventure: game file not found");
+    			return;
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    			return;
+    		} finally {
+    			if(is!=null)
+    				try {
+    					is.close();
+    				} catch (IOException e) {
+    					e.printStackTrace();
+    				}
+    		}
+    		zm = new ZMachine(thisAdventure, data);
+    		zmachineTh = new Thread(zm);
+    		zmachineTh.start();
+    		Thread.currentThread().getName();
+    		//zm.run();
 
-        //here we want to poll the buffer and print it out when we notice something, which should hopefully chunkify it
-        for (; ;) {
-            while (buffer.length() == 0)
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            target.createPagedReply(buffer).send();
-            buffer = "";
+    		//here we want to poll the buffer and print it out when we notice something, which should hopefully chunkify it
+    		for (; ;) {
+    			while (buffer.length() == 0)
+    				try {
+    					Thread.sleep(100);
+    				} catch (InterruptedException e) {
+    					e.printStackTrace();
+    				}
+    				synchronized(buffer) {
+    					thisAdventure.target.createPagedReply(buffer).send();
+    					buffer = "";
+    				}
 
-            //for gracefully exiting the threads. No stop()s, for once.
-            if (!running) {
-                zm.running = false;
-                return;
-            }
-        }
+    				//for gracefully exiting the threads. No stop()s, for once.
+    				if (!running) {
+    					zm.running = false;
+    					return;
+    				}
+    		}
+    	}
+    	
+    	public void stop() {
+    		running = false;
+    	}
+
     }
 
-
+	//stop and exit
+    public void exit() {
+        // playing = false; // we don't use this anywhere
+        runner.stop();
+    }
+   
     //All subsequent methods are implementations of methods defined in goat.util.ZScreen.
 
     public void NewLine() {
@@ -312,7 +331,9 @@ public class Adventure extends Module implements ZScreen, Runnable {
         System.arraycopy(data, 0, outData, 0, len);
         String m = new String(outData);
         if (!m.startsWith(">"))
-            buffer += m;
+        	synchronized (runner.buffer) {
+        		runner.buffer += m;
+        	}
     }
 
     //let's emulate the topmost line being a sequence of pressed characters
@@ -323,7 +344,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        String line = (String) input.removeFirst();
+        String line = input.removeFirst();
 
         char returnChar = line.charAt(0);
         line = line.substring(1, line.length());
@@ -349,12 +370,7 @@ public class Adventure extends Module implements ZScreen, Runnable {
         return line.length();
     }
 
-    //stop and exit
-    public void exit() {
-        // playing = false; // we don't use this anywhere
-        zgameTh.stop();     //TODO why am I so lazy and keep using stop()'s ??
-    }
-
+    
     //not sure what's going on here, stole this bit. Appears to return a random number but don't
     //know why it is ANDing with 0x8000 or what exactly limit is
     public int Random(int limit) {

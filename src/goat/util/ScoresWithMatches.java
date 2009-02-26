@@ -51,7 +51,7 @@ public class ScoresWithMatches extends Scores {
 			//previousMatchWinner = matchWinnar;
 	}
 	
-	public List<String> matchScoreTable() {
-		return channelMatchScores.matchScoreTable();
+	public List<String> matchScoreTable(int limit) {
+		return channelMatchScores.matchScoreTable(limit);
 	}
 }

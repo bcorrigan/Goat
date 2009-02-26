@@ -105,7 +105,7 @@ public class Define extends Module {
 			}
 		}
 
-      Vector definitionList = null ;
+      Vector<Definition> definitionList = null ;
       String[][] matchList = null ;
          
       // This next block is thuggish.  If we keep tacking dictionaries onto the project,
@@ -230,8 +230,8 @@ public class Define extends Module {
 		return "http://www.urbandictionary.com/define.php?term=" + word.replaceAll(" ", "%20") ;
 	}
         
-	public Vector getUrbanDefinitions(String word) throws SocketTimeoutException {
-      Vector definitionList = null;
+	public Vector<Definition> getUrbanDefinitions(String word) throws SocketTimeoutException {
+      Vector<Definition> definitionList = null;
       HttpURLConnection connection = null;
       try {
          URL urban = new URL(urbanUrl(word));
@@ -264,7 +264,7 @@ public class Define extends Module {
       return definitionList ;
    }   
    
-	public Vector getUrbanDefinitions(String word, Message m) {
+	public Vector<Definition> getUrbanDefinitions(String word, Message m) {
 		try {
 			return getUrbanDefinitions(word) ;
 		} catch (SocketTimeoutException e) {
@@ -273,9 +273,9 @@ public class Define extends Module {
 		return null;
 	}
 	
-   private Vector parseUrbanPage(BufferedReader br) throws IOException {
+   private Vector<Definition> parseUrbanPage(BufferedReader br) throws IOException {
 		// In which we use java regexps, the painful way
-		Vector definitionList = new Vector();
+		Vector<Definition> definitionList = new Vector<Definition>();
 		String inputLine;
 		String word;
 		String definition = "";
@@ -285,9 +285,9 @@ public class Define extends Module {
 
 		Pattern numberStartPattern = Pattern.compile("^\\s*<td class='index'>\\s*$");
 		Pattern numberBodyPattern = Pattern.compile("^\\s*(\\d+)\\.\\s*$");
-		Pattern numberEndPattern = Pattern.compile("^\\s*</td>\\s*$");
+//		Pattern numberEndPattern = Pattern.compile("^\\s*</td>\\s*$");
 		Pattern wordStartPattern = Pattern.compile("^\\s*<td class='word'>\\s*$");
-		Pattern wordEndPattern = numberEndPattern;
+//		Pattern wordEndPattern = numberEndPattern;
 //		Pattern def_pStartPattern = Pattern.compile("^\\s*<div class=\"def_p\">(.*)\\s*$");
 //		Pattern def_pBodyStartPattern = Pattern.compile("^\\s*<p>(.+?)(</p>)*\\s*$");
 //		Pattern def_pBodyEndPattern = Pattern.compile("(.*)</p>\\s*$") ;
@@ -493,7 +493,7 @@ public class Define extends Module {
 		} catch (UnknownHostException e) {
 			e.printStackTrace() ;
 			m.createReply("Couldn't talk to dict server: host \"" + host + "\" unknown").send() ;
-			System.exit(1) ;
+			// System.exit(1) ; // um.
 		} catch (ConnectException e) {
 			e.printStackTrace() ;
 			m.createReply("Couldn't talk to dict server.").send() ;

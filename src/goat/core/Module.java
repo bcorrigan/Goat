@@ -2,7 +2,6 @@ package goat.core;
 
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.lang.reflect.*;
 
@@ -22,7 +21,47 @@ public abstract class Module implements Runnable {
 	public static final int WANT_ALL_MESSAGES = 0;
 	public static final int WANT_UNCLAIMED_MESSAGES = 1;
 	public static final int WANT_COMMAND_MESSAGES = 2;
-
+	
+	/**
+	 * An enum representing the scope or context of an instance of a Module.
+	 * 
+	 * MESSAGE   - a new instance is created for each message handled
+	 * 
+	 * CHANNEL   - one instance is created for each channel the Module
+	 *             is active in; that instance handles all messages in
+	 *             its channel
+	 *           
+	 * SERVER    - One instance is created for each server the bot is connected to;
+	 *             that instance handles all messages dispatched from the given
+	 *             server to the Module.  (the bot is not currently multi-server
+	 *             capable; this makes SERVER equivalent to GLOBAL)
+	 *           
+	 * GLOBAL    - One instance is created for each running bot; this instance handles
+	 * 			   all messages dispatched to the Module from any server.
+	 *   
+	 * IRC_USER  - (NOT IMPLEMENTED) One instance is created for each IrcUser
+	 * 
+	 * BOT_USER  - (NOT IMPLEMENTED) One instance is created for each User
+	 * 
+	 * @author Ed
+	 */
+	public enum Scope {
+		MESSAGE,
+		CHANNEL,
+		SERVER,
+		USER,
+		GLOBAL
+	}
+	
+	/**
+	 * The scope of your Module instance.  
+	 * 
+	 * Default is Module.Scope.SERVER
+	 * 
+	 * @see Scope
+	 */
+	protected Scope scope = Scope.SERVER;
+	
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
@@ -119,7 +158,7 @@ public abstract class Module implements Runnable {
      * @return the list of commands the module wants to process
      * @see goat.core.Module.getCommands()
      */
-    public static String[] getCommands(Class c) {
+    public static String[] getCommands(Class<? extends Module> c) {
     	String [] commands = new String[0] ;
     	try {
     		commands = (String []) c.getMethod("getCommands").invoke(null) ;
@@ -155,7 +194,7 @@ public abstract class Module implements Runnable {
 	public abstract void processChannelMessage(Message m);
 	
 	public void dispatchMessage(Message m) {
-		if(isThreadSafe()) {
+		if(running) {
 			queueIncomingMessage(m);
 		} else
 			processMessage(m);
@@ -178,21 +217,12 @@ public abstract class Module implements Runnable {
 		
 	}
 	
-	
-	
-	// Begin thready stuff
-	
-	public boolean isThreadSafe() {
-		return true;
-	}
+	 
 	
 	protected LinkedBlockingQueue<Message> incomingQueue = new LinkedBlockingQueue<Message>();
 	
 	public void queueIncomingMessage(Message m) {
-		if(running)
-			incomingQueue.add(m);
-		else
-			; //TODO throw an exception here?
+		incomingQueue.add(m);
 	}
 	
 	protected boolean stop = false;
@@ -210,7 +240,7 @@ public abstract class Module implements Runnable {
 		incomingQueue.add(new Message());
 	}
 	
-	public void run() {
+	public final void run() {
 		running = true;
 		while (!stop) {
 			try {

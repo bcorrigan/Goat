@@ -1,7 +1,11 @@
 package goat.util;
 
+import goat.util.IrcTablePrinter.Decorator;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +44,8 @@ public class Scores implements Comparator<String[]> {
 		cache = Collections.synchronizedMap(new HashMap<String, List<String[]>>());
 		filesCache = Collections.synchronizedMap(new HashMap<String, File>());
 	}
+	
+	private IrcTablePrinter tablePrinter = new IrcTablePrinter();
 	
 	protected Scores() {
 	}
@@ -261,13 +267,31 @@ public class Scores implements Comparator<String[]> {
 		return copyOfEntry(0);
 	}
 
-	public List<String> scoreTable() {
-		IrcTablePrinter itp = new IrcTablePrinter();
-		return itp.scoreTable(scores);
+	public List<String> scoreTable(int limit) {
+		synchronized(scores) {
+			if(limit < 1 || limit > scores.size())
+				limit = scores.size();
+			List<List<String>> temp = new ArrayList<List<String>>(limit);
+			for(int i=0; i<limit; i++)
+				temp.add(Arrays.asList(scores.get(i)));
+			tablePrinter.setFieldDecorator(0, EnumSet.of(Decorator.LEFT_JUSTIFY));
+			tablePrinter.setHeaders(new String[]{"Name", "Score", "Best"});
+			tablePrinter.setEnumerate(true);
+			return tablePrinter.printArrays(temp);
+		}
 	}
 	
-	public List<String> matchScoreTable() {
-		IrcTablePrinter itp = new IrcTablePrinter();
-		return itp.matchScoreTable(scores);
+	public List<String> matchScoreTable(int limit) {
+		synchronized(scores) {
+			if (limit < 1 || limit > scores.size())
+				limit = scores.size();
+			List<List<String>> temp = new ArrayList<List<String>>(limit);
+			for(int i=0; i<limit; i++)
+				temp.add(Arrays.asList(scores.get(i)));
+			tablePrinter.setHeaders(new String[]{"Name", "Wins", "High"});
+			tablePrinter.setFieldDecorator(0, EnumSet.of(Decorator.LEFT_JUSTIFY));
+			tablePrinter.setEnumerate(true);
+			return tablePrinter.printArrays(temp);
+		}
 	}
 }

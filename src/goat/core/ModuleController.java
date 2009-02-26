@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
@@ -30,7 +31,7 @@ public class ModuleController  {
 
 	private ArrayList<Module> loadedModules = new ArrayList<Module>();
 	
-	private ArrayList<Class<?>> allModules = new ArrayList<Class<?>>() ;
+	private ArrayList<Class<? extends Module>> allModules = new ArrayList<Class<? extends Module>>() ;
 	private ArrayList<String> allCommands = new ArrayList<String>() ;
 	
 	public ModuleController() {
@@ -82,15 +83,14 @@ public class ModuleController  {
 
 		if(null == module)
 			return null;
-		if(module.isThreadSafe()) {
-			System.out.print("is threaded ... ");
- 			pool.execute(module);
- 			while(! module.isRunning()) // wait to make sure module is running before adding it to loaded module list
- 				try {
- 					Thread.sleep(5);  // short wait, it shouldn't take too long for the thread pool to start the module
- 				} catch (InterruptedException ie) {}
- 			System.out.print("running ... ");
+		pool.execute(module);
+		while(! module.isRunning()) {// wait to make sure module is running before adding it to loaded module list
+			try {
+				Thread.sleep(5);  // short wait, it shouldn't take too long for the thread pool to start the module
+			} catch (InterruptedException ie) {}
 		}
+		System.out.print("running ... ");
+
 		loadedModules.add(module);
 		System.out.println("loaded.");
 		return module;
@@ -110,8 +110,7 @@ public class ModuleController  {
 			return false ;
 		else {
 			loadedModules.remove(mod) ;
-			if(mod.isThreadSafe())
-				mod.stopDispatcher();
+			mod.stopDispatcher();
 		}
 		return true ;
 	}
@@ -175,8 +174,8 @@ public class ModuleController  {
 					// System.out.println(je.toString()) ;
 					try {
 						Class<?> modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
-						if(modClass.getSuperclass().getName().equals("goat.core.Module"))
-							allModules.add(modClass) ;
+						if(Module.class.isAssignableFrom(modClass)) //.getSuperclass().getName().equals("goat.core.Module"))
+							allModules.add((Class<? extends Module>)modClass) ;
 					} catch (ClassNotFoundException e) {
 						System.err.println("Error while building goat modules list, jar entry: \"" + je.getName() + "\", skipping") ;
 					}
@@ -197,7 +196,7 @@ public class ModuleController  {
 		}
 
         ArrayList<String> tempList = new ArrayList<String>();
-        for (Class<?> modClass : allModules) {
+        for (Class<? extends Module> modClass : allModules) {
         	tempList.add(modClass.getName());
         }
         Collections.sort(tempList);
@@ -220,7 +219,7 @@ public class ModuleController  {
 		//this has to be called after the allModules list it built.  With buildAllModulesList().
 		HashMap<String, String> commands = new HashMap<String, String>() ;
 		boolean collisions = false ;
-        for (Class<?> modClass : allModules) {
+        for (Class<? extends Module> modClass : allModules) {
             String[] modCommands = Module.getCommands(modClass);
             for (String modCommand : modCommands) {
                 if (commands.containsKey(modCommand)) {
@@ -242,8 +241,8 @@ public class ModuleController  {
 		}
 	}
 	
-	public Class<?> [] getAllModules() {
-		return allModules.toArray(new Class<?>[0]) ;
+	public List<Class<? extends Module>> getAllModules() {
+		return allModules;
 	}
 	
 	public String [] getAllCommands() {

@@ -268,7 +268,7 @@ public class DICTClient {
      *  @see goat.util.Definition
      *  @see <a href="rfc2229.txt">RFC 2229</a>, section 3.2
      */
-    public synchronized Vector getDefinitions(String[] databases, String word) 
+    public synchronized Vector<Definition> getDefinitions(String[] databases, String word) 
             throws IllegalArgumentException, ConnectException {
         return receiveDefinitions(databases, word);
     }
@@ -370,9 +370,9 @@ public class DICTClient {
 		receive();
     }
     
-    private Vector receiveDefinitions(String[] databases, String word) throws
+    private Vector<Definition> receiveDefinitions(String[] databases, String word) throws
             IllegalArgumentException, ConnectException {
-        Vector result = new Vector();
+        Vector<Definition> result = new Vector<Definition>();
         String buf;
         
         word = removeQuotationMarks(word);
@@ -510,7 +510,7 @@ public class DICTClient {
     private  String[][] receiveDatabases() throws ConnectException {
         String responseCode;
         String buf;
-        Vector databasesVector = new Vector();
+        Vector<String> databasesVector = new Vector<String>();
         String[][] databasesArray;
         
         send(SHOW_DATABASES_COMMAND);
@@ -527,7 +527,7 @@ public class DICTClient {
             databasesArray = new String[databasesVector.size()][2];
             for (int i = 0; i < databasesVector.size(); i++) {
                 int spacePosition;
-                buf = (String) databasesVector.get(i);
+                buf = databasesVector.get(i);
                 spacePosition = buf.indexOf(" ");
                 databasesArray[i][0] = buf.substring(0, spacePosition);
                 databasesArray[i][1] = buf.substring(spacePosition).trim();
@@ -546,8 +546,8 @@ public class DICTClient {
     
     private String[][] receiveStrategies() throws ConnectException {
         String[][] result;
-        Vector stratVector = new Vector();
-        Enumeration enumer = stratVector.elements();
+        Vector<String> stratVector = new Vector<String>();
+        Enumeration<String> enumer = stratVector.elements();
         String buf;
         
         send(SHOW_STRATEGIES_COMMAND);

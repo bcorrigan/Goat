@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>Contains lots of info about the bot and its environment.
@@ -45,7 +46,7 @@ public class BotStats {
 	public static String clientName;
 
 	public static String[] commands;
-	public static Class<?>[] modules;
+	public static List<Class<? extends Module>> modules;
 	
     /**
      * Set to true in unit test context

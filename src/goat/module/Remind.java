@@ -17,28 +17,30 @@ $Id: ReminderBot.java,v 1.3 2004/05/29 19:44:30 pjm2 Exp $
 package goat.module;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.*;
 import java.io.*;
 
+import goat.Goat;
 import goat.core.*;
 import goat.util.Reminder;
 
-public class Remind extends Module implements Runnable {
+public class Remind extends Module {
 
     private static final String REMINDER_FILE = "resources/reminders";
     private static goat.core.Users users;	//all the users
+    private ReminderTimer timer;
+    private LinkedList<Reminder> reminders = new LinkedList<Reminder>();
+    private ExecutorService pool = Goat.modController.getPool();
     
     public Remind() {
         loadReminders();
         //setName(name);
         //setAutoNickChange(true);
-        dispatchThread = new Thread(this);
-        dispatchThread.start();
+        
+        timer = new ReminderTimer(this);
+        pool.execute(timer);
         users = goat.Goat.getUsers() ;
-    }
-    
-    public boolean isThreadSafe() {
-    	return false;
     }
     
     public void processChannelMessage(Message m) {
@@ -97,7 +99,7 @@ public class Remind extends Module implements Runnable {
             String date = String.format(Locale.UK, "%1$td/%1$tm/%1$ty %1$tR", cal);
             m.createReply(m.getSender() + ": Okay, I'll remind " + replyName + " about that on " + date + " " + timeZone).send();
             reminders.add(reminder);
-            dispatchThread.interrupt();
+            timer.interrupt();
         }
     }
 
@@ -130,43 +132,57 @@ public class Remind extends Module implements Runnable {
         return 0;
     }
     
-    public synchronized void run() {
-        boolean running = true;
-        while (true) {
+    private class ReminderTimer implements Runnable {
+    	
+    	private Remind secretary;
+    	ReminderTimer(Remind reminder) {
+    		secretary = reminder;
+    	}
+    	private Thread myThread = null;
+    	
+    	public synchronized void run() {
+    		myThread = Thread.currentThread();
+    		boolean running = true;
+    		while (true) {
 
-            // If the list is empty, wait until something gets added.
-            if (reminders.size() == 0) {
-                try {
-                    wait();
-                }
-                catch (InterruptedException e) {
-                    // Do nothing.
-                }
-            }
+    			// If the list is empty, wait until something gets added.
+    			if (secretary.reminders.size() == 0) {
+    				try {
+    					wait();
+    				}
+    				catch (InterruptedException e) {
+    					// Do nothing.
+    				}
+    			}
 
-            Reminder reminder = (Reminder) reminders.getFirst();
-            long delay = reminder.getDueTime() - System.currentTimeMillis();
-            if (delay > 0) {
-                try {
-                    wait(delay);
-                }
-                catch (InterruptedException e) {
-                    // A new Reminder was added. Sort the list.
-                    Collections.sort(reminders);
-                    saveReminders();
-                }
-            }
-            else {
-                String replyName = reminder.getReminder();
+    			Reminder reminder = secretary.reminders.getFirst();
+    			long delay = reminder.getDueTime() - System.currentTimeMillis();
+    			if (delay > 0) {
+    				try {
+    					wait(delay);
+    				}
+    				catch (InterruptedException e) {
+    					// A new Reminder was added. Sort the list.
+    					Collections.sort(secretary.reminders);
+    					secretary.saveReminders();
+    				}
+    			}
+    			else {
+    				String replyName = reminder.getReminder();
 
-                if(replyName==null || replyName.equals(reminder.getNick()))
-                    replyName = "You";
-                Message.createPrivmsg(reminder.getChannel(), reminder.getNick() + ": " + replyName + " asked me to remind you " + reminder.getMessage()).send();
-                reminders.removeFirst();
-                saveReminders();
-            }
-            
-        }
+    				if(replyName==null || replyName.equals(reminder.getNick()))
+    					replyName = "You";
+    				Message.createPrivmsg(reminder.getChannel(), reminder.getNick() + ": " + replyName + " asked me to remind you " + reminder.getMessage()).send();
+    				secretary.reminders.removeFirst();
+    				secretary.saveReminders();
+    			}
+    		}
+    	}
+    	
+    	public synchronized void interrupt() {
+    		if(myThread != null)
+    			myThread.interrupt();
+    	}
     }
     
     private void saveReminders() {
@@ -183,16 +199,21 @@ public class Remind extends Module implements Runnable {
     
     private void loadReminders() {
         try {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(REMINDER_FILE)));
-            reminders = (LinkedList<Reminder>) in.readObject();
-            in.close();
+        	ObjectInputStream in = new ObjectInputStream(new FileInputStream(new File(REMINDER_FILE)));
+        	Object ob = in.readObject();
+        	if(ob instanceof LinkedList) {
+        		LinkedList<?> ll = (LinkedList<?>) ob;
+        		for(Object item: ll)
+        			if(item instanceof Reminder)
+        				reminders.add((Reminder) item);
+        	}
+        	in.close();
         }
         catch (Exception e) {
             // If it doesn't work, no great loss!
         }
     }    
     
-    private Thread dispatchThread;
-    private LinkedList<Reminder> reminders = new LinkedList<Reminder>();
+
     
 }

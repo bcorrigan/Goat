@@ -1,9 +1,12 @@
 package goat.module;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutorService;
 
+import goat.Goat;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
@@ -22,15 +25,15 @@ public class CountDown extends Module implements Runnable {
     //is a game of countdown in progress?
     private boolean gameOn = false;
     //the available big numbers to draw from
-    private ArrayList bigPool;
+    private ArrayList<Integer> bigPool;
     //the available small numbers to draw from
-    private ArrayList smallPool;
+    private ArrayList<Integer> smallPool;
     //the target number.
     private int targetNumber;
     //the source numbers. 6 numbers drawn from above pools
     private int[] sourceNumbers;
     //the timing thread
-    private Thread timerThread;
+    private GameRunner runner;
     //target channel
     private Message target;
     //we use this to evaluate user's attempts at an answer
@@ -39,9 +42,7 @@ public class CountDown extends Module implements Runnable {
     //the best possible answer
     private int bestPossibleAnswer;
     
-    public boolean isThreadSafe() {
-    	return false;
-    }
+    private ExecutorService pool = Goat.modController.getPool();
     
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
@@ -87,6 +88,8 @@ public class CountDown extends Module implements Runnable {
                     }
                 } catch(CalculatorException ce) {
                     m.createReply(ce.getLocalizedMessage()).send();
+                } catch(InterruptedException ie) {
+                	m.createReply("I was interrupted before I could calculate that");
                 }
             }
         } else {
@@ -96,8 +99,9 @@ public class CountDown extends Module implements Runnable {
             //game on
             gameOn = true;
             target = m;
-            timerThread = new Thread(this);
-            timerThread.start();
+            runner = new GameRunner(this);
+            pool.execute(runner);
+            //timerThread.start();
             bestPossibleAnswer = Solver.getBestVal( sourceNumbers, targetNumber);
             m.createReply(Constants.REVERSE + "***" + Constants.REVERSE
                     + " New Numbers: " + Constants.BOLD
@@ -127,7 +131,7 @@ public class CountDown extends Module implements Runnable {
                                 + " But the best possible answer was: " + Solver.Solve( sourceNumbers, targetNumber )).send(); 
         }
         bestAnswer=null;
-        timerThread.stop();
+        runner.stop();
     }
     
     /**
@@ -169,16 +173,10 @@ public class CountDown extends Module implements Runnable {
      * Fill each ArrayList with Integers representing the pools of big and small numbers
      */
     private void initialisePools() {
-        bigPool = new ArrayList();
-        smallPool = new ArrayList();
-        int[] bigPoolInts = {25, 50, 75, 100};
-        int[] smallPoolInts = {1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10};
-        for (int bigPoolInt : bigPoolInts) {
-            bigPool.add(bigPoolInt);
-        }
-        for (int smallPoolInt : smallPoolInts) {
-            smallPool.add(smallPoolInt);
-        }
+        Integer[] bigPoolInts = {25, 50, 75, 100};
+        Integer[] smallPoolInts = {1,2,3,4,5,6,7,8,9,10,1,2,3,4,5,6,7,8,9,10};
+        bigPool = new ArrayList<Integer>( Arrays.asList(bigPoolInts) );
+        smallPool = new ArrayList<Integer>(Arrays.asList(smallPoolInts));
         //mix them up
         Collections.shuffle( bigPool );
         Collections.shuffle( smallPool );
@@ -224,22 +222,45 @@ public class CountDown extends Module implements Runnable {
         return new String[]{"countdown"};
     }
     
-    public void run() {
-        //wait 30 seconds
-        try {
-            Thread.sleep(50000);
-        } catch (InterruptedException e) {
-        }
+    private class GameRunner implements Runnable {
+    	private CountDown thisGame;
+    	private boolean running = false;
+    	private Thread myThread = null;
+    	
+    	GameRunner(CountDown game) {
+    		thisGame = game;
+    	}
+    	
+    	public void run() {
+    		running = true;
+    		myThread = Thread.currentThread();
+    		//wait 30 seconds
+    		try {
+    			Thread.sleep(50000);
+    		} catch (InterruptedException e) {
+    			if(!running)
+    				return;
+    		}
 
-        target.createReply(Constants.BOLD + "10 secs..").send();
+    		thisGame.target.createReply(Constants.BOLD + "10 secs..").send();
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-        }
+    		try {
+    			Thread.sleep(10000);
+    		} catch (InterruptedException e) {
+    			if(!running)
+    				return;
+    		}
 
-        gameOn = false;
-        finaliseGame();
+    		thisGame.gameOn = false;
+    		myThread = null;
+    		thisGame.finaliseGame();
+    	}
+    	
+    	public void stop() {
+    		running = false;
+    		if(myThread != null)
+    			myThread.interrupt();
+    	}
     }
     
     //TODO move to some sort of goat-wide util class?
@@ -253,7 +274,7 @@ public class CountDown extends Module implements Runnable {
     
     private boolean numbersCorrect( int[] num ) {
         //first, create an ArrayList from sourceNumbers
-        ArrayList sourceNumList = new ArrayList();
+        ArrayList<Integer> sourceNumList = new ArrayList<Integer>();
         for (int sourceNumber : sourceNumbers) {
             sourceNumList.add(sourceNumber);
         }
