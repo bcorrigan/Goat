@@ -284,7 +284,8 @@ public class Define extends Module {
 		Matcher matcher;
 
 		Pattern numberStartPattern = Pattern.compile("^\\s*<td class='index'>\\s*$");
-		Pattern numberBodyPattern = Pattern.compile("^\\s*(\\d+)\\.\\s*$");
+		Pattern numberBodyPattern = Pattern.compile("\\s*<a href=\"http:\\/\\/[a-z0-9-]+\\.urbanup\\.com\\/\\d+\">(\\d+)\\.<\\/a>\\s*");
+
 //		Pattern numberEndPattern = Pattern.compile("^\\s*</td>\\s*$");
 		Pattern wordStartPattern = Pattern.compile("^\\s*<td class='word'>\\s*$");
 //		Pattern wordEndPattern = numberEndPattern;
