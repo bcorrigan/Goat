@@ -365,7 +365,7 @@ public class Weather extends Module {
             if( weather_type.contains("freezing drizzle"))
                 bonus+=10;
             if( weather_type.contains("ice pellets"))
-                bonus+=5;
+                bonus+=15;
             if( weather_type.contains("blowing dust"))
                 bonus+=10;
 
@@ -429,6 +429,14 @@ public class Weather extends Module {
                 bonus+=25;
             else if( weather_type.contains("snow"))
                 bonus+=20;
+            
+            if( weather_type.contains("smoke"))
+            	bonus+=75;
+            
+            //towering cumulonimbus is definitely threatening
+            if( weather_type.contains("towering"))
+            	bonus += 7.5;
+            
         } catch(NumberFormatException nfe) {
             System.out.println("oh no!");
             return 0;
