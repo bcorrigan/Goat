@@ -32,9 +32,10 @@ public class ModuleCommands extends Module {
 			lsmod(m);
 		} else if( m.getModCommand().equals("showcommands")) {
 			String listC = "";
-			for( int i=0; i<BotStats.commands.length-1; i++ )
-				listC += BotStats.commands[i] + ", ";
-			listC += BotStats.commands[ BotStats.commands.length-1 ] + ".";
+			String[] commands = (String[]) BotStats.commands.toArray();
+			for( int i=0; i< commands.length-1; i++ )
+				listC += commands[i] + ", ";
+			listC += commands[ commands.length-1 ] + ".";
 			m.createPagedReply(listC).send();
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -36,10 +37,9 @@ public class ModuleController  {
 	
 	public ModuleController() {
 		buildAllModulesList() ;
-		buildAllCommandsList() ;
+		//buildAllCommandsList() ;
 		
 		BotStats.modules = getAllModules();
-		BotStats.commands = getAllCommands();
 	}	
 	
     /**
@@ -92,8 +92,23 @@ public class ModuleController  {
 		System.out.print("running ... ");
 
 		loadedModules.add(module);
+		
+		addCommands(module.getCommands());
+		
 		System.out.println("loaded.");
 		return module;
+	}
+	
+	// TODO this should really be in BotStats. And BotStats should be a singleton
+	private void addCommands(String[] commands) {
+		BotStats.commands.addAll(Arrays.asList( commands ));
+	}
+	
+	private void rebuildCommands() {
+		BotStats.commands = new HashSet<String>();
+		for(Module mod:loadedModules) {
+			addCommands(mod.getCommands());
+		}
 	}
 	
 	public Module loadInAllChannels(Class<?> modClass)
@@ -112,6 +127,9 @@ public class ModuleController  {
 			loadedModules.remove(mod) ;
 			mod.stopDispatcher();
 		}
+		
+		rebuildCommands();
+		
 		return true ;
 	}
 
@@ -215,7 +233,7 @@ public class ModuleController  {
 	 * if it finds multiple modules responding to the same command.
 	 *
 	 */
-	private void buildAllCommandsList() {
+	/*private void buildAllCommandsList() {
 		//this has to be called after the allModules list it built.  With buildAllModulesList().
 		HashMap<String, String> commands = new HashMap<String, String>() ;
 		boolean collisions = false ;
@@ -239,7 +257,7 @@ public class ModuleController  {
                     System.out.println("   \"" + allCommand + "\" :  " + commands.get(allCommand));
             System.out.println() ;
 		}
-	}
+	}*/
 	
 	public List<Class<? extends Module>> getAllModules() {
 		return allModules;
@@ -256,7 +274,7 @@ public class ModuleController  {
 	public String [] getLoadedCommands() {
 		ArrayList<String> lcommands = new ArrayList<String>() ;
 		for(int i=0; i<loadedModules.size(); i++) {
-			lcommands.addAll(Arrays.asList(Module.getCommands(getLoaded(i).getClass()))) ;
+			lcommands.addAll(Arrays.asList(getLoaded(i).getCommands())) ;
 		}
 		Collections.sort(lcommands) ;
 		return lcommands.toArray(new String[0]) ;

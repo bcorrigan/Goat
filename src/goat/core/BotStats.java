@@ -10,6 +10,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * <p>Contains lots of info about the bot and its environment.
  *
@@ -45,7 +48,8 @@ public class BotStats {
 	public static String servername;
 	public static String clientName;
 
-	public static String[] commands;
+	public static Set<String> commands = new HashSet<String>();
+	
 	public static List<Class<? extends Module>> modules;
 	
     /**
