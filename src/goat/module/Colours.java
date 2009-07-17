@@ -3,6 +3,8 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
+import goat.util.StringUtil;
+
 import java.util.Random ;
 
 /**
@@ -92,7 +94,7 @@ public class Colours extends Module {
 			else if (t.equalsIgnoreCase("camouflage"))
 				msg = camouflage("Camouflage") ;
 		} else if (c.equals("colourise")) {
-			String text = Constants.removeFormattingAndColors(m.getModTrailing()).trim() ;
+			String text = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim() ;
 			int numColours = colourStrings.length ;
 			int colourNum = text.hashCode() ;
 			if (colourNum < 0) 

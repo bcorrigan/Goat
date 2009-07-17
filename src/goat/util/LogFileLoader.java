@@ -198,7 +198,7 @@ public class LogFileLoader {
 				// don't log blank user messages
 				return id ;
 			}
-			firstWord = Constants.removeFormattingAndColors(firstWord);
+			firstWord = StringUtil.removeFormattingAndColors(firstWord);
 			if (BotStats.getInstance().isLoadedCommand(firstWord)) {
 				botCommand = firstWord ;
 			}

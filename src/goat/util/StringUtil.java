@@ -5,16 +5,10 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TimeZone;
+import static goat.core.Constants.*;
 
 public class StringUtil {
 	private static Random random = new Random() ;
-	
-	public static final long SECOND = 1000;
-	public static final long MINUTE = SECOND * 60;
-	public static final long HOUR = MINUTE * 60;
-	public static final long DAY = HOUR * 24;
-	public static final long YEAR = (long) ((double) DAY * 365.25);
-	public static final long MONTH = YEAR / 12;
 	
 	public static boolean stringInArray(String s, String [] array) {
 		boolean found = false ;
@@ -161,5 +155,91 @@ public class StringUtil {
 		ret += cal.get(GregorianCalendar.YEAR);
 		ret += " (" + tz.getID() + " - " + tz.getDisplayName() + ")";
 		return ret;
+	}
+	
+	/**
+	 * Removes all colours from a line of text. nicked from pircbot
+	 */
+	public static String removeColors(String line) {
+		int length = line.length();
+		StringBuffer buffer = new StringBuffer(length);
+		int i = 0;
+		while (i < length) {
+			char ch = line.charAt(i);
+			if (ch == '\u0003') {
+				i++;
+				// Skip "x" or "xy" (foreground color).
+				if (i < length) {
+					ch = line.charAt(i);
+					if (Character.isDigit(ch)) {
+						i++;
+						if (i < length) {
+							ch = line.charAt(i);
+							if (Character.isDigit(ch)) {
+								i++;
+							}
+						}
+						// Now skip ",x" or ",xy" (background color).
+						if (i < length) {
+							ch = line.charAt(i);
+							if (ch == ',') {
+								i++;
+								if (i < length) {
+									ch = line.charAt(i);
+									if (Character.isDigit(ch)) {
+										i++;
+										if (i < length) {
+											ch = line.charAt(i);
+											if (Character.isDigit(ch)) {
+												i++;
+											}
+										}
+									} else {
+										// Keep the comma.
+										i--;
+									}
+								} else {
+									// Keep the comma.
+									i--;
+								}
+							}
+						}
+					}
+				}
+			} else if (ch == '\u000f') {
+				i++;
+			} else {
+				buffer.append(ch);
+				i++;
+			}
+		}
+		return buffer.toString();
+	}
+	/**
+	 * Remove formatting from a line of IRC text. From pircbot
+	 *
+	 * @param line the input text.
+	 * @return the same text, but without any bold, underlining, reverse, etc.
+	 */
+	public static String removeFormatting(String line) {
+		int length = line.length();
+		StringBuffer buffer = new StringBuffer(length);
+		for (int i = 0; i < length; i++) {
+			char ch = line.charAt(i);
+			if (ch == '\u000f' || ch == '\u0002' || ch == '\u001f' || ch == '\u0016') {
+				// Don't add this character.
+			} else {
+				buffer.append(ch);
+			}
+		}
+		return buffer.toString();
+	}
+	/**
+	 * Removes all formatting and colours from a string.
+	 */
+	public static String removeFormattingAndColors(String s) {
+		s = removeColors(s) ;
+		s = removeFormatting(s) ;
+		return s ;
 	}
 }

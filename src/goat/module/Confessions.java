@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
+import goat.util.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -125,7 +126,7 @@ public class Confessions extends Module {
 				// grab query string
 				String query = m.getModTrailing().substring(6);
 				// strip away any irc gunk and leading/trailing whitespace
-				query = Constants.removeFormattingAndColors(query).trim();
+				query = StringUtil.removeFormattingAndColors(query).trim();
 				// remove quote marks, we'll put them back later if we need them
 				query = query.replaceAll("\"", "") ;
 				// condense whitespace.  This can change search results, so you might not want to do it
@@ -175,7 +176,7 @@ public class Confessions extends Module {
 			// which always results in 3?
 			// for(int i=((int) (Math.random()*3 + 2));i>=1;i--) {
 				searchString = searchString.trim();
-				searchString = Constants.removeFormattingAndColors(searchString);
+				searchString = StringUtil.removeFormattingAndColors(searchString);
 				String query = searchString;
 				// pop our search string in quotes if it's got spaces in it.
 				if (query.matches(".*\\s+.*"))

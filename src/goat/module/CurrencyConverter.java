@@ -49,6 +49,7 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
 import goat.core.Users;
+import goat.util.StringUtil;
 
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -109,7 +110,7 @@ public class CurrencyConverter extends Module {
         	double fromAmount = 1.0;
         	String toCurrency="";
         	String[] args = {};
-    		String trailing = Constants.removeFormattingAndColors(m.getModTrailing());
+    		String trailing = StringUtil.removeFormattingAndColors(m.getModTrailing());
     		trailing = trailing.replaceAll(",", "");
     		trailing = translateCurrencyAliases(trailing);
     		trailing = trailing.trim();

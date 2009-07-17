@@ -20,6 +20,7 @@ import goat.core.Constants;
 import goat.core.Message ;
 import goat.core.Module ;
 import goat.util.HTMLUtil;
+import goat.util.StringUtil;
 import goojax.*;
 import goojax.search.SearchResponse;
 import goojax.search.SearchResult;
@@ -89,7 +90,7 @@ public class Google extends Module {
 	public void processChannelMessage(Message m) {
 		//debug
 		//System.out.println("PROCESSING:  " + m.modCommand) ;
-		String command = Constants.removeFormattingAndColors(m.getModCommand()) ;
+		String command = StringUtil.removeFormattingAndColors(m.getModCommand()) ;
 		try {
 			if ("google".equalsIgnoreCase(command) || 
 					"goatle".equalsIgnoreCase(command)) {
@@ -169,11 +170,11 @@ public class Google extends Module {
 
 	private void ircGoogleIncludeWikipedia (Message m, String query) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		m.createReply(luckyString(Constants.removeFormattingAndColors(query))).send() ;
+		m.createReply(luckyString(StringUtil.removeFormattingAndColors(query))).send() ;
 	}
 
 	private void ircGoogle (Message m) throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Constants.removeFormattingAndColors(m.getModTrailing());
+		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("Er, what do you want me to google for you?").send();
 			return;
@@ -188,7 +189,7 @@ public class Google extends Module {
 	private void ircGoogleNews(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		//for em
-		String mTrail = Constants.removeFormattingAndColors(m.getModTrailing()).toLowerCase().replaceAll("\\s+", " ").trim();
+		String mTrail = StringUtil.removeFormattingAndColors(m.getModTrailing()).toLowerCase().replaceAll("\\s+", " ").trim();
 		if(newsLinkMode && mTrail.matches("^\\d$")) {
 			m.createPagedReply(newsLinkReply(mTrail, m.getChanname())).send();
 			return;
@@ -196,7 +197,7 @@ public class Google extends Module {
 			String r;
 			if(mTrail.matches("^m-x news-link \\d\\s*")) {
 				String nlink = m.getWord(m.getWords().size() - 1);
-				nlink = Constants.removeFormattingAndColors(nlink).trim();
+				nlink = StringUtil.removeFormattingAndColors(nlink).trim();
 				r = newsLinkReply(nlink, m.getChanname());
 			} else if(mTrail.equals("m-x news-link-mode")) {
 				newsLinkMode = !newsLinkMode;
@@ -216,7 +217,7 @@ public class Google extends Module {
 			m.createPagedReply(r).send();
 			return;
 		}
-		String query = Constants.removeFormattingAndColors(m.getModTrailing());
+		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("What do you want news of?").send();
 			return;
@@ -267,7 +268,7 @@ public class Google extends Module {
 		
 		int resultNum = 0;
 		try {
-			String mTrail = Constants.removeFormattingAndColors(modTrailing).trim();
+			String mTrail = StringUtil.removeFormattingAndColors(modTrailing).trim();
 			if (mTrail.matches("^\\d+$"))
 				resultNum = Integer.parseInt(mTrail) - 1;
 		} catch (NumberFormatException nfe) {
@@ -341,7 +342,7 @@ public class Google extends Module {
 
 	private void ircGoogleBooks(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Constants.removeFormattingAndColors(m.getModTrailing());
+		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("Um, what do you want me to look for in all these books?").send();
 			return;
@@ -428,7 +429,7 @@ public class Google extends Module {
 
 	private void ircGooglePatents(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Constants.removeFormattingAndColors(m.getModTrailing());
+		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("Yes, well, what sort of patents am I supposed to look for, then?").send();
 			return;
@@ -506,7 +507,7 @@ public class Google extends Module {
 
 	private void ircGoogleBlogs(Message m) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		String query = Constants.removeFormattingAndColors(m.getModTrailing());
+		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
 			m.createReply("What kind of blogging were you looking for?").send();
 			return;
@@ -627,7 +628,7 @@ public class Google extends Module {
 	}
 
 	private void ircTranslate(Message m) throws MalformedURLException, SocketTimeoutException, IOException {
-		String text = Constants.removeFormattingAndColors(m.getModTrailing());
+		String text = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		GooJAXFetcher.Language toLanguage = DEFAULT_GOAT_LANGUAGE; 
 		GooJAXFetcher.Language fromLanguage = null;
 
@@ -830,7 +831,7 @@ public class Google extends Module {
 	 */
 	private void ircGoogleFight (Message m)
 	throws SocketTimeoutException, MalformedURLException, IOException {
-		String [] contestants = Constants.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
+		String [] contestants = StringUtil.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
 			m.createReply("Usage:  \"googlefight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
 			return ;
@@ -869,7 +870,7 @@ public class Google extends Module {
 	 *	all of the convenience methods in goat.core.Message
 	 */
 	public String quoteAndClean(String s) {
-		s = Constants.removeFormattingAndColors(s) ;
+		s = StringUtil.removeFormattingAndColors(s) ;
 		s = "\"" + s + "\"" ;
 		s = s.replaceAll("\\s*\"\\s*", "\"") ; //remove space around quotes
 		s = s.replaceAll("\"+", "\"") ; //strip away multiple quotes
@@ -1015,7 +1016,7 @@ public class Google extends Module {
 			if(srs.getResponseData().getResults().length > 0)
 				ret = simpleResultString(srs.getResponseData().getResults()[0]);
 			else
-				ret = noResultString + " for \"" + Constants.removeFormattingAndColors(query) + "\"";
+				ret = noResultString + " for \"" + StringUtil.removeFormattingAndColors(query) + "\"";
 		else
 			ret = "Error at Google:  " + srs.getResponseStatus() + ", " + srs.getResponseDetails();
 		return ret ;

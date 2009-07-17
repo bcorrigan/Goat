@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
+import goat.util.StringUtil;
 import goat.util.zipcode.*;
 import java.util.Random;
 
@@ -31,7 +32,7 @@ public class ZipCodes extends Module {
 	
 	private void zipcode(Message m) {
 		String ret = "";
-		String code = Constants.removeFormattingAndColors(m.getModTrailing()).trim();
+		String code = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		if(code.matches("[0-9]{3}[XxHh]")) {
 			ret = "That's a ZIP Code Tabulation Area, not a ZIP code.  But I'm feeling generous.  "
 				+ Zcta2000.get(code).toVerboseString();

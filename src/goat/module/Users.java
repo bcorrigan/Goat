@@ -67,7 +67,7 @@ public class Users extends Module {
 	}
 
 	private void timezone(Message m) {
-		String tz = Constants.removeFormattingAndColors(m.getModTrailing()).trim();
+		String tz = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		if (tz.matches("")) { // no input
 			String tzString = "";
 			if(users.hasUser(m.getSender()))
@@ -100,7 +100,7 @@ public class Users extends Module {
 	}
 
 	private void currency(Message m) {
-		String newCurrency = Constants.removeFormattingAndColors(m.getModTrailing());
+		String newCurrency = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		newCurrency = translateCurrencyAliases(newCurrency);
 		newCurrency = newCurrency.trim();
 		try {
@@ -141,7 +141,7 @@ public class Users extends Module {
 
 	private void usertime(Message m) {
 		String uname = m.getModTrailing().trim();
-		uname = Constants.removeFormattingAndColors(uname);
+		uname = StringUtil.removeFormattingAndColors(uname);
 		String reply = "";
 		if (m.getSender().equalsIgnoreCase(uname) || uname.equals("")) {
 			if(! users.hasUser(m.getSender())) {
@@ -174,7 +174,7 @@ public class Users extends Module {
 	 */
 	private void worldclock(Message m) {
 		String tz = m.getModTrailing();
-		tz = Constants.removeFormattingAndColors(m.getModTrailing()).trim();
+		tz = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		if (tz.equals("")) {
 			m.createReply("You need to give me a time zone.").send();
 			return;
@@ -193,7 +193,7 @@ public class Users extends Module {
 	}
 
 	private void seen(Message m) {
-		String remaining = Constants.removeFormattingAndColors(m.getModTrailing()).replaceAll("\\s+", " ").trim();
+		String remaining = StringUtil.removeFormattingAndColors(m.getModTrailing()).replaceAll("\\s+", " ").trim();
 		remaining = remaining.replaceAll("\\?", "");
 		String name = "";
 		String channel = "";

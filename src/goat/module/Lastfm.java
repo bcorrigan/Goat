@@ -15,6 +15,7 @@ import goat.core.Module;
 import goat.core.Users;
 import goat.util.CommandParser;
 import goat.util.Pair;
+import goat.util.StringUtil;
 import goat.core.IrcUser;
 
 
@@ -238,7 +239,7 @@ public class Lastfm extends Module {
 
 	private void ircCountry(Message m) {
 
-		String country = Constants.removeFormattingAndColors(parser.get("country"));
+		String country = StringUtil.removeFormattingAndColors(parser.get("country"));
 		ChartType type = null;
 		for(ChartType t : ChartType.values())
 			if(t.name().equalsIgnoreCase(parser.get("chart"))) {

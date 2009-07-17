@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
+import goat.util.StringUtil;
 import goojax.search.SearchResponse;
 import goojax.search.web.WebSearcher;
 
@@ -172,7 +173,7 @@ public class Confessions2 extends Module {
 
 	private void confessionCount(Message m) 
 	throws ParseException, CorruptIndexException, IOException {
-		String query = Constants.removeFormattingAndColors(m.getModTrailing()).trim();
+		String query = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		int count = searchCount(query);
 		if(0 == count)
 			m.createReply("Sorry, I have no regrets about " + query + ".").send();
@@ -228,7 +229,7 @@ public class Confessions2 extends Module {
 
 	private void searchConfession(Message m, String queryString) 
 	throws ParseException, DatabaseException, CorruptIndexException, IOException {
-		queryString = Constants.removeFormattingAndColors(queryString).trim();
+		queryString = StringUtil.removeFormattingAndColors(queryString).trim();
 		if (resultsQueue.hasNext(queryString))
 			m.createPagedReply(textFromHTML(dbGet(resultsQueue.next(queryString)).content)).send();
 		else {
@@ -249,7 +250,7 @@ public class Confessions2 extends Module {
 
 	private void guiltfight(Message m) 
 	throws ParseException, CorruptIndexException, IOException {
-		String [] contestants = Constants.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
+		String [] contestants = StringUtil.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
 			m.createReply("Usage:  \"guiltfight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
 			return ;

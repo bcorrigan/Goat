@@ -2,6 +2,7 @@ package goat.core;
 
 import goat.Goat;
 import goat.util.Pager;
+import goat.util.StringUtil;
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -349,7 +350,7 @@ public class Message {
 				}
 			} else {
                 setDirectlyAddressed(false);
-                setModCommand(Constants.removeFormattingAndColors(firstWord));
+                setModCommand(StringUtil.removeFormattingAndColors(firstWord));
 				while (st.hasMoreTokens())
 					setModTrailing(getModTrailing() + (st.nextToken() + ' '));
 			}
@@ -367,7 +368,7 @@ public class Message {
 					setModCommand(st.nextToken());
 			} else {
                 setDirectlyAddressed(false);
-                setModCommand(Constants.removeFormattingAndColors(firstWord));
+                setModCommand(StringUtil.removeFormattingAndColors(firstWord));
 			}
 
 			while (st.hasMoreTokens()) {
