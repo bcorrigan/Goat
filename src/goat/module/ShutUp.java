@@ -33,7 +33,7 @@ public class ShutUp extends Module {
 			"power up", 
 			"saiyan", 
 			"vegeta ",
-			"freethinking atheists", 
+			"atheist", 
 			"totally gay" } ;
 	
 	public static final String[] kipisms = {
@@ -95,6 +95,11 @@ public class ShutUp extends Module {
 			"leave us alone and put it on your goddamned blog",
 			"has anyone ever walked away from you while you were in the middle of saying something?",
 			"fascinating.  Really",
+			"nobody is listening to your stoned ramblings",
+			"Look! Over there! Away from the computer",
+			"There is nothing so pathetic as a bore who claims attention - luckily you're not getting it",
+			"Rather than drowning us in a sea of words, perhaps you should drown yourself in the bath",
+			"Don't you have carpal tunnel yet?",
 			"enough already",
 			"have you considered not typing anymore?",
 			"have you considered therapy?",
@@ -114,6 +119,11 @@ public class ShutUp extends Module {
 			"you're fucking boring us.  " + Constants.BOLD + "Again" + Constants.NORMAL,
 			"I think you've forgotten to take your fucking medicine", 
 			"get your greasy little fingers away from the fucking computer",
+			"have you ever wondered why your keyboards keep wearing out?",
+			"who let the bore in? Zzz. Zzz. Zzz zzz",
+			"You've succeeded in making a bot suicidal with your fucking tedious rambling - well done",
+			"I'd rather watch paint dry than listen to anymore of your shit",
+			"Look. Just FUCK OFF"
 	} ;
 
 	// see caveats for responses[] above; they apply to this, too
