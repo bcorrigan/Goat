@@ -759,7 +759,7 @@ public class Message {
 			ret += "\n   sender:              " + sender;
 		if(!"".equals(trailing))
 			ret += "\n   trailing:            " + trailing;
-		if(! words.isEmpty()) {
+		if(words != null && !words.isEmpty()) {
 			ret += "\n   words:              ";
 			for(String w: words)
 				ret += " " + w; 
