@@ -4,6 +4,7 @@ import goat.Goat;
 
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -37,33 +38,42 @@ public class MessageDispatcher {
 		}
 
     }
+	
+	private void dispatchMessageToAll(Message msg) {
+		List<Module> modules = BotStats.getInstance().getModules();
+		for( Module mod : modules )
+			sendMessage(msg, mod);
+	}
+	
     /*
-	 * 0)Make a Collection of all Modules that are interested in definite commands,
+     * 1) If the message is other type, just send it to all modules
+	 * 2)Make a Collection of all Modules that are interested in definite commands,
 	 *    and another of modules that are interested in msgs other modules aren't interested
 	 *    in, and another of modules interested in *all* msgs
-	 * 1)Find out what channel the Message is from
-	 * 2)Get channels from the module
-	 * 3)Check if message is private, if so..
-	 * 4)	Check Message.modCommand, compare with module's commands..
-	 * 5)		If a match, send to module, & save the fact that a module was "interested"
-	 * 6)Check the message's channel, compare with module's
-	 * 7)	do 4&5
-	 * 8)If nothing was interested in msg, send to all modules that have wantsUnclaimedmessages set
-	 * 9)Send msg to all modules interested in *everything*
+	 * 3)Find out what channel the Message is from
+	 * 4)Get channels from the module
+	 * 5)Check if message is private, if so..
+	 * 6)	Check Message.modCommand, compare with module's commands..
+	 * 7)		If a match, send to module, & save the fact that a module was "interested"
+	 * 8)Check the message's channel, compare with module's
+	 * 9)	do 4&5
+	 * 10)If nothing was interested in msg, send to all modules that have wantsUnclaimedmessages set
+	 * 11)Send msg to all modules interested in *everything*
 	 *
 	 */
     private void dispatchMessage(Message msg) {
-        Iterator<Module> it = modController.iterator();
+    	//if the message is "other" we always want to send it nomatter what - to every module
+    	if( msg.isCTCP()||!msg.getCommand().equals("PRIVMSG") ) {
+    		dispatchMessageToAll(msg);
+    		return;
+    	}
+    	
+        List<Module> modules = BotStats.getInstance().getModules();
         ArrayList<Module> modulesWantingAll = new ArrayList<Module>(),
 				  modulesWantingSome = new ArrayList<Module>(),
 				  modulesWantingOne = new ArrayList<Module>();
-		Module mod;
-        //if(msg.isAuthorised)
-			//System.out.println("Inbuffer: prefix: " + msg.prefix + " params: " + msg.params + " trailing:" + msg.trailing + " command:" + msg.command + " sender: " + msg.sender +
-			//					           "\n    " + "isCTCP:" + msg.isCTCP + " isPrivate:" + msg.isPrivate + " CTCPCommand:" + msg.CTCPCommand + " CTCPMessage:" + msg.CTCPMessage);
 
-		while(it.hasNext()) {
-			mod = it.next();
+		for(Module mod : modules) {
 			if(mod.messageType() == Module.WANT_ALL_MESSAGES)
 				modulesWantingAll.add(mod);
 			else if(mod.messageType() == Module.WANT_UNCLAIMED_MESSAGES)
@@ -72,16 +82,12 @@ public class MessageDispatcher {
 				modulesWantingOne.add(mod);
 		}
 
-		it = modulesWantingAll.iterator();
-		while(it.hasNext()) {
-			mod = it.next();
+		for(Module mod : modulesWantingAll) 
 			sendIfChannelsMatch(msg, mod);
-		}
+		
 
-		it = modulesWantingOne.iterator();
 		boolean used = false;
-		while(it.hasNext()) {
-			mod = it.next();
+		for(Module mod : modulesWantingOne) {
 			String [] commands = mod.getCommands();
             for (String command : commands)
                 if (command.equalsIgnoreCase(msg.getModCommand())) {
@@ -90,13 +96,9 @@ public class MessageDispatcher {
                 }
         }
 
-		if (!used) {
-			it = modulesWantingSome.iterator();
-			while(it.hasNext()) {
-				mod = it.next();
-				sendIfChannelsMatch(msg, mod);
-			}
-		}
+		if (!used) 
+			for(Module mod : modulesWantingSome) 
+				sendIfChannelsMatch(msg, mod);		
     }
 
 	private void sendIfChannelsMatch(Message msg, Module mod) {

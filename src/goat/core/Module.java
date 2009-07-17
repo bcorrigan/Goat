@@ -18,6 +18,7 @@ public abstract class Module implements Runnable {
 	public boolean inAllChannels;
 	public boolean wantsPrivate = true;
 
+	//todo have "other" type always hit processOtherMessage
 	public static final int WANT_ALL_MESSAGES = 0;
 	public static final int WANT_UNCLAIMED_MESSAGES = 1;
 	public static final int WANT_COMMAND_MESSAGES = 2;

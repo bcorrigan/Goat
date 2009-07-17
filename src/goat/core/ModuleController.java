@@ -146,10 +146,6 @@ public class ModuleController  {
 		} catch (ClassNotFoundException cnfe) {}
 		return getLoaded(modClass) ;
 	}
-
-	public Iterator<Module> iterator() {
-		return bot.getModules().iterator();
-	}
 	
 	/**
 	 * Build the list of all public classes in package goat.module.
