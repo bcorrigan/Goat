@@ -1,6 +1,7 @@
 package goat.db;
 
 import goat.Goat;
+import goat.core.BotStats;
 import goat.core.Message ;
 import goat.db.GoatDB;
 
@@ -311,7 +312,7 @@ public class IRCLogger {
 			hostmask = getLastHostmask(m.getSender()) ;
 		}
 		String botCommand = "";
-		if (Goat.modController.isLoadedCommand(m.getModCommand()))
+		if (BotStats.getInstance().isLoadedCommand(m.getModCommand()))
 			botCommand = m.getModCommand();
 		return logMessage(m.getSender(), hostmask, m.getChanname(), network, ircCommand,
 				ctcpCommand, botCommand, body);

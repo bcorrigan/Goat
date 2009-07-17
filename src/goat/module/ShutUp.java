@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
+import goat.core.BotStats;
 import java.util.Random;
 
 
@@ -184,7 +185,7 @@ public class ShutUp extends Module {
 			commandCount = 0;
 			kipismCount = 0;
 		}
-		if(goat.Goat.modController.isLoadedCommand(m.getModCommand())) 
+		if(BotStats.getInstance().isLoadedCommand(m.getModCommand())) 
 			commandCount++;
 		else
 			blatherCount++;

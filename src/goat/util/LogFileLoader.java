@@ -11,8 +11,8 @@ import java.sql.Timestamp;
 import java.sql.SQLException;
 
 import goat.Goat;
+import goat.core.BotStats;
 import goat.core.Constants;
-import goat.core.ModuleController;
 import goat.db.IRCLogger;
 
 /**
@@ -37,7 +37,6 @@ public class LogFileLoader {
 	private static SimpleDateFormat headerDateFormat ;
 	private static SimpleDateFormat daychangeDateFormat ;
 	private static IRCLogger logger ;
-	private static ModuleController modController = Goat.modController ;
 	
 	private static long lastSeenMillis ;
 	private static long millisOffset ;
@@ -200,7 +199,7 @@ public class LogFileLoader {
 				return id ;
 			}
 			firstWord = Constants.removeFormattingAndColors(firstWord);
-			if (modController.isCommand(firstWord)) {
+			if (BotStats.getInstance().isLoadedCommand(firstWord)) {
 				botCommand = firstWord ;
 			}
 			// System.out.println("  PRIVMSG from: " + nick + " | " + body) ;

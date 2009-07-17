@@ -30,16 +30,18 @@ public class ModuleController  {
 		return pool;
 	}
 
-	private ArrayList<Module> loadedModules = new ArrayList<Module>();
+	//private ArrayList<Module> loadedModules = new ArrayList<Module>();
 	
 	private ArrayList<Class<? extends Module>> allModules = new ArrayList<Class<? extends Module>>() ;
 	private ArrayList<String> allCommands = new ArrayList<String>() ;
+	
+	private BotStats bot = BotStats.getInstance();
 	
 	public ModuleController() {
 		buildAllModulesList() ;
 		//buildAllCommandsList() ;
 		
-		BotStats.getInstance().setModules( getAllModules() );
+		//BotStats.getInstance().setModules( getAllModules() );
 	}	
 	
     /**
@@ -91,26 +93,14 @@ public class ModuleController  {
 		}
 		System.out.print("running ... ");
 
-		loadedModules.add(module);
+		BotStats.getInstance().addModule(module);
 		
-		addCommands(module.getCommands());
+		bot.addCommands(module.getCommands());
 		
 		System.out.println("loaded.");
 		return module;
 	}
-	
-	// TODO this should really be in BotStats. And BotStats should be a singleton
-	private void addCommands(String[] commands) {
-		BotStats.getInstance().getCommands().addAll(Arrays.asList( commands ));
-	}
-	
-	private void rebuildCommands() {
-		BotStats.getInstance().setCommands( new HashSet<String>() );
-		for(Module mod:loadedModules) {
-			addCommands(mod.getCommands());
-		}
-	}
-	
+		
 	public Module loadInAllChannels(Class<?> modClass)
 	throws IllegalAccessException, InstantiationException {
 		Module ret = load(modClass);
@@ -124,31 +114,19 @@ public class ModuleController  {
 		if (null == mod)
 			return false ;
 		else {
-			loadedModules.remove(mod) ;
+			bot.removeModule(mod) ;
 			mod.stopDispatcher();
 		}
-		
-		rebuildCommands();
 		
 		return true ;
 	}
 
-	public String[] lsmod() {
-		Module mod;
-		String[] modNames = new String[loadedModules.size()];
-		for(int i=0;i<loadedModules.size();i++) {
-			mod = loadedModules.get(i);
-			modNames[i] = mod.getClass().getName();
-		}
-		return modNames;
-	}
-
 	public Module getLoaded(int i) {
-		return loadedModules.get(i);
+		return bot.getModules().get(i);
 	}
 	
 	public Module getLoaded(Class<?> modClass) {
-		Iterator<Module> it = loadedModules.listIterator();
+		Iterator<Module> it = bot.getModules().listIterator();
 		Module ret = null;
 		if(!modClass.equals(goat.core.Module.class) && !modClass.equals(Object.class))
 			while(it.hasNext()) {
@@ -170,7 +148,7 @@ public class ModuleController  {
 	}
 
 	public Iterator<Module> iterator() {
-		return loadedModules.iterator();
+		return bot.getModules().iterator();
 	}
 	
 	/**
@@ -180,7 +158,7 @@ public class ModuleController  {
 	 * could give us a list of all classes in a package, wouldn't it?
 	 */
 	private void buildAllModulesList() {
-		if(BotStats.getInstance().isTesting())
+		if(bot.isTesting())
 			return;
 		JarFile jf = null;
 		try {
@@ -224,78 +202,8 @@ public class ModuleController  {
         }
         System.out.println() ;
 	}
-	
-	/**
-	 * Build the list of all possible goat commands.
-	 * 
-	 * This goes through all the available goat modules and builds a list of all the commands
-	 * they ask to respond to (via goat.core.Module.getCommands()).  It whines on stderr
-	 * if it finds multiple modules responding to the same command.
-	 *
-	 */
-	/*private void buildAllCommandsList() {
-		//this has to be called after the allModules list it built.  With buildAllModulesList().
-		HashMap<String, String> commands = new HashMap<String, String>() ;
-		boolean collisions = false ;
-        for (Class<? extends Module> modClass : allModules) {
-            String[] modCommands = Module.getCommands(modClass);
-            for (String modCommand : modCommands) {
-                if (commands.containsKey(modCommand)) {
-                    commands.put(modCommand, commands.get(modCommand) + ", " + modClass.getName());
-                    collisions = true;
-                } else {
-                    commands.put(modCommand, modClass.getName());
-                }
-            }
-        }
-        allCommands.addAll(commands.keySet()) ;
-		Collections.sort(allCommands) ;
-		if (collisions) {
-			System.out.println("WARNING: multiple modules with same command detected: ") ;
-            for (String allCommand : allCommands)
-                if (commands.get(allCommand).contains(","))
-                    System.out.println("   \"" + allCommand + "\" :  " + commands.get(allCommand));
-            System.out.println() ;
-		}
-	}*/
-	
+		
 	public List<Class<? extends Module>> getAllModules() {
 		return allModules;
-	}
-	
-	public String [] getAllCommands() {
-		return allCommands.toArray(new String[0]) ;
-	}
-	
-	/**
-	 *
-	 * @return may contain duplicates
-	 */
-	public String [] getLoadedCommands() {
-		ArrayList<String> lcommands = new ArrayList<String>() ;
-		for(int i=0; i<loadedModules.size(); i++) {
-			lcommands.addAll(Arrays.asList(getLoaded(i).getCommands())) ;
-		}
-		Collections.sort(lcommands) ;
-		return lcommands.toArray(new String[0]) ;
-	}
-	
-	public boolean stringInArray(String s, String [] array) {
-		boolean found = false ;
-        for (String anArray : array) {
-            if (s.equalsIgnoreCase(anArray)) {
-                found = true;
-                break;
-            }
-        }
-        return found ;
-	}
-	
-	public boolean isCommand(String s) {
-		return stringInArray(s, getAllCommands()) ;
-	}
-	
-	public boolean isLoadedCommand(String s) {
-		return stringInArray(s, getLoadedCommands()) ;
 	}
 }

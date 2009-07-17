@@ -142,7 +142,7 @@ public class ModuleCommands extends Module {
 	}
 
 	private void lsmod(Message m) {
-		String[] mods = modControl.lsmod();
+		String[] mods = BotStats.getInstance().getModuleNames();
 		String modLine = "Loaded modules: " + mods[0];
 		for (int i = 1; i < mods.length; i++)
 			modLine += ", " + mods[i];

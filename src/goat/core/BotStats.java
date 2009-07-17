@@ -2,12 +2,15 @@ package goat.core;
 
 import goat.Goat;
 
+import goat.util.StringUtil;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import java.util.HashSet;
@@ -60,7 +63,7 @@ public class BotStats {
 
 	private Set<String> commands = new HashSet<String>();
 	
-	private List<Class<? extends Module>> modules;
+	private List<Module> modules;
 	
     /**
      * Set to true in unit test context
@@ -120,12 +123,50 @@ public class BotStats {
 		this.commands = commands;
 	}
 
-	public List<Class<? extends Module>> getModules() {
+	public List<Module> getModules() {
 		return modules;
 	}
+	
+	public void rebuildCommands() {
+		BotStats.getInstance().setCommands( new HashSet<String>() );
+		for(Module mod:getModules()) {
+			addCommands(mod.getCommands());
+		}
+	}
+	
+	public boolean isLoadedCommand(String s) {
+		return StringUtil.stringInArray(s, (String[]) getCommands().toArray()) ;
+	}
+	
+	public void addCommands(String[] commands) {
+		BotStats.getInstance().getCommands().addAll(Arrays.asList( commands ));
+	}
 
-	public void setModules(List<Class<? extends Module>> modules) {
+	public void setModules(List<Module> modules) {
 		this.modules = modules;
+	}
+	
+	public void addModule(Module module) {
+		modules.add(module);
+	}
+	
+	public void removeModule(Module module) {
+		modules.remove(module);
+		
+		rebuildCommands();
+	}
+	
+	/**
+	 * @return All the module names of all loaded modules
+	 */
+	public String[] getModuleNames() {
+		Module mod;
+		String[] modNames = new String[modules.size()];
+		for(int i=0;i<modules.size();i++) {
+			mod = modules.get(i);
+			modNames[i] = mod.getClass().getName();
+		}
+		return modNames;
 	}
 
 	public boolean isTesting() {
