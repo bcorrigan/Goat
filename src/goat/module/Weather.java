@@ -479,7 +479,7 @@ public class Weather extends Module {
 		return (f - 32)*5/9;
 	}
 		
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"weather", "fullweather"};
 	}
 	

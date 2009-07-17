@@ -532,7 +532,7 @@ public class UnitConverter extends Module {
         return -1;
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
 		return new String[]{"convert", "describeunit", "findunit"};
 	}
 }

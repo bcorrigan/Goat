@@ -97,7 +97,7 @@ public class CTCP extends Module {
 	}
 
 /*  This shouldn't be necessary, and it gums up the logging.
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"ALL"};
 	}
 */
@@ -105,4 +105,6 @@ public class CTCP extends Module {
 	public int messageType() {
 		return WANT_ALL_MESSAGES;
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }

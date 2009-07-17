@@ -257,4 +257,6 @@ public class ShutUp extends Module {
 		else
 			return in.substring(0, 1).toUpperCase() + in.substring(1) ;
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }

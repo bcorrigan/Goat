@@ -240,7 +240,7 @@ public class Adventure extends Module implements ZScreen {
         processPrivateMessage(m);
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
         return new String[]{"adv", "startadv", "stopadv", "lsgames", "lssaves"};
     }
 

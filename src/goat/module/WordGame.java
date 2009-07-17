@@ -85,7 +85,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		return;
 	}
 	
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{
 				"wordgame", "nerdgame", 
 				"scores", "matchscores",

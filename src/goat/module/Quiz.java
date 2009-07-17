@@ -74,7 +74,7 @@ public class Quiz extends Module {
             return WANT_UNCLAIMED_MESSAGES;
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
         return new String[]{"quiz"};
     }
 

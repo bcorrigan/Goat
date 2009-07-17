@@ -116,7 +116,7 @@ public class Confessions2 extends Module {
 		}
 	}
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"confess", "confession", "guiltiness", "confesscount", "guiltfight"};
 	}
 

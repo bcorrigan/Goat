@@ -55,7 +55,7 @@ public class Google extends Module {
 		GooJAXFetcher.setDefaultKey("ABQIAAAA3SYwJ1rsiLgTvuisAwhOWBSj2h-HwVayfKLTNoeW4qFtyKpsrhSAZlVe3nAKyDZbufib0rUbOQ-MvA");
 	}
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{
 				"google", "goatle", 
 				"googlefight", 

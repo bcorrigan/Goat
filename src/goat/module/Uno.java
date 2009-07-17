@@ -208,7 +208,7 @@ public class Uno extends Module implements Output {
         return WANT_COMMAND_MESSAGES;
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
         return new String[]{"red", "blue", "green", "yellow", "play", "draw", "pass", "uno", "join", "hand", "show", "stopgame", "remove", "leave", "order", "unoscore", "p", "<", ">", "r", "g", "b", "y", "h", "s", "botjoin"};
     }
 

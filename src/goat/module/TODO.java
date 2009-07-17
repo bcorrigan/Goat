@@ -33,7 +33,7 @@ public class TODO extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"TODO", "todo", "reallytodo"};
 	}
 }

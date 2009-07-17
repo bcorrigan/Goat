@@ -218,7 +218,7 @@ public class CountDown extends Module implements Runnable {
             return WANT_UNCLAIMED_MESSAGES;
     }
     
-    public static String[] getCommands() {
+    public String[] getCommands() {
         return new String[]{"countdown"};
     }
     

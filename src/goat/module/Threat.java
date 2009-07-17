@@ -62,7 +62,7 @@ public class Threat extends Module implements Runnable {
 		m.createReply("The current Department of Homeland Security terror threat level is " + THREATS[threatLevel]).send();
 	}
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"threat"};
 	}
 

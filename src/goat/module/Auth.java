@@ -34,7 +34,7 @@ public class Auth extends Module {
     public void processChannelMessage(Message m) {
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
         return new String[]{"auth"};
     }
 

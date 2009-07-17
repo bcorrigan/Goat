@@ -70,7 +70,7 @@ public class Core extends Module {
 		processPrivateMessage(m);
 	}
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"part", "join", "nick", "quit", "charset", "showcharset"};
 	}
 }

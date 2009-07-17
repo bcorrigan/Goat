@@ -37,7 +37,7 @@ public class Define extends Module {
 		return WANT_COMMAND_MESSAGES;
 	}
 
-   public static String[] getCommands() {
+   public String[] getCommands() {
 		return new String[] { "define", "randef", "dictionaries", "dictionary", "oed", "thesaurus"};
    }
 	

@@ -289,4 +289,6 @@ public class Vernie extends Module {
 
 		while (linkhistory.size() > 10) linkhistory.removeFirst();
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }

@@ -87,7 +87,7 @@ public class Lastfm extends Module {
 
 	// private static final ChartType DEFAULT_CHART_TYPE = ChartType.TRACKS;
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"lastfm", "nowplaying"};
 	}
 

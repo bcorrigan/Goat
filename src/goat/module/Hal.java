@@ -66,4 +66,6 @@ public class Hal extends Module {
 				time--;
 		}
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }

@@ -46,7 +46,7 @@ public class Users extends Module {
 		processChannelMessage(m) ;
 	}
 
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"timezone", "usertime", "localtime", "worldclock", "worldtime", "seen", "currency"};
 	}
 

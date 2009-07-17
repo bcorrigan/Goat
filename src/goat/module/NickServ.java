@@ -46,7 +46,7 @@ public class NickServ extends Module {
 	}
 
 	/* wtf.  --commented out by rs
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"This"};
 	}
 	*/
@@ -55,4 +55,6 @@ public class NickServ extends Module {
 		NickServ ns = new NickServ();
 		System.out.println(ns.password);
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }

@@ -48,4 +48,6 @@ public class Logger extends Module {
 	public void processOtherMessage(Message m) {
 		processChannelMessage(m) ;
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }

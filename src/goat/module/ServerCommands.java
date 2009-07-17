@@ -22,7 +22,7 @@ public class ServerCommands extends Module {
 		return WANT_ALL_MESSAGES;
 	}
 	
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"servercommand"};
 	}
 	

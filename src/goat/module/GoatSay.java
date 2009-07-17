@@ -92,5 +92,7 @@ public class GoatSay extends Module {
 				m.createReply("moo :)").send();
 		}
 	}
+	
+	public String[] getCommands() { return new String[0]; }
 }
 

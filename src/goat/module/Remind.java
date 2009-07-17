@@ -114,7 +114,7 @@ public class Remind extends Module {
         processChannelMessage(m);
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
         return new String[]{"remind"};
     }
 

@@ -138,7 +138,7 @@ public class Googlism extends Module {
         processChannelMessage(m);
     }
 
-    public static String[] getCommands() {
+    public String[] getCommands() {
 		return new String[]{"who", "what", "where", "when"};
 	}
 }

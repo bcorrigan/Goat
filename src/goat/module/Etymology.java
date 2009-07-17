@@ -20,7 +20,7 @@ public class Etymology extends Module {
 	private String etyuri = "http://etymonline.com/?term=";
 	private String etysearch = "http://etymonline.com/?search=";
 	
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"etymology"};
 	}
 	
