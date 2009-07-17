@@ -12,6 +12,7 @@ import java.io.*;
 public class NickServ extends Module {
 
 	private String password;
+	private long lastAuth;
 
 	public NickServ() {
 		File NSPassFile = new File("resources/NickServPassword");
@@ -36,9 +37,14 @@ public class NickServ extends Module {
 	}
 
 	public void processChannelMessage(Message m) {  //TODO really need notice functionality in this thing
-		if(m.getSender().equals("NickServ")) 
-			if(m.getPrefix().equals("NickServ!services@services.slashnet.org"))
-					new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
+		//if our password is wrong we don't want to spam NickServ
+		long now = System.currentTimeMillis();
+		if( (now - lastAuth) > 30000)
+			if(m.getSender().equals("NickServ")) 
+				if(m.getPrefix().equals("NickServ!services@services.slashnet.org")) {
+					lastAuth = System.currentTimeMillis();
+					new Message("", "PRIVMSG", "NickServ", "identify " + password).send();				
+				}
 	}
 
 	public int messageType() {
