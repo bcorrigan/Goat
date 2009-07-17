@@ -31,6 +31,8 @@ public class BotStats {
 	}
 	
 	public static BotStats getInstance() {
+		if(instance==null)
+			instance = new BotStats();
 		return instance;
 	}
 	
@@ -63,7 +65,7 @@ public class BotStats {
 
 	private Set<String> commands = new HashSet<String>();
 	
-	private List<Module> modules;
+	private List<Module> modules = new ArrayList<Module>();
 	
     /**
      * Set to true in unit test context
