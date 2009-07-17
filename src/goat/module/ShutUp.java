@@ -4,6 +4,8 @@ import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.BotStats;
+import goat.util.StringUtil;
+
 import java.util.Random;
 
 
@@ -230,12 +232,10 @@ public class ShutUp extends Module {
         return ret;
 	}
 
-	private String pickRandom(String[] strings) {
-		return strings[random.nextInt(strings.length)] ;
-	}
+
 	
 	public void randomReply(String[] replies, Message m) {
-		String reply = pickRandom(replies).trim() ;
+		String reply = StringUtil.pickRandom(replies).trim() ;
 		boolean isQuestion = false;
 		if (reply.substring(reply.length() - 1).equals("?")) {
 			reply = reply.substring(0, reply.length() - 1);
@@ -250,9 +250,9 @@ public class ShutUp extends Module {
 		else if(rand < 80)
 			reply = m.getSender() + ": " + reply;
 		else if(rand < 90)
-			reply = capitalise(reply) + ", " + m.getSender();
+			reply = StringUtil.capitalise(reply) + ", " + m.getSender();
 		else 
-			reply = capitalise(reply);
+			reply = StringUtil.capitalise(reply);
 		if(isQuestion)
 			reply += "?";
 		else
@@ -260,14 +260,7 @@ public class ShutUp extends Module {
 		m.createReply(reply).send();
 	}
 	
-	public String capitalise(String in) {
-		if(in.length() < 1)
-			return in;
-		else if (1 == in.length())
-			return in.toUpperCase() ;
-		else
-			return in.substring(0, 1).toUpperCase() + in.substring(1) ;
-	}
+
 	
 	public String[] getCommands() { return new String[0]; }
 }
