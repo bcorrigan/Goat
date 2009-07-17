@@ -147,33 +147,7 @@ public abstract class Module implements Runnable {
 	 * @return An array of commands that the module wants to know about.
 	 * @see goat.core.Module.getCommands(Class)
 	 */
-    public static String[] getCommands() {
-		return new String[0];
-	}
-    
-    /**
-     * The method you want to use to get a list of commands that a module will to respond to.
-     * 
-     * @param c the class of the module you want to query
-     * @return the list of commands the module wants to process
-     * @see goat.core.Module.getCommands()
-     */
-    public static String[] getCommands(Class<? extends Module> c) {
-    	String [] commands = new String[0] ;
-    	try {
-    		commands = (String []) c.getMethod("getCommands").invoke(null) ;
-    	} catch (NoSuchMethodException e) {
-    		System.err.println("ERROR: getCommands() not found for class \"" + c.getName() + "\", perhaps not a subclass of goat.core.Module?  Continuing.") ;
-    		// e.printStackTrace() ;
-    	} catch (InvocationTargetException e) {
-    		System.err.println("ERROR: getCommands() could not be called as a class (static) method on class \"" + c.getName() + "\", perhaps not a subclass of goat.core.Module?  Continuing.") ;
-    		// e.printStackTrace() ;
-    	} catch (IllegalAccessException e) {
-    		System.err.println("ERROR: rs is an inept programmer.  He screwed up the reflection crap in goat.Module.getCommands(Class) .  Continuing.") ;
-    		// e.printStackTrace() ;
-		}
-    	return commands ;
-    }
+    public abstract String[] getCommands();
 
 	/**
 	 * Called when the bot receives a message which is not a PRIVMSG. Many modules may not need to override the default
