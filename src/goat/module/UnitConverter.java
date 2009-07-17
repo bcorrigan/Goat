@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
+import goat.util.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -231,42 +232,7 @@ public class UnitConverter extends Module {
 		p_unit_power = new Double[i];
 	}
 
-	/**
-	 * Split a string in array of predefined size
-	 * @param input_string string to split
-	 * @param sep_ch separator character
-	 * @param size max elements to retrieve, remaining elements will be filled with empty string
-	 * @return splitted_array of strings
-	 */
-	private String[] splitData(String input_string, char sep_ch, int size) {
-		String str1 = ""; // temp var to contain found strings
-		String splitted_array[] = new String[size]; // array of splitted string to return
-		int element_num = 0; //number of found elements
-		// analize string char by char
-		for(int i=0; i<input_string.length(); i++) {
-			if(input_string.charAt(i) == sep_ch) { //separator found
-				splitted_array[element_num] = str1; //put string to array
-				str1 = ""; //reinitialize variable
-				element_num++; //count strings
-				if (element_num >= size) {
-					break; //quit if limit is reached
-				}
-			}
-			else {
-				str1 += input_string.charAt(i);
-			}
-		}
-		//get last element
-		if (element_num < size) {
-			splitted_array[element_num] = str1; //put string to vector
-			element_num++;
-		}
-		//fill remaining values with empty string
-		for(int i=element_num; i<size; i++) {
-			splitted_array[i] = "";
-		}
-		return splitted_array;
-	}
+
 
     /**
 	 * Read menu items data from external text file
@@ -315,7 +281,7 @@ public class UnitConverter extends Module {
 			//read lines (each line is one menu element)
 			while(null != (dataline = in.readLine())) {
 				//get element data array
-				elementdata = splitData(dataline, '\t', nfields);
+				elementdata = StringUtil.splitData(dataline, '\t', nfields);
 				//assign data
 				if (filetype == 0) { //multipliers file
 					p_multiplier_name[i] = getEncodedString(getDefaultValue(elementdata[0], ""), p_page_encoding, p_encoding);
@@ -389,32 +355,32 @@ public class UnitConverter extends Module {
 
 		//replace constants with their value
 		while (num.indexOf("P") >= 0) { //PI constant
-			String[] numparts = splitData(num, 'P', 2);
+			String[] numparts = StringUtil.splitData(num, 'P', 2);
 			num = numparts[0]+String.valueOf(Math.PI)+numparts[1];
 		}
 		while (num.indexOf("X") >= 0) { //e constant
-			String[] numparts = splitData(num, 'X', 2);
+			String[] numparts = StringUtil.splitData(num, 'X', 2);
 			num = numparts[0]+String.valueOf(Math.E)+numparts[1];
 		}
 
 		if (num.indexOf("^") >= 0) { //allows to specify powers (e.g.: 2^10)
-			String[] numparts = splitData(num, '^', 2);
+			String[] numparts = StringUtil.splitData(num, '^', 2);
 			tempnum = Math.pow(parseNumber(numparts[0]), parseNumber(numparts[1]));
 		}
 		else if ( ((opos = num.indexOf("-")) > 0) && (num.charAt(opos-1) != 'E') && (num.charAt(opos-1) != '^')) {
-			String[] numparts = splitData(num, '-', 2);
+			String[] numparts = StringUtil.splitData(num, '-', 2);
 			tempnum = parseNumber(numparts[0]) - parseNumber(numparts[1]);
 		}
 		else if ( ((opos = num.indexOf("+")) > 0) && (num.charAt(opos-1) != 'E') && (num.charAt(opos-1) != '^')) {
-			String[] numparts = splitData(num, '+', 2);
+			String[] numparts = StringUtil.splitData(num, '+', 2);
 			tempnum = parseNumber(numparts[0]) + parseNumber(numparts[1]);
 		}
 		else if (num.indexOf("/") >= 0) {
-			String[] numparts = splitData(num, '/', 2);
+			String[] numparts = StringUtil.splitData(num, '/', 2);
 			tempnum = parseNumber(numparts[0]) / parseNumber(numparts[1]);
 		}
 		else if (num.indexOf("*") >= 0) {
-			String[] numparts = splitData(num, '*', 2);
+			String[] numparts = StringUtil.splitData(num, '*', 2);
 			tempnum = parseNumber(numparts[0]) * parseNumber(numparts[1]);
 		}
 		else {

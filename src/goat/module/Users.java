@@ -4,6 +4,7 @@ import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
+import goat.util.StringUtil;
 import static goat.util.CurrencyConverter.*;
 
 import java.util.TimeZone;
@@ -86,14 +87,14 @@ public class Users extends Module {
 			if (matches.size() == 1) {
 				User u = users.getOrCreateUser(m.getSender());
 				u.setTimeZoneString(matches.get(0));
-				m.createReply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + timeString(u.getTimeZoneString())).send();
+				m.createReply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString())).send();
 			} else if(matches.size() == 0) {
 				m.createReply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.").send();
 				Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 			} else if(matches.size() > MAX_LISTINGS) {
 				m.createReply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.").send();
 			} else {
-				m.createReply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + quotedList(matches)).send();
+				m.createReply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + StringUtil.quotedList(matches)).send();
 			}
 		}
 	}
@@ -151,7 +152,7 @@ public class Users extends Module {
 				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"").send();
 			}
 			else 
-				reply="Your current time is " + timeString(users.getUser(m.getSender()).getTimeZoneString()); 
+				reply="Your current time is " + StringUtil.timeString(users.getUser(m.getSender()).getTimeZoneString()); 
 		} else if (! uname.matches("[a-zA-Z0-9^{}\\[\\]`\\\\^_-|]+"))
 			reply = "You're being difficult";
 		else if(! users.hasUser(uname))
@@ -159,7 +160,7 @@ public class Users extends Module {
 		else if(users.getUser(uname).getTimeZoneString().equals(""))
 			reply="I don't know " + uname + "'s time zone.";
 		else 
-			reply="Current time for " + uname + " is " + timeString(users.getUser(uname).getTimeZoneString()); 
+			reply="Current time for " + uname + " is " + StringUtil.timeString(users.getUser(uname).getTimeZoneString()); 
 		m.createReply(reply).send();
 	}
 
@@ -180,14 +181,14 @@ public class Users extends Module {
 		}
 		ArrayList<String> matches = timezoneSearch(tz);
 		if (matches.size() == 1) {
-			m.createReply("Time in zone \"" + matches.get(0) + "\" is " + timeString(matches.get(0))).send() ;
+			m.createReply("Time in zone \"" + matches.get(0) + "\" is " + StringUtil.timeString(matches.get(0))).send() ;
 		} else if(matches.size() == 0) {
 			m.createReply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.").send();
 			// Message.createPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 		} else if(matches.size() > MAX_LISTINGS) {
 			m.createReply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.").send();
 		} else {
-			m.createReply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + quotedList(matches)).send();
+			m.createReply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + StringUtil.quotedList(matches)).send();
 		}		
 	}
 
@@ -267,7 +268,7 @@ public class Users extends Module {
 					stamp = stamp.replaceAll("PM", "pm");
 
 
-					String durString = durationString(System.currentTimeMillis() - lastSeen);
+					String durString = StringUtil.durationString(System.currentTimeMillis() - lastSeen);
 					m.createReply(u.getName() + " was last seen in " + channel + " "
 							+ durString + " ago" + saying + "    [" + stamp + "]").send();
 				} else 
@@ -286,98 +287,7 @@ public class Users extends Module {
 		}
 	}
 
-	private String quotedList(ArrayList<String> strings) {
-		String ret = "" ;
-		Iterator<String> i = strings.iterator();
-		if (i.hasNext())
-			ret += "\"" + i.next() + "\"";
-		while (i.hasNext())
-			ret += ", \"" + i.next() + "\"";
-		return ret;
-	}
 
-	private String timeString(String timezone) {
-		TimeZone tz = TimeZone.getTimeZone(timezone);
-		GregorianCalendar cal = new GregorianCalendar(tz);
-		cal.setTimeInMillis(System.currentTimeMillis());
-		int hour = cal.get(GregorianCalendar.HOUR);
-		if (hour == 0)
-			hour = 12;
-		String ret = hour + ":";
-		ret += String.format("%02d", cal.get(GregorianCalendar.MINUTE));
-		if (cal.get(GregorianCalendar.AM_PM) == GregorianCalendar.AM)
-			ret += "am";
-		else
-			ret += "pm";
-		switch (cal.get(GregorianCalendar.DAY_OF_WEEK)) {
-		case GregorianCalendar.SUNDAY : ret += ", Sunday"; break;
-		case GregorianCalendar.MONDAY : ret += ", Monday"; break;
-		case GregorianCalendar.TUESDAY : ret += ", Tuesday"; break;
-		case GregorianCalendar.WEDNESDAY : ret += ", Wednesday"; break;
-		case GregorianCalendar.THURSDAY : ret += ", Thursday"; break;
-		case GregorianCalendar.FRIDAY : ret += ", Friday"; break;
-		case GregorianCalendar.SATURDAY : ret += ", Saturday"; break;
-		}
-		ret += ", " + cal.get(GregorianCalendar.DAY_OF_MONTH) + "/";
-		ret += (cal.get(GregorianCalendar.MONTH) + 1) + "/";
-		ret += cal.get(GregorianCalendar.YEAR);
-		ret += " (" + tz.getID() + " - " + tz.getDisplayName() + ")";
-		return ret;
-	}
-
-	public final long SECOND = 1000;
-	public final long MINUTE = SECOND * 60;
-	public final long HOUR = MINUTE * 60;
-	public final long DAY = HOUR * 24;
-	public final long YEAR = (long) ((double) DAY * 365.25);
-	public final long MONTH = YEAR / 12;
-
-	public String durationString(long intervalInMillis) {
-		String durString = "less than one second";
-		String durparts[] = new String[] {
-				intervalInMillis / YEAR + " year",
-				(intervalInMillis / MONTH) % 12 + " month",
-				(intervalInMillis / DAY) % (MONTH / DAY) + " day",
-				(intervalInMillis / HOUR) % 24 + " hour",
-				(intervalInMillis / MINUTE) % 60 + " minute",
-				(intervalInMillis / SECOND) % 60 + " second"};
-		int partsCount = 0;
-		for(int i=0; i<durparts.length; i++) {
-			if(Character.isDigit(durparts[i].charAt(0))) {
-				int endNum = durparts[i].indexOf(" ");
-				int num = new Integer(durparts[i].substring(0,endNum));
-				if(num == 0)
-					durparts[i] = null;
-				else
-					partsCount++;
-				if (num > 1)
-					durparts[i] += "s";
-			}
-			else
-				durparts[i] = null;
-		}
-		if (partsCount > 0) {
-			String temp[] = new String[partsCount];
-			int tempIndex = 0;
-			for(int i=0; i<durparts.length; i++)
-				if(durparts[i] != null)
-					temp[tempIndex++] = durparts[i];
-			if(temp.length == 1) {
-				durString = temp[0];
-			} else {
-				durString = "";
-				for(int i=0; i<temp.length; i++) {
-					durString += temp[i];
-					if(i != temp.length - 1)
-						if(i == temp.length - 2)
-							durString += " and ";
-						else
-							durString += ", ";
-				}
-			}
-		}
-		return durString;
-	}
 
 	private ArrayList<String> timezoneSearch(String searchTerm) {
 		String[] ids = TimeZone.getAvailableIDs() ;
