@@ -44,7 +44,7 @@ public class Vernie extends Module {
 
 		message = m.getTrailing();
 
-		if (m.getParams().equals(BotStats.botname)) {
+		if (m.getParams().equals(BotStats.getInstance().getBotname())) {
 			towho = m.getSender();
 		}
 
@@ -60,7 +60,7 @@ public class Vernie extends Module {
 
 			if (message.equals("link history") || message.equals("show history"))
 				performaction = true;
-		} else if (message.length() > BotStats.botname.length() && message.toLowerCase().substring(0, BotStats.botname.length()).equals(BotStats.botname.toLowerCase())) {
+		} else if (message.length() > BotStats.getInstance().getBotname().length() && message.toLowerCase().substring(0, BotStats.getInstance().getBotname().length()).equals(BotStats.getInstance().getBotname().toLowerCase())) {
 			//check the command
 
 			towho = m.getSender();

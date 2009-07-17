@@ -18,17 +18,17 @@ public class Core extends Module {
 	public void processPrivateMessage(Message m) {
 		if (m.isAuthorised()) {
 			if (m.getModCommand().toLowerCase().equals("part")) {
-				if (BotStats.containsChannel(m.getModTrailing())) {
+				if (BotStats.getInstance().containsChannel(m.getModTrailing())) {
 					new Message("", "PART", m.getModTrailing(), "").send();
 					m.createReply("Channel " + m.getModTrailing() + " parted!").send();
-					BotStats.removeChannel(m.getModTrailing());
+					BotStats.getInstance().removeChannel(m.getModTrailing());
 					return;
 				}
 				m.createReply("I'm not on any such channel " + m.getModTrailing() + " :(").send();
 
 			}
 			else if (m.getModCommand().toLowerCase().equals("join"))
-				if (BotStats.isValidChannelName(m.getModTrailing())) {
+				if (BotStats.getInstance().isValidChannelName(m.getModTrailing())) {
 					new Message("", "JOIN", m.getModTrailing(), "").send();
 					String response = "Channel " + m.getModTrailing() + " joined!" ;
 					// we do this next dodge to avoid sending messages to nobody on startup
@@ -36,7 +36,7 @@ public class Core extends Module {
 						System.out.println(response) ;
 					else
 						m.createReply(response).send();
-					BotStats.addChannel(m.getModTrailing());
+					BotStats.getInstance().addChannel(m.getModTrailing());
 				} else
 					m.createReply("Sorry, that's not a valid channel name!").send();
 			else if (m.getModCommand().toLowerCase().equals("nick"))
@@ -56,12 +56,12 @@ public class Core extends Module {
 					m.createReply("That charset is not supported in this JVM.").send();
 					return;
 				}
-				BotStats.setCharset(charset);
+				BotStats.getInstance().setCharset(charset);
 				m.createReply("OK, changed to " + m.getModTrailing().trim() + " charset.").send();
 				}
 			}
 		if (m.getModCommand().toLowerCase().equals("showcharset")) {
-			m.createReply( "Current charset is " + BotStats.getCharset().toString()).send();
+			m.createReply( "Current charset is " + BotStats.getInstance().getCharset().toString()).send();
 		}
 	}
 

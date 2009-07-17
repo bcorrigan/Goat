@@ -32,7 +32,7 @@ public class ModuleCommands extends Module {
 			lsmod(m);
 		} else if( m.getModCommand().equals("showcommands")) {
 			String listC = "";
-			String[] commands = (String[]) BotStats.commands.toArray();
+			String[] commands = (String[]) BotStats.getInstance().getCommands().toArray();
 			for( int i=0; i< commands.length-1; i++ )
 				listC += commands[i] + ", ";
 			listC += commands[ commands.length-1 ] + ".";
@@ -110,7 +110,7 @@ public class ModuleCommands extends Module {
 		} catch (ClassNotFoundException e) {
 			response = "ClassNotFoundException: Module " + moduleName + " could not be found.";
 		} catch (ClassCastException e) {
-			response = "ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.botname + '.';
+			response = "ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.getInstance().getBotname() + '.';
 		} catch (NoClassDefFoundError e) {
 			response = "NoClassDefFoundError: Module " + moduleName + " not found.";
 		}

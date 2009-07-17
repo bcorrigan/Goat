@@ -306,7 +306,7 @@ public class Message {
 			}
 		}
 		if (getCommand().equals("PRIVMSG")) {
-			if (getParams().equals(BotStats.botname)) {
+			if (getParams().equals(BotStats.getInstance().getBotname())) {
 				setPrivate(true);
 				setReplyTo(getSender());
 			} else {
@@ -318,7 +318,7 @@ public class Message {
 		} else if (getCommand().equals("JOIN")) {
 			setChanname(getTrailing());
 		} else if(getCommand().equals("NOTICE")) {
-			if (getParams().equals(BotStats.botname)) {
+			if (getParams().equals(BotStats.getInstance().getBotname())) {
 				setPrivate(true);
 				setReplyTo(""); // never reply to a NOTICE
 			} else 
@@ -339,8 +339,8 @@ public class Message {
 			if (st.hasMoreTokens()) {
 				firstWord = st.nextToken() ;
 			}
-			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
-                    && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
+			if ((!firstWord.toLowerCase().matches(BotStats.getInstance().getBotname().toLowerCase() + "\\w+"))
+                    && firstWord.toLowerCase().matches(BotStats.getInstance().getBotname().toLowerCase() + "\\W*")) {
                 setDirectlyAddressed(true);
                 if (st.hasMoreTokens()) {
 					setModCommand(st.nextToken());
@@ -360,8 +360,8 @@ public class Message {
 			if (st.hasMoreTokens()) {
 				firstWord = st.nextToken();
 			}
-			if ((!firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\w+"))
-                    && firstWord.toLowerCase().matches(BotStats.botname.toLowerCase() + "\\W*")) {
+			if ((!firstWord.toLowerCase().matches(BotStats.getInstance().getBotname().toLowerCase() + "\\w+"))
+                    && firstWord.toLowerCase().matches(BotStats.getInstance().getBotname().toLowerCase() + "\\W*")) {
                 setDirectlyAddressed(true);
                 if (st.hasMoreTokens())
 					setModCommand(st.nextToken());
@@ -375,7 +375,7 @@ public class Message {
 			}
 		}
 
-		if (isPrivate() && getPrefix().equals(BotStats.owner))
+		if (isPrivate() && getPrefix().equals(BotStats.getInstance().getOwner()))
 			setAuthorised(true);
 	}
 
@@ -564,7 +564,7 @@ public class Message {
 			}
 		}
 		if (m.getSender().equals("")) {
-			m.setSender(BotStats.botname);
+			m.setSender(BotStats.getInstance().getBotname());
 		}
 		outqueue.add(m);
 	}

@@ -21,48 +21,126 @@ import java.util.Set;
  */
 public class BotStats {
 
+	private static BotStats instance;
+	
+	private BotStats() {
+		
+	}
+	
+	public static BotStats getInstance() {
+		return instance;
+	}
+	
 	/*
 	 * Where to find the config file.
 	 */
-	public static final String CONFIG_FILE = "config/goatrc" ;
+	private String CONFIG_FILE = "config/goatrc" ;
 	
 	/**
 	 * The bot's name.
 	 */
-	public static String botname;
+	private String botname;
 	/**
 	 * The channels we are in.
 	 */
-	private static ArrayList<String> channels = new ArrayList<String>();
+	private ArrayList<String> channels = new ArrayList<String>();
 	/**
 	 * The authenticated owner of the bot.
 	 */
-	public static String owner;
+	private String owner;
 	/**
 	 * Client version.
 	 */
-	public static String version;
+	private String version;
 	/**
 	 * The name of the server we are connected to.
 	 */
-	public static String servername;
-	public static String clientName;
+	private String servername;
+	private String clientName;
 
-	public static Set<String> commands = new HashSet<String>();
+	private Set<String> commands = new HashSet<String>();
 	
-	public static List<Class<? extends Module>> modules;
+	private List<Class<? extends Module>> modules;
 	
     /**
      * Set to true in unit test context
      */
-    public static boolean testing = false;
+    private boolean testing = false;
 
     /**
 	 * The charset the bot is currently using
 	 */
-	private static Charset charset = Charset.forName("UTF-8");
+	private Charset charset = Charset.forName("UTF-8");
 	
-	public static synchronized String[] getChannels() {
+	public String getBotname() {
+		return botname;
+	}
+
+	public void setBotname(String botname) {
+		this.botname = botname;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getServername() {
+		return servername;
+	}
+
+	public void setServername(String servername) {
+		this.servername = servername;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
+
+	public Set<String> getCommands() {
+		return commands;
+	}
+
+	public void setCommands(Set<String> commands) {
+		this.commands = commands;
+	}
+
+	public List<Class<? extends Module>> getModules() {
+		return modules;
+	}
+
+	public void setModules(List<Class<? extends Module>> modules) {
+		this.modules = modules;
+	}
+
+	public boolean isTesting() {
+		return testing;
+	}
+
+	public void setTesting(boolean testing) {
+		this.testing = testing;
+	}
+
+	public String getCONFIG_FILE() {
+		return CONFIG_FILE;
+	}
+
+	public synchronized String[] getChannels() {
 		Object[] ob = channels.toArray();
 		String[] chans = new String[ob.length];
 		for (int i = 0; i < ob.length; i++) {
@@ -71,19 +149,19 @@ public class BotStats {
 		return chans;
 	}
 
-	public static synchronized void addChannel(String chan) {
+	public synchronized void addChannel(String chan) {
 		channels.add(chan);
 	}
 
-	public static synchronized void removeChannel(String chan) {
+	public synchronized void removeChannel(String chan) {
 		channels.remove(chan);
 	}
 
-	public static synchronized boolean containsChannel(String chan) {
+	public synchronized boolean containsChannel(String chan) {
         return channels.contains(chan);
 		}
 
-	public static boolean isValidChannelName(String chan) {
+	public boolean isValidChannelName(String chan) {
         return (chan.startsWith("#") || chan.startsWith("+") || chan.startsWith("&")) && !(chan.matches(":") || chan.matches(",") || chan.matches("\u0007") || chan.matches(" "));
 		}
 
@@ -91,8 +169,8 @@ public class BotStats {
 	 * Call to set the charset in use by goat
 	 * @param charset
 	 */
-	public static void setCharset(Charset charset) {
-		BotStats.charset = charset;
+	public void setCharset(Charset charset) {
+		this.charset = charset;
 		goat.Goat.sc.setCharset(charset);
 	}
 	
@@ -100,12 +178,12 @@ public class BotStats {
 	 * Get the currently used charset from here
 	 * @return
 	 */
-	public static Charset getCharset() {
+	public Charset getCharset() {
 		return charset;
 	}
 	
 	
-	public static void readConfFile() {
+	public void readConfFile() {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(CONFIG_FILE));
 			String lineIn;

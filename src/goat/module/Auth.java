@@ -23,10 +23,10 @@ public class Auth extends Module {
 
     public void processPrivateMessage(Message m) {
         if (checkPassword(m.getModTrailing().trim().toLowerCase())) {
-            BotStats.owner = m.getPrefix();
+            BotStats.getInstance().setOwner( m.getPrefix() );
             m.createReply("Authorisation successful.").send();
             m.createReply("You (" + m.getPrefix() + ") are now my registered owner.").send();	//TODO: This still needs to watch the user to determine if they drop.
-            new Message("", "MODE", m.getChanname() + " +o " + BotStats.owner, "").send();
+            new Message("", "MODE", m.getChanname() + " +o " + BotStats.getInstance().getOwner(), "").send();
         } else
             m.createReply("Invalid login.").send();
     }

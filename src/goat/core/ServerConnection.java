@@ -40,8 +40,8 @@ public class ServerConnection extends Thread {
     private void connect() throws UnknownHostException, IOException {
         IrcServer = new Socket(serverName, 6667);
         
-        BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream(), BotStats.getCharset()));
-        PrintWriter pw = new PrintWriter( new OutputStreamWriter( IrcServer.getOutputStream(), BotStats.getCharset() ), true);
+        BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream(), BotStats.getInstance().getCharset()));
+        PrintWriter pw = new PrintWriter( new OutputStreamWriter( IrcServer.getOutputStream(), BotStats.getInstance().getCharset() ), true);
         ih = new InputHandler(br);
         oh = new OutputHandler(pw);
 
@@ -50,8 +50,8 @@ public class ServerConnection extends Thread {
         /*  wtf  --rs
         new Message("", "PASS", "foo", "").send();
         */
-        new Message("", "NICK", BotStats.botname, "").send();
-        new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.version).send();
+        new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
+        new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.getInstance().getVersion()).send();
         //we sleep until we are connected, don't want to send these next messages too soon
         while (!connected) {
             try {
@@ -60,7 +60,7 @@ public class ServerConnection extends Thread {
                 e.printStackTrace();
             }
         }
-        String[] channels = BotStats.getChannels();
+        String[] channels = BotStats.getInstance().getChannels();
         for (String channel : channels) new Message("", "JOIN", channel, "").send();
     }
 
@@ -89,7 +89,7 @@ public class ServerConnection extends Thread {
         BufferedReader in;
         private boolean keeprunning = true;
         int namecount = 1;
-        private String botdefaultname = BotStats.botname;
+        private String botdefaultname = BotStats.getInstance().getBotname();
 
         public InputHandler(BufferedReader in) {
             this.in = in;
@@ -118,11 +118,11 @@ public class ServerConnection extends Thread {
                                     connected = true;
                                 else if (intcommand == Constants.ERR_NICKNAMEINUSE) {
                                     namecount++;
-                                    BotStats.botname = botdefaultname + namecount;
-                                    new Message("", "NICK", BotStats.botname, "").send();
-                                    new Message("", "USER", BotStats.botname + " nowhere.com " +
-                                            BotStats.servername, BotStats.clientName +
-                                            " v." + BotStats.version).send();
+                                    BotStats.getInstance().setBotname( botdefaultname + namecount );
+                                    new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
+                                    new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " +
+                                            BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() +
+                                            " v." + BotStats.getInstance().getVersion()).send();
                                 }
                             } catch (NumberFormatException nfe) {
                                 //we ignore this

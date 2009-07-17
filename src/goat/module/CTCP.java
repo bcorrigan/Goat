@@ -40,11 +40,11 @@ public class CTCP extends Module {
 		if (j > -1) {
 			name = m.getPrefix().substring(0, j);
 		}
-		if (m.getParams().trim().equals(BotStats.botname) || m.isCTCP()) {
+		if (m.getParams().trim().equals(BotStats.getInstance().getBotname()) || m.isCTCP()) {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP() && m.getCTCPCommand().equals("VERSION")) {
-				Message.createCTCP(name, "NOTICE", "VERSION", Constants.BOLD + BotStats.version + Constants.BOLD
+				Message.createCTCP(name, "NOTICE", "VERSION", Constants.BOLD + BotStats.getInstance().getVersion() + Constants.BOLD
 						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
 						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
 						+ ')').send() ;
@@ -68,8 +68,8 @@ public class CTCP extends Module {
 			String[] words = m.getParams().split(" ");
 			new Message("", "JOIN", words[0], "").send();
 		} else if (m.getCommand().equals("NICK")) {
-			if (m.getSender().equals(BotStats.botname)) {
-				BotStats.botname = m.getTrailing();
+			if (m.getSender().equals(BotStats.getInstance().getBotname())) {
+				BotStats.getInstance().setBotname( m.getTrailing() );
 			}
 		}
 		// numeric responses
@@ -82,13 +82,13 @@ public class CTCP extends Module {
 					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!").send();
 				}
 			} else if (intcommand == Constants.ERR_ERRONEUSNICKNAME) {
-				BotStats.botname = "Goat";
-				new Message("", "NICK", BotStats.botname, "").send();
-				new Message("", "USER", BotStats.botname + " nowhere.com " + BotStats.servername, BotStats.clientName + " v." + BotStats.version).send();
+				BotStats.getInstance().setBotname( "Goat" );
+				new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
+				new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion()).send();
 			} else if (intcommand == Constants.RPL_ENDOFMOTD) {   //End of /MOTD command.
 				//new Message("", "JOIN", m.channame, "").send();
 				if (!Goat.sc.alreadySeenMOTD()) {
-					BotStats.readConfFile();  	//we only want to read the conf file when we've joined the server
+					BotStats.getInstance().readConfFile();  	//we only want to read the conf file when we've joined the server
 					Goat.sc.setAlreadySeenMOTD(true);
 				}
 			}

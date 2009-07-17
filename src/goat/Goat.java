@@ -56,8 +56,8 @@ public class Goat {
 			showHelp();
             System.exit(0);
         }
-        System.out.print("Connecting to " + BotStats.servername + " ... ");
-		sc = new ServerConnection(BotStats.servername); //lets init the connection..
+        System.out.print("Connecting to " + BotStats.getInstance().getServername() + " ... ");
+		sc = new ServerConnection(BotStats.getInstance().getServername()); //lets init the connection..
 		System.out.println("connected.\n");
 		loadDefaultModules(modController);
 		try {
@@ -90,17 +90,17 @@ public class Goat {
                     break;
 
                 case 1:
-                    BotStats.botname = arg;
+                    BotStats.getInstance().setBotname(arg);
                     state = 0;
                     break;
 
                 case 2:
-                    BotStats.addChannel(arg);
+                    BotStats.getInstance().addChannel(arg);
                     state = 0;
                     break;
 
                 case 3:
-                    BotStats.servername = arg;
+                    BotStats.getInstance().setServername(arg);
                     state = 0;
                     break;
             }
@@ -155,22 +155,22 @@ public class Goat {
 			try {
 				line = br.readLine();
 				line = line.replaceAll("(?i)[a-z:]", "").trim();
-				BotStats.version = "r" + line;				
+				BotStats.getInstance().setVersion( "r" + line );				
 				br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
-				if(BotStats.version==null)
-					BotStats.version = "unknown";
+				if(BotStats.getInstance().getVersion()==null)
+					BotStats.getInstance().setVersion("unknown");
 			}
 		} else {
-			BotStats.version = "unknown" ;
+			BotStats.getInstance().setVersion("unknown") ;
 		}
 
-		BotStats.botname = "goat";
-		BotStats.clientName = "goat";
-		BotStats.owner = "rs";
-		BotStats.servername = "moo.slashnet.org";
+		BotStats.getInstance().setBotname("goat");
+		BotStats.getInstance().setClientName("goat");
+		BotStats.getInstance().setOwner("rs");
+		BotStats.getInstance().setServername("moo.slashnet.org");
 
 	}
 

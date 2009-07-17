@@ -39,7 +39,7 @@ public class ModuleController  {
 		buildAllModulesList() ;
 		//buildAllCommandsList() ;
 		
-		BotStats.modules = getAllModules();
+		BotStats.getInstance().setModules( getAllModules() );
 	}	
 	
     /**
@@ -101,11 +101,11 @@ public class ModuleController  {
 	
 	// TODO this should really be in BotStats. And BotStats should be a singleton
 	private void addCommands(String[] commands) {
-		BotStats.commands.addAll(Arrays.asList( commands ));
+		BotStats.getInstance().getCommands().addAll(Arrays.asList( commands ));
 	}
 	
 	private void rebuildCommands() {
-		BotStats.commands = new HashSet<String>();
+		BotStats.getInstance().setCommands( new HashSet<String>() );
 		for(Module mod:loadedModules) {
 			addCommands(mod.getCommands());
 		}
@@ -180,7 +180,7 @@ public class ModuleController  {
 	 * could give us a list of all classes in a package, wouldn't it?
 	 */
 	private void buildAllModulesList() {
-		if(BotStats.testing)
+		if(BotStats.getInstance().isTesting())
 			return;
 		JarFile jf = null;
 		try {

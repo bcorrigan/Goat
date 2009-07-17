@@ -43,7 +43,7 @@ public class Hal extends Module {
 	}
     //@TODO Some ugly stuff here from when Goat couldn't tell if a message was used by another module..
 	public void processChannelMessage(Message m) {
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+confess\\W*"))
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+confess\\W*"))
 			return;
 		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*")) {
 			return;

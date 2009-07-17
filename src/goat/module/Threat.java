@@ -190,7 +190,7 @@ public class Threat extends Module implements Runnable {
 	 * @param msg The message to get sent.
 	 */
 	private void broadcast(String msg) {         //TODO: This should really only broadcast to the channels the module is on, that means an accessor and some modifications through goat.core.* though
-		String[] chans = BotStats.getChannels();
+		String[] chans = BotStats.getInstance().getChannels();
         for (String chan : chans) new Message("", "PRIVMSG", chan, msg).send();
     }
 }

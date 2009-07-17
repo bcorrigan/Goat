@@ -32,7 +32,7 @@ public class GoatSay extends Module {
 			moo(m);
 		}
 
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+moo*\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+moo*\\W*")) {
 			moo(m);
 		}
 
@@ -41,12 +41,12 @@ public class GoatSay extends Module {
 			System.out.print("PRIVATE: ");
 		System.out.println(m.sender + ": " + m.trailing);
 		*/	
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+mem\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
 			m.createReply(mem + "kb").send();
 		}
 
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.botname + "\\W+uptime\\W*")) {
+		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+uptime\\W*")) {
 			long uptime = System.currentTimeMillis() - init;
 			long seconds = uptime / 1000;
 			int days = (int) (seconds / 86400);
