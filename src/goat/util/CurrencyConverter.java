@@ -139,7 +139,7 @@ public class CurrencyConverter {
         ret = ret.replaceAll("(?i)yen", "JPY");
         ret = ret.replaceAll("(?i)dollars?", "NZD");
         ret = ret.replaceAll("(?i)bucks?", "USD");
-        ret = ret.replaceAll("(?i)quids?", "GBP");
+        ret = ret.replaceAll("(?i)quid?", "GBP");
         ret = ret.replaceAll("(?i)loonies?", "CAD");
 
 		return ret;
