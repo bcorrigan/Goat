@@ -95,21 +95,21 @@ class TwitterModule extends Module {
   }
   
   private def showTrends(m:Message) {
-	try {
-		val trends:List[Trend] = List.fromArray(twitter.getTrends().getTrends())
-		//iterate over each trend and splat into channel
-		var reply = "Today's Trends: "
-		var count = 1
-		for(trend <- trends) {
-			reply += " " + BOLD + count + ":" + BOLD + trend.getName()
-			count += 1
-		}
-	  	m.createPagedReply(reply).send()
-	} catch {
-		case ex:TwitterException =>
-			ex.printStackTrace()
-			m.createReply("Twitter is not providing me with trends, terribly sorry." + ex).send()
-	}
+    try {
+      val trends:List[Trend] = List.fromArray(twitter.getTrends().getTrends())
+      //iterate over each trend and splat into channel
+      var reply = "Today's Trends: "
+      var count = 1
+      for(trend <- trends) {
+        reply += " " + BOLD + count + ":" + BOLD + trend.getName()
+        count += 1
+      }
+        m.createPagedReply(reply).send()
+    } catch {
+      case ex:TwitterException =>
+        ex.printStackTrace()
+        m.createReply("Twitter is not providing me with trends, terribly sorry." + ex).send()
+    }
   }
   
   //fire up a few actors
@@ -118,20 +118,21 @@ class TwitterModule extends Module {
   twitterActor.start()
   
   private def queryTwitter(m:Message, queryString:String) {
-	try {
-		val query:Query = new Query(queryString)
-	  	query.setRpp(50)
-	  	val results = twitter.search(query).getTweets().toArray()
-	  	addTweetsToCache(queryString, results)
-	  	if(results.size==0)
-		  m.createReply("Nobody has tweeted about that shit recently.").send()
-		else 
-		  popTweetToChannel(m, queryString)
-	} catch {
-		case ex:TwitterException =>
-			ex.printStackTrace()
-			m.createReply("Oh dear, there's a problem with twitter: " + ex ).send()
-	}
+    try {
+      val query:Query = new Query(queryString)
+        query.setRpp(50)
+        val results = twitter.search(query).getTweets().toArray()
+        if(results.size==0)
+          m.createReply("Nobody has tweeted about that shit recently.").send()
+        else {
+          addTweetsToCache(queryString, results)
+          popTweetToChannel(m, queryString)
+        }
+    } catch {
+      case ex:TwitterException =>
+        ex.printStackTrace()
+        m.createReply("Oh dear, there's a problem with twitter: " + ex ).send()
+    }
   }
   
   private def addTweetsToCache(query:String, tweets:Array[Object]) {
@@ -272,6 +273,9 @@ class TwitterModule extends Module {
   private def purge(age:Int):Int = {
     val ageMillis:Long = age*60*1000
     val now = System.currentTimeMillis
+    val empties =  searchResults.filter(_._2.length==0)
+    System.out.println("FOUND AN EMPTY!: " + empties.mkString(":") )
+    searchResults = searchResults.filter(_._2.length>0) //this is a rubbish workaround, so: what causes us to have empty results sometimes?
     val purged = searchResults.filter(x => (now-x._2.head.getCreatedAt.getTime)>ageMillis)
     searchResults = searchResults.filter(x => (now-x._2.head.getCreatedAt.getTime)<ageMillis)
     purged.foldLeft(0)((sum,x) => sum + x._2.length)
