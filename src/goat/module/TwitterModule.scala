@@ -238,8 +238,9 @@ class TwitterModule extends Module {
         	m.createReply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.").send()
       case "tweetsearch" | "twitsearch" | "twittersearch" | "inanity" =>
         searchesMade += 1
-        if(!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase))
-        	twitterActor ! (m, SEARCH)
+        if(sanitiseAndScold(m))
+          if(!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase))
+            twitterActor ! (m, SEARCH)
         else cacheHits += 1
       case "tweetstats" =>
         m.createReply(m.getSender + ": Searches made:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize ).send() 
@@ -248,6 +249,17 @@ class TwitterModule extends Module {
       case "tweetpurge" =>
         tweetpurge(m)
     }
+  }
+
+  private def sanitiseAndScold(m:Message):Boolean = {
+    if(m.getModTrailing.trim.matches("^[^a-zA-Z0-9]+$")) {
+      m.createReply(m.getSender + ": To be thanking you for please not to be fucking with me. Fucker.").send()
+      return false
+    } else if (m.getModTrailing.trim.length==0) {
+      m.createReply(m.getSender + ": Twitter might be inane, but you still need to tell me to search for *something*.").send()
+      return false
+    }
+    true
   }
 
   private def tweetpurge(m:Message) {
@@ -273,9 +285,6 @@ class TwitterModule extends Module {
   private def purge(age:Int):Int = {
     val ageMillis:Long = age*60*1000
     val now = System.currentTimeMillis
-    val empties =  searchResults.filter(_._2.length==0)
-    System.out.println("FOUND AN EMPTY!: " + empties.mkString(":") )
-    searchResults = searchResults.filter(_._2.length>0) //this is a rubbish workaround, so: what causes us to have empty results sometimes?
     val purged = searchResults.filter(x => (now-x._2.head.getCreatedAt.getTime)>ageMillis)
     searchResults = searchResults.filter(x => (now-x._2.head.getCreatedAt.getTime)<ageMillis)
     purged.foldLeft(0)((sum,x) => sum + x._2.length)
