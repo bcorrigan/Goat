@@ -52,7 +52,7 @@ class TwitterModule extends Module {
 	  
   //HashSet of tuples (queries and tweets), we will use this as a local cache
   //should make a facility for this generic
- private var searchResults:Set[Tuple2[String,List[Tweet]]] = new HashSet
+  private var searchResults:Set[Tuple2[String,List[Tweet]]] = new HashSet
             
   private var followedIDs:Array[Int] = null
   refreshIdsToFollow()
@@ -313,38 +313,38 @@ class TwitterModule extends Module {
   }
   
   private def filterIDs(ids: Array[Int]):Array[Int] = {
-	var filteredIDs:List[Int] = Nil
-	
-	var idsList = List.fromArray(followedIDs)
-	
-	for(id<-ids) {
-		if(idsList.contains(id)) {
-			filteredIDs = id :: filteredIDs
-		}
-	}
-	
-	filteredIDs.toArray: Array[Int] //ugly shit
+    var filteredIDs:List[Int] = Nil
+
+    var idsList = List.fromArray(followedIDs)
+
+    for(id<-ids) {
+      if(idsList.contains(id)) {
+        filteredIDs = id :: filteredIDs
+      }
+    }
+
+    filteredIDs.toArray: Array[Int] //ugly shit
   }
   
   private def isFollowed(id:Int):Boolean = {
-	var idsList = List.fromArray(followedIDs)
-	if(idsList.contains(id)) {
-	  return true
-	}
-	false
+    var idsList = List.fromArray(followedIDs)
+    if(idsList.contains(id)) {
+      return true
+    }
+    false
   }
 
   class GoatStatusListener extends StatusListener {
 	
-	def onException(e:Exception) {
-		//pass
-		e.printStackTrace()
-	}
-	
-	def onStatus(status:Status) {
-		if( isFollowed(status.getUser.getId))
-			sendStatusToChan(status,chan);
-		println(status.getText)
-	}	  
+    def onException(e:Exception) {
+      //pass
+      e.printStackTrace()
+    }
+
+    def onStatus(status:Status) {
+      if( isFollowed(status.getUser.getId))
+        sendStatusToChan(status,chan);
+      println(status.getText)
+    }
   }
 }
