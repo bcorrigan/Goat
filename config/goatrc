@@ -29,8 +29,9 @@ insmod More all
 #insmod BookTitle all
 #insmod CountDown #wordgame
 #insmod ShutUp all
-insmod Lastfm all
-insmod Etymology all
+#insmod Lastfm all
+#insmod Etymology all
 #join #jism
 #join #adventure
-join #wordgame
+insmod TwitterModule all
+#join #goat

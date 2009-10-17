@@ -33,16 +33,30 @@ public class StringUtil {
 	public static String pickRandom(String[] strings) {
 		return strings[random.nextInt(strings.length)] ;
 	}
+
+
+    public static String durationString(long intervalInMillis) {
+        return durationString(intervalInMillis, false);
+    }
+
+    /**
+     * Just return the two most significant units.
+     * @param intervalInMillis
+     * @return
+     */
+    public static String shortDurationString(long intervalInMillis) {
+        return durationString(intervalInMillis, true);
+    }
 	
-	public static String durationString(long intervalInMillis) {
+	private static String durationString(long intervalInMillis, boolean _short) {
+        String durparts[] = new String[] {
+            intervalInMillis / YEAR + " year",
+            (intervalInMillis / MONTH) % 12 + " month",
+            (intervalInMillis / DAY) % (MONTH / DAY) + " day",
+            (intervalInMillis / HOUR) % 24 + " hour",
+            (intervalInMillis / MINUTE) % 60 + " minute",
+            (intervalInMillis / SECOND) % 60 + " second"};
 		String durString = "less than one second";
-		String durparts[] = new String[] {
-				intervalInMillis / YEAR + " year",
-				(intervalInMillis / MONTH) % 12 + " month",
-				(intervalInMillis / DAY) % (MONTH / DAY) + " day",
-				(intervalInMillis / HOUR) % 24 + " hour",
-				(intervalInMillis / MINUTE) % 60 + " minute",
-				(intervalInMillis / SECOND) % 60 + " second"};
 		int partsCount = 0;
 		for(int i=0; i<durparts.length; i++) {
 			if(Character.isDigit(durparts[i].charAt(0))) {
@@ -68,10 +82,14 @@ public class StringUtil {
 				durString = temp[0];
 			} else {
 				durString = "";
-				for(int i=0; i<temp.length; i++) {
+                int ind;
+                if(_short)
+                    ind=2;
+                else ind=temp.length;
+				for(int i=0; i<ind; i++) {
 					durString += temp[i];
-					if(i != temp.length - 1)
-						if(i == temp.length - 2)
+					if(i != ind - 1)
+						if(i == ind - 2)
 							durString += " and ";
 						else
 							durString += ", ";

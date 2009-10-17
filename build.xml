@@ -1,4 +1,4 @@
-<project name="Goat" default="compile" basedir=".">
+<project name="Goat" default="jar" basedir=".">
 	<description>
         Builds Goat.
 	</description>
@@ -8,9 +8,11 @@
 	<property name="jars" location="jars"/>
 	<property name="version" value="2.0"/>
 	<property name="docs" location="javadocs" />
+	
+	<property environment="env"/>
     
     <path id="build.class.path">
-        <pathelement path="${classpath}"/>
+        <!--<pathelement path="${classpath}"/>-->
         <fileset dir="lib">
             <include name="**/*.jar"/>
         </fileset>
@@ -29,6 +31,19 @@
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${build}"/>
 		<mkdir dir="${docs}"/>
+
+		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
+		<!--<path id="build.classpath">
+		  <pathelement location="${scala-library.jar}"   /> -->
+		  <!--<pathelement location="${your.path}"   />-->
+		  <!--<pathelement location="${build}"   />
+		</path>-->
+		<taskdef resource="scala/tools/ant/antlib.xml">
+			<classpath>
+				<pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar"   />
+				<pathelement location="${scala-library.jar}"   />
+			</classpath>
+		</taskdef>
 	</target>
 
 	<target name="compile" depends="init"
@@ -37,6 +52,11 @@
 		<javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" optimize="yes" debug="on" debuglevel="lines,vars,source">
             <classpath refid="build.class.path"/>
 		</javac>
+		
+		<!-- Lets go multilanguage!-->
+		<scalac srcdir="${src}" destdir="${build}" >
+		            <classpath refid="build.class.path"/>
+		</scalac>
 		
 		<!-- Create the svn revision file-->
 		<exec executable="/bin/sh" output="${build}/goatRevision" osFamily="unix">
