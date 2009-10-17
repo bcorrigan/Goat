@@ -246,4 +246,7 @@ public class Constants {
 	public static final long DAY = HOUR * 24;
 	public static final long YEAR = (long) ((double) DAY * 365.25);
 	public static final long MONTH = YEAR / 12;
+
+	//other message types
+	public static final String TOPIC = "TOPIC";
 }
