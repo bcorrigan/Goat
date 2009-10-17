@@ -237,11 +237,11 @@ class TwitterModule extends Module {
         else 
         	m.createReply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.").send()
       case "tweetsearch" | "twitsearch" | "twittersearch" | "inanity" =>
-        searchesMade += 1
         if(sanitiseAndScold(m))
-          if(!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase))
+          if(!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
+            searchesMade += 1
             twitterActor ! (m, SEARCH)
-        else cacheHits += 1
+          } else cacheHits += 1
       case "tweetstats" =>
         m.createReply(m.getSender + ": Searches made:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize ).send() 
       case "trends" =>
@@ -283,7 +283,7 @@ class TwitterModule extends Module {
 
   //purge all the tweets older than age (age is in minutes), return the number purged
   private def purge(age:Int):Int = {
-    val ageMillis:Long = age*60*1000
+    val ageMillis:Long = age*MINUTE
     val now = System.currentTimeMillis
     val purged = searchResults.filter(x => (now-x._2.head.getCreatedAt.getTime)>ageMillis)
     searchResults = searchResults.filter(x => (now-x._2.head.getCreatedAt.getTime)<ageMillis)
@@ -292,7 +292,7 @@ class TwitterModule extends Module {
 
   private def manageCache() {
     val now = System.currentTimeMillis
-    if ((now-lastPurge)>purgePeriod*60*1000) {
+    if ((now-lastPurge)>purgePeriod*MINUTE) {
       purge(purgePeriod)
     }
     lastPurge=now
