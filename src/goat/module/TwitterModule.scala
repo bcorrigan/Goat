@@ -1,12 +1,11 @@
 package goat.module
 
-import actors.TIMEOUT
+import scala.actors.TIMEOUT
 import goat.core.Constants._
 import goat.util.StringUtil
 import goat.core.BotStats
 import goat.core.Module
 import goat.core.Message
-
 import twitter4j.Trend
 import twitter4j.Twitter
 import twitter4j.TwitterException
@@ -25,6 +24,7 @@ import scala.actors.Actor._
 import scala.collection.immutable.HashSet
 import java.util.Date
 
+import java.lang.System
 
 /**
  * Lets have the vapid outpourings of the digerati in goat.
@@ -66,18 +66,18 @@ class TwitterModule extends Module {
 
   
   private def refreshTwitterStream() {
-	  refreshIdsToFollow()
-	  streamTwitter.follow(followedIDs)  
+    refreshIdsToFollow()
+    streamTwitter.follow(followedIDs)
   }
 
   //this actor will send tweets, do searches, etc - we can fire up several of these
   private val twitterActor = actor {
-	val twitter:Twitter = new Twitter("goatbot","slashnet")
+    val twitter:Twitter = new Twitter("goatbot","slashnet")
     while(true) {
       receive {
         case (msg:Message, TWEET) =>
           if( tweetMessage(msg, msg.getModTrailing) )
-        	  msg.createReply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.").send()
+            msg.createReply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.").send()
         case (msg:Message, TWEET_TOPIC) =>
           tweetMessage(msg, msg.getTrailing)
         case (msg:Message, FOLLOW) =>
@@ -104,7 +104,7 @@ class TwitterModule extends Module {
         reply += " " + BOLD + count + ":" + BOLD + trend.getName()
         count += 1
       }
-        m.createPagedReply(reply).send()
+      m.createPagedReply(reply).send()
     } catch {
       case ex:TwitterException =>
         ex.printStackTrace()
@@ -120,14 +120,14 @@ class TwitterModule extends Module {
   private def queryTwitter(m:Message, queryString:String) {
     try {
       val query:Query = new Query(queryString)
-        query.setRpp(50)
-        val results = twitter.search(query).getTweets().toArray()
-        if(results.size==0)
-          m.createReply("Nobody has tweeted about that shit recently.").send()
-        else {
-          addTweetsToCache(queryString, results)
-          popTweetToChannel(m, queryString)
-        }
+      query.setRpp(50)
+      val results = twitter.search(query).getTweets().toArray()
+      if(results.size==0)
+        m.createReply("Nobody has tweeted about that shit recently.").send()
+      else {
+        addTweetsToCache(queryString, results)
+        popTweetToChannel(m, queryString)
+      }
     } catch {
       case ex:TwitterException =>
         ex.printStackTrace()
@@ -136,59 +136,60 @@ class TwitterModule extends Module {
   }
   
   private def addTweetsToCache(query:String, tweets:Array[Object]) {
-		searchResults = searchResults + Tuple2(query,tweets.toList.asInstanceOf [List[Tweet]]) //Tuple2 needed or just for eclipse?
+    //condense tweets - strip dups
+    searchResults = searchResults + Tuple2(query,tweets.toList.asInstanceOf [List[Tweet]]) //Tuple2 needed or just for eclipse?
   }
   
   private def enableNotification(m:Message, user:String) {
-	  try { 
-		  if( twitter.enableNotification(user) == null )
-			  m.createReply("Oh Master, I am now following that user just as you desire.").send()			  
-		  else m.createReply("Looks like that user doesn't exist, my master.").send()
-	  } catch {
-		  case ex:TwitterException =>
-		  	ex.printStackTrace()
-		  	m.createReply("Master, I must beg forgiveness. Those lackies at twitter have failed us. I was unable to follow that user as a result. Error: " + ex.getMessage).send()
-	  }
+    try {
+      if( twitter.enableNotification(user) == null )
+        m.createReply("Oh Master, I am now following that user just as you desire.").send()
+      else m.createReply("Looks like that user doesn't exist, my master.").send()
+    } catch {
+      case ex:TwitterException =>
+        ex.printStackTrace()
+        m.createReply("Master, I must beg forgiveness. Those lackies at twitter have failed us. I was unable to follow that user as a result. Error: " + ex.getMessage).send()
+    }
   }
   
   private def disableNotification(m:Message, user:String) {
-	  try { 
-		  if( twitter.disableNotification(user) == null )
-			  m.createReply("Oh Wise Master, I am no longer following that user.").send()
-		  else m.createReply("Master! That user - it does not exist. I beg forgiveness.").send() 
-	  } catch {
-		  case ex:TwitterException =>
-		  	ex.printStackTrace()
-		  	m.createReply("Master, I must beg forgiveness. Those lackies at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage).send()
-	  }
+    try {
+      if( twitter.disableNotification(user) == null )
+        m.createReply("Oh Wise Master, I am no longer following that user.").send()
+      else m.createReply("Master! That user - it does not exist. I beg forgiveness.").send()
+    } catch {
+      case ex:TwitterException =>
+        ex.printStackTrace()
+        m.createReply("Master, I must beg forgiveness. Those lackies at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage).send()
+    }
   }
   
   private def tweetMessage(m:Message, message:String):Boolean = {
-	  try {
-		  twitter.updateStatus(m.getTrailing)
-		  true
-	  } catch {
-		  case ex:TwitterException =>
-		  	ex.printStackTrace()
-		  	m.createReply("Some sort of problem with twitter: " + ex.getMessage ).send()
-		  	false
-	  }
+    try {
+      twitter.updateStatus(m.getTrailing)
+      true
+    } catch {
+      case ex:TwitterException =>
+        ex.printStackTrace()
+        m.createReply("Some sort of problem with twitter: " + ex.getMessage ).send()
+        false
+    }
   }
   
   //return true if we found one
   private def popTweetToChannel(m:Message, query:String):Boolean = {
-	  //find a matching tweet in cache
-	  searchResults.find(_._1 == query) match {
-		  case None =>
-		  	false
-		  case Some(result) =>
+    //find a matching tweet in cache
+    searchResults.find(_._1 == query) match {
+      case None =>
+        false
+      case Some(result) =>
         val tweet:Tweet = result._2.head
         searchResults = searchResults - result
         if(result._2.tail.length>0)
           searchResults = searchResults + Tuple2(result._1,result._2.tail)
-		  	m.createReply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getFromUser + BOLD + ": " + unescapeHtml(tweet.getText)).send()
-		  	true
-	  }
+        m.createReply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getFromUser + BOLD + ": " + unescapeHtml(tweet.getText)).send()
+        true
+    }
   }
 
   private def ageOfTweet(tweet:Tweet):String = {
@@ -205,7 +206,7 @@ class TwitterModule extends Module {
   }
   
   private def refreshIdsToFollow() {
-  	followedIDs = twitter.getFriendsIDs().getIDs
+    followedIDs = twitter.getFriendsIDs().getIDs
   }
 
   private def sendStatusToChan(status:Status, chan:String) {
@@ -221,21 +222,21 @@ class TwitterModule extends Module {
     m.getModCommand.toLowerCase() match {
       case "tweet" =>
       	if(m.isAuthorised())
-      		tweet(m)
+          tweet(m)
       	else m.createReply("You are " + BOLD + "not" + BOLD + " my Master.").send()
       case "tweetchannel" =>
         chan = m.getChanname
         Message.createPrivmsg(chan, "This channel is now the main channel for twitter following.").send()
       case "follow" =>
         if(m.isAuthorised())
-        	twitterActor ! (m, FOLLOW)
+          twitterActor ! (m, FOLLOW)
         else
-        	m.createReply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..").send()
+          m.createReply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..").send()
       case "unfollow" =>
         if(m.isAuthorised())
-        	twitterActor ! (m, UNFOLLOW)
+          twitterActor ! (m, UNFOLLOW)
         else 
-        	m.createReply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.").send()
+          m.createReply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.").send()
       case "tweetsearch" | "twitsearch" | "twittersearch" | "inanity" =>
         if(sanitiseAndScold(m))
           if(!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
@@ -245,7 +246,7 @@ class TwitterModule extends Module {
       case "tweetstats" =>
         m.createReply(m.getSender + ": Searches made:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize ).send() 
       case "trends" =>
-        	twitterActor ! (m, TRENDS)
+        twitterActor ! (m, TRENDS)
       case "tweetpurge" =>
         tweetpurge(m)
     }
@@ -300,11 +301,11 @@ class TwitterModule extends Module {
   
   override def processOtherMessage( m:Message) {
     val now = System.currentTimeMillis
-	  if ( m.getCommand == TOPIC && (now-lastTweet)>10*MINUTE) {
-		  //twitter.updateStatus(m.getTrailing)
-		  twitterActor ! (m,TWEET_TOPIC)
-		  lastTweet = now
-	  }
+    if ( m.getCommand == TOPIC && (now-lastTweet)>10*MINUTE) {
+      //twitter.updateStatus(m.getTrailing)
+      twitterActor ! (m,TWEET_TOPIC)
+      lastTweet = now
+    }
   }
 
   private def tweet(m:Message) {
@@ -322,7 +323,7 @@ class TwitterModule extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
   
   def getCommands():Array[String] = {
-	  Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends", "tweetpurge")
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends", "tweetpurge")
   }
   
   private def filterIDs(ids: Array[Int]):Array[Int] = {
