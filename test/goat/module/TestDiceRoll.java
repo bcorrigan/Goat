@@ -21,7 +21,8 @@ public class TestDiceRoll {
 
     @Before
     public void setUp() {
-        BotStats.testing = true;
+    	BotStats bs = BotStats.getInstance();
+        bs.setTesting(true);
         dice = new DiceRoll();
     }
     

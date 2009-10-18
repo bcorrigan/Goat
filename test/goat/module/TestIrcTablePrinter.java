@@ -98,7 +98,7 @@ public class TestIrcTablePrinter extends Module {
 
 	}
 	
-	public static String[] getCommands() {
+	public String[] getCommands() {
 		return new String[]{"tableTest"};
 	}
 }
