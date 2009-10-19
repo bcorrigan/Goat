@@ -141,11 +141,11 @@ public class Confessions extends Module {
 					confession = searchConfessions(query, m) ;
 			} else if(confessions.isEmpty()) {
 				if(getConfessions(m))
-					m.createPagedReply(confessions.removeFirst()).send();
+					m.pagedReply(confessions.removeFirst());
 				else
 					m.createReply("I don't have anything to confess about right now.") ;
 			} else {
-				m.createPagedReply(confessions.removeFirst()).send();
+				m.pagedReply(confessions.removeFirst());
 			}
 		} else if(m.getModCommand().equalsIgnoreCase("csize"))
 			m.createReply("Number of confessions cached: " + confessions.size() + 
@@ -198,7 +198,7 @@ public class Confessions extends Module {
 							confessions.addFirst(storeConfession);
 					}
 					if(m != null)
-						m.createPagedReply(confession).send();
+						m.pagedReply(confession);
 					return confession;
 				} else {
 					if (m != null)

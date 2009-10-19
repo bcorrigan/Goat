@@ -81,13 +81,13 @@ public class BookTitle extends Module {
 			for(int i=0;i<num_nouns;i++) {
 				reply += nouns[i] + " " ;
 			}
-			m.createPagedReply(reply).send() ;
+			m.pagedReply(reply) ;
 		} else if(m.getModCommand().equalsIgnoreCase("titleadjectives")) {
 			String reply = num_adjs + " adjectives:  " ;
 			for(int i=0;i<num_adjs;i++) {
 				reply += adjectives[i] + " " ;
 			}
-			m.createPagedReply(reply).send() ;
+			m.pagedReply(reply) ;
 		} else if(m.getModCommand().equalsIgnoreCase("titlewords")) {
 			m.reply("I'm not telling.") ;
 		}

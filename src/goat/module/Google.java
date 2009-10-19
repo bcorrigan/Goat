@@ -191,7 +191,7 @@ public class Google extends Module {
 		//for em
 		String mTrail = StringUtil.removeFormattingAndColors(m.getModTrailing()).toLowerCase().replaceAll("\\s+", " ").trim();
 		if(newsLinkMode && mTrail.matches("^\\d$")) {
-			m.createPagedReply(newsLinkReply(mTrail, m.getChanname())).send();
+			m.pagedReply(newsLinkReply(mTrail, m.getChanname()));
 			return;
 		} else if(mTrail.startsWith("m-x news-link")) {
 			String r;
@@ -214,7 +214,7 @@ public class Google extends Module {
 			} else {
 				r = "[no match]";
 			}
-			m.createPagedReply(r).send();
+			m.pagedReply(r);
 			return;
 		}
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
@@ -254,7 +254,7 @@ public class Google extends Module {
 		//			reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
 		newsResponseCache.put(m.getChanname(), nsr);
 		lastCachedResultType = "news";
-		m.createPagedReply(reply).send();
+		m.pagedReply(reply);
 	}
 	
 	private String newsLinkReply(String modTrailing, String channel) {
@@ -296,7 +296,7 @@ public class Google extends Module {
 	}
 
 	private void ircNewsLink(Message m) {
-		m.createPagedReply(newsLinkReply(m.getModTrailing(), m.getChanname())).send();
+		m.pagedReply(newsLinkReply(m.getModTrailing(), m.getChanname()));
 //		if (! newsResponseCache.containsKey(m.getChanname())) {
 //			m.reply("I'm sorry, I don't have any news for this channel.");
 //			return;
@@ -334,7 +334,7 @@ public class Google extends Module {
 //			+ "  " + Constants.BOLD + "\u2014" + Constants.NORMAL + "  "
 //			+ HTMLUtil.textFromHTML(re.getContent());
 //
-//			m.createPagedReply(reply).send();
+//			m.pagedReply(reply);
 //		}
 	}
 
@@ -384,7 +384,7 @@ public class Google extends Module {
 		//		reply += Message.BOLD + (newsItem + 1) + ") " + Message.NORMAL + results[newsItem].getUnescapedUrl() + "  ";
 		booksResponseCache.put(m.getChanname(), bsr);
 		lastCachedResultType = "book";
-		m.createPagedReply(reply).send();
+		m.pagedReply(reply);
 	}
 
 
@@ -421,7 +421,7 @@ public class Google extends Module {
 			+ "  " + Constants.UNDERLINE + re.getTitleNoFormatting() + Constants.NORMAL
 			+ ", " + re.getPublishedYear()
 			+ ",  " + re.getAuthors(); 				
-			m.createPagedReply(reply).send();
+			m.pagedReply(reply);
 		}
 	}
 
@@ -466,7 +466,7 @@ public class Google extends Module {
 		reply += "   ";
 		patentsResponseCache.put(m.getChanname(), psr);
 		lastCachedResultType = "patent";
-		m.createPagedReply(reply).send();
+		m.pagedReply(reply);
 	}
 
 	private void ircPatentLink(Message m) {
@@ -499,7 +499,7 @@ public class Google extends Module {
 			PatentSearchResult re = psr.getResponseData().getResults()[resultNum];
 			String reply = re.getUnescapedUrl()
 			+ " " + re.getTitleNoFormatting();
-			m.createPagedReply(reply).send();
+			m.pagedReply(reply);
 		}
 	}
 
@@ -541,7 +541,7 @@ public class Google extends Module {
 		reply += "  ";
 		blogsResponseCache.put(m.getChanname(), bsr);
 		lastCachedResultType = "blog";
-		m.createPagedReply(reply).send();
+		m.pagedReply(reply);
 	}
 
 	private String extractDomainName(String url) {
@@ -589,7 +589,7 @@ public class Google extends Module {
 			BlogSearchResult re = bsr.getResponseData().getResults()[resultNum];
 			String reply = re.getPostUrl()
 			+ "  " + HTMLUtil.textFromHTML(re.getContent());
-			m.createPagedReply(reply).send();
+			m.pagedReply(reply);
 		}
 	}
 
@@ -765,7 +765,7 @@ public class Google extends Module {
 		msg = msg.substring(0, msg.lastIndexOf(","));
 		msg += " and" + tmp + ".";
 		//GooJAXmsg += "and " + lastLang.getEnglishName() + " (" + lastLang.getCode() + ")"; 
-		m.createPagedReply(msg).send();
+		m.pagedReply(msg);
 	}
 
 	private void ircSexiness (Message m) 

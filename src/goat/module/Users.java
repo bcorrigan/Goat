@@ -124,7 +124,7 @@ public class Users extends Module {
 					m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
 				}
 			} else if(newCurrency.equalsIgnoreCase("list")) {
-				m.createPagedReply("Current known currency codes:  " + exchangeRates.keySet().toString()).send();
+				m.pagedReply("Current known currency codes:  " + exchangeRates.keySet().toString());
 			} else {
 				m.reply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." );
 			}

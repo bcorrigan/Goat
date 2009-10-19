@@ -22,7 +22,7 @@ public class TODO extends Module {
 		if (m.getCommand().equalsIgnoreCase("reallytodo"))
 			m.createPagedReply(todo) ;
 		else
-			m.createPagedReply("Not implemented.").send() ;
+			m.pagedReply("Not implemented.") ;
 	}
 
 	public void processChannelMessage(Message m) {

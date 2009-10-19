@@ -47,7 +47,7 @@ public class ZipCodes extends Module {
 		}
 		if(code.equals("10048") || code.equals("77230"))
 			ret += "  " + Constants.REVERSE + "NEVER FORGET" + Constants.NORMAL;
- 		m.createPagedReply(ret).send();
+ 		m.pagedReply(ret);
 	}
 	
 	private Random random = new Random();

@@ -66,7 +66,7 @@ public class Calc extends Module {
 		} 
 		if(reply.length() > 256)
 			reply = reply.length() + " digits:  " + reply;
-		m.createPagedReply(reply).send();
+		m.pagedReply(reply);
 	}
 
 	/**

@@ -165,7 +165,7 @@ public class CurrencyConverter extends Module {
         				}
         				buff.append(rate).append(": ").append(exchangeRates.get(rate));
         			}
-        			m.createPagedReply(buff.toString()).send();
+        			m.pagedReply(buff.toString());
         			return;
         		} else if(trailing.matches("[a-zA-Z]{3}.*")) {
         			if(userCurrency.equals("")) {
@@ -178,7 +178,7 @@ public class CurrencyConverter extends Module {
         			}
         		} else {
         			//System.out.println("borked currency conversion query:\n   " + trailing);
-        			m.createPagedReply("The supported currencies are: " + exchangeRates.keySet().toString()).send();
+        			m.pagedReply("The supported currencies are: " + exchangeRates.keySet().toString());
         			return;
         		}
         	} catch (NumberFormatException nfe) {
@@ -211,7 +211,7 @@ public class CurrencyConverter extends Module {
         			m.reply(fromSymbol + nf.format(fromAmount) + " " + fromCurrency.toUpperCase() + " = " + toSymbol + nf.format(convert(fromAmount, fromCurrency, toCurrency)) + " " + toCurrency.toUpperCase());
         			
         		} catch (NullPointerException e) {
-        			m.createPagedReply("The supported currencies are: " + exchangeRates.keySet().toString()).send();
+        			m.pagedReply("The supported currencies are: " + exchangeRates.keySet().toString());
         			// e.printStackTrace();
         		} catch (NumberFormatException nfe) {
         			m.reply("I got confused by a number in my exchange rate table.");

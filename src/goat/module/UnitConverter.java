@@ -427,7 +427,7 @@ public class UnitConverter extends Module {
             int unit = extractUnit(unitArg);
             if(!checkUnit(unit,unitArg,m))
                 return;
-            m.createPagedReply( p_category_name[ p_unit_category_id[unit] ] +": " + p_unit_description[unit]).send();
+            m.pagedReply( p_category_name[ p_unit_category_id[unit] ] +": " + p_unit_description[unit]);
         } else if( m.getModCommand().toLowerCase().equals("findunit")) {
             String searchTerm = m.getModTrailing();
             String results = "";
@@ -451,7 +451,7 @@ public class UnitConverter extends Module {
                 }
             }
             if(results.length()>0)
-                m.createPagedReply(results).send();
+                m.pagedReply(results);
             else m.reply("No matching units found.");
         }
     }

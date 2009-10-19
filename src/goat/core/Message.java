@@ -446,6 +446,14 @@ public class Message {
 	public void reply(String trailing) {
 		createReply(trailing).send();
 	}
+	
+	/**
+	 * Just do a paged reply directly, lets not muck about with this m.createPagedReply("blah").send() business
+	 * @param trailing
+	 */
+	public void pagedReply(String trailing) {
+		createPagedReply(trailing).send();
+	}
 
 	/** 
 	 * Creates a new paged reply, using createReply(), and initializes the pager cache with the supplied string

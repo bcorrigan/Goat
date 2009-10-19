@@ -71,7 +71,7 @@ public class Help extends Module {
 			reply += line.trim() + " " ;
 		}
 		reply = reply.replaceAll("#", Constants.BOLD) ;
-		m.createPagedReply(reply.trim()).send() ;
+		m.pagedReply(reply.trim()) ;
 		try {
 			in.close();
 		} catch (IOException ignored) {

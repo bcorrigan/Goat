@@ -295,7 +295,7 @@ public class Adventure extends Module implements ZScreen {
     					e.printStackTrace();
     				}
     				synchronized(buffer) {
-    					thisAdventure.target.createPagedReply(buffer).send();
+    					thisAdventure.target.pagedReply(buffer);
     					buffer = "";
     				}
 

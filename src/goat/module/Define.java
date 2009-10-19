@@ -173,13 +173,13 @@ public class Define extends Module {
 			else
 				reply += "." ;
 			if (0 == matchList.length) {
-				m.createPagedReply(reply + "  Couldn't find any alternate spelling suggestions.").send() ;
+				m.pagedReply(reply + "  Couldn't find any alternate spelling suggestions.") ;
 			} else {
 				String suggestions = "" ;
                 for (String[] aMatchList : matchList) suggestions += " " + aMatchList[1];
                 suggestions = suggestions.replaceAll("\"", "") ;
 				suggestions = suggestions.trim() ;
-				m.createPagedReply(reply + "  Suggestions: " + suggestions).send() ;
+				m.pagedReply(reply + "  Suggestions: " + suggestions) ;
 			}
 			return ;
 		}
@@ -196,7 +196,7 @@ public class Define extends Module {
       
 		Definition d = (Definition) definitionList.get(num - 1) ;
 		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
-		m.createPagedReply(text).send() ;
+		m.pagedReply(text) ;
 		// show available definitions, if more than one.
 		if (definitionList.size() > 1) {
 			int perDict = 0 ;
@@ -450,7 +450,7 @@ public class Define extends Module {
                 line = line + ", " + aDbList[0];
         }
         line += ", urban, oed" ;
-		m.createPagedReply(line).send() ;
+		m.pagedReply(line) ;
 	}
 	
 	private void dictionary(Message m) {
@@ -484,7 +484,7 @@ public class Define extends Module {
       }
 		if (! found) 
 			line = "Dictionary \"" + code + "\" not found; available dictionaries: " + line ;
-		m.createPagedReply(line).send() ;
+		m.pagedReply(line) ;
 	}
 
 	private DICTClient getDICTClient(Message m) {

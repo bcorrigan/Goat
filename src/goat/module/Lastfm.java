@@ -160,7 +160,7 @@ public class Lastfm extends Module {
 	private void ircChart(Message m, String lastfmUser) {
 		
 		if(null == lastfmUser || lastfmUser.equals("")) {
-			m.createPagedReply("You need to supply a username to chart for, with the user=LASTFM_USER_NAME or ircuser=IRC_USER_NAME options, or with 'lastfm setuser YOUR_USER_NAME' to set a default username.  You can also use the form 'lastfm country=\"FULL NATION NAME\" <type=(artists|tracks)>' for top tracks or artists in a given nation.").send();
+			m.pagedReply("You need to supply a username to chart for, with the user=LASTFM_USER_NAME or ircuser=IRC_USER_NAME options, or with 'lastfm setuser YOUR_USER_NAME' to set a default username.  You can also use the form 'lastfm country=\"FULL NATION NAME\" <type=(artists|tracks)>' for top tracks or artists in a given nation.");
 			return;
 		}
 		ChartType type = null; // = DEFAULT_CHART_TYPE;
@@ -327,7 +327,7 @@ public class Lastfm extends Module {
 				reply += Constants.BOLD + t.getName() + Constants.NORMAL;
 				reply += " by " + Constants.BOLD + t.getArtist() + Constants.NORMAL;
 				reply += ", and now we all know it, don't we.  Are you happy now?  Are you?";
-				m.createPagedReply(reply).send();
+				m.pagedReply(reply);
 			} else {
 				String reply = "";
 				ArrayList<String> resultUniques = new ArrayList<String>();
@@ -353,7 +353,7 @@ public class Lastfm extends Module {
 				if(!resultDupes.isEmpty()) {
 					reply += "  " + Constants.BOLD + "*" + Constants.NORMAL + "LastFM name for multiple nicks";
 				}
-				m.createPagedReply(reply).send();
+				m.pagedReply(reply);
 			}
 			
 			int minScoldReprieve = 10;
@@ -406,7 +406,7 @@ public class Lastfm extends Module {
 			+ "  \"" + COUNTRY_CHART_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL 
 			+ "  \"" + NOWPLAYING_USAGE + "\"  " + Constants.BOLD + "OR" + Constants.NORMAL
 			+ "  \"" + SETUSER_USAGE + "\"  ";
-		m.createPagedReply(usage).send();
+		m.pagedReply(usage);
 		if("".equals(lastfmUser) 
 				|| parser.command().equalsIgnoreCase("help") 
 				|| parser.command().equalsIgnoreCase("usage")) {
@@ -432,7 +432,7 @@ public class Lastfm extends Module {
 			}
 			replyString += "  ";
 		}
-		m.createPagedReply(replyString).send(); 
+		m.pagedReply(replyString); 
 	}
 
 	private void printAlbums(Collection<Album> albums, Message m) {
@@ -453,7 +453,7 @@ public class Lastfm extends Module {
 			}
 			replyString += "  ";
 		}
-		m.createPagedReply(replyString).send();
+		m.pagedReply(replyString);
 	}
 
 	private void printArtists(Collection<Artist> artists, Message m) {
@@ -474,7 +474,7 @@ public class Lastfm extends Module {
 			}
 			replyString += "  ";
 		}
-		m.createPagedReply(replyString).send();
+		m.pagedReply(replyString);
 	}
 
 	@Override

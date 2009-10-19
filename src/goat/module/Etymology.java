@@ -35,7 +35,7 @@ public class Etymology extends Module {
 		query = query.replaceAll("\"", "") ;
 		query=query.trim();
 		String etym = searchEtyms(query, m);
-		m.createPagedReply(etym).send();
+		m.pagedReply(etym);
 	}
 
 	@Override

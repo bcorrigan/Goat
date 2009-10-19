@@ -102,7 +102,7 @@ public class Weather extends Module {
 					user.setWeatherStation(station);
 				}
 			}
-			m.createPagedReply(report).send();
+			m.pagedReply(report);
 		}
 	}
 

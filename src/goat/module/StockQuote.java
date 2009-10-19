@@ -42,14 +42,14 @@ public class StockQuote extends Module {
 				String reply = "";
 				for(int i = 1; i < quotes.size(); i++)
 					reply += "  \u00a4 " + shortQuote(quotes.get(i), tz);
-				m.createPagedReply(reply).send();
+				m.pagedReply(reply);
 			} else if(quotes.size() > 1) {
 				String reply = mediumQuote(quotes.get(0), tz);
 				for(int i = 1; i < quotes.size(); i++)
 					reply += Constants.BOLD + "  \u00a4\u00a4  " + Constants.NORMAL + mediumQuote(quotes.get(i), tz);
-				m.createPagedReply(reply).send();
+				m.pagedReply(reply);
 			} else {
-				m.createPagedReply(longQuote(quotes.get(0), tz)).send();
+				m.pagedReply(longQuote(quotes.get(0), tz));
 			}
 		} catch (SocketTimeoutException ste) {
 			m.reply("I got bored waiting for yahoo to give me quotes.");

@@ -75,7 +75,7 @@ public class Bible extends Module {
         if(m.getModCommand().equalsIgnoreCase("bible"))
             lookup(m);
         if(m.getModCommand().equalsIgnoreCase("bibles"))
-            m.createPagedReply( supportedBibles ).send();
+            m.pagedReply( supportedBibles );
     }
     
     private void lookup(Message m) {
@@ -86,7 +86,7 @@ public class Bible extends Module {
             bible=parser.get("bible").toUpperCase();
         if(!bibles.containsKey(bible)) {
             m.reply("I'm afraid that bible is not supported. Try one of these: ");
-            m.createPagedReply( supportedBibles ).send();
+            m.pagedReply( supportedBibles );
             return;
         }
         try {
@@ -120,7 +120,7 @@ public class Bible extends Module {
                 if (inputLine.contains("en-" + bible) || inputLine.contains("cpf-" + bible) || inputLine.contains("de-" + bible)) {
                     inputLine = inputLine.replaceAll("<.*?>", " "); //strip html
                     inputLine = inputLine.replaceAll("&nbsp;", ""); //strip &nbsp;'s
-                    m.createPagedReply( inputLine ).send();
+                    m.pagedReply( inputLine );
                     return;
                 }
                 if (inputLine.contains("No results found")) {

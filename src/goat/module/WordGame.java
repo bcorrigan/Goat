@@ -236,7 +236,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         } 
         reply += validWords.get(examples-1) + ".";        
         
-		target.createPagedReply(reply).send();
+		target.pagedReply(reply);
 		
 		if (currentWinningPlayer != null) {
 			scores.add(Scores.newEntry(currentWinningPlayer, currentWinningScore));   //commit new score to league table etc

@@ -91,7 +91,7 @@ public class Googlism extends Module {
                 }
             }
             if(results.length()>0)
-                m.createPagedReply(results).send();
+                m.pagedReply(results);
             else
                 m.reply("I don't know anything about " + failureTerm + ", " + m.getSender() + ".");
         }

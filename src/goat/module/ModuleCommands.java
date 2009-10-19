@@ -36,7 +36,7 @@ public class ModuleCommands extends Module {
 			for( int i=0; i< commands.length-1; i++ )
 				listC += commands[i] + ", ";
 			listC += commands[ commands.length-1 ] + ".";
-			m.createPagedReply(listC).send();
+			m.pagedReply(listC);
 		}
 	}
 
@@ -148,7 +148,7 @@ public class ModuleCommands extends Module {
 			modLine += ", " + mods[i];
 		modLine = modLine.replaceAll("goat.module.", "") ;
 		modLine += ".";
-		m.createPagedReply(modLine).send();
+		m.pagedReply(modLine);
 	}
 
 

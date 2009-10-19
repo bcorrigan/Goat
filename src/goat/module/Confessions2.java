@@ -187,7 +187,7 @@ public class Confessions2 extends Module {
 		try {
 			if(resultsQueue.hasNext()) {
 				Confession reply = dbGet(resultsQueue.next());
-				m.createPagedReply(textFromHTML(reply.content).trim()).send();
+				m.pagedReply(textFromHTML(reply.content).trim());
 				return;
 			} else {
 				randomConfession(m);
@@ -200,7 +200,7 @@ public class Confessions2 extends Module {
 
 	private void randomConfession(Message m) {
 		try {
-			m.createPagedReply(textFromHTML(getRandomConfession().content).trim()).send();
+			m.pagedReply(textFromHTML(getRandomConfession().content).trim());
 		} catch (DatabaseException dbe) {
 			m.reply("I had a database fuckup while I was trying to get a random confession");
 			dbe.printStackTrace();
@@ -224,27 +224,27 @@ public class Confessions2 extends Module {
 			reply += "y";
 		reply += ".  ";
 		reply += "The last time I heard a new confession was " + "... um, I don't remember.";
-		m.createPagedReply(reply).send();
+		m.pagedReply(reply);
 	}
 
 	private void searchConfession(Message m, String queryString) 
 	throws ParseException, DatabaseException, CorruptIndexException, IOException {
 		queryString = StringUtil.removeFormattingAndColors(queryString).trim();
 		if (resultsQueue.hasNext(queryString))
-			m.createPagedReply(textFromHTML(dbGet(resultsQueue.next(queryString)).content)).send();
+			m.pagedReply(textFromHTML(dbGet(resultsQueue.next(queryString)).content));
 		else {
 			ArrayList<Integer> hits = searchRandomized(queryString, MAX_SEARCH_RESULTS);
 			if(hits.size() == 0) {
-				m.createPagedReply("I just don't feel guilty about " + queryString).send();
+				m.pagedReply("I just don't feel guilty about " + queryString);
 			} else if(hits.size() > 1) {
 				int count = searchCount(queryString);
 				m.reply("I have " + count + " things to confess about " + Constants.BOLD + queryString + Constants.NORMAL + ", starting with:");
 				String reply = textFromHTML(dbGet(hits.get(0)).content);
-				m.createPagedReply(reply).send();
+				m.pagedReply(reply);
 				hits.remove(0);
 				resultsQueue.add(queryString, hits);
 			} else
-				m.createPagedReply(textFromHTML(dbGet(hits.get(0)).content)).send();
+				m.pagedReply(textFromHTML(dbGet(hits.get(0)).content));
 		}
 	}
 
