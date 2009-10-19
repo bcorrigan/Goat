@@ -153,7 +153,7 @@ public class Define extends Module {
    			definitionList = dc.getDefinitions( new String[] {dictionary}, word) ;
    			matchList = dc.getMatches(new String[] {dictionary}, ".", word) ;
    		} catch (ConnectException e) {
-   			m.createReply("Something went wrong while connecting to DICT server at " + host ) ;
+   			m.reply("Something went wrong while connecting to DICT server at " + host ) ;
    			e.printStackTrace() ;
    		} finally {
    			dc.close() ;

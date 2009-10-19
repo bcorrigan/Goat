@@ -727,21 +727,21 @@ public class Google extends Module {
 		try {
 			DetectLanguageResponse dls = tranny.detect(m.getModTrailing());
 			if(! dls.statusNormal()) {
-				m.createPagedReply("I had a problem talking to Google:  " 
+				m.pagedReply("I had a problem talking to Google:  " 
 						+ dls.getResponseStatus() + ", " 
-						+ dls.getResponseDetails()).send();
+						+ dls.getResponseDetails());
 				return;
 			}
 			if(dls.getResponseData().isReliable())
-				m.createReply("I think that's " + Constants.BOLD 
+				m.reply("I think that's " + Constants.BOLD 
 						+ dls.getResponseData().getLanguage().getEnglishName() + Constants.NORMAL
 						+ ", with a confidence of " 
-						+ dls.getResponseData().getConfidence()).send();
+						+ dls.getResponseData().getConfidence());
 			else if(dls.getResponseData().getLanguage() != null)
-				m.createReply("That might be " + Constants.BOLD 
+				m.reply("That might be " + Constants.BOLD 
 						+ dls.getResponseData().getLanguage().getEnglishName() + Constants.NORMAL
 						+ ", but I'm not sure, my confidence is only " 
-						+ dls.getResponseData().getConfidence()).send();
+						+ dls.getResponseData().getConfidence());
 			else
 				m.reply("I have no idea what kind of gibber-jabber that might be.");
 
@@ -842,7 +842,7 @@ public class Google extends Module {
 		int [] winners = getWinners(scores) ;
 		switch(winners.length) {
 		case 0 : // no winner
-			m.createReply("There was no winner, only losers.  Try fighting with things that actually exist.") ;
+			m.reply("There was no winner, only losers.  Try fighting with things that actually exist.") ;
 			break;
 		case 1 : // normal
 			m.reply("The winner is " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", with a score of " + scores[winners[0]] + "!") ;

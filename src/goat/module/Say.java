@@ -13,7 +13,7 @@ public class Say extends Module {
 			String trailing="";
 			for(int i=1;i<words.length;i++)
 				trailing+=words[i] + ' ';
-			new Message("", "PRIVMSG", words[0], trailing).send();
+			new Message("", "PRIVMSG", words[0], trailing);
 		}
 	}
 

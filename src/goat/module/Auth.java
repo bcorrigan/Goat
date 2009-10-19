@@ -26,7 +26,7 @@ public class Auth extends Module {
             BotStats.getInstance().setOwner( m.getPrefix() );
             m.reply("Authorisation successful.");
             m.reply("You (" + m.getPrefix() + ") are now my registered owner.");	//TODO: This still needs to watch the user to determine if they drop.
-            new Message("", "MODE", m.getChanname() + " +o " + BotStats.getInstance().getOwner(), "").send();
+            new Message("", "MODE", m.getChanname() + " +o " + BotStats.getInstance().getOwner(), "");
         } else
             m.reply("Invalid login.");
     }
@@ -78,9 +78,9 @@ public class Auth extends Module {
 
     public void updatePassword(String newpassword, String ownername) {
 		  if (updatePassword(newpassword)) {
-            new Message("", "NOTICE", ownername, "Authentication tokens updated successfully.").send();
+            new Message("", "NOTICE", ownername, "Authentication tokens updated successfully.");
 		  } else {
-            new Message("", "NOTICE", ownername, "There was an error updating the authentication tokens;  new password not set.").send();
+            new Message("", "NOTICE", ownername, "There was an error updating the authentication tokens;  new password not set.");
 		  }
     }
 	 

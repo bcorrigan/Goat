@@ -294,8 +294,8 @@ public class Lastfm extends Module {
 			List<goat.core.User> usersToCheck = regUsers.getFirst(); 
 			List<goat.core.User> scaredUsers = regUsers.getSecond();
 			if(usersToCheck.isEmpty()) {
-				m.createReply("Nobody in this channel wants to share their precious musical tastes " +
-						"with the corporate hegemon at LastFM").send();
+				m.reply("Nobody in this channel wants to share their precious musical tastes " +
+						"with the corporate hegemon at LastFM");
 				return;
 			}
 //			Map<goat.core.User, Track> results = new HashMap<goat.core.User, Track>();
@@ -371,10 +371,10 @@ public class Lastfm extends Module {
 							}
 							preamble += " & " + scaredUsers.get(scaredUsers.size() -1).getName() + " are ";
 						}
-						m.createPagedReply(preamble + " pants-wettingly frighted of sending track-listings to" +
+						m.pagedReply(preamble + " pants-wettingly frighted of sending track-listings to" +
 								" LastFM, or perhaps just deeply resentful of anyone who might use that precious," +
 								" treasured consumer data to make a little money.  There are a few other reasons" +
-								" to eschew setting a lastfm username, but those are by far the most common ones.").send();
+								" to eschew setting a lastfm username, but those are by far the most common ones.");
 						scoldSkips = 0;
 					}
 				} else

@@ -83,8 +83,8 @@ public class Adventure extends Module implements ZScreen {
                                 return;
                             }
                         } catch (NumberFormatException nfe) {
-                            m.createReply("Invalid syntax for save command. Try \"save <int>\" " +
-                                    "where int is between 1 and 10.").send();
+                            m.reply("Invalid syntax for save command. Try \"save <int>\" " +
+                                    "where int is between 1 and 10.");
                             return;
                         }
                         //got this far, everything must be valid
@@ -110,8 +110,8 @@ public class Adventure extends Module implements ZScreen {
                                 return;
                             }
                         } catch (NumberFormatException nfe) {
-                            m.createReply("Invalid syntax for restore command. Try \"restore <int>\" " +
-                                    "where int is between 1 and 10.").send();
+                            m.reply("Invalid syntax for restore command. Try \"restore <int>\" " +
+                                    "where int is between 1 and 10.");
                             return;
                         }
                         //got this far, everything must be valid
@@ -143,8 +143,8 @@ public class Adventure extends Module implements ZScreen {
                     return;
                 }
             } catch (NumberFormatException nfe) {
-                m.createReply("Invalid syntax for startadv command. Try \"startadv <int>\" " +
-                        "where int is the number of an adventure game:").send();
+                m.reply("Invalid syntax for startadv command. Try \"startadv <int>\" " +
+                        "where int is the number of an adventure game:");
                 listFiles(m);
                 return;
             }

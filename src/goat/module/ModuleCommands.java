@@ -45,9 +45,9 @@ public class ModuleCommands extends Module {
 		ArrayList<String> chans = new ArrayList<String>();
 		String moduleName;
 		if (args.length == 0) {
-			m.createReply("You must specify some arguments.\n " +
+			m.reply("You must specify some arguments.\n " +
 										"Format: " + m.getModCommand() + " <moduleName> <channel1> <channel2> .. [ALL].\n " +
-										"ALL means the module will be active for all channels.").send();
+										"ALL means the module will be active for all channels.");
 			return;
 		}
 		moduleName = args[0];

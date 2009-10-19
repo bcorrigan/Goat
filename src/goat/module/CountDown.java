@@ -79,17 +79,17 @@ public class CountDown extends Module implements Runnable {
                             finaliseGame();
                             return;
                         }
-                        m.createReply( Constants.BOLD + m.getSender() + Constants.BOLD 
+                        m.reply( Constants.BOLD + m.getSender() + Constants.BOLD 
                                         + " has the best answer so far: " 
                                         + possibleAnswer.getAnswer() + ". " + "Just " 
                                         + possibleAnswer.getDistance( targetNumber ) 
                                         + " off the target of " 
-                                        + targetNumber + "!" ).send();
+                                        + targetNumber + "!" );
                     }
                 } catch(CalculatorException ce) {
                     m.reply(ce.getLocalizedMessage());
                 } catch(InterruptedException ie) {
-                	m.createReply("I was interrupted before I could calculate that");
+                	m.reply("I was interrupted before I could calculate that");
                 }
             }
         } else {
@@ -103,10 +103,10 @@ public class CountDown extends Module implements Runnable {
             pool.execute(runner);
             //timerThread.start();
             bestPossibleAnswer = Solver.getBestVal( sourceNumbers, targetNumber);
-            m.createReply(Constants.REVERSE + "***" + Constants.REVERSE
+            m.reply(Constants.REVERSE + "***" + Constants.REVERSE
                     + " New Numbers: " + Constants.BOLD
                     + formatNumbers( sourceNumbers ) 
-                    + Constants.BOLD + " Target: " + Constants.BOLD + targetNumber).send();
+                    + Constants.BOLD + " Target: " + Constants.BOLD + targetNumber);
         }
     }
     
@@ -127,8 +127,8 @@ public class CountDown extends Module implements Runnable {
                 reply+=" This was the best possible answer.";
             target.reply(reply);
         } else {
-            target.createReply( "The best answer was " + bestAnswer.getAnswer() + " by " + bestAnswer.getUsername() + "."
-                                + " But the best possible answer was: " + Solver.Solve( sourceNumbers, targetNumber )).send(); 
+            target.reply( "The best answer was " + bestAnswer.getAnswer() + " by " + bestAnswer.getUsername() + "."
+                                + " But the best possible answer was: " + Solver.Solve( sourceNumbers, targetNumber )); 
         }
         bestAnswer=null;
         runner.stop();

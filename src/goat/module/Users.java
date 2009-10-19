@@ -77,7 +77,7 @@ public class Users extends Module {
 			} else {
 				m.reply(m.getSender() + ", your time zone is \"" + tzString + "\" (" + TimeZone.getTimeZone(tzString).getDisplayName() + ").  To change it, see instructions in /msg");
 			}
-			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
+			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
 		} else if (tz.equalsIgnoreCase("unset")) {
 			if(users.hasUser(m.getSender()))
 				users.getUser(m.getSender()).setTimeZoneString(tz) ;
@@ -90,7 +90,7 @@ public class Users extends Module {
 				m.reply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString()));
 			} else if(matches.size() == 0) {
 				m.reply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.");
-				Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
+				Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
 			} else if(matches.size() > MAX_LISTINGS) {
 				m.reply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.");
 			} else {
@@ -109,19 +109,19 @@ public class Users extends Module {
 					m.reply(m.getSender() + ", your currency is " + users.getUser(m.getSender()).getCurrency() + ".");
 				else
 					m.reply(m.getSender() + ", your currency is not set.  Instructions in /msg");
-				Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE).send();
+				Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE);
 			} else if(newCurrency.equalsIgnoreCase("unset")) {
 				if(users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getCurrency().equals("")) {
 					users.getUser(m.getSender()).setCurrency(newCurrency);
 					m.reply("Currency unset for user " + m.getSender());
 				} else
-					m.createReply("eh, your currency wasn't set to begin with, " + m.getSender() + ".");
+					m.reply("eh, your currency wasn't set to begin with, " + m.getSender() + ".");
 			} else if(newCurrency.matches("[a-zA-Z]{3}")) {
 				if(isRecognizedCurrency(newCurrency)) {
 					users.getOrCreateUser(m.getSender()).setCurrency(newCurrency);
 					m.reply(m.getSender() + "'s currency set to " + users.getUser(m.getSender()).getCurrency());
 				} else {
-					m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
+					m.reply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
 				}
 			} else if(newCurrency.equalsIgnoreCase("list")) {
 				m.pagedReply("Current known currency codes:  " + exchangeRates.keySet().toString());
@@ -146,10 +146,10 @@ public class Users extends Module {
 		if (m.getSender().equalsIgnoreCase(uname) || uname.equals("")) {
 			if(! users.hasUser(m.getSender())) {
 				reply="I don't know anything about you, " + m.getSender() + ".";
-				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"").send();
+				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
 			} else if(users.getUser(m.getSender()).getTimeZoneString().equals("")) {
 				reply="I don't know your time zone, " + m.getSender() + ".";
-				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"").send();
+				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
 			}
 			else 
 				reply="Your current time is " + StringUtil.timeString(users.getUser(m.getSender()).getTimeZoneString()); 
@@ -184,7 +184,7 @@ public class Users extends Module {
 			m.reply("Time in zone \"" + matches.get(0) + "\" is " + StringUtil.timeString(matches.get(0))) ;
 		} else if(matches.size() == 0) {
 			m.reply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.");
-			// Message.createPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
+			// Message.createPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE);
 		} else if(matches.size() > MAX_LISTINGS) {
 			m.reply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.");
 		} else {
@@ -236,7 +236,7 @@ public class Users extends Module {
 					else {
 						df.setTimeZone(TimeZone.getTimeZone("Zulu"));
 						// nag the user if they haven't got their time zone set
-						Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
+						Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
 					}
 
 					Long lastSeen = u.getLastMessageTimestamp();
@@ -269,8 +269,8 @@ public class Users extends Module {
 
 
 					String durString = StringUtil.durationString(System.currentTimeMillis() - lastSeen);
-					m.createReply(u.getName() + " was last seen in " + channel + " "
-							+ durString + " ago" + saying + "    [" + stamp + "]").send();
+					m.reply(u.getName() + " was last seen in " + channel + " "
+							+ durString + " ago" + saying + "    [" + stamp + "]");
 				} else 
 					m.reply("Oddly, I know about " + name + ", but I've never heard it say anything.");
 			} else {

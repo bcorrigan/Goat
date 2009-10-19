@@ -143,14 +143,14 @@ public class Confessions extends Module {
 				if(getConfessions(m))
 					m.pagedReply(confessions.removeFirst());
 				else
-					m.createReply("I don't have anything to confess about right now.") ;
+					m.reply("I don't have anything to confess about right now.") ;
 			} else {
 				m.pagedReply(confessions.removeFirst());
 			}
 		} else if(m.getModCommand().equalsIgnoreCase("csize"))
-			m.createReply("Number of confessions cached: " + confessions.size() + 
+			m.reply("Number of confessions cached: " + confessions.size() + 
 						  ". Number of confessions asked for: " + noConfessions + 
-						  " Number of page requests sent: " + hits).send();
+						  " Number of page requests sent: " + hits);
 		
 		//if cache is getting a bit on the big side, lets delete the 100 oldest
 		if(confessions.size()>500)

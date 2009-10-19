@@ -260,10 +260,10 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		entry1 = scores.copyOfEntry(0);
 		entry2 = scores.copyOfEntry(1);
 		
-		target.createReply(Constants.BOLD + entry1[NAME].toUpperCase() + Constants.BOLD
+		target.reply(Constants.BOLD + entry1[NAME].toUpperCase() + Constants.BOLD
 				+ Constants.YELLOW + " has " + Constants.RED + Constants.UNDERLINE
-				+ "WON THE MATCH!!!").send();
-		target.createReply("Scores at close of play: ");
+				+ "WON THE MATCH!!!");
+		target.reply("Scores at close of play: ");
 		sendScoreTable(target);
 
 		boolean noContest = false;
@@ -312,9 +312,9 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
         for (Character letter : letters) {
             letterString += letter + " ";
         }
-		target.createReply(Constants.REVERSE + "***" + Constants.REVERSE
+		target.reply(Constants.REVERSE + "***" + Constants.REVERSE
 				+ " New Letters:" + Constants.BOLD
-				+ letterString.toUpperCase()).send();
+				+ letterString.toUpperCase());
 	}
 
 	private void processGuess(Message m) {
@@ -330,11 +330,11 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
                         currentWinningWord = word.toLowerCase();
                         score();
                         if(firstWin)
-                            m.createReply(currentWinningPlayer + " sets the pace with " + currentWinningWord
-                                    + ". score:" + currentWinningScore).send();
+                            m.reply(currentWinningPlayer + " sets the pace with " + currentWinningWord
+                                    + ". score:" + currentWinningScore);
                         else
-                        	m.createReply(currentWinningPlayer + " steals the lead with " + currentWinningWord
-                                + ". score: " + currentWinningScore).send();
+                        	m.reply(currentWinningPlayer + " steals the lead with " + currentWinningWord
+                                + ". score: " + currentWinningScore);
                     
                 } 
                 if (word.length() == longestPossible) {

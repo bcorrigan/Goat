@@ -19,7 +19,7 @@ public class Core extends Module {
 		if (m.isAuthorised()) {
 			if (m.getModCommand().toLowerCase().equals("part")) {
 				if (BotStats.getInstance().containsChannel(m.getModTrailing())) {
-					new Message("", "PART", m.getModTrailing(), "").send();
+					new Message("", "PART", m.getModTrailing(), "");
 					m.reply("Channel " + m.getModTrailing() + " parted!");
 					BotStats.getInstance().removeChannel(m.getModTrailing());
 					return;
@@ -29,7 +29,7 @@ public class Core extends Module {
 			}
 			else if (m.getModCommand().toLowerCase().equals("join"))
 				if (BotStats.getInstance().isValidChannelName(m.getModTrailing())) {
-					new Message("", "JOIN", m.getModTrailing(), "").send();
+					new Message("", "JOIN", m.getModTrailing(), "");
 					String response = "Channel " + m.getModTrailing() + " joined!" ;
 					// we do this next dodge to avoid sending messages to nobody on startup
 					if (m.getReplyTo().equals(""))
@@ -40,9 +40,9 @@ public class Core extends Module {
 				} else
 					m.reply("Sorry, that's not a valid channel name!");
 			else if (m.getModCommand().toLowerCase().equals("nick"))
-				new Message("", "NICK", m.getModTrailing(), "").send();
+				new Message("", "NICK", m.getModTrailing(), "");
 			else if (m.getModCommand().toLowerCase().equals("quit")) {
-				new Message("", "QUIT", m.getModTrailing(), "").send();     //@TODO not sending the quit message properly!
+				new Message("", "QUIT", m.getModTrailing(), "");     //@TODO not sending the quit message properly!
 				System.exit(0);
 				}
 			else if (m.getModCommand().toLowerCase().equals("charset")) {

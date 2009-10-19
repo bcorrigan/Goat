@@ -31,7 +31,7 @@ public class CTCP extends Module {
 	public void processOtherMessage(Message m) {
 		int i, j;
 		if (m.getCommand().equals("PING")) {
-			new Message("", "PONG", "", m.getTrailing()).send();
+			new Message("", "PONG", "", m.getTrailing());
 			return;
 		}
 		//dig out the sender
@@ -47,26 +47,26 @@ public class CTCP extends Module {
 				Message.createCTCP(name, "NOTICE", "VERSION", Constants.BOLD + BotStats.getInstance().getVersion() + Constants.BOLD
 						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
 						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
-						+ ')').send() ;
+						+ ')') ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("PING")) {
-				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()).send() ;
+				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()) ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("TIME")) {
-				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()).send() ;
+				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()) ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("CLIENTINFO")) {
-				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE").send() ;
+				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE") ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("SOURCE")) {
-				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.").send() ;
+				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.") ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("USERINFO")) {
-				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.").send() ;
+				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.") ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("ERRMSG")) {
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error").send() ;
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error") ;
 			} else if (m.isCTCP() && !m.getCTCPCommand().equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
 			{
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command").send() ;
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command") ;
 			}
 		} else if (m.getCommand().equals("KICK")) {
 			String[] words = m.getParams().split(" ");
-			new Message("", "JOIN", words[0], "").send();
+			new Message("", "JOIN", words[0], "");
 		} else if (m.getCommand().equals("NICK")) {
 			if (m.getSender().equals(BotStats.getInstance().getBotname())) {
 				BotStats.getInstance().setBotname( m.getTrailing() );
@@ -79,14 +79,14 @@ public class CTCP extends Module {
 			if (intcommand == Constants.RPL_ENDOFNAMES) {    //End of /NAMES list.
 				i = m.getParams().indexOf(' ');
 				if (i > -1) {
-					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!").send();
+					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!");
 				}
 			} else if (intcommand == Constants.ERR_ERRONEUSNICKNAME) {
 				BotStats.getInstance().setBotname( "Goat" );
-				new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
-				new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion()).send();
+				new Message("", "NICK", BotStats.getInstance().getBotname(), "");
+				new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion());
 			} else if (intcommand == Constants.RPL_ENDOFMOTD) {   //End of /MOTD command.
-				//new Message("", "JOIN", m.channame, "").send();
+				//new Message("", "JOIN", m.channame, "");
 				if (!Goat.sc.alreadySeenMOTD()) {
 					BotStats.getInstance().readConfFile();  	//we only want to read the conf file when we've joined the server
 					Goat.sc.setAlreadySeenMOTD(true);

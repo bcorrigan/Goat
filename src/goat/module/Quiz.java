@@ -101,7 +101,7 @@ public class Quiz extends Module {
     		} catch (InterruptedException ie) {}
 
     		while (thisGame.playing && ++round <= rounds) {
-    			thisGame.target.createReply("Question #" + round);
+    			thisGame.target.reply("Question #" + round);
     			thisGame.target.reply(getNewQuestion());
     			thisGame.answered = false;
     			thisGame.hiddenTipChars = null;

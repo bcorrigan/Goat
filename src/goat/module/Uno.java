@@ -163,12 +163,12 @@ public class Uno extends Module implements Output {
                     lgE = Integer.toString(record.getGamesEntered()).length();
 
             }
-            m.createReply("   " + Constants.UNDERLINE + "Name" + SPACES[lNick + 3 - 4]
+            m.reply("   " + Constants.UNDERLINE + "Name" + SPACES[lNick + 3 - 4]
                             + "HiScore" + SPACES[lHScore + 7 - 7]
                             + "Won" + SPACES[lgW + 3 - 3]
                             + "Games" + SPACES[lgE + 5 - 5]
                             + "Ratio  "
-                            + "TotalScore").send();
+                            + "TotalScore");
 
             it = records.iterator();
             int count = 0;
@@ -187,13 +187,13 @@ public class Uno extends Module implements Output {
                         ratio = ratio.substring(0, 5) + "% ";
                 } else
                     ratio = "0%   ";
-                m.createReply(Constants.BOLD + count + Constants.BOLD + SPACES[3 - Integer.toString(count).length()] + record.getName()
+                m.reply(Constants.BOLD + count + Constants.BOLD + SPACES[3 - Integer.toString(count).length()] + record.getName()
                                 + SPACES[lNick + 3 - record.getName().length()]
                                 + record.getHiScore() + SPACES[lHScore + 7 - Integer.toString(record.getHiScore()).length()]
                                 + record.getGamesWon() + SPACES[lgW + 3 - Integer.toString(record.getGamesWon()).length()]
                                 + record.getGamesEntered() + SPACES[lgE + 5 - Integer.toString(record.getGamesEntered()).length()]
                                 + ratio + "  "
-                                + record.getTotalScore()).send();
+                                + record.getTotalScore());
             }
 
         }
@@ -376,15 +376,15 @@ public class Uno extends Module implements Output {
         while (it.hasNext()) {
             reply += ' ' + getStringForCard((Card) it.next());
         }
-        new Message("", "NOTICE", player.getName(), NORMAL + reply).send();
+        new Message("", "NOTICE", player.getName(), NORMAL + reply);
     }
 
     public void noSuchCard(Player player) {
-        new Message("", "NOTICE", player.getName(), "You don't have that card.").send();
+        new Message("", "NOTICE", player.getName(), "You don't have that card.");
     }
 
     public void playerCantPlay(Player player) {
-        new Message("", "NOTICE", player.getName(), "You can't play that card.").send();
+        new Message("", "NOTICE", player.getName(), "You can't play that card.");
     }
 
     public void playerWon(Player player, int score, Player[] players) {
@@ -406,7 +406,7 @@ public class Uno extends Module implements Output {
     }
 
     public void swapDrawAndDiscard() {
-        new Message("", "ACTION", target.getChanname(), "turns over the discard pile and makes it the draw pile.").send();
+        new Message("", "ACTION", target.getChanname(), "turns over the discard pile and makes it the draw pile.");
     }
 
     public void playerDrewCard(Player player, Card card) {
@@ -414,7 +414,7 @@ public class Uno extends Module implements Output {
             return;
         target.reply(Constants.BOLD + player.getName() + Constants.BOLD + " has drawn a card.");
         if (!player.isABot)
-            new Message("", "NOTICE", player.getName(), NORMAL + "You drew: " + getStringForCard(card)).send();
+            new Message("", "NOTICE", player.getName(), NORMAL + "You drew: " + getStringForCard(card));
     }
 
     public void playerPassed(Player player) {
@@ -440,7 +440,7 @@ public class Uno extends Module implements Output {
         if (card.getType() == Card.WILD || card.getType() == Card.WDF) {
             card = game.colourCard;
         }
-        new Message("", "NOTICE", player.getName(), NORMAL + getStringForCard(card) + " is up.").send();
+        new Message("", "NOTICE", player.getName(), NORMAL + getStringForCard(card) + " is up.");
     }
 
     public void showTopDiscardCardEverybody(Card card) {
@@ -482,7 +482,7 @@ public class Uno extends Module implements Output {
         if(player.isABot)
             return;
         for (Card card : cards) reply += ' ' + getStringForCard(card);
-        new Message("", "NOTICE", player.getName(), NORMAL + "You drew:" + reply).send();
+        new Message("", "NOTICE", player.getName(), NORMAL + "You drew:" + reply);
     }
 
     public void chooseColour(Player player) {
@@ -491,7 +491,7 @@ public class Uno extends Module implements Output {
             longReply = null;
         }
         if (!player.isABot)
-            new Message("", "NOTICE", player.getName(), "Please choose a colour.").send();
+            new Message("", "NOTICE", player.getName(), "Please choose a colour.");
     }
 
     public void chosenColour(Colour colour) {

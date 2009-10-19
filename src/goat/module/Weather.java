@@ -67,17 +67,17 @@ public class Weather extends Module {
 		if (m.getModTrailing().matches("\\s*")) {     //if just whitespace
 			
 			if (users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getWeatherStation().equals("")) {
-				m.createPagedReply(getReport(m.getSender(), m.getModCommand(), 
-						users.getUser(m.getSender()).getWeatherStation())).send();
+				m.pagedReply(getReport(m.getSender(), m.getModCommand(), 
+						users.getUser(m.getSender()).getWeatherStation()));
 				return;
 			}
 			
 			if(m.getPrefix().trim().matches(".*\\.nyc\\.res\\.rr\\.com$")) {
 				m.reply("I'm sorry, qpt, but I can't help you until you start to help yourself.");
 			} else {
-				m.createReply("I don't know where you are, " + m.getSender() + ", perhaps you should tell me " +
+				m.reply("I don't know where you are, " + m.getSender() + ", perhaps you should tell me " +
 					"by looking at" + Constants.BLUE + " " + codes_url + " " + Constants.NORMAL +
-					"and telling me where you are.").send();
+					"and telling me where you are.");
 			}
 		} else if (m.getModTrailing().matches("\\s*[a-zA-Z0-9]{4}\\s*")) { //if 4 letter code is supplied
 			String station = m.getModTrailing().trim().toUpperCase() ;
