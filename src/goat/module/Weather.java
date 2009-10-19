@@ -73,7 +73,7 @@ public class Weather extends Module {
 			}
 			
 			if(m.getPrefix().trim().matches(".*\\.nyc\\.res\\.rr\\.com$")) {
-				m.createReply("I'm sorry, qpt, but I can't help you until you start to help yourself.").send();
+				m.reply("I'm sorry, qpt, but I can't help you until you start to help yourself.");
 			} else {
 				m.createReply("I don't know where you are, " + m.getSender() + ", perhaps you should tell me " +
 					"by looking at" + Constants.BLUE + " " + codes_url + " " + Constants.NORMAL +

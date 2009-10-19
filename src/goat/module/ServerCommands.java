@@ -107,12 +107,12 @@ public class ServerCommands extends Module {
 					for(IrcUser iu: ircUsers) {
 						reply += iu.getNick() + " ";
 					}
-					m.createReply(reply).send();
+					m.reply(reply);
 				} catch (SocketTimeoutException ste) {
-					m.createReply("Timed out waiting for WHO response").send();
+					m.reply("Timed out waiting for WHO response");
 				}
 			} else {
-				m.createReply("I don't know that command.").send();
+				m.reply("I don't know that command.");
 			}
 		}
 	}

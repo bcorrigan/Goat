@@ -59,7 +59,7 @@ public class Quiz extends Module {
                 return;
             }
             if (m.getTrailing().toLowerCase().trim().matches(answer.toLowerCase().trim()) && !answered) {
-                m.createReply(m.getSender() + ": Congratulations, you got the correct answer, \"" + answer + "\".").send();
+                m.reply(m.getSender() + ": Congratulations, you got the correct answer, \"" + answer + "\".");
                 answered = true;
                 if(runner != null)
                 	runner.InterruptRound();
@@ -91,18 +91,18 @@ public class Quiz extends Module {
     	public synchronized void run() {
     		myThread = Thread.currentThread();
     		int round = 0;
-    		thisGame.target.createReply("Starting a " + rounds + " round quiz in 3\u2026").send();
+    		thisGame.target.reply("Starting a " + rounds + " round quiz in 3\u2026");
     		try {
     			Thread.sleep(1000);
-    			thisGame.target.createReply("2\u2026").send();
+    			thisGame.target.reply("2\u2026");
     			Thread.sleep(1000);
-    			thisGame.target.createReply("1\u2026").send();
+    			thisGame.target.reply("1\u2026");
     			Thread.sleep(1000);
     		} catch (InterruptedException ie) {}
 
     		while (thisGame.playing && ++round <= rounds) {
     			thisGame.target.createReply("Question #" + round);
-    			thisGame.target.createReply(getNewQuestion()).send();
+    			thisGame.target.reply(getNewQuestion());
     			thisGame.answered = false;
     			thisGame.hiddenTipChars = null;
     			//now sleep until either a new tip is needed, or the question is answered
@@ -117,10 +117,10 @@ public class Quiz extends Module {
     				}
     				if (!thisGame.answered&&thisGame.playing)
     					if(thisGame.hiddenTipChars==null || (thisGame.canTip() && thisGame.hiddenTipChars.size()>= answer.length()/3)) {
-    						thisGame.target.createReply(Constants.BOLD + "tip: " + Constants.BOLD + thisGame.getTip()).send();
+    						thisGame.target.reply(Constants.BOLD + "tip: " + Constants.BOLD + thisGame.getTip());
     					} else {
     						System.out.println("ending round...");
-    						thisGame.target.createReply("Nobody got the answer! it was \"" + thisGame.answer + "\".").send();
+    						thisGame.target.reply("Nobody got the answer! it was \"" + thisGame.answer + "\".");
     						thisGame.answered = true;
     					}
     			}

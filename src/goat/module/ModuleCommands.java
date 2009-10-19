@@ -55,7 +55,7 @@ public class ModuleCommands extends Module {
 			if (args[i].startsWith("#") & args[i].length() > 1 || args[i].toLowerCase().equals("all"))
 				chans.add(args[i]);
 			else {
-				m.createReply("You have not specified proper channels in the arguments.").send();
+				m.reply("You have not specified proper channels in the arguments.");
 				return;
 			}
 		}
@@ -70,9 +70,9 @@ public class ModuleCommands extends Module {
 		Module mod = modControl.getLoaded(moduleName);
 		if(mod!=null) {
 			setChans(chans, mod);
-			m.createReply("Modified registered channels of " + mod.getClass().getName()).send();
+			m.reply("Modified registered channels of " + mod.getClass().getName());
 		} else {
-			m.createReply("Could not modify registered channels of '" + moduleName + "'. That module does not exist or is not loaded.").send();
+			m.reply("Could not modify registered channels of '" + moduleName + "'. That module does not exist or is not loaded.");
 		}
 	}
 
@@ -127,18 +127,18 @@ public class ModuleCommands extends Module {
 			else 
 				; // the ModuleController already reports module loads on the console.
 		else
-			m.createReply(response).send() ;
+			m.reply(response) ;
 	}
 
 	private void rmmod(Message m) {
 		if (m.getModTrailing().trim().equalsIgnoreCase("ModCommands")) {
-			m.createReply("ModuleCommands says:  I won't remove myself!").send() ;
+			m.reply("ModuleCommands says:  I won't remove myself!") ;
 			return ;
 		}
 		if (modControl.unload(m.getModTrailing().trim()))
-			m.createReply("Successfully removed module '" + m.getModTrailing().trim() + "'!").send();
+			m.reply("Successfully removed module '" + m.getModTrailing().trim() + "'!");
 		else
-			m.createReply("Module not found: '" + m.getModTrailing().trim() + '\'').send();
+			m.reply("Module not found: '" + m.getModTrailing().trim() + '\'');
 	}
 
 	private void lsmod(Message m) {

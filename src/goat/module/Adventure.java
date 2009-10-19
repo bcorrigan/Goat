@@ -68,18 +68,18 @@ public class Adventure extends Module implements ZScreen {
                         }
 
                         if (!stringArg.matches("^[a-zA-Z]*$")) {
-                            m.createReply("Comment must match ^[a-zA-Z]*$").send();
+                            m.reply("Comment must match ^[a-zA-Z]*$");
                             return;
                         }
                         if (stringArg.length() > 25) {
-                            m.createReply("No save game comments greater than 25 chars allowed!").send();
+                            m.reply("No save game comments greater than 25 chars allowed!");
                             return;
                         }
                         adv.saveGameName = stringArg;
                         try {
                             adv.saveSlot = Integer.parseInt(number);
                             if (adv.saveSlot > 10 || adv.saveSlot < 1) {
-                                m.createReply("Please choose a slot between 1 and 10.").send();
+                                m.reply("Please choose a slot between 1 and 10.");
                                 return;
                             }
                         } catch (NumberFormatException nfe) {
@@ -99,13 +99,13 @@ public class Adventure extends Module implements ZScreen {
                             if (adv.loadSlot >= 1 && adv.loadSlot <= 10)
                                 adv.input.addLast("restore");
                             else
-                                m.createReply("There doesn't seem to be a default restore point. ").send();
+                                m.reply("There doesn't seem to be a default restore point. ");
                             return;
                         }
                         try {
                             adv.loadSlot = Integer.parseInt(intArg);
                             if (adv.loadSlot > 10 || adv.loadSlot < 1) {
-                                m.createReply("Please choose a slot between 1 and 10.").send();
+                                m.reply("Please choose a slot between 1 and 10.");
                                 adv.loadSlot = 0;
                                 return;
                             }
@@ -127,7 +127,7 @@ public class Adventure extends Module implements ZScreen {
             for (Adventure adv : adventures) {
                 //Adventure adv = (Adventure) adventure;
                 if (adv.target.getChanname().equals(m.getChanname())) {
-                    m.createReply("Umm, we seem to be already playing an Adventure game in here.").send();
+                    m.reply("Umm, we seem to be already playing an Adventure game in here.");
                     return; //this channel already has a running adventure
                 }
             }
@@ -138,7 +138,7 @@ public class Adventure extends Module implements ZScreen {
                 int zmNum = Integer.parseInt(intArg);
                 gameImage = getZMFile(zmNum);
                 if (gameImage == null) {
-                    m.createReply("That's not a valid game number!").send();
+                    m.reply("That's not a valid game number!");
                     listFiles(m);
                     return;
                 }
@@ -167,7 +167,7 @@ public class Adventure extends Module implements ZScreen {
                     adventures.remove(adv);
                     // adv.playing = false;  //we don't use this anywhere
                     adv.running = false;
-                    m.createReply("Game stopped!").send();
+                    m.reply("Game stopped!");
                     return;
                 }
             }
@@ -182,13 +182,13 @@ public class Adventure extends Module implements ZScreen {
                     return;
                 }
             }
-            m.createReply("Not playing a game, not going to list all possible save files.").send();
+            m.reply("Not playing a game, not going to list all possible save files.");
         }
     }
 
     //list the save games for the current game, ie which slots are taken
     private void listSaves(Message m, Adventure adv) {
-        m.createReply("The following save slots are taken for this game: ").send();
+        m.reply("The following save slots are taken for this game: ");
         File file = new File("resources/adventureData/saves");
         File[] files = file.listFiles();
         // String reply = ""; // unused
@@ -200,7 +200,7 @@ public class Adventure extends Module implements ZScreen {
                 if (parts[1].equals(m.getChanname()))
                     slots += " " + parts[3] + ")" + parts[2];
         }
-        m.createReply("\"" + adv.gameName.replaceAll("_", " ") + "\" slots used: " + slots).send();
+        m.reply("\"" + adv.gameName.replaceAll("_", " ") + "\" slots used: " + slots);
     }
 
     //sends a list of all the available games with their numbers
@@ -217,7 +217,7 @@ public class Adventure extends Module implements ZScreen {
                     fileName = fileName.replaceAll("_", " ");
                     reply += counter + ") " + fileName + " ";
                 }
-        m.createReply(reply).send();
+        m.reply(reply);
     }
 
     //has a look at the directory of game files and get's the nth one and returns it

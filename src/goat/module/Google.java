@@ -143,40 +143,40 @@ public class Google extends Module {
 			} else if ("gayness".equalsIgnoreCase(command)) {
 				ircGayness(m) ;
 			} else if ("gis".equalsIgnoreCase(command)) {
-				m.createReply(imageGoogleUrl(m.getModTrailing())).send() ;
+				m.reply(imageGoogleUrl(m.getModTrailing())) ;
 			} else if ("yis".equalsIgnoreCase(command)) {
-				m.createReply(imageYahooUrl(m.getModTrailing())).send() ;
+				m.reply(imageYahooUrl(m.getModTrailing())) ;
 			} else if ("wikipedia".equalsIgnoreCase(command)) {
-				m.createReply(wikipediaUrl(m.getModTrailing())).send() ;
+				m.reply(wikipediaUrl(m.getModTrailing())) ;
 			} else if ("youtube".equalsIgnoreCase(command)) {
-				m.createReply(youtubeUrl(m.getModTrailing())).send() ;
+				m.reply(youtubeUrl(m.getModTrailing())) ;
 			} else if ("imdb".equalsIgnoreCase(command)) {
-				m.createReply(imdbUrl(m.getModTrailing())).send() ;
+				m.reply(imdbUrl(m.getModTrailing())) ;
 			} else if ("flickr".equalsIgnoreCase(command)) {
-				m.createReply(flickrUrl(m.getModTrailing())).send() ;
+				m.reply(flickrUrl(m.getModTrailing())) ;
 			} else {
-				m.createReply("No one has gotten around to implementing " + command + ".").send() ;
+				m.reply("No one has gotten around to implementing " + command + ".") ;
 			}
 		} catch (MalformedURLException mue) {
-			m.createReply("I'm retarded, I couldn't figure out how to make a goojax URL").send();
+			m.reply("I'm retarded, I couldn't figure out how to make a goojax URL");
 			mue.printStackTrace();
 		} catch (SocketTimeoutException ste) {
-			m.createReply("I got bored waiting for Google to respond.").send();
+			m.reply("I got bored waiting for Google to respond.");
 		} catch (IOException f) {
-			m.createReply("Couldn't connect to google.").send() ;
+			m.reply("Couldn't connect to google.") ;
 			System.out.println(f.toString()) ;
 		}
 	}
 
 	private void ircGoogleIncludeWikipedia (Message m, String query) 
 	throws IOException, SocketTimeoutException, MalformedURLException {
-		m.createReply(luckyString(StringUtil.removeFormattingAndColors(query))).send() ;
+		m.reply(luckyString(StringUtil.removeFormattingAndColors(query))) ;
 	}
 
 	private void ircGoogle (Message m) throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
-			m.createReply("Er, what do you want me to google for you?").send();
+			m.reply("Er, what do you want me to google for you?");
 			return;
 		}
 		ircGoogleIncludeWikipedia(m, m.getModTrailing() + " -site:wikipedia.org");
@@ -219,21 +219,21 @@ public class Google extends Module {
 		}
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
-			m.createReply("What do you want news of?").send();
+			m.reply("What do you want news of?");
 			return;
 		}
 		NewsSearcher ns = new NewsSearcher();
 		NewsSearchResponse nsr = ns.search(query);
 		if(null == nsr) {
-			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			m.reply("Something went horribly wrong in my GooJAX processor");
 			return;
 		}
 		if(!nsr.statusNormal()) {
-			m.createReply("Error at Google:  " + nsr.getResponseStatus() + ", " + nsr.getResponseDetails()).send();
+			m.reply("Error at Google:  " + nsr.getResponseStatus() + ", " + nsr.getResponseDetails());
 			return;
 		}
 		if(nsr.getResponseData().getResults().length < 1) {
-			m.createReply("I have no news of " + query).send();
+			m.reply("I have no news of " + query);
 			return;
 		}
 		NewsSearchResult results[] = nsr.getResponseData().getResults();
@@ -298,12 +298,12 @@ public class Google extends Module {
 	private void ircNewsLink(Message m) {
 		m.createPagedReply(newsLinkReply(m.getModTrailing(), m.getChanname())).send();
 //		if (! newsResponseCache.containsKey(m.getChanname())) {
-//			m.createReply("I'm sorry, I don't have any news for this channel.").send();
+//			m.reply("I'm sorry, I don't have any news for this channel.");
 //			return;
 //		}
 //		NewsSearchResponse nsr = newsResponseCache.get(m.getChanname());
 //		if (null == nsr) {
-//			m.createReply("something has gone horribly wrong; my news for this channel seems to be null.").send();
+//			m.reply("something has gone horribly wrong; my news for this channel seems to be null.");
 //			return;
 //		}
 //		int resultNum = 0;
@@ -314,13 +314,13 @@ public class Google extends Module {
 //				else
 //					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 //		} catch (NumberFormatException nfe) {
-//			m.createReply("There's no need to be like that, qpt.").send();
+//			m.reply("There's no need to be like that, qpt.");
 //		}
 //		if(resultNum > nsr.getResponseData().getResults().length) {	
-//			m.createReply("I don't have that many results :(").send();
+//			m.reply("I don't have that many results :(");
 //			return;
 //		} else if(resultNum < 0) {
-//			m.createReply("Oh, come on.").send();
+//			m.reply("Oh, come on.");
 //			return;
 //		} else {
 //			NewsSearchResult re = nsr.getResponseData().getResults()[resultNum];
@@ -344,21 +344,21 @@ public class Google extends Module {
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
-			m.createReply("Um, what do you want me to look for in all these books?").send();
+			m.reply("Um, what do you want me to look for in all these books?");
 			return;
 		}
 		BookSearcher bs = new BookSearcher();
 		BookSearchResponse bsr = bs.search(query);
 		if(null == bsr) {
-			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			m.reply("Something went horribly wrong in my GooJAX processor");
 			return;
 		}
 		if(!bsr.statusNormal()) {
-			m.createReply("Error at Google:  " + bsr.getResponseStatus() + ", " + bsr.getResponseDetails()).send();
+			m.reply("Error at Google:  " + bsr.getResponseStatus() + ", " + bsr.getResponseDetails());
 			return;
 		}
 		if(bsr.getResponseData().getResults().length < 1) {
-			m.createReply("I found no books about " + query).send();
+			m.reply("I found no books about " + query);
 			return;
 		}
 		BookSearchResult results[] = bsr.getResponseData().getResults();
@@ -391,12 +391,12 @@ public class Google extends Module {
 
 	private void ircBookLink(Message m) {
 		if (! booksResponseCache.containsKey(m.getChanname())) {
-			m.createReply("I'm sorry, I don't have any books cached for this channel.").send();
+			m.reply("I'm sorry, I don't have any books cached for this channel.");
 			return;
 		}
 		BookSearchResponse bsr = booksResponseCache.get(m.getChanname());
 		if (null == bsr) {
-			m.createReply("something has gone horribly wrong; my books cache for this channel seems to be null.").send();
+			m.reply("something has gone horribly wrong; my books cache for this channel seems to be null.");
 			return;
 		}
 		int resultNum = 0;
@@ -407,13 +407,13 @@ public class Google extends Module {
 				else
 					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
-			m.createReply("There's no need to be like that, qpt.").send();
+			m.reply("There's no need to be like that, qpt.");
 		}
 		if(resultNum > bsr.getResponseData().getResults().length) {	
-			m.createReply("I don't have that many results :(").send();
+			m.reply("I don't have that many results :(");
 			return;
 		} else if(resultNum < 0) {
-			m.createReply("Oh, come on.").send();
+			m.reply("Oh, come on.");
 			return;
 		} else {
 			BookSearchResult re = bsr.getResponseData().getResults()[resultNum];
@@ -431,21 +431,21 @@ public class Google extends Module {
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
-			m.createReply("Yes, well, what sort of patents am I supposed to look for, then?").send();
+			m.reply("Yes, well, what sort of patents am I supposed to look for, then?");
 			return;
 		}
 		PatentSearcher ps = new PatentSearcher();
 		PatentSearchResponse psr = ps.search(query);
 		if(null == psr) {
-			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			m.reply("Something went horribly wrong in my GooJAX processor");
 			return;
 		}
 		if(!psr.statusNormal()) {
-			m.createReply("Error at Google:  " + psr.getResponseStatus() + ", " + psr.getResponseDetails()).send();
+			m.reply("Error at Google:  " + psr.getResponseStatus() + ", " + psr.getResponseDetails());
 			return;
 		}
 		if(psr.getResponseData().getResults().length < 1) {
-			m.createReply("I found no patents on " + query).send();
+			m.reply("I found no patents on " + query);
 			return;
 		}
 		PatentSearchResult results[] = psr.getResponseData().getResults();
@@ -471,12 +471,12 @@ public class Google extends Module {
 
 	private void ircPatentLink(Message m) {
 		if (! patentsResponseCache.containsKey(m.getChanname())) {
-			m.createReply("I'm sorry, I don't have any patents cached for this channel.").send();
+			m.reply("I'm sorry, I don't have any patents cached for this channel.");
 			return;
 		}
 		PatentSearchResponse psr = patentsResponseCache.get(m.getChanname());
 		if (null == psr) {
-			m.createReply("something has gone horribly wrong; my patents cache for this channel seems to be null.").send();
+			m.reply("something has gone horribly wrong; my patents cache for this channel seems to be null.");
 			return;
 		}
 		int resultNum = 0;
@@ -487,13 +487,13 @@ public class Google extends Module {
 				else
 					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
-			m.createReply("There's no need to be like that, qpt.").send();
+			m.reply("There's no need to be like that, qpt.");
 		}
 		if(resultNum > psr.getResponseData().getResults().length) {	
-			m.createReply("I don't have that many results :(").send();
+			m.reply("I don't have that many results :(");
 			return;
 		} else if(resultNum < 0) {
-			m.createReply("Oh, come on.").send();
+			m.reply("Oh, come on.");
 			return;
 		} else {
 			PatentSearchResult re = psr.getResponseData().getResults()[resultNum];
@@ -509,21 +509,21 @@ public class Google extends Module {
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
-			m.createReply("What kind of blogging were you looking for?").send();
+			m.reply("What kind of blogging were you looking for?");
 			return;
 		}
 		BlogSearcher bs = new BlogSearcher();
 		BlogSearchResponse bsr = bs.search(query);
 		if(null == bsr) {
-			m.createReply("Something went horribly wrong in my GooJAX processor").send();
+			m.reply("Something went horribly wrong in my GooJAX processor");
 			return;
 		}
 		if(!bsr.statusNormal()) {
-			m.createReply("Error at Google:  " + bsr.getResponseStatus() + ", " + bsr.getResponseDetails()).send();
+			m.reply("Error at Google:  " + bsr.getResponseStatus() + ", " + bsr.getResponseDetails());
 			return;
 		}
 		if(bsr.getResponseData().getResults().length < 1) {
-			m.createReply("I found no blogging about " + query).send();
+			m.reply("I found no blogging about " + query);
 			return;
 		}
 		BlogSearchResult results[] = bsr.getResponseData().getResults();
@@ -561,12 +561,12 @@ public class Google extends Module {
 
 	private void ircBlogLink(Message m) {
 		if (! blogsResponseCache.containsKey(m.getChanname())) {
-			m.createReply("I'm sorry, I don't have any blogs cached for this channel.").send();
+			m.reply("I'm sorry, I don't have any blogs cached for this channel.");
 			return;
 		}
 		BlogSearchResponse bsr = blogsResponseCache.get(m.getChanname());
 		if (null == bsr) {
-			m.createReply("something has gone horribly wrong; my blogs cache for this channel seems to be null.").send();
+			m.reply("something has gone horribly wrong; my blogs cache for this channel seems to be null.");
 			return;
 		}
 		int resultNum = 0;
@@ -577,13 +577,13 @@ public class Google extends Module {
 				else
 					resultNum = Integer.parseInt(m.getModTrailing().substring(0, m.getModTrailing().indexOf(' '))) - 1;
 		} catch (NumberFormatException nfe) {
-			m.createReply("There's no need to be like that, qpt.").send();
+			m.reply("There's no need to be like that, qpt.");
 		}
 		if(resultNum > bsr.getResponseData().getResults().length) {	
-			m.createReply("I don't have that many results :(").send();
+			m.reply("I don't have that many results :(");
 			return;
 		} else if(resultNum < 0) {
-			m.createReply("Oh, come on.").send();
+			m.reply("Oh, come on.");
 			return;
 		} else {
 			BlogSearchResult re = bsr.getResponseData().getResults()[resultNum];
@@ -596,7 +596,7 @@ public class Google extends Module {
 
 	private void ircCachedLink(Message m) {
 		if(null == lastCachedResultType)
-			m.createReply("I'm afraid I don't have any results cached.").send();
+			m.reply("I'm afraid I don't have any results cached.");
 		else if(lastCachedResultType.equalsIgnoreCase("book"))
 			ircBookLink(m);
 		else if(lastCachedResultType.equalsIgnoreCase("news"))
@@ -606,7 +606,7 @@ public class Google extends Module {
 		else if(lastCachedResultType.equalsIgnoreCase("blog"))
 			ircBlogLink(m);
 		else
-			m.createReply("I'm confused about my results cache, I need help.").send();
+			m.reply("I'm confused about my results cache, I need help.");
 	}
 
 	private String getDateLine(Date date, TimeZone zone) {
@@ -636,13 +636,13 @@ public class Google extends Module {
 		while(toFrom < 2 && (text.toLowerCase().startsWith("to ") || text.toLowerCase().startsWith("from "))) {
 			if (text.toLowerCase().startsWith("to ")) {
 				if(text.length() < 4) {
-					m.createReply("translate to...?").send();
+					m.reply("translate to...?");
 					return;
 				}
 				text = text.substring(3).trim();
 				int spacepos = text.indexOf(' ');
 				if(-1 == spacepos) {
-					m.createReply("uh, I need at least two words after that \"to\" of yours").send();
+					m.reply("uh, I need at least two words after that \"to\" of yours");
 					return;
 				}
 				String langString = text.substring(0, spacepos).trim();
@@ -651,23 +651,23 @@ public class Google extends Module {
 				if(null == tempLang)
 					tempLang = GooJAXFetcher.Language.fromEnglishName(langString);
 				if(null == tempLang) {
-					m.createReply("Sorry, I don't speak \"" + langString + "\".  Type \"languages\", and I'll tell you which ones I know.").send();
+					m.reply("Sorry, I don't speak \"" + langString + "\".  Type \"languages\", and I'll tell you which ones I know.");
 					return;
 				}
 				toLanguage = tempLang;
 				if(text.matches("\\s*") ) {
-					m.createReply("Er, what do you want me to translate to " + toLanguage.getEnglishName()).send();
+					m.reply("Er, what do you want me to translate to " + toLanguage.getEnglishName());
 					return;
 				}
 			} else if(text.toLowerCase().startsWith("from ")) {
 				if(text.length() < 6) {
-					m.createReply("translate from...?").send();
+					m.reply("translate from...?");
 					return;
 				}
 				text = text.substring(5).trim();
 				int spacepos = text.indexOf(' ');
 				if(-1 == spacepos) {
-					m.createReply("uh, I need at least two words after that \"from\" of yours").send();
+					m.reply("uh, I need at least two words after that \"from\" of yours");
 					return;
 				}
 				String langString = text.substring(0, spacepos).trim();
@@ -676,52 +676,52 @@ public class Google extends Module {
 				if(null == tempLang)
 					tempLang = GooJAXFetcher.Language.fromEnglishName(langString);
 				if(null == tempLang) {
-					m.createReply("Sorry, I don't speak \"" + langString + "\".  Type \"languages\", and I'll tell you which ones I know.").send();
+					m.reply("Sorry, I don't speak \"" + langString + "\".  Type \"languages\", and I'll tell you which ones I know.");
 					return;
 				}
 				fromLanguage = tempLang;
 				if(text.matches("\\s*") ) {
-					m.createReply("Er, what do you want me to translate from " + fromLanguage.getEnglishName()).send();
+					m.reply("Er, what do you want me to translate from " + fromLanguage.getEnglishName());
 					return;
 				}
 			}
 			toFrom++;
 		}
 		if(text.matches("\\s*")) {
-			m.createReply("Er, translate what, exactly?").send();
+			m.reply("Er, translate what, exactly?");
 			return;
 		}
 		if(! toLanguage.isTranslateable()) {
-			m.createReply("Sorry, but I'm not fluent in " + toLanguage.getEnglishName() + ".").send();
+			m.reply("Sorry, but I'm not fluent in " + toLanguage.getEnglishName() + ".");
 			return;
 		}
 		Translator tranny = new Translator();
 		TranslateResponse trs = tranny.translate(text, fromLanguage, toLanguage);
 		if(null == trs) {
 			// should never get here
-			m.createReply("something went horribly wrong when I tried to translate.").send();
+			m.reply("something went horribly wrong when I tried to translate.");
 			return;
 		}
 		if(!trs.statusNormal()) {
-			m.createReply("problem at Google:  " + trs.getResponseStatus() + ", " + trs.getResponseDetails()).send();
+			m.reply("problem at Google:  " + trs.getResponseStatus() + ", " + trs.getResponseDetails());
 			return;
 		}
 		if(fromLanguage == null && (null == trs.getDetectedSourceLanguage() || "".equals(trs.getDetectedSourceLanguage())))
-			m.createReply("The Google couldn't figure out what language you're speaking, there.").send();
+			m.reply("The Google couldn't figure out what language you're speaking, there.");
 		else if(null == trs.getTranslatedText())
-			m.createReply("Translated text is null.  Like, whoa.").send();
+			m.reply("Translated text is null.  Like, whoa.");
 		else if(toLanguage.equals(trs.getDetectedSourceLanguage()))
-			m.createReply("I'm not going to translate that into the language it's already in.  Jerk.").send();
+			m.reply("I'm not going to translate that into the language it's already in.  Jerk.");
 		else if (fromLanguage == null)
-			m.createReply("(from " + trs.getDetectedSourceLanguage().getEnglishName() + ")   " + trs.getTranslatedText()).send();
+			m.reply("(from " + trs.getDetectedSourceLanguage().getEnglishName() + ")   " + trs.getTranslatedText());
 		else 
-			m.createReply(trs.getTranslatedText()).send();
+			m.reply(trs.getTranslatedText());
 	}
 
 	private void ircDetectLanguage(Message m) {
 		Translator tranny = new Translator();
 		if(m.getModTrailing().matches("^\\s*$")) {
-			m.createReply("I detect a " + Constants.BOLD + "jerk" + Constants.NORMAL + ", with a confidence of 1.0").send();
+			m.reply("I detect a " + Constants.BOLD + "jerk" + Constants.NORMAL + ", with a confidence of 1.0");
 			return;
 		}
 		try {
@@ -743,13 +743,13 @@ public class Google extends Module {
 						+ ", but I'm not sure, my confidence is only " 
 						+ dls.getResponseData().getConfidence()).send();
 			else
-				m.createReply("I have no idea what kind of gibber-jabber that might be.").send();
+				m.reply("I have no idea what kind of gibber-jabber that might be.");
 
 		} catch (SocketTimeoutException ste) {
-			m.createReply("I got bored waiting for Google to figure out what language you were using").send();
+			m.reply("I got bored waiting for Google to figure out what language you were using");
 			ste.printStackTrace();
 		} catch (IOException ioe) {
-			m.createReply("Something went wrong when I tried to talk to Google").send();
+			m.reply("Something went wrong when I tried to talk to Google");
 			ioe.printStackTrace();
 		}
 	}
@@ -773,9 +773,9 @@ public class Google extends Module {
 		String query = quoteAndClean(m.getModTrailing()) ;
 		int sexyPercentage = Math.round((float) 100 * sexiness(query)) ;
 		if (sexyPercentage < 0) {
-			m.createReply(query + " does not exist, and therefore can not be appraised for sexiness.").send() ;
+			m.reply(query + " does not exist, and therefore can not be appraised for sexiness.") ;
 		} else {
-			m.createReply(query + " is " + sexyPercentage + "% sexy.").send() ;
+			m.reply(query + " is " + sexyPercentage + "% sexy.") ;
 		}
 	}
 
@@ -784,9 +784,9 @@ public class Google extends Module {
 		String query = quoteAndClean(m.getModTrailing()) ;
 		int sexyPercentage = Math.round((float) 100 * gayness(query)) ;
 		if (sexyPercentage < 0) {
-			m.createReply(query + " does not exist, and therefore can not be appraised for faggotry.").send() ;
+			m.reply(query + " does not exist, and therefore can not be appraised for faggotry.") ;
 		} else {
-			m.createReply(query + " is " + sexyPercentage + "% homosexual.").send() ;
+			m.reply(query + " is " + sexyPercentage + "% homosexual.") ;
 		}
 	}
 
@@ -795,13 +795,13 @@ public class Google extends Module {
 		throws GoogleSearchFault {
 		String query = quoteAndClean(m.modTrailing) ;
 		if (query.matches("^[\\\"\\s]*$")) {
-			m.createReply("The pornometer is a sophisticated instrument, but it won't do anything unless you give it something to measure.").send() ;
+			m.reply("The pornometer is a sophisticated instrument, but it won't do anything unless you give it something to measure.") ;
 			return ;
 		}
 		float pornometerReading = GoatGoogle.pornometer(query) ;
 		int pornPercent = Math.round((float) 100 * pornometerReading) ;
 		if (pornPercent < 0) {
-			m.createReply(query + " could not be measured with the pornometer, due to a lack of actually existing.").send() ;
+			m.reply(query + " could not be measured with the pornometer, due to a lack of actually existing.") ;
 		} else if ((float) 0 == pornometerReading) {
 			// a little fun here
 			String [] possibleReplies = {
@@ -811,7 +811,7 @@ public class Google extends Module {
 				query + " is 100% " + Message.BOLD + "BORING.",
 				query + " is as clean as a whistle."
 			} ;
-			m.createReply(possibleReplies[random.nextInt(possibleReplies.length)]).send();
+			m.reply(possibleReplies[random.nextInt(possibleReplies.length)]);
 		} else if ((float) 1 == pornometerReading) {
 			String [] possibleReplies = {
 				"I totally want to fuck " + query,
@@ -819,9 +819,9 @@ public class Google extends Module {
 				query + " is completely filthy.",
 				query + " is 100% " + Message.BOLD + "HOTTT."
 			} ;
-			m.createReply(possibleReplies[random.nextInt(possibleReplies.length)]).send() ;
+			m.reply(possibleReplies[random.nextInt(possibleReplies.length)]) ;
 		} else {
-			m.createReply(query + " is " + pornPercent + "% pornographic.").send() ;
+			m.reply(query + " is " + pornPercent + "% pornographic.") ;
 		}
 	}
 	 */
@@ -833,7 +833,7 @@ public class Google extends Module {
 	throws SocketTimeoutException, MalformedURLException, IOException {
 		String [] contestants = StringUtil.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
-			m.createReply("Usage:  \"googlefight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
+			m.reply("Usage:  \"googlefight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"") ;
 			return ;
 		}
 		for (int i = 0 ; i < contestants.length ; i++) 
@@ -845,13 +845,13 @@ public class Google extends Module {
 			m.createReply("There was no winner, only losers.  Try fighting with things that actually exist.") ;
 			break;
 		case 1 : // normal
-			m.createReply("The winner is " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", with a score of " + scores[winners[0]] + "!").send() ;
+			m.reply("The winner is " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", with a score of " + scores[winners[0]] + "!") ;
 			break;
 		default : // tie
 			String winnerString = Constants.BOLD + contestants[winners[0]] + Constants.BOLD ;
 			for (int i=1 ; i < winners.length ; i++)
 				winnerString += " and " + Constants.BOLD + contestants[winners[i]] + Constants.BOLD ;
-			m.createReply("We have a tie!  " + winnerString + " tied with a score of " + scores[winners[0]]).send() ;
+			m.reply("We have a tie!  " + winnerString + " tied with a score of " + scores[winners[0]]) ;
 			break;
 		}
 	}

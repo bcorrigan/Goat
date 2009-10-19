@@ -36,7 +36,7 @@ public class Googlism extends Module {
         query = query.replaceAll("\\?","");
         if(query.length()==0) {
             //infuriate the user
-            m.createReply("I'm sorry, but you don't seem to have anything interesting to ask.").send();
+            m.reply("I'm sorry, but you don't seem to have anything interesting to ask.");
             return;
         }
 
@@ -67,11 +67,11 @@ public class Googlism extends Module {
 			connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
 			connection.connect();
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-				m.createReply("I don't know anything about that, " + m.getSender() + ", sorry.").send();
+				m.reply("I don't know anything about that, " + m.getSender() + ", sorry.");
                 return;
             }
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-			    m.createReply( "Hmmmn, " + m.getSender() + ", the googlism server is giving me HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
+			    m.reply( "Hmmmn, " + m.getSender() + ", the googlism server is giving me HTTP Status-Code " + connection.getResponseCode() + ", sorry.");
 			    return;
             }
 			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -93,10 +93,10 @@ public class Googlism extends Module {
             if(results.length()>0)
                 m.createPagedReply(results).send();
             else
-                m.createReply("I don't know anything about " + failureTerm + ", " + m.getSender() + ".").send();
+                m.reply("I don't know anything about " + failureTerm + ", " + m.getSender() + ".");
         }
 		catch (IOException e) {
-			m.createReply("I'm broken!").send();
+			m.reply("I'm broken!");
 		}
 	}
 

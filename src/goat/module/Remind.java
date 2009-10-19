@@ -77,12 +77,12 @@ public class Remind extends Module {
                 due += (weeks * 604800 + days * 86400 + hours * 3600 + minutes * 60 + seconds) * 1000;
             }
             catch (NumberFormatException e) {
-                m.createReply("I can't quite deal with numbers like that!").send();
+                m.reply("I can't quite deal with numbers like that!");
                 return;
             }
             
             if (due == set) {
-                m.createReply("Example of correct usage: \"Remind me in 1 hour, 10 minutes to check the oven.\"  I understand all combinations of weeks, days, hours, minutes and seconds.").send();
+                m.reply("Example of correct usage: \"Remind me in 1 hour, 10 minutes to check the oven.\"  I understand all combinations of weeks, days, hours, minutes and seconds.");
                 return;
             }
 
@@ -97,7 +97,7 @@ public class Remind extends Module {
             cal.setTimeInMillis( reminder.getDueTime() );
             
             String date = String.format(Locale.UK, "%1$td/%1$tm/%1$ty %1$tR", cal);
-            m.createReply(m.getSender() + ": Okay, I'll remind " + replyName + " about that on " + date + " " + timeZone).send();
+            m.reply(m.getSender() + ": Okay, I'll remind " + replyName + " about that on " + date + " " + timeZone);
             reminders.add(reminder);
             timer.interrupt();
         }

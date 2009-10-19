@@ -20,11 +20,11 @@ public class Core extends Module {
 			if (m.getModCommand().toLowerCase().equals("part")) {
 				if (BotStats.getInstance().containsChannel(m.getModTrailing())) {
 					new Message("", "PART", m.getModTrailing(), "").send();
-					m.createReply("Channel " + m.getModTrailing() + " parted!").send();
+					m.reply("Channel " + m.getModTrailing() + " parted!");
 					BotStats.getInstance().removeChannel(m.getModTrailing());
 					return;
 				}
-				m.createReply("I'm not on any such channel " + m.getModTrailing() + " :(").send();
+				m.reply("I'm not on any such channel " + m.getModTrailing() + " :(");
 
 			}
 			else if (m.getModCommand().toLowerCase().equals("join"))
@@ -35,10 +35,10 @@ public class Core extends Module {
 					if (m.getReplyTo().equals(""))
 						System.out.println(response) ;
 					else
-						m.createReply(response).send();
+						m.reply(response);
 					BotStats.getInstance().addChannel(m.getModTrailing());
 				} else
-					m.createReply("Sorry, that's not a valid channel name!").send();
+					m.reply("Sorry, that's not a valid channel name!");
 			else if (m.getModCommand().toLowerCase().equals("nick"))
 				new Message("", "NICK", m.getModTrailing(), "").send();
 			else if (m.getModCommand().toLowerCase().equals("quit")) {
@@ -50,18 +50,18 @@ public class Core extends Module {
 				try { 
 					charset = Charset.forName( m.getModTrailing().trim() );
 				} catch(IllegalCharsetNameException icne) {
-					m.createReply("That charset is illegally specified :(").send();
+					m.reply("That charset is illegally specified :(");
 					return;
 				} catch(UnsupportedCharsetException uce) {
-					m.createReply("That charset is not supported in this JVM.").send();
+					m.reply("That charset is not supported in this JVM.");
 					return;
 				}
 				BotStats.getInstance().setCharset(charset);
-				m.createReply("OK, changed to " + m.getModTrailing().trim() + " charset.").send();
+				m.reply("OK, changed to " + m.getModTrailing().trim() + " charset.");
 				}
 			}
 		if (m.getModCommand().toLowerCase().equals("showcharset")) {
-			m.createReply( "Current charset is " + BotStats.getInstance().getCharset().toString()).send();
+			m.reply( "Current charset is " + BotStats.getInstance().getCharset().toString());
 		}
 	}
 

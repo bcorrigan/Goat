@@ -85,14 +85,14 @@ public class Bible extends Module {
         if(parser.has("bible"))
             bible=parser.get("bible").toUpperCase();
         if(!bibles.containsKey(bible)) {
-            m.createReply("I'm afraid that bible is not supported. Try one of these: ").send();
+            m.reply("I'm afraid that bible is not supported. Try one of these: ");
             m.createPagedReply( supportedBibles ).send();
             return;
         }
         try {
             bibleQuery = java.net.URLEncoder.encode( parser.remaining(), "ISO-8859-1" );
         } catch (UnsupportedEncodingException e) {
-            m.createReply("Internal error: encoding not supported for urlencode. ").send();
+            m.reply("Internal error: encoding not supported for urlencode. ");
             e.printStackTrace();
             return;
         }
@@ -106,11 +106,11 @@ public class Bible extends Module {
             // connection.setConnectTimeout(3000);
             connection.connect();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-                m.createReply( "For some reason the bible server is giving me a 404, " + m.getSender() + ", sorry." ).send();
+                m.reply( "For some reason the bible server is giving me a 404, " + m.getSender() + ", sorry." );
                 return;
             }
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                m.createReply( "Hmmmn, " + m.getSender() + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.").send();
+                m.reply( "Hmmmn, " + m.getSender() + ", the server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.");
                 return;
             }
             in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
@@ -124,7 +124,7 @@ public class Bible extends Module {
                     return;
                 }
                 if (inputLine.contains("No results found")) {
-                    m.createReply("Sorry, the Good Book doesn't have that.").send();
+                    m.reply("Sorry, the Good Book doesn't have that.");
                     return;
                 }
             }

@@ -49,17 +49,17 @@ public class Hal extends Module {
 			return;
 		}
 		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*.*")) {
-			m.createReply(hal.getSentence(m.getTrailing().toLowerCase())).send();
+			m.reply(hal.getSentence(m.getTrailing().toLowerCase()));
 			hal.add(m.getTrailing().toLowerCase());
 		}
 		if (m.getTrailing().toLowerCase().matches("^\\s*rant\\W*"))
 			rant = !rant;
 		if (rant) {
-			m.createReply(hal.getSentence(m.getTrailing().toLowerCase())).send();
+			m.reply(hal.getSentence(m.getTrailing().toLowerCase()));
 			hal.add(m.getTrailing().toLowerCase());
 		} else {
 			if(time<=0) {
-				m.createReply(hal.getSentence(m.getModTrailing())).send();
+				m.reply(hal.getSentence(m.getModTrailing()));
 				hal.add(m.getModTrailing());
 				time = (int) (Math.random() * 40 + 10);
 			} else

@@ -54,13 +54,13 @@ public class Confessions extends Module {
 			}
 		} catch (SocketTimeoutException e) {
 			if (null != m)
-				m.createReply("Timed out trying to extract confessions").send() ;
+				m.reply("Timed out trying to extract confessions") ;
 			else
 				System.out.println("Timed out trying to extract confessions");
 			// e.printStackTrace() ;
 		} catch (IOException e) {
 			if (m != null)
-				m.createReply("I/O problem while trying to extract confessions").send() ;
+				m.reply("I/O problem while trying to extract confessions") ;
 			else
 				System.out.println("I/O problem while trying to extract confessions");
 			e.printStackTrace();
@@ -202,18 +202,18 @@ public class Confessions extends Module {
 					return confession;
 				} else {
 					if (m != null)
-						m.createReply("I'm afraid I just don't feel guilty about " + searchString + ".").send();
+						m.reply("I'm afraid I just don't feel guilty about " + searchString + ".");
 				}
 			// }
 		} catch (URISyntaxException e) {
-			m.createReply("Um, I couldn't make a valid URI out of \"" + searchString + "\".").send();
+			m.reply("Um, I couldn't make a valid URI out of \"" + searchString + "\".");
 		} catch (SocketTimeoutException e) {
 			if (null != m)
-				m.createReply("Timed out while trying to extract confessions about " + searchString).send();
+				m.reply("Timed out while trying to extract confessions about " + searchString);
 			// e.printStackTrace() ;
 		} catch (IOException e) {
 			if (null != m)
-				m.createReply("I/O problem while trying to extract confessions about " + searchString).send();
+				m.reply("I/O problem while trying to extract confessions about " + searchString);
 			e.printStackTrace();
             if(connection!=null) connection.disconnect();
 		}

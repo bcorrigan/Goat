@@ -112,7 +112,7 @@ public class Colours extends Module {
 			else
 				msg = "I think something has gone wrong in my innards" ;
 		}
-		m.createReply(msg).send() ;
+		m.reply(msg) ;
 	}
 	
 	private String homosexualise(String arg) {

@@ -116,7 +116,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 					pool.submit(newTimer);
 					//newTimer.setFuture(pool.submit(newTimer));  // submit() starts the timer, setFuture gives the timer a hook to interrupt its run() thread
 				} catch (IOException ioe) {
-					m.createReply("I couldn't start a new game due to an i/o exception while setting things up.").send();
+					m.reply("I couldn't start a new game due to an i/o exception while setting things up.");
 					ioe.printStackTrace();
 				}
 			}
@@ -249,7 +249,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		//else if (null != currentWinningPlayer
         //		&& (scores.playerScore(currentWinningPlayer) >= warningThreshold)
         //		&& (null == warningsGiven.get(currentWinningPlayer))) {
-		//	target.createReply(Constants.BOLD + "Warning: " + Constants.BOLD + currentWinningPlayer + " is within striking distance of victory!").send();
+		//	target.reply(Constants.BOLD + "Warning: " + Constants.BOLD + currentWinningPlayer + " is within striking distance of victory!");
 		//	warningsGiven.put(currentWinningPlayer, true);
 		//}	
 	}
@@ -270,15 +270,15 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		if (scores.size() > 1) {
 			int difference = 0;
 			difference = Integer.parseInt(entry1[TOTAL_SCORE]) - Integer.parseInt(entry2[TOTAL_SCORE]);
-			target.createReply(entry1[NAME] + " won by a clear " + difference + " points.").send();
+			target.reply(entry1[NAME] + " won by a clear " + difference + " points.");
 
 			if (difference > 50) {
-				target.createReply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of overwhelming margin of victory.").send() ;
+				target.reply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of overwhelming margin of victory.") ;
 				noContest = true ;
 			}
 			//System.out.println("finaliseMatch(): finished scores greater than one");
 		} else {
-			target.createReply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of \"no one else was playing.\"").send() ;
+			target.reply("The scorekeeper has declared this match a " + Constants.UNDERLINE + "no contest" + Constants.UNDERLINE + ", by reason of \"no one else was playing.\"") ;
 			noContest = true ;
 		}
 		
@@ -339,7 +339,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
                 } 
                 if (word.length() == longestPossible) {
                     //We have a winner!
-                    m.createReply(currentWinningPlayer + " WINS IT!!").send();
+                    m.reply(currentWinningPlayer + " WINS IT!!");
                     playingRound = false;
                     finaliseRound();
                     gamesUnderway.get(m.getChanname()).interruptTimerThread();              
@@ -396,11 +396,11 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 			List<String> lines = s.scoreTable(20);
 			if(lines.size() > 0)
 				for(String line: lines)
-					m.createReply(line).send();
+					m.reply(line);
 			else
-				m.createReply("Nobody has a score yet :(").send();
+				m.reply("Nobody has a score yet :(");
 		} catch (IOException ioe) {
-			m.createReply("I had an i/o problem while trying to fetch the scores table").send();
+			m.reply("I had an i/o problem while trying to fetch the scores table");
 		}
 	}
 	
@@ -410,11 +410,11 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 			List<String> lines = s.matchScoreTable(20);
 			if(lines.size() > 0)
 				for(String line: lines)
-					m.createReply(line).send();
+					m.reply(line);
 			else
-				m.createReply("Nobody has won a match yet :(").send();
+				m.reply("Nobody has won a match yet :(");
 		} catch (IOException ioe) {
-			m.createReply("I had an i/o problem while trying to fetch the match scores table").send();
+			m.reply("I had an i/o problem while trying to fetch the match scores table");
 		}
 	} 
 
@@ -446,7 +446,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 			autoMatch(10);
 			
 			// Debugging line, if we don't see this, we didn't get a clean exit
-			// thisGame.target.createReply("Good game, nerds!").send();
+			// thisGame.target.reply("Good game, nerds!");
 			
 			// We're done with the game object now, we 
 			//   should stop its message-dispatching thread explicitly
@@ -468,7 +468,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 				if(round > 0) {
 					waitBetweenRounds(1500, true); // short wait between end of previous round and announcement of next
 					if(! pauseScheduled) {
-						thisGame.target.createReply("Round " + (round + 1) + " of " + rounds + " starts in 10 seconds").send();
+						thisGame.target.reply("Round " + (round + 1) + " of " + rounds + " starts in 10 seconds");
 						waitBetweenRounds(7000, true);
 					}
 
@@ -477,14 +477,14 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 						pause();
 						
 				} else if(round == 0) {
-					thisGame.target.createReply("Starting a " + rounds + " round match!").send();
+					thisGame.target.reply("Starting a " + rounds + " round match!");
 					waitBetweenRounds(1500, false);
 				}
 					
 				// count it down
-				thisGame.target.createReply("Ready!").send();
+				thisGame.target.reply("Ready!");
 				waitBetweenRounds(1500, false);
-				thisGame.target.createReply("Set!").send();
+				thisGame.target.reply("Set!");
 				waitBetweenRounds(1500, false);
 
 				// Start up the game
@@ -497,7 +497,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 
 				// ten second warning -- in addition to round time above
 				if(thisGame.playingRound) { 
-					thisGame.target.createReply(Constants.BOLD + "10 secs..").send();
+					thisGame.target.reply(Constants.BOLD + "10 secs..");
 					try {
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {}
@@ -545,18 +545,18 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		private synchronized void pause() {
 			if(pauseScheduled) {
 				try {
-					thisGame.target.createReply("This match has been paused.  To continue, type \"resumeMatch\"").send();
+					thisGame.target.reply("This match has been paused.  To continue, type \"resumeMatch\"");
 					while(pauseScheduled)
 						wait();
 
-					thisGame.target.createReply("The match will resume shortly...").send();
+					thisGame.target.reply("The match will resume shortly...");
 					try {
 						Thread.sleep(3000);  // short wait before starting next round
 					} catch (InterruptedException ie2) {}
 				} catch (InterruptedException ie) {
 					// Mostly for debugging ATM, we don't use interrupts between matches as things stand;  no harm in leaving it in.
 					// Note that 
-					thisGame.target.createReply("(the paused match was interrupted)").send();
+					thisGame.target.reply("(the paused match was interrupted)");
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException ie2) {}
@@ -581,21 +581,21 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 		public synchronized void scheduleMatchPause() {
 			if(pauseScheduled) {
 				if(thisGame.playingRound)
-					thisGame.target.createReply("Yes, I heard you the first time; the match will be paused after this round is finished.").send();
+					thisGame.target.reply("Yes, I heard you the first time; the match will be paused after this round is finished.");
 				else
-					thisGame.target.createReply("The match has already been paused!").send();
+					thisGame.target.reply("The match has already been paused!");
 			} else {
 				synchronized (pauseScheduled) {
 					pauseScheduled = true;  // This should be the only point in the code where pauseScheduled gets set to true
 				}
 				if(thisGame.playingRound)
-					thisGame.target.createReply("The match will be paused at the end of this round").send();
+					thisGame.target.reply("The match will be paused at the end of this round");
 				else if(allowPauseInterrupt) {
 					interruptTimerThread();
 				} else {
 					// provided everything else is coded correctly, we should only get here
 					// during the "ready... set..." countdown to the start of a round.
-					thisGame.target.createReply("Too late to pause, now; I'll pause at the end of the round.").send();
+					thisGame.target.reply("Too late to pause, now; I'll pause at the end of the round.");
 				}
 			}
 		}

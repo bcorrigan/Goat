@@ -51,22 +51,22 @@ public class RandWords extends Module {
 				try {
 					num = Integer.parseInt(numString) ;
 				} catch (NumberFormatException e) {
-					m.createReply("Don't fuck with me, tough guy.").send() ;
+					m.reply("Don't fuck with me, tough guy.") ;
 					return ;
 				}
 			if (num > 1000) {
-				m.createReply("Now you're just being a prick.").send() ;
+				m.reply("Now you're just being a prick.") ;
 				return ;
 			} else if (num > 100) {
-				m.createReply("Don't be ridiculous.").send() ;
+				m.reply("Don't be ridiculous.") ;
 				return ;
 			} else if (num < 1) {
-				m.createReply("er...").send() ;
+				m.reply("er...") ;
 				return ;
 			} else if (num > 30) {
 				num = 30 ;
 			}		
-			m.createReply(randWordString(num)).send() ;
+			m.reply(randWordString(num)) ;
 		} else if (m.getModCommand().equalsIgnoreCase("bandname")) {
 			String arg = m.getModTrailing().trim() ;
 			String reply;
@@ -79,7 +79,7 @@ public class RandWords extends Module {
 					reply = getWord() + ' ' + arg ;
 				}
 			}
-			m.createReply(reply).send() ;
+			m.reply(reply) ;
 		} else if (m.getModCommand().equalsIgnoreCase("headline")) {
 			CommandParser parser = new CommandParser(m) ;
 			String reply = "";
@@ -97,7 +97,7 @@ public class RandWords extends Module {
 				}
 				reply += seeds.remove(0) ;
 			}
-			m.createReply(reply).send() ;
+			m.reply(reply) ;
 		}
 	}
 

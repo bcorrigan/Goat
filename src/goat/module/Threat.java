@@ -59,7 +59,7 @@ public class Threat extends Module implements Runnable {
 	}
 
 	public void processChannelMessage(Message m) {
-		m.createReply("The current Department of Homeland Security terror threat level is " + THREATS[threatLevel]).send();
+		m.reply("The current Department of Homeland Security terror threat level is " + THREATS[threatLevel]);
 	}
 
 	public String[] getCommands() {

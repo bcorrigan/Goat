@@ -55,7 +55,7 @@ public class Help extends Module {
 		try {
 			in = new BufferedReader(new FileReader("docs" + File.separatorChar + fname));
 		} catch (FileNotFoundException e) {
-			m.createReply("Couldn't find help file: " + filename).send();
+			m.reply("Couldn't find help file: " + filename);
 			return;
 		}
 		String line;

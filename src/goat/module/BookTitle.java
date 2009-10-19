@@ -75,7 +75,7 @@ public class BookTitle extends Module {
 			titles.add("The " + noun1 + "\'s " + noun2) ;
 			titles.add("The " + noun1 + " of the " + noun2) ;
 			titles.add(noun1 + " in the " + noun2) ;
-			m.createReply((String) titles.remove(random.nextInt(titles.size()))).send();
+			m.reply((String) titles.remove(random.nextInt(titles.size())));
 		} else if(m.getModCommand().equalsIgnoreCase("titlenouns")) {
 			String reply = num_nouns + " nouns:  " ;
 			for(int i=0;i<num_nouns;i++) {
@@ -89,7 +89,7 @@ public class BookTitle extends Module {
 			}
 			m.createPagedReply(reply).send() ;
 		} else if(m.getModCommand().equalsIgnoreCase("titlewords")) {
-			m.createReply("I'm not telling.").send() ;
+			m.reply("I'm not telling.") ;
 		}
 	}
 	

@@ -184,7 +184,7 @@ public class ShutUp extends Module {
 				// debug
 				//System.out.println("JOEY detected!") ;
 			} else {
-				m.createReply("Shut up, joey.").send() ;
+				m.reply("Shut up, joey.") ;
 			}
 		}
 		
@@ -214,9 +214,9 @@ public class ShutUp extends Module {
 		
 		
 		if(m.getTrailing().toLowerCase().matches(".*i miss joey\\s*"))
-			m.createReply("We all do.").send();
+			m.reply("We all do.");
 		else if(m.getTrailing().toLowerCase().matches(".*i miss joey.*"))
-			m.createReply("We all miss joey.").send();
+			m.reply("We all miss joey.");
 		
 		
 		//debug
@@ -257,7 +257,7 @@ public class ShutUp extends Module {
 			reply += "?";
 		else
 			reply += ".";
-		m.createReply(reply).send();
+		m.reply(reply);
 	}
 	
 

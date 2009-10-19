@@ -26,7 +26,7 @@ public class GoatSay extends Module {
 
 	public void processChannelMessage(Message m) {
 		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*")) {
-			m.createReply("Goat!").send();
+			m.reply("Goat!");
 		}
 
 		if (m.getTrailing().toLowerCase().matches("^\\s*moo*\\W*")) {
@@ -44,12 +44,12 @@ public class GoatSay extends Module {
 		*/	
 		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
-			m.createReply(mem + "kb").send();
+			m.reply(mem + "kb");
 		}
 
 		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+uptime\\W*")) {
 			long uptime = System.currentTimeMillis() - init;
-			m.createReply(StringUtil.vshortDurationString(uptime)).send();
+			m.reply(StringUtil.vshortDurationString(uptime));
 		}
 	}
 
@@ -58,22 +58,22 @@ public class GoatSay extends Module {
 
 		switch (i) {
 			case 0:
-				m.createReply("Moooooo!").send();
+				m.reply("Moooooo!");
 				break;
 			case 1:
-				m.createReply("moooo").send();
+				m.reply("moooo");
 				break;
 			case 2:
-				m.createReply("MOOO").send();
+				m.reply("MOOO");
 				break;
 			case 3:
-				m.createReply("mooOOOoOo").send();
+				m.reply("mooOOOoOo");
 				break;
 			case 4:
-				m.createReply("moo").send();
+				m.reply("moo");
 				break;
 			case 5:
-				m.createReply("moo :)").send();
+				m.reply("moo :)");
 		}
 	}
 	

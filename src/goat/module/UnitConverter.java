@@ -420,7 +420,7 @@ public class UnitConverter extends Module {
                     return;
 
                 String result = doCalculation( valueArg, multiplierFrom, multiplierTo, unitFrom, unitTo);
-                m.createReply(valueArg + " " + p_multiplier_description[multiplierFrom].split(" ")[0] + p_unit_symbol[unitFrom] + " = " + result + " " + p_multiplier_description[multiplierTo].split(" ")[0] + p_unit_symbol[unitTo]).send();
+                m.reply(valueArg + " " + p_multiplier_description[multiplierFrom].split(" ")[0] + p_unit_symbol[unitFrom] + " = " + result + " " + p_multiplier_description[multiplierTo].split(" ")[0] + p_unit_symbol[unitTo]);
             }
         } else if( m.getModCommand().toLowerCase().equals("describeunit")) {
             String unitArg = m.getModTrailing();
@@ -452,7 +452,7 @@ public class UnitConverter extends Module {
             }
             if(results.length()>0)
                 m.createPagedReply(results).send();
-            else m.createReply("No matching units found.").send();
+            else m.reply("No matching units found.");
         }
     }
 
@@ -460,7 +460,7 @@ public class UnitConverter extends Module {
         if( unit==-1 ) {
             //if it looks like message might be intended for currency converter, don't error spam!
             if (!m.getModTrailing().matches(".*\\d+([,\\d]+)?(\\.\\d+)? [a-z]{3} to [a-z]{3}.*"))
-                m.createReply("Unit not found: " + arg).send();
+                m.reply("Unit not found: " + arg);
             return false;
         }
         return true;
@@ -468,7 +468,7 @@ public class UnitConverter extends Module {
 
     private boolean checkCategories(int unitFrom, int unitTo, Message m) {
         if( !p_unit_category_id[unitFrom].equals(p_unit_category_id[unitTo]) ) {
-            m.createReply("You can't convert from " + p_category_name[ p_unit_category_id[unitFrom] ] + " to " + p_category_name[ p_unit_category_id[unitTo] ] + ", silly.").send();
+            m.reply("You can't convert from " + p_category_name[ p_unit_category_id[unitFrom] ] + " to " + p_category_name[ p_unit_category_id[unitTo] ] + ", silly.");
             return false;
         }
         return true;

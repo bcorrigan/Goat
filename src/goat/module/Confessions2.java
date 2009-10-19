@@ -147,25 +147,25 @@ public class Confessions2 extends Module {
 					defaultConfession(m);
 				}
 			} else {
-				m.createReply("Nobody told me what to do with that command.").send();
+				m.reply("Nobody told me what to do with that command.");
 			}
 		} catch (CorruptIndexException cie) {
-			m.createReply("I can't, my index is corrupt!").send();
+			m.reply("I can't, my index is corrupt!");
 			cie.printStackTrace();
 		} catch (ParseException pe) {
-			m.createReply("I'm sorry?  I can't figure out what you want from me.").send();
+			m.reply("I'm sorry?  I can't figure out what you want from me.");
 			// pe.printStackTrace();
 		} catch (IOException ioe) {
-			m.createReply("I can't right now, my IO is exceptioning.").send();
+			m.reply("I can't right now, my IO is exceptioning.");
 			ioe.printStackTrace();
 		} catch (DatabaseException dbe) {
-			m.createReply("I'm sorry, but I'm having problems with my database.").send();
+			m.reply("I'm sorry, but I'm having problems with my database.");
 			dbe.printStackTrace();
 		} catch (TooManyClauses tme) {
 			if(m.getPrefix().trim().matches(".*\\.nyc\\.res\\.rr\\.com$"))  //TODO isQpt()
-				m.createReply("You can go right to hell, qpt!").send();
+				m.reply("You can go right to hell, qpt!");
 			else
-				m.createReply("I'm terribly sorry, but that query had way too many terms in it after I was done parsing and expanding it.").send();
+				m.reply("I'm terribly sorry, but that query had way too many terms in it after I was done parsing and expanding it.");
 			System.out.println("Confessions2:  search casued TooManyTerms exception in query parser:\n   " + m.getModTrailing().replaceFirst("(?i)about", ""));
 		}
 
@@ -176,11 +176,11 @@ public class Confessions2 extends Module {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		int count = searchCount(query);
 		if(0 == count)
-			m.createReply("Sorry, I have no regrets about " + query + ".").send();
+			m.reply("Sorry, I have no regrets about " + query + ".");
 		else if(1 == count)
-			m.createReply("I have only one regret about " + query + ".").send();
+			m.reply("I have only one regret about " + query + ".");
 		else
-			m.createReply("I have " + count + " regrets about " + query + ".").send();
+			m.reply("I have " + count + " regrets about " + query + ".");
 	} 
 
 	private void defaultConfession(Message m) {
@@ -193,7 +193,7 @@ public class Confessions2 extends Module {
 				randomConfession(m);
 			}
 		} catch (DatabaseException dbe) {
-			m.createReply("oops, something in my database seems to be fucked up.  Sorry.").send();
+			m.reply("oops, something in my database seems to be fucked up.  Sorry.");
 			dbe.printStackTrace();
 		}
 	}
@@ -202,7 +202,7 @@ public class Confessions2 extends Module {
 		try {
 			m.createPagedReply(textFromHTML(getRandomConfession().content).trim()).send();
 		} catch (DatabaseException dbe) {
-			m.createReply("I had a database fuckup while I was trying to get a random confession").send();
+			m.reply("I had a database fuckup while I was trying to get a random confession");
 			dbe.printStackTrace();
 		}
 	}
@@ -238,7 +238,7 @@ public class Confessions2 extends Module {
 				m.createPagedReply("I just don't feel guilty about " + queryString).send();
 			} else if(hits.size() > 1) {
 				int count = searchCount(queryString);
-				m.createReply("I have " + count + " things to confess about " + Constants.BOLD + queryString + Constants.NORMAL + ", starting with:").send();
+				m.reply("I have " + count + " things to confess about " + Constants.BOLD + queryString + Constants.NORMAL + ", starting with:");
 				String reply = textFromHTML(dbGet(hits.get(0)).content);
 				m.createPagedReply(reply).send();
 				hits.remove(0);
@@ -252,7 +252,7 @@ public class Confessions2 extends Module {
 	throws ParseException, CorruptIndexException, IOException {
 		String [] contestants = StringUtil.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
-			m.createReply("Usage:  \"guiltfight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"").send() ;
+			m.reply("Usage:  \"guiltfight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"") ;
 			return ;
 		}
 		for (int i = 0 ; i < contestants.length ; i++) 
@@ -261,16 +261,16 @@ public class Confessions2 extends Module {
 		int [] winners = getWinners(scores) ;
 		switch(winners.length) {
 		case 0 : // no winner
-			m.createReply("I don't feel guilty about any of that.").send() ;
+			m.reply("I don't feel guilty about any of that.") ;
 			break;
 		case 1 : // normal, one winner
-			m.createReply("I feel guiltiest about " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", I've got " + scores[winners[0]] + " regrets about it.").send() ;
+			m.reply("I feel guiltiest about " + Constants.BOLD + contestants[winners[0]] + Constants.BOLD + ", I've got " + scores[winners[0]] + " regrets about it.") ;
 			break;
 		default : // tie
 			String winnerString = Constants.BOLD + contestants[winners[0]] + Constants.BOLD ;
 			for (int i=1 ; i < winners.length ; i++)
 				winnerString += " and " + Constants.BOLD + contestants[winners[i]] + Constants.BOLD ;
-			m.createReply("I'm torn, I feel equally guilty about " + winnerString + ", with " + scores[winners[0]] + " regrets about each.").send() ;
+			m.reply("I'm torn, I feel equally guilty about " + winnerString + ", with " + scores[winners[0]] + " regrets about each.") ;
 			break;
 		}
 	}

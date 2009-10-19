@@ -85,15 +85,15 @@ public class CurrencyConverter extends Module {
         		if (DEBUG)
         			System.out.println("convert: new rate-table's date is \"" + exchangeRatesPublicationDate + "\"");
         	} catch (ParserConfigurationException pse) {
-        		m.createReply("I'm sorry, but someone fixes my xml parser, I can't convert that for you.").send();
+        		m.reply("I'm sorry, but someone fixes my xml parser, I can't convert that for you.");
         		pse.printStackTrace();
         		return;
         	} catch (SAXException se) {
-        		m.createReply("I had a problem parsing the exchange rate table").send();
+        		m.reply("I had a problem parsing the exchange rate table");
         		se.printStackTrace();
         		return;
         	} catch (IOException ioe) {
-        		m.createReply("I had a problem downloading the exchange rates table").send();
+        		m.reply("I had a problem downloading the exchange rates table");
         		ioe.printStackTrace();
         		return;
         	}
@@ -128,7 +128,7 @@ public class CurrencyConverter extends Module {
         			toCurrency = args[2].substring(0,3);
         		} else if(trailing.matches("(?i)\\d+(\\.\\d+)?\\s+to\\s+[a-z]{3}.*")) {
         			if(userCurrency.equals("")) {
-        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        				m.reply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.");
         				return;
         			} else {
         				fromCurrency = userCurrency;
@@ -137,7 +137,7 @@ public class CurrencyConverter extends Module {
         			}
         		} else if(trailing.matches("(?i)\\d+(\\.\\d+)?\\s+[a-z]{3}.*")) {
         			if(userCurrency.equals("")) {
-        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        				m.reply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.");
         				return;
         			} else {
         				toCurrency = userCurrency;
@@ -146,7 +146,7 @@ public class CurrencyConverter extends Module {
         			}
         		} else if(trailing.matches("(?i)to\\s+[a-z]{3}.*")) {
         			if(userCurrency.equals("")) {
-        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        				m.reply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.");
         				return;
         			} else {
         				fromCurrency = userCurrency;
@@ -154,7 +154,7 @@ public class CurrencyConverter extends Module {
         				toCurrency = args[1].substring(0,3);
         			}
         		} else if (trailing.equalsIgnoreCase(RATES_KEYWORD)) {
-        			m.createReply("Last Update: " + exchangeRatesPublicationDate).send();
+        			m.reply("Last Update: " + exchangeRatesPublicationDate);
         			final Iterator<String> it = exchangeRates.keySet().iterator();
         			String rate;
         			final StringBuffer buff = new StringBuffer(0);
@@ -169,7 +169,7 @@ public class CurrencyConverter extends Module {
         			return;
         		} else if(trailing.matches("[a-zA-Z]{3}.*")) {
         			if(userCurrency.equals("")) {
-        				m.createReply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.").send();
+        				m.reply("I don't know your currency, " + m.getSender() + ".  Either specify a currency to convert from, or set your currency by typing \"currency XXX\", where XXX is your currency code.");
         				return;
         			} else {
         				toCurrency = userCurrency;
@@ -182,10 +182,10 @@ public class CurrencyConverter extends Module {
         			return;
         		}
         	} catch (NumberFormatException nfe) {
-        		m.createReply("That number confuses me.  I prefer numbers like 0.12 or 1,234").send();
+        		m.reply("That number confuses me.  I prefer numbers like 0.12 or 1,234");
         	}
         	if (fromCurrency.equalsIgnoreCase(toCurrency))
-        		m.createReply("I'm not converting from " + fromCurrency.toUpperCase() + " to " + toCurrency.toUpperCase() + ", duh.").send();
+        		m.reply("I'm not converting from " + fromCurrency.toUpperCase() + " to " + toCurrency.toUpperCase() + ", duh.");
         	else
         		try {
         			NumberFormat nf = NumberFormat.getInstance();
@@ -208,17 +208,17 @@ public class CurrencyConverter extends Module {
         			if (toSymbol.equalsIgnoreCase(toCurrency))
         				toSymbol = "";
         			
-        			m.createReply(fromSymbol + nf.format(fromAmount) + " " + fromCurrency.toUpperCase() + " = " + toSymbol + nf.format(convert(fromAmount, fromCurrency, toCurrency)) + " " + toCurrency.toUpperCase()).send();
+        			m.reply(fromSymbol + nf.format(fromAmount) + " " + fromCurrency.toUpperCase() + " = " + toSymbol + nf.format(convert(fromAmount, fromCurrency, toCurrency)) + " " + toCurrency.toUpperCase());
         			
         		} catch (NullPointerException e) {
         			m.createPagedReply("The supported currencies are: " + exchangeRates.keySet().toString()).send();
         			// e.printStackTrace();
         		} catch (NumberFormatException nfe) {
-        			m.createReply("I got confused by a number in my exchange rate table.").send();
+        			m.reply("I got confused by a number in my exchange rate table.");
         			nfe.printStackTrace();
         		}
         } else {
-        	m.createReply("Sorry, but the exchange rate table is empty.").send();
+        	m.reply("Sorry, but the exchange rate table is empty.");
         }
     }
 

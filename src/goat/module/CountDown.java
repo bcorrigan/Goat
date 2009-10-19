@@ -70,7 +70,7 @@ public class CountDown extends Module implements Runnable {
                     try {
                         possibleAnswer = new Answer( Integer.parseInt( answer ), m.getSender() );
                     } catch( NumberFormatException nfe) {
-                        m.createReply("You used a formula that resulted in a non-int answer. This is not allowed!").send();
+                        m.reply("You used a formula that resulted in a non-int answer. This is not allowed!");
                         return;
                     }
                     if(bestAnswer == null || bestAnswer.getDistance( targetNumber )>possibleAnswer.getDistance( targetNumber ) ) {
@@ -87,7 +87,7 @@ public class CountDown extends Module implements Runnable {
                                         + targetNumber + "!" ).send();
                     }
                 } catch(CalculatorException ce) {
-                    m.createReply(ce.getLocalizedMessage()).send();
+                    m.reply(ce.getLocalizedMessage());
                 } catch(InterruptedException ie) {
                 	m.createReply("I was interrupted before I could calculate that");
                 }
@@ -117,7 +117,7 @@ public class CountDown extends Module implements Runnable {
     private void finaliseGame() {
         gameOn = false;
         if(bestAnswer==null) {
-            target.createReply("Nobody got an answer. The best answer was: " + Solver.Solve( sourceNumbers, targetNumber )).send();
+            target.reply("Nobody got an answer. The best answer was: " + Solver.Solve( sourceNumbers, targetNumber ));
             return;
         }
         if( bestAnswer.getAnswer() == bestPossibleAnswer ) {
@@ -125,7 +125,7 @@ public class CountDown extends Module implements Runnable {
                                 + " has won with " + bestAnswer.getAnswer() + "!";
             if( bestPossibleAnswer!=targetNumber)
                 reply+=" This was the best possible answer.";
-            target.createReply(reply).send();
+            target.reply(reply);
         } else {
             target.createReply( "The best answer was " + bestAnswer.getAnswer() + " by " + bestAnswer.getUsername() + "."
                                 + " But the best possible answer was: " + Solver.Solve( sourceNumbers, targetNumber )).send(); 
@@ -151,7 +151,7 @@ public class CountDown extends Module implements Runnable {
             i++;
         }
         if( !numbersCorrect( userNums )) {
-            target.createReply("You used a number not in the selection!").send();
+            target.reply("You used a number not in the selection!");
             return false;
         }
         //all numbers are correct, so now check remaining operators.
@@ -242,7 +242,7 @@ public class CountDown extends Module implements Runnable {
     				return;
     		}
 
-    		thisGame.target.createReply(Constants.BOLD + "10 secs..").send();
+    		thisGame.target.reply(Constants.BOLD + "10 secs..");
 
     		try {
     			Thread.sleep(10000);

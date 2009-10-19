@@ -124,10 +124,10 @@ public class Lastfm extends Module {
 				if (null != u.getLastfmname() && !"".equals(u.getLastfmname()))
 					lastfmUser = users.getUser(parser.get("ircuser")).getLastfmname();
 				else
-					m.createReply(u.getName() + " doesn't have a LastFM username set.").send();
+					m.reply(u.getName() + " doesn't have a LastFM username set.");
 			}
 			else
-				m.createReply("I've never heard of \"" + parser.get("ircuser") + "\".").send();
+				m.reply("I've never heard of \"" + parser.get("ircuser") + "\".");
 		else if(users.hasUser(m.getSender()))
 			lastfmUser = users.getUser(m.getSender()).getLastfmname();
 		return lastfmUser;
@@ -135,12 +135,12 @@ public class Lastfm extends Module {
 
 	private void ircTracks(Message m, String lastfmUser) {
 		if (lastfmUser.equals("")) {
-			m.createReply("I don't know your lastfm username; set it with \"lastfm setuser [yourname]\", or specify a name with \"lastfm tracks user=[lastfm_user_name]\"").send();
+			m.reply("I don't know your lastfm username; set it with \"lastfm setuser [yourname]\", or specify a name with \"lastfm tracks user=[lastfm_user_name]\"");
 			return;
 		}
 		Collection<Track> tracks = User.getRecentTracks(lastfmUser, apiKey);
 		if (tracks.isEmpty()) {
-			m.createReply("I don't have any tracks for lastfm user \"" + lastfmUser + "\"").send();
+			m.reply("I don't have any tracks for lastfm user \"" + lastfmUser + "\"");
 			return;
 		}
 		printTracks(tracks,m);
@@ -148,12 +148,12 @@ public class Lastfm extends Module {
 
 	private void ircSetUser(Message m) {
 		if(parser.remaining().length()==0) {
-			m.createReply(m.getSender() + ": You have to supply a username you enormous tit.").send();
+			m.reply(m.getSender() + ": You have to supply a username you enormous tit.");
 		} else if (parser.remainingAsArrayList().size()>1) {
-			m.createReply(m.getSender() + ": A lastfm username can't have spaces.").send();
+			m.reply(m.getSender() + ": A lastfm username can't have spaces.");
 		} else {
 			users.getOrCreateUser(m.getSender()).setLastfmname(parser.remaining().trim());
-			m.createReply(m.getSender() + ":  lastfm username set to \"" + users.getUser(m.getSender()).getLastfmname() + "\"").send();
+			m.reply(m.getSender() + ":  lastfm username set to \"" + users.getUser(m.getSender()).getLastfmname() + "\"");
 		}
 	}
 
@@ -172,7 +172,7 @@ public class Lastfm extends Module {
 				break;
 			}
 		if(null == type) {
-			m.createReply(m.getSender() + ": I've never heard of your stupid \"" + parser.get("chart") + "\" chart. Right now I only support:  " + ChartCoverage.valuesAsString().replaceAll(" ", "|").toLowerCase()).send();
+			m.reply(m.getSender() + ": I've never heard of your stupid \"" + parser.get("chart") + "\" chart. Right now I only support:  " + ChartCoverage.valuesAsString().replaceAll(" ", "|").toLowerCase());
 			return;
 		}
 
@@ -183,7 +183,7 @@ public class Lastfm extends Module {
 					break;
 				}
 			if(null == coverage) {
-				m.createReply("invalid chart coverage type \"" + parser.get("type") + "\", valid types are:  " + ChartCoverage.valuesAsString().replaceAll(" ", "|").toLowerCase()).send();
+				m.reply("invalid chart coverage type \"" + parser.get("type") + "\", valid types are:  " + ChartCoverage.valuesAsString().replaceAll(" ", "|").toLowerCase());
 				return;
 			}
 		} else {
@@ -197,11 +197,11 @@ public class Lastfm extends Module {
 			else if(ChartCoverage.WEEKLY == coverage)
 				albums = User.getWeeklyAlbumChart(lastfmUser, apiKey).getEntries();
 			else if(ChartCoverage.LOVED == coverage) {
-				m.createReply(m.getSender() + ": only tracks can be loved.").send();
+				m.reply(m.getSender() + ": only tracks can be loved.");
 				return;
 			} 
 			if (albums.isEmpty()) {
-				m.createReply("LastFM doesn't have a " + coverage.name().toLowerCase() + " album chart for user \"" + lastfmUser +"\".").send();
+				m.reply("LastFM doesn't have a " + coverage.name().toLowerCase() + " album chart for user \"" + lastfmUser +"\".");
 				return;
 			} else
 				printAlbums(albums,m);
@@ -212,11 +212,11 @@ public class Lastfm extends Module {
 			else if(ChartCoverage.WEEKLY == coverage)
 				artists = User.getWeeklyArtistChart(lastfmUser, apiKey).getEntries();
 			else if(ChartCoverage.LOVED == coverage) {
-				m.createReply(m.getSender() + ": only tracks can be loved.").send();
+				m.reply(m.getSender() + ": only tracks can be loved.");
 				return;
 			}
 			if (artists.isEmpty()) {
-				m.createReply("LastFM doesn't have a " + coverage.name().toLowerCase() + " artists chart for user \"" + lastfmUser +"\".").send();
+				m.reply("LastFM doesn't have a " + coverage.name().toLowerCase() + " artists chart for user \"" + lastfmUser +"\".");
 				return;
 			} else
 				printArtists(artists,m);
@@ -230,7 +230,7 @@ public class Lastfm extends Module {
 				tracks = User.getLovedTracks(lastfmUser, apiKey);
 			}
 			if (tracks.isEmpty()) {
-				m.createReply("LastFM doesn't have a " + coverage.name().toLowerCase() + " tracks chart for user \"" + lastfmUser +"\".").send();
+				m.reply("LastFM doesn't have a " + coverage.name().toLowerCase() + " tracks chart for user \"" + lastfmUser +"\".");
 				return;
 			} else
 				printTracks(tracks,m);
@@ -247,7 +247,7 @@ public class Lastfm extends Module {
 				break;
 			}
 		if (ChartType.ALBUMS == type) {
-			m.createReply("Sorry, lastfm won't let you see which albums are most popular in a given country.").send();
+			m.reply("Sorry, lastfm won't let you see which albums are most popular in a given country.");
 			return;
 		} else if (! parser.has("chart")) {
 			type = ChartType.TRACKS;
@@ -256,17 +256,17 @@ public class Lastfm extends Module {
 		if(ChartType.TRACKS == type) {
 			Collection<Track> tracks = Geo.getTopTracks(country, apiKey);
 			if(tracks.size() == 0) 
-				m.createReply("It would appear LastFM doesn't do any charting for the country \"" + country + "\".").send();
+				m.reply("It would appear LastFM doesn't do any charting for the country \"" + country + "\".");
 			else
 				printTracks(tracks, m);
 		} else if (ChartType.ARTISTS == type) {
 			Collection<Artist> artists = Geo.getTopArtists(country, apiKey);
 			if(artists.size() == 0) 
-				m.createReply("It would appear LastFM doesn't do any charting for the country \"" + country + "\".").send();
+				m.reply("It would appear LastFM doesn't do any charting for the country \"" + country + "\".");
 			else
 				printArtists(artists, m);
 		} else 
-			m.createReply("I don't know anything about your weird \"" + parser.get("chart") + "\" chart.  Valid chart types are: artists|tracks" ).send();
+			m.reply("I don't know anything about your weird \"" + parser.get("chart") + "\" chart.  Valid chart types are: artists|tracks" );
 	}
 
 	private void ircNowPlaying(Message m) {
@@ -280,14 +280,14 @@ public class Lastfm extends Module {
 			sc = (ServerCommands) module;
 		if(null != sc && sc.isRunning()) {
 			if(! m.getChanname().startsWith("#")) {
-				m.createReply("I only do nowplaying for channels, not in private.  Pervert.").send();
+				m.reply("I only do nowplaying for channels, not in private.  Pervert.");
 				return;
 			}
 			List<IrcUser> ircUsers;
 			try {
 				 ircUsers = sc.who(m.getChanname());
 			} catch (SocketTimeoutException ste) {
-				m.createReply("Timed out waiting for the server to tell me who's around.").send();
+				m.reply("Timed out waiting for the server to tell me who's around.");
 				return;
 			}
 			Pair<List<goat.core.User>> regUsers = usersWithLastfmUnames(ircUsers);
@@ -316,7 +316,7 @@ public class Lastfm extends Module {
 				}
 			}
 			if(results.isEmpty())
-				m.createReply("This channel is sunk in a deep silence, shunning all music and probably all humanity, too.").send();
+				m.reply("This channel is sunk in a deep silence, shunning all music and probably all humanity, too.");
 			else if(results.size() == 1 
 					&& senderU != null
 					&& !"".equals(senderU.getLastfmname())
@@ -381,7 +381,7 @@ public class Lastfm extends Module {
 					scoldSkips++;
 			}
 		} else {
-			m.createReply("I can't do that without the ServerCommands module running").send();
+			m.reply("I can't do that without the ServerCommands module running");
 		}			
 	}
 	
@@ -410,7 +410,7 @@ public class Lastfm extends Module {
 		if("".equals(lastfmUser) 
 				|| parser.command().equalsIgnoreCase("help") 
 				|| parser.command().equalsIgnoreCase("usage")) {
-			m.createReply(GENERAL_USAGE).send();
+			m.reply(GENERAL_USAGE);
 		}
 	}
 

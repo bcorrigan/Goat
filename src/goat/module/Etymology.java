@@ -101,17 +101,17 @@ public class Etymology extends Module {
 			connection.setReadTimeout(10000);
 			searchedEtym = parseEtym(connection);
 			if(searchedEtym.equals("")) {
-				m.createReply("I don't know the origin of " + searchString + ".").send();
+				m.reply("I don't know the origin of " + searchString + ".");
 			}
 		} catch (URISyntaxException e) {
-			m.createReply("Um, I couldn't make a valid URI out of \"" + searchString + "\".").send();
+			m.reply("Um, I couldn't make a valid URI out of \"" + searchString + "\".");
 		} catch (SocketTimeoutException e) {
 			if (null != m)
-				m.createReply("Timed out while trying to extract etymology of " + searchString).send();
+				m.reply("Timed out while trying to extract etymology of " + searchString);
 			// e.printStackTrace() ;
 		} catch (IOException e) {
 			if (null != m)
-				m.createReply("I/O problem while trying to extract etymology of " + searchString).send();
+				m.reply("I/O problem while trying to extract etymology of " + searchString);
 			e.printStackTrace();
             if(connection!=null) connection.disconnect();
 		}

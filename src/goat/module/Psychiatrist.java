@@ -29,6 +29,6 @@ public class Psychiatrist extends Module {
 		String answer = eliza.processInput(m.getModTrailing());
 		answer = answer.replaceAll("\\s\\s*", " "); //replace all multiple spaces with a single space
 		answer = answer.replaceAll("\\s\\?", "?");	//replace " ?" with "?"
-		m.createReply(answer).send();
+		m.reply(answer);
 	}
 }

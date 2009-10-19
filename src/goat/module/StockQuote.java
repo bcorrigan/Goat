@@ -36,7 +36,7 @@ public class StockQuote extends Module {
 		try {
 			ArrayList<YahooStockQuote> quotes = YahooStockQuote.getQuotes(m.getModTrailing());
 			if(quotes.size() < 1) {
-				m.createReply("You didn't give me any valid ticker symbols.  Look up symbols here:  http://finance.yahoo.com/lookup").send();
+				m.reply("You didn't give me any valid ticker symbols.  Look up symbols here:  http://finance.yahoo.com/lookup");
 				return;
 			} else if(quotes.size() > 5) {
 				String reply = "";
@@ -52,9 +52,9 @@ public class StockQuote extends Module {
 				m.createPagedReply(longQuote(quotes.get(0), tz)).send();
 			}
 		} catch (SocketTimeoutException ste) {
-			m.createReply("I got bored waiting for yahoo to give me quotes.").send();
+			m.reply("I got bored waiting for yahoo to give me quotes.");
 		} catch (YahooStockQuoteException ysqe) {
-			m.createReply("I had a problem talking to Yahoo:  " + ysqe.getMessage()).send();
+			m.reply("I had a problem talking to Yahoo:  " + ysqe.getMessage());
 			ysqe.printStackTrace();
 		}
 		//System.out.println("Finished stock quote for channel " + m.channame);

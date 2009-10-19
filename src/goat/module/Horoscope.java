@@ -56,11 +56,11 @@ public class Horoscope extends Module {
             for (Object user1 : users) {
                 HoroscopeUser user = (HoroscopeUser) user1;
                 if (user.getName().equals(m.getSender().toLowerCase())) {
-                    m.createReply(user.getSign() + ": " + getReport(user)).send();
+                    m.reply(user.getSign() + ": " + getReport(user));
                     return;
                 }
             }
-            m.createReply("I don't know what sign you are, " + m.getSender() + ", perhaps you should tell me.").send();
+            m.reply("I don't know what sign you are, " + m.getSender() + ", perhaps you should tell me.");
         } else if (m.getModTrailing().trim().toLowerCase().matches("aries") ||
                 m.getModTrailing().trim().toLowerCase().matches("taurus") ||
                 m.getModTrailing().trim().toLowerCase().matches("gemini") ||
@@ -79,14 +79,14 @@ public class Horoscope extends Module {
                 if (user.getName().equals(m.getSender().toLowerCase())) {
                     user.setSign(m.getModTrailing().split(" ")[0].toUpperCase());
                     commit();
-                    m.createReply(user.getSign() + ": " + getReport(user)).send();
+                    m.reply(user.getSign() + ": " + getReport(user));
                     return;
                 }
             }
             HoroscopeUser user = new HoroscopeUser(m.getSender().toLowerCase(), m.getModTrailing().split(" ")[0].toUpperCase());
             users.add(user);
             commit();
-            m.createReply(getReport(user)).send();
+            m.reply(getReport(user));
         }
     }
 

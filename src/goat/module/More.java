@@ -34,7 +34,7 @@ public class More extends Module {
 			if (m.hasNextPage())
 				m.createNextPage().send() ;
 			//else
-			//	m.createReply("No more :(").send() ;
+			//	m.reply("No more :(") ;
 		}
 	}
 }

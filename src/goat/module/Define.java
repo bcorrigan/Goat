@@ -63,7 +63,7 @@ public class Define extends Module {
 		} else if (m.getModCommand().equalsIgnoreCase("dictionary")) {
 			dictionary(m) ;
 		} else if (m.getModCommand().equalsIgnoreCase("oed")) {
-			m.createReply(oedUrl(m.getModTrailing())).send() ;
+			m.reply(oedUrl(m.getModTrailing())) ;
 		}
 	}
 
@@ -83,7 +83,7 @@ public class Define extends Module {
 			num = parser.getInt("num") ;
 		// check for num not negative, not zero (will be zero if specified, or if parsing input threw an Num Exception)
 		if (num <= 0 ) {
-			m.createReply("Very funny.  Go back to your cubicle, nerd.").send() ;
+			m.reply("Very funny.  Go back to your cubicle, nerd.") ;
 			return ;
 		}
 		String word = parser.remaining() ;
@@ -96,11 +96,11 @@ public class Define extends Module {
 				if(lastWord != null)
 					word = lastWord ;
 				else {
-					m.createReply("I can't decide which word I'm supposed to define for you.").send() ;
+					m.reply("I can't decide which word I'm supposed to define for you.") ;
 					return ;
 				}
 			} else {
-				m.createReply("Er, define what, exactly?").send() ;
+				m.reply("Er, define what, exactly?") ;
 				return ;
 			}
 		}
@@ -125,7 +125,7 @@ public class Define extends Module {
          //   a login/password for oed.com, and then use that to get the page, 
          //   and then parse the page for definitionList and matchList.
          //   instead, we'll just burp up a URL, and let the user do the legwork.
-			m.createReply(oedUrl(word)).send() ;
+			m.reply(oedUrl(word)) ;
 			return ;  //naughty!
 		} 
       else {
@@ -145,7 +145,7 @@ public class Define extends Module {
                        }
                    }
                    if( ! found ) {
-   					m.createReply("\"" + dictionary + "\" is not a valid dictionary.").send() ;
+   					m.reply("\"" + dictionary + "\" is not a valid dictionary.") ;
    					dictionaries(m) ;
    					return ;
    				}
@@ -190,7 +190,7 @@ public class Define extends Module {
 				line = line + "\" in dictionary \"" + dictionary + "\"." ;
 			else
 				line = line + "\"." ;
-			m.createReply(line).send() ;
+			m.reply(line) ;
 			return ;
 		}
       
@@ -214,12 +214,12 @@ public class Define extends Module {
                 }
             }
             msg += perDict + ")" ;
-			m.createReply(msg).send() ;
+			m.reply(msg) ;
 		}
 	}
 	
 	private void randef(Message m) {
-		m.createReply("Not implmemented, please stand by").send() ; 
+		m.reply("Not implmemented, please stand by") ; 
 	}
 
 	private String oedUrl(String word) {
@@ -268,7 +268,7 @@ public class Define extends Module {
 		try {
 			return getUrbanDefinitions(word) ;
 		} catch (SocketTimeoutException e) {
-			m.createReply("Connection to urbandictionary timed out.").send() ;
+			m.reply("Connection to urbandictionary timed out.") ;
 		}
 		return null;
 	}
@@ -493,11 +493,11 @@ public class Define extends Module {
 			dc = new DICTClient(host) ;
 		} catch (UnknownHostException e) {
 			e.printStackTrace() ;
-			m.createReply("Couldn't talk to dict server: host \"" + host + "\" unknown").send() ;
+			m.reply("Couldn't talk to dict server: host \"" + host + "\" unknown") ;
 			// System.exit(1) ; // um.
 		} catch (ConnectException e) {
 			e.printStackTrace() ;
-			m.createReply("Couldn't talk to dict server.").send() ;
+			m.reply("Couldn't talk to dict server.") ;
 		}
 		return dc ;
 	}

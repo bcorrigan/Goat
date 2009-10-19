@@ -438,6 +438,14 @@ public class Message {
 			ret = new Message("", "", "", ""); //hopefully this will be accepted and ignored
 		return ret;
 	}
+	
+	/**
+	 * Just reply directly, lets not muck about with this m.createReply("blah").send() business
+	 * @param trailing
+	 */
+	public void reply(String trailing) {
+		createReply(trailing).send();
+	}
 
 	/** 
 	 * Creates a new paged reply, using createReply(), and initializes the pager cache with the supplied string

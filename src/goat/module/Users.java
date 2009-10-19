@@ -73,28 +73,28 @@ public class Users extends Module {
 			if(users.hasUser(m.getSender()))
 				tzString = users.getUser(m.getSender()).getTimeZoneString();
 			if (tzString.equals("")) {
-				m.createReply(m.getSender() + ", your time zone is not set.  Instructions in /msg.").send();
+				m.reply(m.getSender() + ", your time zone is not set.  Instructions in /msg.");
 			} else {
-				m.createReply(m.getSender() + ", your time zone is \"" + tzString + "\" (" + TimeZone.getTimeZone(tzString).getDisplayName() + ").  To change it, see instructions in /msg").send();
+				m.reply(m.getSender() + ", your time zone is \"" + tzString + "\" (" + TimeZone.getTimeZone(tzString).getDisplayName() + ").  To change it, see instructions in /msg");
 			}
 			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 		} else if (tz.equalsIgnoreCase("unset")) {
 			if(users.hasUser(m.getSender()))
 				users.getUser(m.getSender()).setTimeZoneString(tz) ;
-			m.createReply("Time zone unset for user " + m.getSender()).send() ;
+			m.reply("Time zone unset for user " + m.getSender()) ;
 		} else {
 			ArrayList<String> matches = timezoneSearch(tz);
 			if (matches.size() == 1) {
 				User u = users.getOrCreateUser(m.getSender());
 				u.setTimeZoneString(matches.get(0));
-				m.createReply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString())).send();
+				m.reply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString()));
 			} else if(matches.size() == 0) {
-				m.createReply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.").send();
+				m.reply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.");
 				Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 			} else if(matches.size() > MAX_LISTINGS) {
-				m.createReply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.").send();
+				m.reply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.");
 			} else {
-				m.createReply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + StringUtil.quotedList(matches)).send();
+				m.reply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + StringUtil.quotedList(matches));
 			}
 		}
 	}
@@ -106,35 +106,35 @@ public class Users extends Module {
 		try {
 			if (newCurrency.equals("")) { // no input
 				if(users.hasUser(m.getSender()) && !users.getUser(m.getSender()).equals(""))
-					m.createReply(m.getSender() + ", your currency is " + users.getUser(m.getSender()).getCurrency() + ".").send();
+					m.reply(m.getSender() + ", your currency is " + users.getUser(m.getSender()).getCurrency() + ".");
 				else
-					m.createReply(m.getSender() + ", your currency is not set.  Instructions in /msg").send();
+					m.reply(m.getSender() + ", your currency is not set.  Instructions in /msg");
 				Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE).send();
 			} else if(newCurrency.equalsIgnoreCase("unset")) {
 				if(users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getCurrency().equals("")) {
 					users.getUser(m.getSender()).setCurrency(newCurrency);
-					m.createReply("Currency unset for user " + m.getSender()).send();
+					m.reply("Currency unset for user " + m.getSender());
 				} else
 					m.createReply("eh, your currency wasn't set to begin with, " + m.getSender() + ".");
 			} else if(newCurrency.matches("[a-zA-Z]{3}")) {
 				if(isRecognizedCurrency(newCurrency)) {
 					users.getOrCreateUser(m.getSender()).setCurrency(newCurrency);
-					m.createReply(m.getSender() + "'s currency set to " + users.getUser(m.getSender()).getCurrency()).send();
+					m.reply(m.getSender() + "'s currency set to " + users.getUser(m.getSender()).getCurrency());
 				} else {
 					m.createReply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
 				}
 			} else if(newCurrency.equalsIgnoreCase("list")) {
 				m.createPagedReply("Current known currency codes:  " + exchangeRates.keySet().toString()).send();
 			} else {
-				m.createReply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." ).send();
+				m.reply("I'm expecting a three-letter currency code.  Type \"currency list\", and I'll tell you all the codes I know at the moment." );
 			}
 		} catch (ParserConfigurationException pse) {
-			m.createReply("I'm sorry, I can't set your currency until someone fixes my xml parser.").send();
+			m.reply("I'm sorry, I can't set your currency until someone fixes my xml parser.");
 		} catch (SAXException se) {
-			m.createReply("I ran into trouble trying to parse the exchange rates table").send();
+			m.reply("I ran into trouble trying to parse the exchange rates table");
 			se.printStackTrace();
 		} catch (IOException ioe) {
-			m.createReply("I couldn't retrieve the exchange rates table from the internets").send();
+			m.reply("I couldn't retrieve the exchange rates table from the internets");
 			ioe.printStackTrace();
 		}
 	}
@@ -161,7 +161,7 @@ public class Users extends Module {
 			reply="I don't know " + uname + "'s time zone.";
 		else 
 			reply="Current time for " + uname + " is " + StringUtil.timeString(users.getUser(uname).getTimeZoneString()); 
-		m.createReply(reply).send();
+		m.reply(reply);
 	}
 
 	/**
@@ -176,19 +176,19 @@ public class Users extends Module {
 		String tz = m.getModTrailing();
 		tz = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		if (tz.equals("")) {
-			m.createReply("You need to give me a time zone.").send();
+			m.reply("You need to give me a time zone.");
 			return;
 		}
 		ArrayList<String> matches = timezoneSearch(tz);
 		if (matches.size() == 1) {
-			m.createReply("Time in zone \"" + matches.get(0) + "\" is " + StringUtil.timeString(matches.get(0))).send() ;
+			m.reply("Time in zone \"" + matches.get(0) + "\" is " + StringUtil.timeString(matches.get(0))) ;
 		} else if(matches.size() == 0) {
-			m.createReply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.").send();
+			m.reply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.");
 			// Message.createPrivmsg(m.sender, TIMEZONE_HELP_MESSAGE).send();
 		} else if(matches.size() > MAX_LISTINGS) {
-			m.createReply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.").send();
+			m.reply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.");
 		} else {
-			m.createReply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + StringUtil.quotedList(matches)).send();
+			m.reply("Time zones matching " + Constants.BOLD + tz + Constants.NORMAL + ":  " + StringUtil.quotedList(matches));
 		}		
 	}
 
@@ -225,7 +225,7 @@ public class Users extends Module {
 					"What am I, a canyon?  If you want soulless echoes, go talk to zuul.",
 					"Not if I can help it, no."
 			};
-			m.createReply(snarkyReplies[random.nextInt(snarkyReplies.length)]).send();
+			m.reply(snarkyReplies[random.nextInt(snarkyReplies.length)]);
 		} else if (! name.equals("")) {
 			if (users.hasUser(name)) {
 				User u = users.getUser(name);
@@ -252,7 +252,7 @@ public class Users extends Module {
 							saying = "";
 							lastSeen = u.getLastMessageTimestamp(temp);
 							if(lastSeen == null) {
-								m.createReply("I've seen " + name + ", but never in " + channel + ".").send();
+								m.reply("I've seen " + name + ", but never in " + channel + ".");
 								return;
 							}
 						}
@@ -272,12 +272,12 @@ public class Users extends Module {
 					m.createReply(u.getName() + " was last seen in " + channel + " "
 							+ durString + " ago" + saying + "    [" + stamp + "]").send();
 				} else 
-					m.createReply("Oddly, I know about " + name + ", but I've never heard it say anything.").send();
+					m.reply("Oddly, I know about " + name + ", but I've never heard it say anything.");
 			} else {
-				m.createReply("I have never seen " + name + ".").send();
+				m.reply("I have never seen " + name + ".");
 			}
 		} else
-			m.createReply("I ain't seen nothin'").send();
+			m.reply("I ain't seen nothin'");
 
 	}
 
