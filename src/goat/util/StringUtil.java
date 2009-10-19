@@ -5,6 +5,8 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
+
 import static goat.core.Constants.*;
 
 public class StringUtil {
@@ -36,29 +38,25 @@ public class StringUtil {
 
 
     public static String durationString(long intervalInMillis) {
-        return durationString(intervalInMillis, false);
+        return durationString(intervalInMillis, false, false);
     }
+    
+    /**
+     * Abbreviated version & most significant two only = eg 2h 3m
+     * @param duration
+     * @return
+     */
+	public static String vvshortDurationString(long intervalInMillis) {
+		return durationString(intervalInMillis,true,true);
+	}
     
     /**
      * Abbreviated version = eg 1d 2h 3m 5s
      * @param duration
      * @return
      */
-	public static String vshortDurationString(long duration) {
-		long days = duration / DAY;
-		long hours = (duration - days * DAY) / HOUR;
-		long minutes = (duration - days * DAY - hours * HOUR) / MINUTE;
-		long seconds = (duration - days * DAY - hours * HOUR - minutes * MINUTE) / SECOND;
-		if (days != 0) {
-			return days + "d " + hours + "h " + minutes + "m " + seconds + "s.";
-		}
-		if (hours != 0) {
-			return hours + "h " + minutes + "m " + seconds + "s.";
-		}
-		if (minutes != 0) {
-			return minutes + "m " + seconds + "s.";
-		}
-		return seconds + "s.";
+	public static String vshortDurationString(long intervalInMillis) {
+		return durationString(intervalInMillis,true,false);
 	}
 
     /**
@@ -67,28 +65,38 @@ public class StringUtil {
      * @return
      */
     public static String shortDurationString(long intervalInMillis) {
-        return durationString(intervalInMillis, true);
+        return durationString(intervalInMillis, false, true);
     }
 	
-	private static String durationString(long intervalInMillis, boolean _short) {
+	private static String durationString(long intervalInMillis, boolean _short, boolean significantOnly) {
+		final String YEAR_STR,MONTH_STR,DAY_STR,HOUR_STR,MINUTE_STR,SECOND_STR;
+		if(_short) {
+			YEAR_STR = "y"; MONTH_STR = "m"; DAY_STR="d"; HOUR_STR="h"; MINUTE_STR="m"; SECOND_STR="s";
+		} else {
+			YEAR_STR = " year"; MONTH_STR = " month"; DAY_STR = " day" ; HOUR_STR=" hour" ; MINUTE_STR =" minute"; SECOND_STR=" second";
+		}
+		
         String durparts[] = new String[] {
-            intervalInMillis / YEAR + " year",
-            (intervalInMillis / MONTH) % 12 + " month",
-            (intervalInMillis / DAY) % (MONTH / DAY) + " day",
-            (intervalInMillis / HOUR) % 24 + " hour",
-            (intervalInMillis / MINUTE) % 60 + " minute",
-            (intervalInMillis / SECOND) % 60 + " second"};
+            intervalInMillis / YEAR + YEAR_STR,
+            (intervalInMillis / MONTH) % 12 + MONTH_STR,
+            (intervalInMillis / DAY) % (MONTH / DAY) + DAY_STR,
+            (intervalInMillis / HOUR) % 24 + HOUR_STR,
+            (intervalInMillis / MINUTE) % 60 + MINUTE_STR,
+            (intervalInMillis / SECOND) % 60 + SECOND_STR};
 		String durString = "less than one second";
 		int partsCount = 0;
+		
+		Pattern pattern = Pattern.compile("[^\\d]"); 
+		
 		for(int i=0; i<durparts.length; i++) {
 			if(Character.isDigit(durparts[i].charAt(0))) {
-				int endNum = durparts[i].indexOf(" ");
+				int endNum = pattern.matcher(durparts[i]).regionStart();
 				int num = new Integer(durparts[i].substring(0,endNum));
 				if(num == 0)
 					durparts[i] = null;
 				else
 					partsCount++;
-				if (num > 1)
+				if (num > 1 && !_short)
 					durparts[i] += "s";
 			}
 			else
@@ -105,12 +113,12 @@ public class StringUtil {
 			} else {
 				durString = "";
                 int ind;
-                if(_short)
+                if(significantOnly)
                     ind=2;
                 else ind=temp.length;
 				for(int i=0; i<ind; i++) {
 					durString += temp[i];
-					if(i != ind - 1)
+					if(i != ind - 1 && !_short)
 						if(i == ind - 2)
 							durString += " and ";
 						else
