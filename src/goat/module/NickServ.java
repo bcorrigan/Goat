@@ -26,7 +26,7 @@ public class NickServ extends Module {
 			e.printStackTrace();
 		}
 		inAllChannels = true;
-        new Message("", "PRIVMSG", "NickServ", "identify " + password);
+        new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
 	}
 	public void processPrivateMessage(Message m) {
         processChannelMessage(m);
@@ -43,7 +43,7 @@ public class NickServ extends Module {
 			if(m.getSender().equals("NickServ")) 
 				if(m.getPrefix().equals("NickServ!services@services.slashnet.org")) {
 					lastAuth = System.currentTimeMillis();
-					new Message("", "PRIVMSG", "NickServ", "identify " + password);				
+					new Message("", "PRIVMSG", "NickServ", "identify " + password).send();
 				}
 	}
 

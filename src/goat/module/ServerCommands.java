@@ -60,7 +60,7 @@ public class ServerCommands extends Module {
 		List<Message> temp;
 		synchronized (lockWHO) {
 			buildingWhoReply = true;
-			new Message("","WHO",channel,"");
+			new Message("","WHO",channel,"").send();
 			int i = 0;
 			while((true == buildingWhoReply) && (i*whoWaitInterval < whoMaxWait)) {
 				try {

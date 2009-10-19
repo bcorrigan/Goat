@@ -31,7 +31,7 @@ public class CTCP extends Module {
 	public void processOtherMessage(Message m) {
 		int i, j;
 		if (m.getCommand().equals("PING")) {
-			new Message("", "PONG", "", m.getTrailing());
+			new Message("", "PONG", "", m.getTrailing()).send();
 			return;
 		}
 		//dig out the sender
@@ -66,7 +66,7 @@ public class CTCP extends Module {
 			}
 		} else if (m.getCommand().equals("KICK")) {
 			String[] words = m.getParams().split(" ");
-			new Message("", "JOIN", words[0], "");
+			new Message("", "JOIN", words[0], "").send();
 		} else if (m.getCommand().equals("NICK")) {
 			if (m.getSender().equals(BotStats.getInstance().getBotname())) {
 				BotStats.getInstance().setBotname( m.getTrailing() );
@@ -79,14 +79,14 @@ public class CTCP extends Module {
 			if (intcommand == Constants.RPL_ENDOFNAMES) {    //End of /NAMES list.
 				i = m.getParams().indexOf(' ');
 				if (i > -1) {
-					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!");
+					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!").send();
 				}
 			} else if (intcommand == Constants.ERR_ERRONEUSNICKNAME) {
 				BotStats.getInstance().setBotname( "Goat" );
-				new Message("", "NICK", BotStats.getInstance().getBotname(), "");
-				new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion());
+				new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
+				new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion()).send();
 			} else if (intcommand == Constants.RPL_ENDOFMOTD) {   //End of /MOTD command.
-				//new Message("", "JOIN", m.channame, "");
+				//new Message("", "JOIN", m.channame, "").send();
 				if (!Goat.sc.alreadySeenMOTD()) {
 					BotStats.getInstance().readConfFile();  	//we only want to read the conf file when we've joined the server
 					Goat.sc.setAlreadySeenMOTD(true);
