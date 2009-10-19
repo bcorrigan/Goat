@@ -38,6 +38,28 @@ public class StringUtil {
     public static String durationString(long intervalInMillis) {
         return durationString(intervalInMillis, false);
     }
+    
+    /**
+     * Abbreviated version = eg 1d 2h 3m 5s
+     * @param duration
+     * @return
+     */
+	public static String vshortDurationString(long duration) {
+		long days = duration / DAY;
+		long hours = (duration - days * DAY) / HOUR;
+		long minutes = (duration - days * DAY - hours * HOUR) / MINUTE;
+		long seconds = (duration - days * DAY - hours * HOUR - minutes * MINUTE) / SECOND;
+		if (days != 0) {
+			return days + "d " + hours + "h " + minutes + "m " + seconds + "s.";
+		}
+		if (hours != 0) {
+			return hours + "h " + minutes + "m " + seconds + "s.";
+		}
+		if (minutes != 0) {
+			return minutes + "m " + seconds + "s.";
+		}
+		return seconds + "s.";
+	}
 
     /**
      * Just return the two most significant units.

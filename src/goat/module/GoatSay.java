@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Module;
 import goat.core.Message;
 import goat.core.BotStats;
+import goat.util.StringUtil;
 
 /**
  * @author <p><b>Barry Corrigan</b> All Rights Reserved.</p>
@@ -48,24 +49,7 @@ public class GoatSay extends Module {
 
 		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+uptime\\W*")) {
 			long uptime = System.currentTimeMillis() - init;
-			long seconds = uptime / 1000;
-			int days = (int) (seconds / 86400);
-			int hours = (int) ((seconds - days * 86400) / 3600);
-			int minutes = (int) ((seconds - days * 86400 - hours * 3600) / 60);
-			seconds = (int) (seconds - days * 86400 - hours * 3600 - minutes * 60);
-			if (days != 0) {
-				m.createReply(days + "d " + hours + "h " + minutes + "m " + seconds + "s.").send();
-				return;
-			}
-			if (hours != 0) {
-				m.createReply(hours + "h " + minutes + "m " + seconds + "s.").send();
-				return;
-			}
-			if (minutes != 0) {
-				m.createReply(minutes + "m " + seconds + "s.").send();
-				return;
-			}
-			m.createReply(seconds + "s.").send();
+			m.createReply(StringUtil.vshortDurationString(uptime)).send();
 		}
 	}
 
