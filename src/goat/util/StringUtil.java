@@ -5,59 +5,64 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DurationFormatUtils;
 
 import static goat.core.Constants.*;
 
 public class StringUtil {
-	private static Random random = new Random() ;
-	
-	public static boolean stringInArray(String s, String [] array) {
-		boolean found = false ;
+
+    private static Random random = new Random();
+
+    public static boolean stringInArray(String s, String[] array) {
+        boolean found = false;
         for (String anArray : array) {
             if (s.equalsIgnoreCase(anArray)) {
                 found = true;
                 break;
             }
         }
-        return found ;
-	}
-	
-	public static String capitalise(String in) {
-		if(in.length() < 1)
-			return in;
-		else if (1 == in.length())
-			return in.toUpperCase() ;
-		else
-			return in.substring(0, 1).toUpperCase() + in.substring(1) ;
-	}
-	
-	public static String pickRandom(String[] strings) {
-		return strings[random.nextInt(strings.length)] ;
-	}
+        return found;
+    }
 
+    public static String capitalise(String in) {
+        if (in.length() < 1) {
+            return in;
+        } else if (1 == in.length()) {
+            return in.toUpperCase();
+        } else {
+            return in.substring(0, 1).toUpperCase() + in.substring(1);
+        }
+    }
+
+    public static String pickRandom(String[] strings) {
+        return strings[random.nextInt(strings.length)];
+    }
 
     public static String durationString(long intervalInMillis) {
         return durationString(intervalInMillis, false, false);
     }
-    
+
     /**
      * Abbreviated version & most significant two only = eg 2h 3m
      * @param duration
      * @return
      */
-	public static String vvshortDurationString(long intervalInMillis) {
-		return durationString(intervalInMillis,true,true);
-	}
-    
+    public static String vvshortDurationString(long intervalInMillis) {
+        return durationString(intervalInMillis, true, true);
+    }
+
     /**
      * Abbreviated version = eg 1d 2h 3m 5s
      * @param duration
      * @return
      */
-	public static String vshortDurationString(long intervalInMillis) {
-		return durationString(intervalInMillis,true,false);
-	}
+    public static String vshortDurationString(long intervalInMillis) {
+        return durationString(intervalInMillis, true, false);
+    }
 
     /**
      * Just return the two most significant units.
@@ -67,227 +72,271 @@ public class StringUtil {
     public static String shortDurationString(long intervalInMillis) {
         return durationString(intervalInMillis, false, true);
     }
-	
-	private static String durationString(long intervalInMillis, boolean _short, boolean significantOnly) {
-		final String YEAR_STR,MONTH_STR,DAY_STR,HOUR_STR,MINUTE_STR,SECOND_STR;
-		if(_short) {
-			YEAR_STR = "y"; MONTH_STR = "m"; DAY_STR="d"; HOUR_STR="h"; MINUTE_STR="m"; SECOND_STR="s";
-		} else {
-			YEAR_STR = " year"; MONTH_STR = " month"; DAY_STR = " day" ; HOUR_STR=" hour" ; MINUTE_STR =" minute"; SECOND_STR=" second";
-		}
-		
-        String durparts[] = new String[] {
-            intervalInMillis / YEAR + YEAR_STR,
-            (intervalInMillis / MONTH) % 12 + MONTH_STR,
-            (intervalInMillis / DAY) % (MONTH / DAY) + DAY_STR,
-            (intervalInMillis / HOUR) % 24 + HOUR_STR,
-            (intervalInMillis / MINUTE) % 60 + MINUTE_STR,
-            (intervalInMillis / SECOND) % 60 + SECOND_STR};
-		String durString = "less than one second";
-		int partsCount = 0;
-		
-		Pattern pattern = Pattern.compile("[^\\d]"); 
-		
-		for(int i=0; i<durparts.length; i++) {
-			if(Character.isDigit(durparts[i].charAt(0))) {
-				int endNum = pattern.matcher(durparts[i]).regionStart();
-				int num = new Integer(durparts[i].substring(0,endNum));
-				if(num == 0)
-					durparts[i] = null;
-				else
-					partsCount++;
-				if (num > 1 && !_short)
-					durparts[i] += "s";
-			}
-			else
-				durparts[i] = null;
-		}
-		if (partsCount > 0) {
-			String temp[] = new String[partsCount];
-			int tempIndex = 0;
-			for(int i=0; i<durparts.length; i++)
-				if(durparts[i] != null)
-					temp[tempIndex++] = durparts[i];
-			if(temp.length == 1) {
-				durString = temp[0];
-			} else {
-				durString = "";
+
+    private static String durationString(long intervalInMillis, boolean _short, boolean significantOnly) {
+    	long startMillis = System.currentTimeMillis() - intervalInMillis;
+    	//just express years as before now
+    	String formatted = DurationFormatUtils.formatPeriod(startMillis, System.currentTimeMillis(), "y:M:d:H:m:s");
+    	String[] periods = formatted.split(":");
+    	assert(periods.length==6);
+        final String YEAR_STR, MONTH_STR, DAY_STR, HOUR_STR, MINUTE_STR, SECOND_STR;
+        if (_short) {
+            YEAR_STR = "Y";
+            MONTH_STR = "M";
+            DAY_STR = "d";
+            HOUR_STR = "h";
+            MINUTE_STR = "m";
+            SECOND_STR = "s";
+        } else {
+            YEAR_STR = " year";
+            MONTH_STR = " month";
+            DAY_STR = " day";
+            HOUR_STR = " hour";
+            MINUTE_STR = " minute"; 
+            SECOND_STR = " second"; 
+        }
+
+        String durparts[] = new String[]{
+            periods[0] + YEAR_STR,
+            periods[1] + MONTH_STR,
+            periods[2] + DAY_STR,
+            periods[3] + HOUR_STR,
+            periods[4] + MINUTE_STR,
+            periods[5] + SECOND_STR};
+        String durString = "less than one second";
+        int partsCount = 0;
+
+        Pattern pattern = Pattern.compile("\\d*([^0-9]).*");
+
+        for (int i = 0; i < durparts.length; i++) {
+            if (Character.isDigit(durparts[i].charAt(0))) {
+                Matcher matcher = pattern.matcher(durparts[i]);//start();
+                matcher.matches();
+                int endNum = durparts[i].indexOf(matcher.group(1));
+                int num = new Integer(durparts[i].substring(0, endNum));
+                if (num == 0) {
+                    durparts[i] = null;
+                } else {
+                    partsCount++;
+                }
+                if (num > 1 && !_short) {
+                    durparts[i] += "s";
+                }
+            } else {
+                durparts[i] = null;
+            }
+        }
+        if (partsCount > 0) {
+            String temp[] = new String[partsCount];
+            int tempIndex = 0;
+            for (int i = 0; i < durparts.length; i++) {
+                if (durparts[i] != null) {
+                    temp[tempIndex++] = durparts[i];
+                }
+            }
+            if (temp.length == 1) {
+                durString = temp[0];
+            } else {
+                durString = "";
                 int ind;
-                if(significantOnly)
-                    ind=2;
-                else ind=temp.length;
-				for(int i=0; i<ind; i++) {
-					durString += temp[i];
-					if(i != ind - 1 && !_short)
-						if(i == ind - 2)
-							durString += " and ";
-						else
-							durString += ", ";
-				}
-			}
-		}
-		return durString;
-	}
-	
-	/**
-	 * Split a string in array of predefined size
-	 * @param input_string string to split
-	 * @param sep_ch separator character
-	 * @param size max elements to retrieve, remaining elements will be filled with empty string
-	 * @return splitted_array of strings
-	 */
-	public static String[] splitData(String input_string, char sep_ch, int size) {
-		String str1 = ""; // temp var to contain found strings
-		String splitted_array[] = new String[size]; // array of splitted string to return
-		int element_num = 0; //number of found elements
-		// analize string char by char
-		for(int i=0; i<input_string.length(); i++) {
-			if(input_string.charAt(i) == sep_ch) { //separator found
-				splitted_array[element_num] = str1; //put string to array
-				str1 = ""; //reinitialize variable
-				element_num++; //count strings
-				if (element_num >= size) {
-					break; //quit if limit is reached
-				}
-			}
-			else {
-				str1 += input_string.charAt(i);
-			}
-		}
-		//get last element
-		if (element_num < size) {
-			splitted_array[element_num] = str1; //put string to vector
-			element_num++;
-		}
-		//fill remaining values with empty string
-		for(int i=element_num; i<size; i++) {
-			splitted_array[i] = "";
-		}
-		return splitted_array;
-	}
-	
-	public static String quotedList(ArrayList<String> strings) {
-		String ret = "" ;
-		Iterator<String> i = strings.iterator();
-		if (i.hasNext())
-			ret += "\"" + i.next() + "\"";
-		while (i.hasNext())
-			ret += ", \"" + i.next() + "\"";
-		return ret;
-	}
-	
-	public static String timeString(String timezone) {
-		TimeZone tz = TimeZone.getTimeZone(timezone);
-		GregorianCalendar cal = new GregorianCalendar(tz);
-		cal.setTimeInMillis(System.currentTimeMillis());
-		int hour = cal.get(GregorianCalendar.HOUR);
-		if (hour == 0)
-			hour = 12;
-		String ret = hour + ":";
-		ret += String.format("%02d", cal.get(GregorianCalendar.MINUTE));
-		if (cal.get(GregorianCalendar.AM_PM) == GregorianCalendar.AM)
-			ret += "am";
-		else
-			ret += "pm";
-		switch (cal.get(GregorianCalendar.DAY_OF_WEEK)) {
-		case GregorianCalendar.SUNDAY : ret += ", Sunday"; break;
-		case GregorianCalendar.MONDAY : ret += ", Monday"; break;
-		case GregorianCalendar.TUESDAY : ret += ", Tuesday"; break;
-		case GregorianCalendar.WEDNESDAY : ret += ", Wednesday"; break;
-		case GregorianCalendar.THURSDAY : ret += ", Thursday"; break;
-		case GregorianCalendar.FRIDAY : ret += ", Friday"; break;
-		case GregorianCalendar.SATURDAY : ret += ", Saturday"; break;
-		}
-		ret += ", " + cal.get(GregorianCalendar.DAY_OF_MONTH) + "/";
-		ret += (cal.get(GregorianCalendar.MONTH) + 1) + "/";
-		ret += cal.get(GregorianCalendar.YEAR);
-		ret += " (" + tz.getID() + " - " + tz.getDisplayName() + ")";
-		return ret;
-	}
-	
-	/**
-	 * Removes all colours from a line of text. nicked from pircbot
-	 */
-	public static String removeColors(String line) {
-		int length = line.length();
-		StringBuffer buffer = new StringBuffer(length);
-		int i = 0;
-		while (i < length) {
-			char ch = line.charAt(i);
-			if (ch == '\u0003') {
-				i++;
-				// Skip "x" or "xy" (foreground color).
-				if (i < length) {
-					ch = line.charAt(i);
-					if (Character.isDigit(ch)) {
-						i++;
-						if (i < length) {
-							ch = line.charAt(i);
-							if (Character.isDigit(ch)) {
-								i++;
-							}
-						}
-						// Now skip ",x" or ",xy" (background color).
-						if (i < length) {
-							ch = line.charAt(i);
-							if (ch == ',') {
-								i++;
-								if (i < length) {
-									ch = line.charAt(i);
-									if (Character.isDigit(ch)) {
-										i++;
-										if (i < length) {
-											ch = line.charAt(i);
-											if (Character.isDigit(ch)) {
-												i++;
-											}
-										}
-									} else {
-										// Keep the comma.
-										i--;
-									}
-								} else {
-									// Keep the comma.
-									i--;
-								}
-							}
-						}
-					}
-				}
-			} else if (ch == '\u000f') {
-				i++;
-			} else {
-				buffer.append(ch);
-				i++;
-			}
-		}
-		return buffer.toString();
-	}
-	/**
-	 * Remove formatting from a line of IRC text. From pircbot
-	 *
-	 * @param line the input text.
-	 * @return the same text, but without any bold, underlining, reverse, etc.
-	 */
-	public static String removeFormatting(String line) {
-		int length = line.length();
-		StringBuffer buffer = new StringBuffer(length);
-		for (int i = 0; i < length; i++) {
-			char ch = line.charAt(i);
-			if (ch == '\u000f' || ch == '\u0002' || ch == '\u001f' || ch == '\u0016') {
-				// Don't add this character.
-			} else {
-				buffer.append(ch);
-			}
-		}
-		return buffer.toString();
-	}
-	/**
-	 * Removes all formatting and colours from a string.
-	 */
-	public static String removeFormattingAndColors(String s) {
-		s = removeColors(s) ;
-		s = removeFormatting(s) ;
-		return s ;
-	}
+                if (significantOnly) {
+                    ind = 2;
+                } else {
+                    ind = temp.length;
+                }
+                for (int i = 0; i < ind; i++) {
+                    durString += temp[i];
+                    if (i != ind - 1 && !_short) {
+                        if (i == ind - 2) {
+                            durString += " and ";
+                        } else {
+                            durString += ", ";
+                        }
+                    }
+                }
+            }
+        }
+        return durString;
+    }
+
+    /**
+     * Split a string in array of predefined size
+     * @param input_string string to split
+     * @param sep_ch separator character
+     * @param size max elements to retrieve, remaining elements will be filled with empty string
+     * @return splitted_array of strings
+     */
+    public static String[] splitData(String input_string, char sep_ch, int size) {
+        String str1 = ""; // temp var to contain found strings
+        String splitted_array[] = new String[size]; // array of splitted string to return
+        int element_num = 0; //number of found elements
+        // analize string char by char
+        for (int i = 0; i < input_string.length(); i++) {
+            if (input_string.charAt(i) == sep_ch) { //separator found
+                splitted_array[element_num] = str1; //put string to array
+                str1 = ""; //reinitialize variable
+                element_num++; //count strings
+                if (element_num >= size) {
+                    break; //quit if limit is reached
+                }
+            } else {
+                str1 += input_string.charAt(i);
+            }
+        }
+        //get last element
+        if (element_num < size) {
+            splitted_array[element_num] = str1; //put string to vector
+            element_num++;
+        }
+        //fill remaining values with empty string
+        for (int i = element_num; i < size; i++) {
+            splitted_array[i] = "";
+        }
+        return splitted_array;
+    }
+
+    public static String quotedList(ArrayList<String> strings) {
+        String ret = "";
+        Iterator<String> i = strings.iterator();
+        if (i.hasNext()) {
+            ret += "\"" + i.next() + "\"";
+        }
+        while (i.hasNext()) {
+            ret += ", \"" + i.next() + "\"";
+        }
+        return ret;
+    }
+
+    public static String timeString(String timezone) {
+        TimeZone tz = TimeZone.getTimeZone(timezone);
+        GregorianCalendar cal = new GregorianCalendar(tz);
+        cal.setTimeInMillis(System.currentTimeMillis());
+        int hour = cal.get(GregorianCalendar.HOUR);
+        if (hour == 0) {
+            hour = 12;
+        }
+        String ret = hour + ":";
+        ret += String.format("%02d", cal.get(GregorianCalendar.MINUTE));
+        if (cal.get(GregorianCalendar.AM_PM) == GregorianCalendar.AM) {
+            ret += "am";
+        } else {
+            ret += "pm";
+        }
+        switch (cal.get(GregorianCalendar.DAY_OF_WEEK)) {
+            case GregorianCalendar.SUNDAY:
+                ret += ", Sunday";
+                break;
+            case GregorianCalendar.MONDAY:
+                ret += ", Monday";
+                break;
+            case GregorianCalendar.TUESDAY:
+                ret += ", Tuesday";
+                break;
+            case GregorianCalendar.WEDNESDAY:
+                ret += ", Wednesday";
+                break;
+            case GregorianCalendar.THURSDAY:
+                ret += ", Thursday";
+                break;
+            case GregorianCalendar.FRIDAY:
+                ret += ", Friday";
+                break;
+            case GregorianCalendar.SATURDAY:
+                ret += ", Saturday";
+                break;
+        }
+        ret += ", " + cal.get(GregorianCalendar.DAY_OF_MONTH) + "/";
+        ret += (cal.get(GregorianCalendar.MONTH) + 1) + "/";
+        ret += cal.get(GregorianCalendar.YEAR);
+        ret += " (" + tz.getID() + " - " + tz.getDisplayName() + ")";
+        return ret;
+    }
+
+    /**
+     * Removes all colours from a line of text. nicked from pircbot
+     */
+    public static String removeColors(String line) {
+        int length = line.length();
+        StringBuffer buffer = new StringBuffer(length);
+        int i = 0;
+        while (i < length) {
+            char ch = line.charAt(i);
+            if (ch == '\u0003') {
+                i++;
+                // Skip "x" or "xy" (foreground color).
+                if (i < length) {
+                    ch = line.charAt(i);
+                    if (Character.isDigit(ch)) {
+                        i++;
+                        if (i < length) {
+                            ch = line.charAt(i);
+                            if (Character.isDigit(ch)) {
+                                i++;
+                            }
+                        }
+                        // Now skip ",x" or ",xy" (background color).
+                        if (i < length) {
+                            ch = line.charAt(i);
+                            if (ch == ',') {
+                                i++;
+                                if (i < length) {
+                                    ch = line.charAt(i);
+                                    if (Character.isDigit(ch)) {
+                                        i++;
+                                        if (i < length) {
+                                            ch = line.charAt(i);
+                                            if (Character.isDigit(ch)) {
+                                                i++;
+                                            }
+                                        }
+                                    } else {
+                                        // Keep the comma.
+                                        i--;
+                                    }
+                                } else {
+                                    // Keep the comma.
+                                    i--;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (ch == '\u000f') {
+                i++;
+            } else {
+                buffer.append(ch);
+                i++;
+            }
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Remove formatting from a line of IRC text. From pircbot
+     *
+     * @param line the input text.
+     * @return the same text, but without any bold, underlining, reverse, etc.
+     */
+    public static String removeFormatting(String line) {
+        int length = line.length();
+        StringBuffer buffer = new StringBuffer(length);
+        for (int i = 0; i < length; i++) {
+            char ch = line.charAt(i);
+            if (ch == '\u000f' || ch == '\u0002' || ch == '\u001f' || ch == '\u0016') {
+                // Don't add this character.
+            } else {
+                buffer.append(ch);
+            }
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Removes all formatting and colours from a string.
+     */
+    public static String removeFormattingAndColors(String s) {
+        s = removeColors(s);
+        s = removeFormatting(s);
+        return s;
+    }
 }
