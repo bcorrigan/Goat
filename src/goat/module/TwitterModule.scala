@@ -18,6 +18,8 @@ import twitter4j.User
 import twitter4j.Query
 import twitter4j.QueryResult
 
+import org.apache.commons.lang.StringUtils
+
 import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
 
 import scala.actors.Actor._
@@ -135,9 +137,29 @@ class TwitterModule extends Module {
     }
   }
   
-  private def addTweetsToCache(query:String, tweets:Array[Object]) {
+  private def addTweetsToCache(query:String, tweetsArr:Array[Object]) {
     //condense tweets - strip dups
-    searchResults = searchResults + Tuple2(query,tweets.toList.asInstanceOf [List[Tweet]]) //Tuple2 needed or just for eclipse?
+    var tweets:List[Tweet] = filterSimilarTweets( tweetsArr.toList.asInstanceOf [List[Tweet]] )
+    searchResults = searchResults + Tuple2(query,tweets) //Tuple2 needed or just for eclipse?
+  }
+  
+  private def filterSimilarTweets(tweets:List[Tweet]):List[Tweet] = {
+	var start = System.currentTimeMillis
+	var filt:List[Tweet] = tweets.head :: Nil //first element always goes on.
+	for( t <- tweets )
+		if(filt.filter(similar(t,_)) == Nil)
+			filt = t :: filt
+	
+	var end = System.currentTimeMillis
+	filt.reverse
+  }
+
+  /**
+   * Are the two tweets passed in 50% or more similar to each other?
+   */
+  private def similar(tweet1:Tweet,tweet2:Tweet):Boolean = {
+    var dist = StringUtils.getLevenshteinDistance( tweet1.getText,  tweet2.getText)
+    return dist<(tweet1.getText.length/2)
   }
   
   private def enableNotification(m:Message, user:String) {
@@ -185,12 +207,13 @@ class TwitterModule extends Module {
       case Some(result) =>
         val tweet:Tweet = result._2.head
         searchResults = searchResults - result
-        if(result._2.tail.length>0)
+        if(result._2.length>1 && result._2.tail.length>0)
           searchResults = searchResults + Tuple2(result._1,result._2.tail)
-        m.createReply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getFromUser + BOLD + ": " + unescapeHtml(tweet.getText)).send()
+        m.createReply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getFromUser + BOLD + ": " + unescapeHtml(tweet.getText).replaceAll("\n", "")).send()
         true
     }
   }
+ 
 
   private def ageOfTweet(tweet:Tweet):String = {
     return StringUtil.shortDurationString(System.currentTimeMillis-tweet.getCreatedAt.getTime)
