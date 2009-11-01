@@ -29,6 +29,8 @@ public class Users extends Module {
 
 	public static String CURRENCY_HELP_MESSAGE = "Type \"currency xxx\" to set your currency, where xxx is a known three-letter currency code.  Type \"currency list\" to list all available codes";
 
+	public static String LOCATION_HELP_MESSAGE = "To set your location, go to http://maps.google.co.uk and browse to where you are. Select Link at the top right, copy the link, and paste it in here after the location command: location <url>";
+	
 	private static final int MAX_LISTINGS = 30;
 
 	private static Random random = new Random();
@@ -48,7 +50,7 @@ public class Users extends Module {
 	}
 
 	public String[] getCommands() {
-		return new String[]{"timezone", "usertime", "localtime", "worldclock", "worldtime", "seen", "currency"};
+		return new String[]{"timezone", "usertime", "localtime", "worldclock", "worldtime", "seen", "currency", "location"};
 	}
 
 	public void processChannelMessage(Message m) {
@@ -62,8 +64,34 @@ public class Users extends Module {
 			worldclock(m);
 		else if(m.getModCommand().equalsIgnoreCase("seen"))
 			seen(m);
+		else if(m.getModCommand().equalsIgnoreCase("location"))
+			location(m);
 
 		recordSighting(m);
+	}
+	
+	private void location(Message m) {
+		String url = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
+		if(url.matches("")) { //no input
+			double[] location = new double[2];
+			if(users.hasUser(m.getSender())) {
+				location[0] = users.getUser(m.getSender()).getLatitude();
+				location[1] = users.getUser(m.getSender()).getLongitude();
+			}
+			m.reply(m.getSender() + ", your location is  http://maps.google.co.uk/maps?ll=" + location[0] + "," + location[1] + " - to change this, see instructions in /msg");
+			Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
+		} else {
+			try {
+				double[] location = StringUtil.getPositionFromMapsLink(url);
+				User u = users.getOrCreateUser(m.getSender());
+				u.setLatitude(location[0]);
+				u.setLongitude(location[1]);
+				m.reply(u.getName() + "'s location set to lat:" + u.getLatitude() + " long:" + u.getLongitude());
+			} catch (NumberFormatException nfe) {
+				m.reply(m.getSender() + ": Don't be an arse, eh? Just give me a google maps link. See instructions in /msg");
+				Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
+			}
+		}
 	}
 
 	private void timezone(Message m) {
@@ -77,7 +105,7 @@ public class Users extends Module {
 			} else {
 				m.reply(m.getSender() + ", your time zone is \"" + tzString + "\" (" + TimeZone.getTimeZone(tzString).getDisplayName() + ").  To change it, see instructions in /msg");
 			}
-			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
+			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 		} else if (tz.equalsIgnoreCase("unset")) {
 			if(users.hasUser(m.getSender()))
 				users.getUser(m.getSender()).setTimeZoneString(tz) ;
@@ -90,7 +118,7 @@ public class Users extends Module {
 				m.reply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString()));
 			} else if(matches.size() == 0) {
 				m.reply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.");
-				Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
+				Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 			} else if(matches.size() > MAX_LISTINGS) {
 				m.reply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.");
 			} else {
@@ -109,7 +137,7 @@ public class Users extends Module {
 					m.reply(m.getSender() + ", your currency is " + users.getUser(m.getSender()).getCurrency() + ".");
 				else
 					m.reply(m.getSender() + ", your currency is not set.  Instructions in /msg");
-				Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE);
+				Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE).send();
 			} else if(newCurrency.equalsIgnoreCase("unset")) {
 				if(users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getCurrency().equals("")) {
 					users.getUser(m.getSender()).setCurrency(newCurrency);

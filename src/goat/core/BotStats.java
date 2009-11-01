@@ -137,7 +137,7 @@ public class BotStats {
 	}
 	
 	public boolean isLoadedCommand(String s) {
-		return StringUtil.stringInArray(s, (String[]) getCommands().toArray()) ;
+		return StringUtil.stringInArray(s, getCommands().toArray(new String[0])) ;
 	}
 	
 	public void addCommands(String[] commands) {

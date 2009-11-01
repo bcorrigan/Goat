@@ -23,6 +23,9 @@ public class User {
 	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
 	private String lastMessage = null;
 	private String lastChannel = null;
+	private double longitude = -4.250132; //users default to George Square, Glasgow
+	private double latitude = 55.861221;
+	
 	public String getLastChannel() {
 		return lastChannel;
 	}
@@ -226,6 +229,34 @@ public class User {
 		else
 			synchronized (container.writeLock) {
 				lastfmName = name;
+				save();
+			}
+	}
+	
+	public synchronized double getLongitude() {
+		return longitude;
+	}
+	
+	public synchronized void setLongitude(double longitude) {
+		if(container == null)
+			this.longitude = longitude;
+		else
+			synchronized (container.writeLock) {
+				this.longitude = longitude;
+				save();
+			}
+	}
+	
+	public synchronized double getLatitude() {
+		return latitude;
+	}
+	
+	public synchronized void setLatitude(double latitude) {
+		if(container == null)
+			this.latitude = latitude;
+		else
+			synchronized (container.writeLock) {
+				this.latitude = latitude;
 				save();
 			}
 	}

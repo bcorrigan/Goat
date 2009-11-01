@@ -443,7 +443,7 @@ public class Message {
 	 * Just reply directly, lets not muck about with this m.createReply("blah").send() business
 	 * @param trailing
 	 */
-	public void reply(String trailing) {
+	public void reply(String trailing) { 
 		createReply(trailing).send();
 	}
 	

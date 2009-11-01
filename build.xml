@@ -1,128 +1,132 @@
+
 <project name="Goat" default="jar" basedir=".">
-	<description>
+    <description>
         Builds Goat.
-	</description>
+    </description>
 	<!-- set global properties for this build -->
-	<property name="src" location="src"/>
-	<property name="build" location="classes"/>
-	<property name="jars" location="jars"/>
-	<property name="version" value="2.0"/>
-	<property name="docs" location="javadocs" />
+    <property name="src" location="src"/>
+    <property name="build" location="classes"/>
+    <property name="jars" location="jars"/>
+    <property name="version" value="2.0"/>
+    <property name="docs" location="javadocs" />
 	
-	<property environment="env"/>
+    <property environment="env"/>
     
     <path id="build.class.path">
         <!--<pathelement path="${classpath}"/>-->
         <fileset dir="lib">
             <include name="**/*.jar"/>
         </fileset>
-	  </path>
-	  <property name='build.class.path' refid='build.class.path' />
-	 
-	<path id="run.class.path">
-		<path refid="build.class.path"/>
-		<pathelement location="classes"/>
-	</path>
-	<property name='run.class.path' refid='run.class.path' />
-	
-	<target name="init">
-		<!-- Create the time stamp -->
-		<tstamp/>
-		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}"/>
-		<mkdir dir="${docs}"/>
+        <pathelement path="${env.SCALA_HOME}/lib/scala-library.jar"/>
+    </path>
 
-		<property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
+
+    <property name='build.class.path' refid='build.class.path' />
+	 
+    <path id="run.class.path">
+        <path refid="build.class.path"/>
+        <pathelement location="classes"/>
+    </path>
+    <property name='run.class.path' refid='run.class.path' />
+	
+    <target name="init">
+		<!-- Create the time stamp -->
+        <tstamp/>
+		<!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}"/>
+        <mkdir dir="${docs}"/>
+
+        <property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
 		<!--<path id="build.classpath">
 		  <pathelement location="${scala-library.jar}"   /> -->
 		  <!--<pathelement location="${your.path}"   />-->
 		  <!--<pathelement location="${build}"   />
 		</path>-->
-		<taskdef resource="scala/tools/ant/antlib.xml">
-			<classpath>
-				<pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar"   />
-				<pathelement location="${scala-library.jar}"   />
-			</classpath>
-		</taskdef>
-	</target>
+        <taskdef resource="scala/tools/ant/antlib.xml">
+            <classpath>
+                <pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar"   />
+                <pathelement location="${scala-library.jar}"   />
+            </classpath>
+        </taskdef>
+    </target>
 
-	<target name="compile" depends="init"
+    <target name="compile" depends="init"
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" optimize="yes" debug="on" debuglevel="lines,vars,source">
+        <javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" optimize="yes" debug="on" debuglevel="lines,vars,source">
             <classpath refid="build.class.path"/>
-		</javac>
+        </javac>
 		
 		<!-- Lets go multilanguage!-->
-		<scalac srcdir="${src}" destdir="${build}" >
-		            <classpath refid="build.class.path"/>
-		</scalac>
+        <scalac srcdir="${src}" destdir="${build}" deprecation="on" >
+            <classpath refid="build.class.path"/>
+        </scalac>
 		
 		<!-- Create the svn revision file-->
-		<exec executable="/bin/sh" output="${build}/goatRevision" osFamily="unix">
-			<arg line="tools/version.sh"/>
-		</exec>
-		<exec executable="cmd.exe" output="${build}/goatRevision" osFamily="windows">
-			<arg line="/C tools\version.bat"/>
-		</exec>
+        <exec executable="/bin/sh" output="${build}/goatRevision" osFamily="unix">
+            <arg line="tools/version.sh"/>
+        </exec>
+        <exec executable="cmd.exe" output="${build}/goatRevision" osFamily="windows">
+            <arg line="/C tools\version.bat"/>
+        </exec>
 		<!-- copy over a required resource file -->
-		<copy file="src/goat/util/HTMLUtil.properties" todir="${build}/goat/util/" />
+        <copy file="src/goat/util/HTMLUtil.properties" todir="${build}/goat/util/" />
 
-	</target>
+    </target>
 
-	<target name="jar" depends="compile" description="Make a binary jar">
-		<mkdir dir="${jars}/bin"/>
+    <target name="jar" depends="compile" description="Make a binary jar">
+        <mkdir dir="${jars}/bin"/>
 
-		<jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}" duplicate="fail">
-			<manifest>
-				<attribute name="Main-Class" value="goat.Goat"/>
-				<attribute name="Built-By" value="${user.name}"/>
-				<section name="common">
-					<attribute name="Specification-Title" value="Goatyness"/>
-					<attribute name="Specification-Version" value="Goaty Goat"/>
-					<attribute name="Goat-Title" value="Goat"/>
-					<attribute name="Goat-Version" value="2.0 ${DSTAMP} "/>
-				</section>
-			</manifest>
-		</jar>
+        <jar jarfile="${jars}/bin/Goat-${DSTAMP}.jar" basedir="${build}" duplicate="fail">
+            <manifest>
+                <attribute name="Main-Class" value="goat.Goat"/>
+                <attribute name="Built-By" value="${user.name}"/>
+                <section name="common">
+                    <attribute name="Specification-Title" value="Goatyness"/>
+                    <attribute name="Specification-Version" value="Goaty Goat"/>
+                    <attribute name="Goat-Title" value="Goat"/>
+                    <attribute name="Goat-Version" value="2.0 ${DSTAMP} "/>
+                </section>
+            </manifest>
+        </jar>
 		<!-- <delete file="${build}/goatRevision"/> -->
 		<!-- delete the jar in top dir, and replace with updated copy -->
-		<delete file="goat.jar"/>
-		<copy file="${jars}/bin/Goat-${DSTAMP}.jar" tofile="goat.jar"/>
-	</target>
+        <delete file="goat.jar"/>
+        <copy file="${jars}/bin/Goat-${DSTAMP}.jar" tofile="goat.jar"/>
+    </target>
 
-	<target name="doc"
+    <target name="doc"
 		description="build documentation from source files"
 		depends="init">
-		<javadoc packagenames="*" sourcepath="${src}" destdir="${docs}" 
+        <javadoc packagenames="*" sourcepath="${src}" destdir="${docs}"
 			author="yes" version="yes" use="yes" verbose="yes" 
 			source="1.5" />
-	</target>
+    </target>
 
-	<target name="clean"
+    <target name="clean"
 		description="clean up"
 		depends="jarclean">
 		<!-- Delete the ${build} and ${dist} directory trees -->
-		<delete>
-			<fileset dir="${build}" includes="**/*" />
-		</delete>
-	</target>
+        <delete>
+            <fileset dir="${build}" includes="**/*" />
+        </delete>
+    </target>
 
 	<!-- still would like to get this to work in non-forked mode -->
-	<target name="run" description="Start up goat">
+    <target name="run" description="Start up goat">
 		<!-- The classpath malarky works properly now, but only in
 			forked mode.  Next line is for debugging purposes -->
 		<!-- <echo message="Using classpath: ${run.class.path}" /> -->
-      <java classname="goat.Goat" fork="true" classpathref="run.class.path">
-			<jvmarg value="-server" />
-		</java>
-	</target>
+        <java classname="goat.Goat" fork="true" classpathref="run.class.path">
+            <jvmarg value="-server" />
+        </java>
+    </target>
 	  
-	 <target name="jarclean" description="remove old goat jars">
-		 <delete verbose='true'>
-			 <fileset dir="jars/bin" includes="**/*.jar"/>
-		 </delete>
-	 </target>
+    <target name="jarclean" description="remove old goat jars">
+        <delete verbose='true'>
+            <fileset dir="jars/bin" includes="**/*.jar"/>
+        </delete>
+    </target>
  
 </project>
 

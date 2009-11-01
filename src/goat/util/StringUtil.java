@@ -339,4 +339,79 @@ public class StringUtil {
         s = removeFormatting(s);
         return s;
     }
+    
+    //think this should be more optimised than the apache commons version cos it aborts
+    //when the difference grows past the limit.
+	public static int levlim(String s, String t, int limit) {
+		int n = s.length() + 1;
+		int m = t.length() + 1;
+		if (m == 1)
+			return n - 1;
+		if (n == 1)
+			return m -1;
+		int[] d = new int[m * n];
+		for (int i = 0; i < n; i++)
+			d[i] = i;
+		int k = n;
+		for (int i = 1; i < m; i++) {
+			d[k] = i;
+			k += n;
+		}
+		int f = 0, g = 0, h = 0, min = 0, b = 0, c = 0, best = 0, cost = 0;
+		for (int i = 1; i < n; i++) {
+			k = i;
+			f = 0;
+			best = limit;
+			for (int j = 1; j < m; j++) {
+				h = k;
+				k += n;
+				min = d[h] + 1;
+				b = d[k - 1] + 1;
+				if (g < s.length() && f < t.length())
+					cost = s.charAt(g) == t.charAt(f)?0:1;
+				else
+					cost = 1;
+				c = d[h - 1] + cost;
+				if (b < min)
+					min = b;
+				if (c < min)
+					min = c;
+				d[k] = min;
+				/*
+				System.out.println("i=" + i + ", j=" + j);
+				for (int v = 0; v < m; v++)
+				{
+					for (int w = 0; w < n; w++)
+						System.out.print(d[v * n + w] + " ");
+					System.out.println();
+				}
+				*/
+				if (min < best)
+					best = min;
+				f = j;
+			}
+			if (best >= limit)
+				return limit;
+			g = i;
+		}
+		if (d[k] >= limit)
+			return limit;
+		else
+			return d[k];
+	}
+
+    /**
+     * When given a google maps URL, this will pull out the latitude & longitude of the position represented.
+     * @param url A google maps url
+     * @return Latitude, Longitude
+     */
+    public static double[] getPositionFromMapsLink(String url) {
+        //&ll is the argument we want out
+        String[] posStr = url.replaceFirst(".*&ll=","").replaceFirst("&.*","").split(",");
+        double[] pos = new double[2];
+        for(int i=0; i<2; i++) {
+            pos[i] = Double.parseDouble(posStr[i]);
+        }
+        return pos;
+    }
 }
