@@ -53,7 +53,7 @@
     <target name="compile" depends="init"
 		description="compile the source ">
 		<!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src}" destdir="${build}" source="1.5" target="1.5" optimize="yes" debug="on" debuglevel="lines,vars,source">
+        <javac srcdir="${src}" destdir="${build}" source="1.6" target="1.6" optimize="yes" debug="on" debuglevel="lines,vars,source">
             <classpath refid="build.class.path"/>
         </javac>
 		
