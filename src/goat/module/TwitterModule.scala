@@ -160,10 +160,8 @@ class TwitterModule extends Module {
       val simTweet = firstSimilarTweet(filtCount.keys.toList, t)
       if (simTweet.isEmpty)
         filtCount += t -> 1
-      else { //increment record we already have
-        if (filtCount.contains(simTweet.get))
-          filtCount += simTweet.get -> (filtCount.get(simTweet.get).get + 1)
-      }
+      else 
+    	filtCount += simTweet.get -> (filtCount.get(simTweet.get).get + 1)
     }
 
     var filtTweetsPaired: List[Tuple2[Tweet, Int]] = filtCount.toList
@@ -177,8 +175,7 @@ class TwitterModule extends Module {
       filtTweetsPaired = filtTweetsPaired.dropWhile(_._2 == filtTweetsPaired.head._2)
     }
 
-    var end = System.currentTimeMillis
-    lastFilterTime = end - start
+    lastFilterTime = System.currentTimeMillis - start
     if (tweets.size == searchSize) {
       filterCount += 1
       filterTimeAvg = filterTimeAvg + (lastFilterTime - filterTimeAvg) / filterCount
