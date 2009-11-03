@@ -47,22 +47,22 @@ public class CTCP extends Module {
 				Message.createCTCP(name, "NOTICE", "VERSION", Constants.BOLD + BotStats.getInstance().getVersion() + Constants.BOLD
 						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
 						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
-						+ ')') ;
+						+ ')').send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("PING")) {
-				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()) ;
+				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("TIME")) {
-				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()) ;
+				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("CLIENTINFO")) {
-				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE") ;
+				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE").send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("SOURCE")) {
-				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.") ;
+				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.").send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("USERINFO")) {
-				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.") ;
+				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.").send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("ERRMSG")) {
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error") ;
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error").send() ;
 			} else if (m.isCTCP() && !m.getCTCPCommand().equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
 			{
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command") ;
+				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command").send() ;
 			}
 		} else if (m.getCommand().equals("KICK")) {
 			String[] words = m.getParams().split(" ");
