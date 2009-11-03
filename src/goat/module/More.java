@@ -32,7 +32,7 @@ public class More extends Module {
 	public void processChannelMessage(Message m) {
 		if (m.getModTrailing().trim().equals("")) {
 			if (m.hasNextPage())
-				m.createNextPage() ;
+				m.createNextPage().send();
 			//else
 			//	m.reply("No more :(") ;
 		}

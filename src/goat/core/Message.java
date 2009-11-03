@@ -444,7 +444,7 @@ public class Message {
 	 * @param trailing
 	 */
 	public void reply(String trailing) { 
-		createReply(trailing).send();
+		createPagedReply(trailing).send();
 	}
 	
 	/**
