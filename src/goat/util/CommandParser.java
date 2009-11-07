@@ -31,8 +31,8 @@ public class CommandParser {
 	 * @param m Message to be parsed
 	 */
 	public CommandParser(Message m) {
-		command = m.getModCommand() ;
-		parse(m.getModTrailing().trim()) ;
+		//command = m.getModCommand() ;
+		parse(m.getTrailing().trim()) ;
 	}
 
 	public CommandParser(String text) {
@@ -43,10 +43,11 @@ public class CommandParser {
 	 * @param text String to be parsed
 	 */
 	private void parse(String text) {
-		// Actual regex before being escaped: \w+=\w+|\w+=\"([^\"]+?)\"|^\w+
+		// Actual regex before being escaped: [^\"\p{javaWhitespace]+=[^\"\p{javaWhitespace]+=\"([^\"]+?)\"|^[^\"\p{javaWhitespace]+|[^\"\p{javaWhitespace]+
 		// ie match first word (command) OR match someword=anotherword OR match someword="some words"
 		// idea is to describe each field instead of the delimiter between them,
-		String commandRegex = "\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"|^\\w+";
+		//String commandRegex = "\\w+=\\w+|\\w+=\\\"([^\\\"]+?)\\\"|^\\w+";
+        String commandRegex = "[^\\\"\\p{javaWhitespace}]*?=[^\\\"\\p{javaWhitespace}]+|[^\\\"\\p{javaWhitespace}]+?=\\\"([^\\\"]+?)\\\"|^[^\\\"\\p{javaWhitespace}]+";
 		Pattern commandRE = Pattern.compile(commandRegex);
 		Matcher m = commandRE.matcher(text);
 
@@ -62,14 +63,14 @@ public class CommandParser {
 				remaining+=text.substring(0,m.start()).trim() + " "; //anything unmatched from start onto remaining
 			}
 		} 
-		
+
 		//process each match
 		while(m.find()) {
 			String group = m.group();
 			//anything unmatched between last match and this match added to remaining
 			remaining+=text.substring(last,m.start()).trim() + " ";
 			last=m.end();
-			buf = group.split("=");
+			buf = group.split("=",2);
 			//trim quotes
 			if( buf[1].startsWith("\"")) 
 				buf[1] = buf[1].substring(1);

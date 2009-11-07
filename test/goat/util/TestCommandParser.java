@@ -89,10 +89,10 @@ public class TestCommandParser {
 	@Test
 	public void testNonenseString() {
 		commandParser = new CommandParser("&£:hjs *(\"ggg fock and=\"buttock  ");
-		assertEquals("remaining array list should have 4 items",4,commandParser.remainingAsArrayList().size());
-		assertEquals("remaining should be set correctly", "&£:hjs *(\"ggg fock and=\"buttock", commandParser.remaining());
+		assertEquals("remaining array list should have 3 items",3,commandParser.remainingAsArrayList().size());
+		assertEquals("remaining should be set correctly", "*(\"ggg fock and=\"buttock", commandParser.remaining());
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
-		assertEquals("No command should be set","",commandParser.command());
+		assertEquals("Command should be set","&£:hjs",commandParser.command());
 	}
 	
 	@Test
@@ -106,5 +106,15 @@ public class TestCommandParser {
 		assertEquals("testCommand should be set correctly","testCommand",commandParser.command());
 		assertEquals("remaining should be set correctly", "remaining crap", commandParser.remaining());
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
+	}
+	
+	@Test
+	public void testComplexUrl() {
+		//this tests passing in something with =s signs in it
+		commandParser = new CommandParser("tweetsearch radius=25 location=http://maps.google.co.uk/maps?f=q&source=s_q&hl=en&geocode=&q=mekkah&sll=55.835197,-4.264637&sspn=0.000672,0.001574&ie=UTF8&hq=&hnear=Mecca,+Saudi+Arabia&ll=21.429101,39.8172&spn=0.142537,0.20153&t=h&z=13");
+		assertEquals("Command value should be set correctly", "tweetsearch", commandParser.command());
+		assertEquals("Radius should be set correctly", 25, commandParser.getInt("radius"));
+		assertEquals("Location should be set correctly", "http://maps.google.co.uk/maps?f=q&source=s_q&hl=en&geocode=&q=mekkah&sll=55.835197,-4.264637&sspn=0.000672,0.001574&ie=UTF8&hq=&hnear=Mecca,+Saudi+Arabia&ll=21.429101,39.8172&spn=0.142537,0.20153&t=h&z=13", commandParser.get("location"));
+		assertFalse("hasRemaining should be false", commandParser.hasRemaining());
 	}
 }
