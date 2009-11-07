@@ -407,7 +407,10 @@ public class StringUtil {
      */
     public static double[] getPositionFromMapsLink(String url) {
         //&ll is the argument we want out
-        String[] posStr = url.replaceFirst(".*&ll=","").replaceFirst("&.*","").split(",");
+    	url = url.replaceFirst(".*&ll=","");
+    	if(url.contains("&"))
+    		url = url.replaceFirst("&.*","");
+        String[] posStr = url.split(",");
         double[] pos = new double[2];
         for(int i=0; i<2; i++) {
             pos[i] = Double.parseDouble(posStr[i]);
