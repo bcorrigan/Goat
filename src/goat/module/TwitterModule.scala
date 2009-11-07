@@ -28,8 +28,10 @@ import scala.collection.mutable.HashMap
 import java.util.Date
 
 import goat.util.Profile._
+import goat.util.CommandParser
 
 import java.lang.System
+import goat.Goat
 
 /**
  * Lets have the vapid outpourings of the digerati in goat.
@@ -129,7 +131,39 @@ class TwitterModule extends Module {
 
   private def queryTwitter(m: Message, queryString: String) {
     try {
-      val query: Query = new Query(queryString)
+      val parser = new CommandParser(m);
+      val query: Query = new Query(parser.remaining())
+      val user = Goat.getUsers().getOrCreateUser(m.getSender)
+      if(parser.has("radius") || parser.has("location")) {    	  
+        //parse radius
+        var radius:Double = 50 //50km by default
+        if(parser.has("radius")) {
+	        try {
+	          radius = java.lang.Double.parseDouble(parser.get("radius"))
+	        } catch {
+	          case nfe:NumberFormatException =>
+	            m.reply(m.getSender + ": Radius argument expects a number.")
+	            return
+	        }
+        }
+        var latitude = user.getLatitude
+        var longitude = user.getLongitude
+        if(parser.has("location")) {
+        	var url = parser.get("location")
+        	try {
+        	  var location:Array[Double] = StringUtil.getPositionFromMapsLink(url)
+        	  latitude = location(0)
+        	  longitude = location(1)
+        	} catch {
+        	  case nfe:NumberFormatException =>
+        		m.reply(m.getSender + ": you need to supply a valid google maps link.")
+        		return        			
+        	}
+        }
+        query.setGeoCode(latitude, longitude, radius, Query.KILOMETERS)
+      }
+
+
       query.setRpp(searchSize)
       val results = twitter.search(query).getTweets().toArray()
       if (results.size == 0)
@@ -141,7 +175,9 @@ class TwitterModule extends Module {
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
-        m.reply("Oh dear, there's a problem with twitter: " + ex)
+        val ind = ex.getMessage().indexOf("\":\"")
+        val errorMsg = ex.getMessage().substring(ind+3).replaceFirst("\"}","")
+        m.reply("Oh dear, twitter says: " + errorMsg)
     }
   }
 
@@ -325,14 +361,11 @@ class TwitterModule extends Module {
               m.reply(m.getSender + ": That's rubbish, try specifying a simple integer.")
           }
 	    } else m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
-    }
+    } 
   }
 
   private def sanitiseAndScold(m: Message): Boolean = {
-    if (m.getModTrailing.trim.matches("^[^a-zA-Z0-9]+$")) {
-      m.reply(m.getSender + ": To be thanking you for please not to be fucking with me. Fucker.")
-      return false
-    } else if (m.getModTrailing.trim.length == 0) {
+    if (m.getModTrailing.trim.length == 0) {
       m.reply(m.getSender + ": Twitter might be inane, but you still need to tell me to search for *something*.")
       return false
     }
