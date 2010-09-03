@@ -1,42 +1,32 @@
 package goat.module
 
-import scala.actors.TIMEOUT
 import goat.core.Constants._
 import goat.util.StringUtil
-import goat.core.BotStats
 import goat.core.Module
 import goat.core.Message
-import twitter4j.Trend
-import twitter4j.Twitter
-import twitter4j.TwitterException
-import twitter4j.TwitterStream
-import twitter4j.Tweet
-import twitter4j.Status
-import twitter4j.StatusStream
-import twitter4j.StatusListener
-import twitter4j.User
-import twitter4j.Query
-import twitter4j.QueryResult
-
-import org.apache.commons.lang.StringUtils
-
 import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
 
 import scala.actors.Actor._
 import scala.collection.immutable.HashSet
-import scala.collection.mutable.HashMap
-import java.util.Date
 
 import goat.util.Profile._
 import goat.util.CommandParser
 
 import java.lang.System
 import goat.Goat
+import twitter4j.http.{Authorization, AccessToken}
+import twitter4j._
 
 /**
  * Lets have the vapid outpourings of the digerati in goat.
  * TODO make ids List not array and convert when sending and receiving it
  * TODO trends search would be nice
+ * Consumer key: ZkKYRoR7lPZQBfFrxrpog
+ * Consumer secret: lHbOOtBPi8JmIPOf3MAS0eXB2yUiPrUHnPtVkBWuG4
+ * Access token: 57130163-b1BquTcyX6rHLOXwnGts9zfY9WymA99GQbIhH6VMg
+ * Access token sekret: Ye9bo17hKMxyCb9IaGgv7RVnRY5qUxOaxjq5w6l0
+ * useId: 57130163
+ * Goat user is: goatbot/slashnet
  * @author Barry Corrigan
  */
 class TwitterModule extends Module {
@@ -44,12 +34,24 @@ class TwitterModule extends Module {
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0
 
+  private val consumerKey = "ZkKYRoR7lPZQBfFrxrpog"
+  private val consumerSecret = "lHbOOtBPi8JmIPOf3MAS0eXB2yUiPrUHnPtVkBWuG4"
+  private val accessToken = "57130163-b1BquTcyX6rHLOXwnGts9zfY9WymA99GQbIhH6VMg"
+  private val accessTokenSecret = "Ye9bo17hKMxyCb9IaGgv7RVnRY5qUxOaxjq5w6l0"
+
   private var searchSize = 50 //how many tweets should a request retrieve at once
 
   private var lastTweet: Long = 0
   private var lastPurge: Long = System.currentTimeMillis
   private var purgePeriod: Int = 10 //interval in minutes when we garbage collect
-  private val twitter: Twitter = new Twitter("goatbot", "slashnet")
+
+  //OAuth connection bullshit
+  private val twitterFactory = new TwitterFactory()
+  private val twitter: Twitter = twitterFactory.getInstance()
+  twitter.setOAuthConsumer(consumerKey,consumerSecret)
+  private val token = new AccessToken(accessToken,accessTokenSecret)
+  twitter.setOAuthAccessToken(token)
+
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
   private var chan = "goat" //BotStats.getInstance().getChannels()(0)
@@ -74,12 +76,17 @@ class TwitterModule extends Module {
   private var cacheHits: Int = 0
 
   private val streamTwitter: TwitterStream = new TwitterStream(USER, PASSWORD, new GoatStatusListener())
-  streamTwitter.follow(followedIDs)
+  followIDs(followedIDs)
 
 
   private def refreshTwitterStream() {
     refreshIdsToFollow()
-    streamTwitter.follow(followedIDs)
+    followIDs(followedIDs)
+  }
+
+  private def followIDs(followIDs:Array[Int]) {
+    val query = new FilterQuery(followIDs)
+    streamTwitter.filter(query)
   }
 
   //this actor will send tweets, do searches, etc - we can fire up several of these
@@ -134,35 +141,35 @@ class TwitterModule extends Module {
       val parser = new CommandParser(m);
       val query: Query = new Query(parser.remaining())
       val user = Goat.getUsers().getOrCreateUser(m.getSender)
-      if(parser.has("radius") || parser.has("location")) {    	  
+      if (parser.has("radius") || parser.has("location")) {
         //parse radius
-        var radius:Double = 50 //50km by default
-        if(parser.has("radius")) {
-	        try {
-	          radius = java.lang.Double.parseDouble(parser.get("radius"))
-	        } catch {
-	          case nfe:NumberFormatException =>
-	            m.reply(m.getSender + ": Radius argument expects a number.")
-	            return
-	        }
+        var radius: Double = 50 //50km by default
+        if (parser.has("radius")) {
+          try {
+            radius = java.lang.Double.parseDouble(parser.get("radius"))
+          } catch {
+            case nfe: NumberFormatException =>
+              m.reply(m.getSender + ": Radius argument expects a number.")
+              return
+          }
         }
         var latitude = user.getLatitude
         var longitude = user.getLongitude
-        if(parser.has("location")) {
-        	var url = parser.get("location")
-        	try {
-        	  var location:Array[Double] = StringUtil.getPositionFromMapsLink(url)
-        	  latitude = location(0)
-        	  longitude = location(1)
-        	} catch {
-        	  case nfe:NumberFormatException =>
-        		m.reply(m.getSender + ": you need to supply a valid google maps link.")
-        		return        			
-        	}
+        if (parser.has("location")) {
+          var url = parser.get("location")
+          try {
+            var location: Array[Double] = StringUtil.getPositionFromMapsLink(url)
+            latitude = location(0)
+            longitude = location(1)
+          } catch {
+            case nfe: NumberFormatException =>
+              m.reply(m.getSender + ": you need to supply a valid google maps link.")
+              return
+          }
         }
-        query.setGeoCode(latitude, longitude, radius, Query.KILOMETERS)
+        val geo = new GeoLocation(latitude,longitude)
+        query.setGeoCode(geo, radius, Query.KILOMETERS)
       }
-
 
       query.setRpp(searchSize)
       val results = twitter.search(query).getTweets().toArray()
@@ -176,7 +183,7 @@ class TwitterModule extends Module {
       case ex: TwitterException =>
         ex.printStackTrace()
         val ind = ex.getMessage().indexOf("\":\"")
-        val errorMsg = ex.getMessage().substring(ind+3).replaceFirst("\"}","")
+        val errorMsg = ex.getMessage().substring(ind + 3).replaceFirst("\"}", "")
         m.reply("Oh dear, twitter says: " + errorMsg)
     }
   }
@@ -196,8 +203,8 @@ class TwitterModule extends Module {
       val simTweet = firstSimilarTweet(filtCount.keys.toList, t)
       if (simTweet.isEmpty)
         filtCount += t -> 1
-      else 
-    	filtCount += simTweet.get -> (filtCount.get(simTweet.get).get + 1)
+      else
+        filtCount += simTweet.get -> (filtCount.get(simTweet.get).get + 1)
     }
 
     var filtTweetsPaired: List[Tuple2[Tweet, Int]] = filtCount.toList
@@ -298,7 +305,7 @@ class TwitterModule extends Module {
   private def fetchFriendStatuses(twitter: Twitter): List[String] = {
     val statuses = twitter.getFriendsTimeline().toArray(new Array[Status](0))
     var strStatuses: List[String] = Nil
-    for (status: Status <- statuses)
+    for (status <- statuses)
       strStatuses = (BOLD + status.getUser.getName + NORMAL + ": " + status.getText) :: strStatuses
     strStatuses.reverse
   }
@@ -360,8 +367,8 @@ class TwitterModule extends Module {
             case ex: NumberFormatException =>
               m.reply(m.getSender + ": That's rubbish, try specifying a simple integer.")
           }
-	    } else m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
-    } 
+        } else m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
+    }
   }
 
   private def sanitiseAndScold(m: Message): Boolean = {
@@ -467,6 +474,14 @@ class TwitterModule extends Module {
       if (isFollowed(status.getUser.getId))
         sendStatusToChan(status, chan);
       println(status.getText)
+    }
+
+    def onDeletionNotice(statusDeletionNotice:StatusDeletionNotice) {
+      //TODO ignore for now ; should really remove the deleted account
+    }
+
+    def onTrackLimitationNotice(numberOfLimitedStatuses:Int) {
+      //ignore, now and forever
     }
   }
 }
