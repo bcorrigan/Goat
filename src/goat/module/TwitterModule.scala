@@ -17,7 +17,7 @@ import goat.Goat
 import twitter4j.http.{Authorization, AccessToken}
 import twitter4j._
 
-/**
+/*
  * Lets have the vapid outpourings of the digerati in goat.
  * TODO make ids List not array and convert when sending and receiving it
  * TODO trends search would be nice
@@ -43,18 +43,15 @@ class TwitterModule extends Module {
 
   private var lastTweet: Long = 0
   private var lastPurge: Long = System.currentTimeMillis
-  private var purgePeriod: Int = 10 //interval in minutes when we garbage collect
+  private val purgePeriod: Int = 10 //interval in minutes when we garbage collect
 
   //OAuth connection bullshit
-  private val twitterFactory = new TwitterFactory()
-  private val twitter: Twitter = twitterFactory.getInstance()
-  twitter.setOAuthConsumer(consumerKey,consumerSecret)
   private val token = new AccessToken(accessToken,accessTokenSecret)
-  twitter.setOAuthAccessToken(token)
+  private val twitter: Twitter = new TwitterFactory().getOAuthAuthorizedInstance(consumerKey,consumerSecret,token)
 
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
-  private var chan = "goat" //BotStats.getInstance().getChannels()(0)
+  private var chan = "jism" //BotStats.getInstance().getChannels()(0)
   //for messaging actor
   private val TWEET = "TWEET"
   private val TWEET_TOPIC = "TWEET_TOPIC"
@@ -75,7 +72,9 @@ class TwitterModule extends Module {
   private var searchesMade: Int = 0;
   private var cacheHits: Int = 0
 
-  private val streamTwitter: TwitterStream = new TwitterStream(USER, PASSWORD, new GoatStatusListener())
+  private val streamTwitter: TwitterStream = new TwitterStreamFactory().getInstance(twitter.getAuthorization())
+  streamTwitter.setStatusListener( new GoatStatusListener() )
+
   followIDs(followedIDs)
 
 
@@ -91,7 +90,7 @@ class TwitterModule extends Module {
 
   //this actor will send tweets, do searches, etc - we can fire up several of these
   private val twitterActor = actor {
-    val twitter: Twitter = new Twitter("goatbot", "slashnet")
+    //val twitter: Twitter = new Twitter("goatbot", "slashnet")
     while (true) {
       receive {
         case (msg: Message, TWEET) =>
@@ -115,7 +114,7 @@ class TwitterModule extends Module {
 
   private def showTrends(m: Message) {
     try {
-      val trends: List[Trend] = List.fromArray(twitter.getTrends().getTrends())
+      val trends: List[Trend] = twitter.getTrends().getTrends().toList
       //iterate over each trend and splat into channel
       var reply = "Today's Trends: "
       var count = 1
@@ -156,9 +155,9 @@ class TwitterModule extends Module {
         var latitude = user.getLatitude
         var longitude = user.getLongitude
         if (parser.has("location")) {
-          var url = parser.get("location")
+          val url = parser.get("location")
           try {
-            var location: Array[Double] = StringUtil.getPositionFromMapsLink(url)
+            val location: Array[Double] = StringUtil.getPositionFromMapsLink(url)
             latitude = location(0)
             longitude = location(1)
           } catch {
@@ -190,12 +189,12 @@ class TwitterModule extends Module {
 
   private def addTweetsToCache(query: String, tweetsArr: Array[Object]) {
     //condense tweets - strip dups
-    var tweets: List[Tweet] = filterSimilarTweets(tweetsArr.toList.asInstanceOf[List[Tweet]])
+    val tweets: List[Tweet] = filterSimilarTweets(tweetsArr.toList.asInstanceOf[List[Tweet]])
     searchResults = searchResults + Tuple2(query, tweets) //Tuple2 needed or just for eclipse?
   }
 
   private def filterSimilarTweets(tweets: List[Tweet]): List[Tweet] = {
-    var start = System.currentTimeMillis
+    val start = System.currentTimeMillis
     //a map of the tweets we have already seen, against the count of similar tweets (which we throw away)
     var filtCount: Map[Tweet, Int] = Map()
 
@@ -210,11 +209,11 @@ class TwitterModule extends Module {
     var filtTweetsPaired: List[Tuple2[Tweet, Int]] = filtCount.toList
     var sortedTweetsPaired: List[Tuple2[Tweet, Int]] = Nil
     //sort this by spamminess (ie the Int)
-    filtTweetsPaired = filtTweetsPaired.sort((t1, t2) => t1._2 < t2._2)
+    filtTweetsPaired = filtTweetsPaired.sortWith((t1, t2) => t1._2 < t2._2)
     //now do takeWhile chunks and sort those chunks into new list by secondary sort key, the time posted at
     while (filtTweetsPaired.length > 0) {
       val chunk = filtTweetsPaired.takeWhile(_._2 == filtTweetsPaired.head._2)
-      sortedTweetsPaired ++= chunk.sort(_._1.getCreatedAt.getTime > _._1.getCreatedAt.getTime)
+      sortedTweetsPaired ++= chunk.sortWith(_._1.getCreatedAt.getTime > _._1.getCreatedAt.getTime)
       filtTweetsPaired = filtTweetsPaired.dropWhile(_._2 == filtTweetsPaired.head._2)
     }
 
@@ -349,7 +348,7 @@ class TwitterModule extends Module {
             twitterActor ! (m, SEARCH)
           } else cacheHits += 1
       case "tweetstats" =>
-        m.reply(m.getSender + ": Searches made:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize
+        m.reply(m.getSender + ": Searches made:" + (searchesMade+cacheHits) + " Network hits:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize
                 + " Last filter time:" + lastFilterTime + "ms"
                 + " Avg. Filter Time:" + filterTimeAvg + "ms")
       case "trends" =>
@@ -445,7 +444,7 @@ class TwitterModule extends Module {
   private def filterIDs(ids: Array[Int]): Array[Int] = {
     var filteredIDs: List[Int] = Nil
 
-    var idsList = List.fromArray(followedIDs)
+    val idsList = followedIDs.toList
 
     for (id <- ids) {
       if (idsList.contains(id)) {
@@ -457,7 +456,7 @@ class TwitterModule extends Module {
   }
 
   private def isFollowed(id: Int): Boolean = {
-    var idsList = List.fromArray(followedIDs)
+    val idsList = followedIDs.toList
     if (idsList.contains(id)) {
       return true
     }
