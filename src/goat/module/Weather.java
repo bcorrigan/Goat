@@ -92,6 +92,28 @@ public class Weather extends Module {
 					break ;
 				}
 			} */
+
+			// Fuck with em's smug sense of UI Correctness
+			if(m.getPrefix().trim().matches(".*\\.dsl\\.static\\.sonic\\.net$")
+					|| m.getPrefix().trim().matches(".*\\.mercedsystems\\.com$")) {
+				User user = users.getUser(m.getSender());
+				if ((user != null) 
+						&& (user.getWeatherStation() != null)) {
+					if (user.getWeatherStation().equals("KSQL")
+							&& station.equals("KSFO")) {
+						m.reply("No.");
+						return;
+					} else if (user.getWeatherStation().equals("KSFO")
+					      && station.equals("KSQL")) {
+						m.reply("No.");
+						return;
+					} else if (user.getWeatherStation().equals(station)) {
+						m.reply("Yes, " + m.getSender() + ", that is your weather station.");
+						return;
+					}
+				}
+			}
+
 			String report = getReport(m.getSender(), m.getModCommand(), station);
 			//debug
             //System.out.println("report:" + report + ":");
