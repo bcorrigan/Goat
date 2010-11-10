@@ -293,11 +293,11 @@ public class Define extends Module {
 //		Pattern def_pBodyStartPattern = Pattern.compile("^\\s*<p>(.+?)(</p>)*\\s*$");
 //		Pattern def_pBodyEndPattern = Pattern.compile("(.*)</p>\\s*$") ;
 
-		Pattern definitionStartPattern = Pattern.compile("^\\s*<div class='definition'>\\s*(.*)\\s*$");
-		Pattern definitionEndPattern = Pattern.compile("^\\s*(.*)\\s*</div>\\s*");
+		Pattern definitionStartPattern = Pattern.compile("^\\s*<div class=\"definition\">\\s*(.*)\\s*$");
+		Pattern definitionEndPattern = Pattern.compile("^\\s*(.*?)\\s*</div>.*");
 
-		Pattern exampleStartPattern = Pattern.compile("^\\s*<div class='example'>\\s*(.*)\\s*$");
-		Pattern exampleEndPattern = Pattern.compile("^\\s*(.*)\\s*</div>\\s*$") ;
+		Pattern exampleStartPattern = Pattern.compile("<div class=\"example\">\\s*(.*)\\s*$");
+		Pattern exampleEndPattern = Pattern.compile("^\\s*(.*?)\\s*</div>\\s*$") ;
 		
 		Pattern startPattern = numberStartPattern;
 		//Pattern endPattern = Pattern.compile("^\\s*</div>\\s*$");
@@ -325,27 +325,37 @@ public class Define extends Module {
 				word = br.readLine().trim(); // word or phrase should be alone on a line, no parse necessary
 				if(debug)
 					System.out.println("  word found: " + word) ;
+				// Definition and example have moved, now can be on same line.
+				// or not.  Go fuck yourself, urbandictionary.
+				String dline = "";
 				// parse out definition
 				definition = "";
-            matcher = definitionStartPattern.matcher(br.readLine());
-            while(!matcher.find())
-               matcher = definitionStartPattern.matcher(br.readLine());
+				dline = br.readLine();
+            matcher = definitionStartPattern.matcher(dline);
+            while(!matcher.find()) {
+					dline = br.readLine();
+               matcher = definitionStartPattern.matcher(dline);
+				}
             definition = matcher.group(1);
             matcher = definitionEndPattern.matcher(definition);
             while(!matcher.find()) {
-               definition += " " + br.readLine();
+					dline = br.readLine();
+               definition += " " + dline;
                matcher = definitionEndPattern.matcher(definition);
             }
             definition = matcher.group(1);
             // parse out example
             example = "";
-            matcher = exampleStartPattern.matcher(br.readLine());
-            while(!matcher.find())
-               matcher = exampleStartPattern.matcher(br.readLine());
+            matcher = exampleStartPattern.matcher(dline);
+            while(!matcher.find()) {
+					dline = br.readLine();
+               matcher = exampleStartPattern.matcher(dline);
+				}
             example = matcher.group(1);
             matcher = exampleEndPattern.matcher(example);
             while(!matcher.find()) {
-               example += " " + br.readLine();
+					dline = br.readLine();
+               example += " " + dline;
                matcher = exampleEndPattern.matcher(example);
             }
             example = matcher.group(1);

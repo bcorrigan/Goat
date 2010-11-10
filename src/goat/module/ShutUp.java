@@ -70,6 +70,29 @@ public class ShutUp extends Module {
             "yob",
             "asbo"
 	} ;
+
+	public static final String[] emisms = {
+		"zeiss",
+		"focal plane",
+		"vignetting",
+		"shadow detail",
+		"san mateo",
+		"culantro",
+		"f1.2",
+		"f1.4",
+		"sencha",
+		"matcha",
+		"sofrito",
+		"pink beans",
+		//joeyisms that em has been whinging about particularly
+		"sonic", 
+		"lady gaga",
+		"katy perry",
+		"emily autumn"
+	};
+
+
+
 	
 	// ideally, these should be in order of increasing severity, and not look
 	//   odd when prefixed with "[uname], " or appended with ", uname"
@@ -186,6 +209,11 @@ public class ShutUp extends Module {
 			} else {
 				m.reply("Shut up, joey.") ;
 			}
+		}
+
+		int emscore = score(m.getTrailing(), emisms);
+		if (emscore > 0) {
+			m.reply("Shut up, em.");
 		}
 		
 		// blather monitor housekeeping
