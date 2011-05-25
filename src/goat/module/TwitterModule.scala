@@ -14,8 +14,10 @@ import goat.util.CommandParser
 
 import java.lang.System
 import goat.Goat
-import twitter4j.http.{Authorization, AccessToken}
+import twitter4j.auth.{Authorization, AccessToken}
+import twitter4j.conf._
 import twitter4j._
+
 
 /*
  * Lets have the vapid outpourings of the digerati in goat.
@@ -32,7 +34,7 @@ import twitter4j._
 class TwitterModule extends Module {
   private var lastFilterTime: Long = 0 //these few vars are for some stats keeping
   private var filterTimeAvg: Long = 0
-  private var filterCount: Int = 0
+  private var filterCount: Int = 0 
 
   private val consumerKey = "ZkKYRoR7lPZQBfFrxrpog"
   private val consumerSecret = "lHbOOtBPi8JmIPOf3MAS0eXB2yUiPrUHnPtVkBWuG4"
@@ -47,7 +49,16 @@ class TwitterModule extends Module {
 
   //OAuth connection bullshit
   private val token = new AccessToken(accessToken,accessTokenSecret)
-  private val twitter: Twitter = new TwitterFactory().getOAuthAuthorizedInstance(consumerKey,consumerSecret,token)
+  
+  val cb = new ConfigurationBuilder();
+
+  cb.setDebugEnabled(true)
+  .setOAuthConsumerKey(consumerKey)
+  .setOAuthConsumerSecret(consumerSecret)
+  .setOAuthAccessToken(accessToken)
+  .setOAuthAccessTokenSecret(accessTokenSecret);
+  
+  private val twitter = new TwitterFactory(cb.build()).getInstance()
 
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
@@ -65,7 +76,7 @@ class TwitterModule extends Module {
   //should make a facility for this generic
   private var searchResults: Set[Tuple2[String, List[Tweet]]] = new HashSet
 
-  private var followedIDs: Array[Int] = null
+  private var followedIDs: Array[Long] = null
   refreshIdsToFollow()
 
   //some random stats to see how effective the cache is
@@ -73,7 +84,8 @@ class TwitterModule extends Module {
   private var cacheHits: Int = 0
 
   private val streamTwitter: TwitterStream = new TwitterStreamFactory().getInstance(twitter.getAuthorization())
-  streamTwitter.setStatusListener( new GoatStatusListener() )
+
+  streamTwitter.addListener( new GoatStatusListener() )
 
   followIDs(followedIDs)
 
@@ -83,7 +95,7 @@ class TwitterModule extends Module {
     followIDs(followedIDs)
   }
 
-  private def followIDs(followIDs:Array[Int]) {
+  private def followIDs(followIDs:Array[Long]) {
     val query = new FilterQuery(followIDs)
     streamTwitter.filter(query)
   }
@@ -116,7 +128,7 @@ class TwitterModule extends Module {
     try {
       val trends: List[Trend] = twitter.getTrends().getTrends().toList
       //iterate over each trend and splat into channel
-      var reply = "Today's Trends: "
+      var reply = "Trends of the moment: "
       var count = 1
       for (trend <- trends) {
         reply += " " + BOLD + count + ":" + BOLD + trend.getName()
@@ -310,7 +322,7 @@ class TwitterModule extends Module {
   }
 
   private def refreshIdsToFollow() {
-    followedIDs = twitter.getFriendsIDs().getIDs
+    followedIDs = twitter.getFriendsIDs(1l).getIDs
   }
 
   private def sendStatusToChan(status: Status, chan: String) {
@@ -351,7 +363,7 @@ class TwitterModule extends Module {
         m.reply(m.getSender + ": Searches made:" + (searchesMade+cacheHits) + " Network hits:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize
                 + " Last filter time:" + lastFilterTime + "ms"
                 + " Avg. Filter Time:" + filterTimeAvg + "ms")
-      case "trends" =>
+      case "trends" | "localtrends" =>
         twitterActor ! (m, TRENDS)
       case "tweetpurge" =>
         tweetpurge(m)
@@ -438,7 +450,7 @@ class TwitterModule extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends", "tweetpurge", "tweetsearchsize")
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "tweetsearchsize")
   }
 
   private def filterIDs(ids: Array[Int]): Array[Int] = {
@@ -455,7 +467,7 @@ class TwitterModule extends Module {
     filteredIDs.toArray: Array[Int] //ugly shit
   }
 
-  private def isFollowed(id: Int): Boolean = {
+  private def isFollowed(id: Long): Boolean = {
     val idsList = followedIDs.toList
     if (idsList.contains(id)) {
       return true
@@ -481,6 +493,10 @@ class TwitterModule extends Module {
 
     def onTrackLimitationNotice(numberOfLimitedStatuses:Int) {
       //ignore, now and forever
+    }
+    
+    def onScrubGeo(userId:Long, upToStatusId:Long) {
+      //who gives a shit
     }
   }
 }
