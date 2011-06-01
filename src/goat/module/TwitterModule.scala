@@ -124,7 +124,7 @@ class TwitterModule extends Module {
     }
   }
 
-  private def showTrends(m: Message) {
+  private def showTrendsOld(m: Message) {
     try {
       val trends: List[Trend] = twitter.getTrends().getTrends().toList
       //iterate over each trend and splat into channel
@@ -139,6 +139,48 @@ class TwitterModule extends Module {
       case ex: TwitterException =>
         ex.printStackTrace()
         m.reply("Twitter is not providing me with trends, terribly sorry." + ex)
+    }
+  }
+  
+  private def showTrends(m: Message) {
+    try {
+	    val parser = new CommandParser(m);
+	    val query: Query = new Query(parser.remaining())
+	    val user = Goat.getUsers().getOrCreateUser(m.getSender)
+	    var woeId: Option[Int] = None
+	
+	    if(parser.has("near") || m.getModTrailing.contains("near")) {
+	      val woeIdStr = parser.get("near")
+	      if(woeIdStr==null) {
+	        woeId = Some(user.getWoeId())
+	      } else {
+	        if(woeIdStr.trim().matches("\\d+")) {
+	          woeId = Some(Integer.parseInt(woeIdStr.trim()))
+	        }
+	      }
+	    }
+	    
+	    var reply = "Trends of the moment"
+	    
+	    val trends: List[Trend] = if (woeId.isEmpty) {
+	      reply += ": "
+	      twitter.getTrends().getTrends().toList
+	    } else {
+	      val locTrends = twitter.getLocationTrends(woeId.get)
+	      reply += " for " + locTrends.getLocation().getName() + ": "
+	      locTrends.getTrends.toList
+	    }
+	    
+	    var count = 1
+	    for (trend <- trends) {
+	      reply += " " + BOLD + count + ":" + BOLD + trend.getName()
+	      count += 1
+	    }
+	    m.reply(reply)
+    } catch {
+      case ex: TwitterException =>
+        ex.printStackTrace
+        m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage)
     }
   }
 

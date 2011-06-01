@@ -66,6 +66,8 @@ public class Users extends Module {
 			seen(m);
 		else if(m.getModCommand().equalsIgnoreCase("location"))
 			location(m);
+		else if(m.getModCommand().equalsIgnoreCase("woeid"))
+			woeid(m);
 
 		recordSighting(m);
 	}
@@ -91,6 +93,17 @@ public class Users extends Module {
 				m.reply(m.getSender() + ": Don't be an arse, eh? Just give me a google maps link. See instructions in /msg");
 				Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
 			}
+		}
+	}
+	
+	private void woeid(Message m) {
+		if(m.getModTrailing().trim().matches("\\d+")) {
+			int woeId = Integer.parseInt( m.getModTrailing().trim() );
+			m.reply(m.getSender() + ", setting your Yahoo Where on Earth ID to " + woeId);
+			User u = users.getOrCreateUser(m.getSender());
+			u.setWoeId(woeId);
+		} else {
+			m.reply(m.getSender() + ", you can set your Yahoo Where on Earth ID by searching for a suitable location here: http://isithackday.com/geoplanet-explorer/ the valid woeIds here: http://api.twitter.com/1/trends/available.xml and then say: woeId <id>");
 		}
 	}
 

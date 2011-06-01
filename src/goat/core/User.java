@@ -25,6 +25,7 @@ public class User {
 	private String lastChannel = null;
 	private double longitude = -4.250132; //users default to George Square, Glasgow
 	private double latitude = 55.861221;
+	private int woeId = 21125; //default to Glasgow of course 
 	
 	public String getLastChannel() {
 		return lastChannel;
@@ -260,6 +261,21 @@ public class User {
 				save();
 			}
 	}
+	
+	public synchronized int getWoeId() {
+		return woeId;
+	}
+	
+	public synchronized void setWoeId(int woeId) {
+		if(container == null)
+			this.woeId = woeId;
+		else
+			synchronized (container.writeLock) {
+				this.woeId = woeId;
+				save();
+			}
+	}
+	
 	
 	private synchronized void save() {
 		if (!(null == container))
