@@ -123,24 +123,6 @@ class TwitterModule extends Module {
       }
     }
   }
-
-  private def showTrendsOld(m: Message) {
-    try {
-      val trends: List[Trend] = twitter.getTrends().getTrends().toList
-      //iterate over each trend and splat into channel
-      var reply = "Trends of the moment: "
-      var count = 1
-      for (trend <- trends) {
-        reply += " " + BOLD + count + ":" + BOLD + trend.getName()
-        count += 1
-      }
-      m.reply(reply)
-    } catch {
-      case ex: TwitterException =>
-        ex.printStackTrace()
-        m.reply("Twitter is not providing me with trends, terribly sorry." + ex)
-    }
-  }
   
   private def showTrends(m: Message) {
     try {
