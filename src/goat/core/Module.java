@@ -187,7 +187,7 @@ public abstract class Module implements Runnable {
 	        } catch(Exception e) {
 	            e.printStackTrace();
 	            m.createReply( this.getClass().getSimpleName() + " caused an exception: " 
-	                    + e.getClass().getSimpleName() + ". You will probably want to fix this. Saving stacktrace to a bugfix file.").send();
+	                    + e.getClass().getSimpleName() + ". You will probably want to fix this.").send();
 	        }
 		
 	}
