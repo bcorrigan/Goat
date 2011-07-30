@@ -35,7 +35,7 @@ class TwitterModule extends Module {
   private var lastFilterTime: Long = 0 //these few vars are for some stats keeping
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0 
-
+  
   private val consumerKey = "ZkKYRoR7lPZQBfFrxrpog"
   private val consumerSecret = "lHbOOtBPi8JmIPOf3MAS0eXB2yUiPrUHnPtVkBWuG4"
   private val accessToken = "57130163-b1BquTcyX6rHLOXwnGts9zfY9WymA99GQbIhH6VMg"
@@ -71,6 +71,7 @@ class TwitterModule extends Module {
   private val UNFOLLOW = "UNFOLLOW"
   private val SEARCH = "SEARCH"
   private val TRENDS = "TRENDS"
+  private val TRENDSNOTIFY = "TRENDSNOTIFY"
 
   //HashSet of tuples (queries and tweets), we will use this as a local cache
   //should make a facility for this generic
@@ -124,6 +125,32 @@ class TwitterModule extends Module {
     }
   }
   
+  private val trendsNotifyActor = actor {
+    while (true) {
+      receive {
+        case (chan: String, TRENDSNOTIFY) =>
+          trendsNotify(chan)
+      }
+    }
+  }
+  
+  private def trendsNotify(chan:String) {
+    var seenTrends:List[String] = Nil
+    while(true) {
+      val topTrend = twitter.getTrends.getTrends.head.getName
+      //have we seen this top trend recently?
+      if(!seenTrends.contains(topTrend)) {
+        Message.createPrivmsg(chan, topTrend).send()
+      
+        seenTrends ::= topTrend
+        if(seenTrends.size>3)
+          seenTrends = seenTrends.take(3)
+      } 
+
+      Thread.sleep(60000)
+    }
+  }
+  
   private def showTrends(m: Message) {
     try {
 	    val parser = new CommandParser(m);
@@ -165,11 +192,6 @@ class TwitterModule extends Module {
         m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage)
     }
   }
-
-  //fire up a few actors
-  twitterActor.start()
-  twitterActor.start()
-  twitterActor.start()
 
   private def queryTwitter(m: Message, queryString: String) {
     try {
@@ -403,6 +425,15 @@ class TwitterModule extends Module {
               m.reply(m.getSender + ": That's rubbish, try specifying a simple integer.")
           }
         } else m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
+      case "trendsnotify" =>
+        if( m.isAuthorised()) {
+          if(m.getModTrailing.split(' ').size!=1) 
+            m.reply("Master, your humble servant can only follow one channel at once. Forgive me.")
+          else {
+            val chan = m.getModTrailing().split(' ')(0)
+            trendsNotifyActor ! (chan, TRENDSNOTIFY)
+          }
+        }
     }
   }
 
@@ -474,7 +505,7 @@ class TwitterModule extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "tweetsearchsize")
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "tweetsearchsize", "trendsnotify")
   }
 
   private def filterIDs(ids: Array[Int]): Array[Int] = {

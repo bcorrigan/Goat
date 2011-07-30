@@ -237,6 +237,13 @@ public class BotStats {
 				m.setPrivate(true);
 				if (lineIn.startsWith("#")) {
 					continue;		//so the file can be commented :-)
+				} else if (lineIn.startsWith("sleep")) {
+					//so config file can be paused and allow time for initialisation
+					int sleepTime = Integer.parseInt( lineIn.split(" ")[1] );
+					try {
+						Thread.sleep(sleepTime);
+					} catch (InterruptedException e) { /* snore */ }
+					continue;
 				}
 				String[] words = lineIn.split(" ");
 				m.setModCommand(words[0]);
