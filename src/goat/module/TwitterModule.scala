@@ -137,16 +137,23 @@ class TwitterModule extends Module {
   private def trendsNotify(chan:String) {
     var seenTrends:List[String] = Nil
     while(true) {
-      val topTrend = twitter.getTrends.getTrends.head.getName
-      //have we seen this top trend recently?
-      if(!seenTrends.contains(topTrend)) {
-        Message.createPrivmsg(chan, topTrend).send()
-      
-        seenTrends ::= topTrend
-        if(seenTrends.size>3)
-          seenTrends = seenTrends.take(3)
-      } 
+      val trends = twitter.getTrends.getTrends.map(_.getName)
+      val newTrends = trends diff seenTrends
 
+      if(!newTrends.isEmpty) {
+        //RS this is where the # is stripped
+        val msgTrends = newTrends map( t => if(t.startsWith("#") && t.length>1) {
+          								 t.substring(1)	
+        							   } else t)
+        
+	    val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
+	    Message.createPrivmsg(chan, msg).send()
+	      
+	    seenTrends ++= newTrends
+	      
+	    if(seenTrends.size>20)
+	      seenTrends = seenTrends.take(20)
+      }
       Thread.sleep(60000)
     }
   }
