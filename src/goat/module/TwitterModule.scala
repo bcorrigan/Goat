@@ -141,18 +141,16 @@ class TwitterModule extends Module {
       val newTrends = trends diff seenTrends
 
       if(!newTrends.isEmpty) {
-        //RS this is where the # is stripped
         val msgTrends = newTrends map( t => if(t.startsWith("#") && t.length>1) {
-          								 t.substring(1)	
+          								 t.substring(1)
+          								 //hey rs, this is where you can hook in and turn "reasonstobeatgirlfriend" into somethign readable
         							   } else t)
         
 	    val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
 	    Message.createPrivmsg(chan, msg).send()
 	      
 	    seenTrends ++= newTrends
-	      
-	    if(seenTrends.size>20)
-	      seenTrends = seenTrends.take(20)
+	    seenTrends = seenTrends.take(20)
       }
       Thread.sleep(60000)
     }
