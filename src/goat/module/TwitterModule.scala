@@ -151,7 +151,7 @@ class TwitterModule extends Module {
 	    val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
 	    Message.createPrivmsg(chan, msg).send()
 	      
-	    seenTrends = (newTrends ++ seenTrends).take(20)
+	    seenTrends = (newTrends ++ seenTrends).take(1000)
       }
       Thread.sleep(60000)
     }
