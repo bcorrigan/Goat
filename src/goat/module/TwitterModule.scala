@@ -18,6 +18,8 @@ import twitter4j.auth.{Authorization, AccessToken}
 import twitter4j.conf._
 import twitter4j._
 
+import scala.collection.JavaConversions._
+
 
 /*
  * Lets have the vapid outpourings of the digerati in goat.
@@ -137,7 +139,7 @@ class TwitterModule extends Module {
   private def trendsNotify(chan:String) {
     var seenTrends:List[String] = Nil
     while(true) {
-      val trends = twitter.getTrends.getTrends.map(_.getName)
+      val trends = twitter.getTrends.getTrends.toList.map(_.getName)
       val newTrends = trends diff seenTrends
 
       if(!newTrends.isEmpty) {
@@ -149,8 +151,7 @@ class TwitterModule extends Module {
 	    val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
 	    Message.createPrivmsg(chan, msg).send()
 	      
-	    seenTrends ++= newTrends
-	    seenTrends = seenTrends.take(20)
+	    seenTrends = (newTrends ++ seenTrends).take(20)
       }
       Thread.sleep(60000)
     }
