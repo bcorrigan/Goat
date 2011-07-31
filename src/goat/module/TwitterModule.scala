@@ -160,6 +160,7 @@ class TwitterModule extends Module {
 	  } catch {
         case ex:TwitterException =>
         ex.printStackTrace()
+        Thread.sleep(60000)
       }
     } 
   }
