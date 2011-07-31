@@ -136,25 +136,32 @@ class TwitterModule extends Module {
     }
   }
   
+  //TODO use receiveWithin and TIMEOUT
   private def trendsNotify(chan:String) {
     var seenTrends:List[String] = Nil
+    
     while(true) {
-      val trends = twitter.getTrends.getTrends.toList.map(_.getName)
-      val newTrends = trends diff seenTrends
-
-      if(!newTrends.isEmpty) {
-        val msgTrends = newTrends map( t => if(t.startsWith("#") && t.length>1) {
-          								 t.substring(1)
-          								 //hey rs, this is where you can hook in and turn "reasonstobeatgirlfriend" into somethign readable
-        							   } else t)
-        
-	    val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
-	    Message.createPrivmsg(chan, msg).send()
-	      
-	    seenTrends = (newTrends ++ seenTrends).take(1000)
+      try {
+	    val trends = twitter.getTrends.getTrends.toList.map(_.getName)
+	    val newTrends = trends diff seenTrends
+	
+	    if(!newTrends.isEmpty) {
+	      val msgTrends = newTrends map( t => if(t.startsWith("#") && t.length>1) {
+	        								 t.substring(1)
+            								 //hey rs, this is where you can hook in and turn "reasonstobeatgirlfriend" into somethign readable
+	        							 } else t)
+	        
+		  val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
+		  Message.createPrivmsg(chan, msg).send()
+		      
+		  seenTrends = (newTrends ++ seenTrends).take(1000)
+	    }
+	    Thread.sleep(60000)
+	  } catch {
+        case ex:TwitterException =>
+        ex.printStackTrace()
       }
-      Thread.sleep(60000)
-    }
+    } 
   }
   
   private def showTrends(m: Message) {
