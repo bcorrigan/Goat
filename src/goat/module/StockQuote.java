@@ -73,7 +73,7 @@ public class StockQuote extends Module {
     	nf.setMaximumFractionDigits(2);
     	String ret = quote.name + " (" + Constants.BOLD + quote.symbol + Constants.NORMAL + "):  ";
     	ret += nf.format(quote.lastTrade) + " ";
-    	if(quote.change != 0) {
+    	if(quote.change != null && quote.change != 0) {
     		if(quote.change > 0)
     			ret += "+";
     		if(quote.change < 0)
@@ -89,7 +89,7 @@ public class StockQuote extends Module {
     		ret += " " + Constants.BOLD + "Open: " + Constants.NORMAL + nf.format(quote.open);
     	if(quote.dayLow != null)
     		ret += " "  + Constants.BOLD + "Range: " + Constants.NORMAL + nf.format(quote.dayLow) + " - " + nf.format(quote.dayHigh);
-     	if(quote.volume != 0)
+     	if(quote.volume != null && quote.volume != 0)
     		ret += " " + Constants.BOLD + "Volume: " + Constants.NORMAL + abbreviateNumber(quote.volume);
     	if(quote.marketCap != null)
     		ret += " " + Constants.BOLD + "Market cap: " + Constants.NORMAL + abbreviateNumber(quote.marketCap);
@@ -99,13 +99,13 @@ public class StockQuote extends Module {
     		ret += " " + Constants.BOLD + "P/E: " + Constants.NORMAL + nf.format(quote.priceEarningsRatio);
     	if(quote.bookValue != null)
     		ret += " " + Constants.BOLD + "Book: " + Constants.NORMAL + nf.format(quote.bookValue);
-    	if(quote.yearHigh != 0) 
+    	if(quote.yearHigh != null && quote.yearHigh != 0) 
     		ret += " "  + Constants.BOLD + "52-week Range: " + Constants.NORMAL + nf.format(quote.yearLow) + " - " + nf.format(quote.yearHigh);
     	if(quote.floatShares != null)
     		ret += " " + Constants.BOLD + "Float: " + Constants.NORMAL + abbreviateNumber(quote.floatShares);
     	if(quote.shortRatio != null)
     		ret += " " + Constants.BOLD + "Short Ratio: " + Constants.NORMAL + nf.format(quote.shortRatio);
-    	if(! quote.notes.equals("-"))
+    	if(quote.notes != null && ! quote.notes.equals("-"))
     		ret += " " + Constants.BOLD + "Notes: " + Constants.NORMAL + quote.notes;
     	return ret;
     }
@@ -114,8 +114,9 @@ public class StockQuote extends Module {
     	NumberFormat nf = NumberFormat.getInstance();
     	nf.setMaximumFractionDigits(2);
     	String ret = quote.name + " (" + Constants.BOLD + quote.symbol + Constants.NORMAL + "):  ";
-    	ret += nf.format(quote.lastTrade) + " (";
-    	if(quote.percentChange < 0)
+		if (quote.lastTrade != null)
+    		ret += nf.format(quote.lastTrade) + " (";
+    	if(quote.percentChange != null && quote.percentChange < 0)
     		ret += Constants.RED;
     	else
     		ret += "+";
@@ -131,7 +132,8 @@ public class StockQuote extends Module {
        	NumberFormat nf = NumberFormat.getInstance();
     	nf.setMaximumFractionDigits(2);
     	String ret = Constants.BOLD + quote.symbol + Constants.NORMAL;
-    	ret += " " + nf.format(quote.lastTrade) + " (";
+		if (quote.lastTrade != null)
+    		ret += " " + nf.format(quote.lastTrade) + " (";
     	if(quote.percentChange < 0)
     		ret += Constants.RED;
     	else ret += "+";
