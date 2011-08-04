@@ -6,13 +6,18 @@ import goat.core.Module;
 import goat.core.Message;
 import goat.util.DICTClient;
 import goat.util.Definition;
+import goat.util.WhatTheTrend;
 import goat.util.CommandParser;
 import goat.module.WordGame;
 
 import java.io.*;
 import java.net.* ;
+import java.util.Collections;
 import java.util.Vector;
 import java.util.regex.* ;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 /**
@@ -29,6 +34,7 @@ import java.util.regex.* ;
  */
 public class Define extends Module {
 	
+	private static WhatTheTrend whatTheTrend = new WhatTheTrend();
 	private static String host = "dict.org" ;
 	private static String urbandictionaryDescription = "The somewhat spotty slang dictionary at urbandictionary.com" ;
 	public boolean debug = false ;
@@ -120,6 +126,24 @@ public class Define extends Module {
             matchList[0][0] = word ;
          }
       } 
+      else if (dictionary.equalsIgnoreCase("trend")
+    		  || dictionary.equalsIgnoreCase("trends")
+    		  || dictionary.equalsIgnoreCase("wtt")
+    		  || dictionary.equalsIgnoreCase("whatthetrend")) {
+    	  try {
+    		  definitionList = getTrendDefinitions(word) ;
+    	  } catch (Exception e) {
+    		  m.reply("I had a problem with whatthetrend.com: " + e.getMessage());
+    	  }
+          // TODO whatthetrend does have a search function, so we should probably
+    	  // use that here.
+          if ((null == definitionList) || definitionList.isEmpty())
+             matchList =  new String[0][0];
+          else {
+             matchList = new String[1][1] ;
+             matchList[0][0] = word ;
+          }
+      }
       else if (dictionary.equalsIgnoreCase("oed")) {
          // If we were clever monkeys, we could get goat to ask bugmenot for 
          //   a login/password for oed.com, and then use that to get the page, 
@@ -447,20 +471,94 @@ public class Define extends Module {
 		return definitionList;
 	}
 	
-	private void dictionaries(Message m) {
-		DICTClient dc = getDICTClient(m) ;
-		String[][] dbList = dc.getDatabases() ;
-		dc.close() ;
-		String line = "" ;
-        for (String[] aDbList : dbList) {
-            if (line.equals(""))
-                line = aDbList[0];
-            else
-                line = line + ", " + aDbList[0];
-        }
-        line += ", urban, oed" ;
-		m.pagedReply(line) ;
-	}
+   	private static final String wttShortDict = "trends";
+   	private static final String wttLongDict = "whatthetrend.com";
+   	
+    public Vector<Definition> getTrendDefinitions(String word) throws Exception {
+    	JSONObject result = whatTheTrend.getByName(word, -1);
+    	Vector<Definition> ret = new Vector<Definition>();
+    	
+    	if(result == null || ! result.has("api"))
+    		return ret;
+    	JSONObject jo = result.getJSONObject("api");
+    	if(! jo.has("trend"))
+    		return ret;
+    	JSONObject trend = jo.getJSONObject("trend");
+    	jo = trend.getJSONObject("blurb");
+    	String definition = jo.getString("text");
+    	
+    	Boolean locked = false;
+    	if (jo.has("locked"))
+    		locked = jo.getBoolean("locked");
+    	if (locked) {
+    		// presumeably this applies to the trend, not the definition, but
+    		// this is as good a place to stick it as any
+    		definition += " (locked)";
+    	}
+    	definition += " " + jo.getString("timestamp");
+    	definition += " " + WhatTheTrend.ATTRIBUTION;
+    	Definition firstDef = new Definition(wttShortDict, wttLongDict, word, definition);
+    	JSONArray versions = null;
+    	if (trend.has("versions"))
+    		versions = trend.getJSONObject("versions").getJSONArray("version");
+    	if (versions == null || versions.length() == 0) {
+    		ret.add(firstDef);
+    	} else {
+    		// look for verified versions, put them first
+    		Vector<Definition> verified = new Vector<Definition>();
+    		Vector<Definition> unverified = new Vector<Definition>();
+    		for (int i=0; i < versions.length(); i++) {
+    			jo = versions.getJSONObject(i);
+    			definition = jo.getString("text");
+    			int verif = jo.getInt("verified");
+    			if (verif > 0)
+    				definition += " (" + Constants.BOLD + "verified" + Constants.BOLD + ")";
+    			else
+    				definition += " (" + Constants.BOLD + "score: " + jo.getString("score") + Constants.BOLD + ")";
+    			definition += " " + jo.getString("timestamp");
+    			definition += " " + WhatTheTrend.ATTRIBUTION;
+    			Definition def = new Definition(wttShortDict, wttLongDict, word, definition);
+    			if (verif > 0)
+    				verified.add(def);
+    			else
+    				unverified.add(def);
+    		}
+    		
+    		ret.addAll(verified);
+    		ret.add(firstDef);
+    		
+    		// results are received newest first; let's do oldest first.  We could also sort them by 
+    		// score, I suppose, but the scores don't seem to indicate quality.
+    		Collections.reverse(unverified);
+    		ret.addAll(unverified);			
+    	}
+    	return ret;
+    }
+   
+    private String dictionaries() {
+    	String ret = "" ;
+    	try {
+    		DICTClient dc = new DICTClient(host) ;
+    		String[][] dbList = dc.getDatabases() ;
+    		dc.close() ;
+
+    		for (String[] aDbList : dbList) {
+    			if (ret.equals(""))
+    				ret = aDbList[0];
+    			else
+    				ret = ret + ", " + aDbList[0];
+    		}
+    		ret += ", ";
+    	} catch (Exception e) {
+    		ret = "Couldn't talk to dict server.  Other dictionaries:  ";
+    	}
+		ret += "urban, oed, trends" ;
+		return ret;
+    }
+
+    private void dictionaries(Message m) {
+    	m.pagedReply(dictionaries()) ;
+    }
 	
 	private void dictionary(Message m) {
 		DICTClient dc = getDICTClient(m) ;
@@ -477,6 +575,9 @@ public class Define extends Module {
          line = "urban:  " + urbandictionaryDescription ;
          found = true ;
       }
+      else if (code.equalsIgnoreCase("wtt")) {
+    	  line = "wtt:  tweeter trends explained by whatthetrend.com";
+      }
       else {
           for (String[] aDbList : dbList) {
               if (aDbList[0].equals(code)) {
@@ -492,7 +593,7 @@ public class Define extends Module {
           }
       }
 		if (! found) 
-			line = "Dictionary \"" + code + "\" not found; available dictionaries: " + line ;
+			line = "Dictionary \"" + code + "\" not found; available dictionaries: " + dictionaries() ;
 		m.pagedReply(line) ;
 	}
 
