@@ -55,6 +55,7 @@ public class WhatTheTrend {
 			System.out.println("url: " + uri.toURL());
 		connection = (HttpURLConnection) uri.toURL().openConnection();
 		connection.setConnectTimeout(3000);  //just three seconds, we can't hang around
+		connection.setReadTimeout(3000);
 		int responseCode = connection.getResponseCode();
 		if (responseCode != HttpURLConnection.HTTP_OK) {
 			System.out.println("Fuckup at whatthetrend.com, HTTP Response code: " + responseCode);
