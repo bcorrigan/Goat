@@ -593,7 +593,7 @@ public class Define extends Module {
     	  line = "trend:  twittar trends explained by whatthetrend.com";
     	  found = true;
       }
-      else if (code.equalsIgnoreCase("wtt")) {
+      else if (code.equalsIgnoreCase("trends")) {
     	  line = "trends:  twitter trends as explained by whatthetrend.com";
     	  found = true;
       }
