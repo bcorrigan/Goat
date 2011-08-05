@@ -500,7 +500,17 @@ public class Define extends Module {
     	Definition firstDef = new Definition(wttShortDict, wttLongDict, word, definition);
     	JSONArray versions = null;
     	if (trend.has("versions"))
-    		versions = trend.getJSONObject("versions").getJSONArray("version");
+    		jo = trend.getJSONObject("versions");
+    	if(jo.has("version")) {
+    		JSONObject obj = jo.optJSONObject("version");
+    		if(obj != null) {
+    			versions = new JSONArray();
+    			versions.put(obj);
+    		}
+    		else {
+    			versions = jo.getJSONArray("version");
+    		}
+    	}
     	if (versions == null || versions.length() == 0) {
     		ret.add(firstDef);
     	} else {
@@ -577,6 +587,15 @@ public class Define extends Module {
       }
       else if (code.equalsIgnoreCase("wtt")) {
     	  line = "wtt:  tweeter trends explained by whatthetrend.com";
+    	  found = true;
+      }
+      else if (code.equalsIgnoreCase("trend")) {
+    	  line = "trend:  twittar trends explained by whatthetrend.com";
+    	  found = true;
+      }
+      else if (code.equalsIgnoreCase("wtt")) {
+    	  line = "trends:  twitter trends as explained by whatthetrend.com";
+    	  found = true;
       }
       else {
           for (String[] aDbList : dbList) {
