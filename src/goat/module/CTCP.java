@@ -23,9 +23,13 @@ public class CTCP extends Module {
 	}
 
 	public void processPrivateMessage(Message m) {
+		processChannelMessage(m);
 	}
 
 	public void processChannelMessage(Message m) {
+		if(m.getModCommand().equals("version")) {
+			m.reply(getVersionString());
+		}
 	}
 
 	public void processOtherMessage(Message m) {
@@ -44,10 +48,7 @@ public class CTCP extends Module {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP() && m.getCTCPCommand().equals("VERSION")) {
-				Message.createCTCP(name, "NOTICE", "VERSION", Constants.BOLD + BotStats.getInstance().getVersion() + Constants.BOLD
-						+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
-						+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
-						+ ')').send() ;
+				Message.createCTCP(name, "NOTICE", "VERSION", getVersionString()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("PING")) {
 				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("TIME")) {
@@ -101,10 +102,16 @@ public class CTCP extends Module {
 		return new String[]{"ALL"};
 	}
 */
+	private String getVersionString() {
+		return Constants.BOLD + BotStats.getInstance().getVersion() + Constants.BOLD
+		+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
+		+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
+		+ ')';
+	}
 
 	public int messageType() {
 		return WANT_ALL_MESSAGES;
 	}
 	
-	public String[] getCommands() { return new String[0]; }
+	public String[] getCommands() { return new String[] {"version"}; }
 }
