@@ -413,7 +413,7 @@ class TwitterModule extends Module {
           twitterActor ! (m, UNFOLLOW)
         else
           m.reply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.")
-      case "tweetsearch" | "twitsearch" | "twittersearch" | "inanity" =>
+      case "tweetsearch" | "twitsearch" | "twittersearch" | "inanity" | "t" =>
         if (sanitiseAndScold(m))
           if (!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
             searchesMade += 1
@@ -519,7 +519,7 @@ class TwitterModule extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "tweetsearchsize", "trendsnotify")
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "tweetsearchsize", "trendsnotify", "t")
   }
 
   private def filterIDs(ids: Array[Int]): Array[Int] = {
