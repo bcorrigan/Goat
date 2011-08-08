@@ -158,7 +158,7 @@ class TwitterModule extends Module {
 	    }
 	    Thread.sleep(60000)
 	  } catch {
-        case ex:TwitterException =>
+        case ex:Exception =>
         ex.printStackTrace()
         Thread.sleep(60000)
       }
