@@ -6,6 +6,7 @@ import goat.core.Module;
 import goat.core.User;
 import goat.util.StringUtil;
 import static goat.util.CurrencyConverter.*;
+import static goat.util.StringUtil.*;
 
 import java.util.TimeZone;
 import java.util.GregorianCalendar;
@@ -194,10 +195,24 @@ public class Users extends Module {
 			}
 			else 
 				reply="Your current time is " + StringUtil.timeString(users.getUser(m.getSender()).getTimeZoneString()); 
-		} else if (! uname.matches("[a-zA-Z0-9^{}\\[\\]`\\\\^_-|]+"))
+		}
+		else if (! isValidIRCNick(uname) && !m.getModCommand().equals("localtime"))
 			reply = "You're being difficult";
 		else if(! users.hasUser(uname))
-			reply="I don't know anything about user \"" + uname + "\"";
+			if(m.getModCommand().equals("localtime")) {
+				ArrayList<String> matches = timezoneSearch(uname);
+				if (matches.size() == 1) {
+					m.reply("Time in zone \"" + matches.get(0) + "\" is " + StringUtil.timeString(matches.get(0))) ;
+				} else if(matches.size() == 0) {
+					m.reply("I couldn't find a user or time zone matching \"" + uname + "\".  Sorry.");
+				} else if(matches.size() > MAX_LISTINGS) {
+					m.reply("I'm not familiar with user '" + uname + "', but I did find " + matches.size() + " time zones matching \"" + uname + "\".  Listing all of them would be boring.");
+				} else {
+					m.reply("I don't know about a user called '" + uname + "' but you might be trying to find the time in one of these zones:  " + StringUtil.quotedList(matches));
+				}		
+			}
+			else 
+				reply="I don't know anything about user \"" + uname + "\"";
 		else if(users.getUser(uname).getTimeZoneString().equals(""))
 			reply="I don't know " + uname + "'s time zone.";
 		else 
