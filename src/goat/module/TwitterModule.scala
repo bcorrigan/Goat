@@ -38,10 +38,10 @@ class TwitterModule extends Module {
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0 
   
-  private val consumerKey = "ZkKYRoR7lPZQBfFrxrpog"
-  private val consumerSecret = "lHbOOtBPi8JmIPOf3MAS0eXB2yUiPrUHnPtVkBWuG4"
-  private val accessToken = "57130163-b1BquTcyX6rHLOXwnGts9zfY9WymA99GQbIhH6VMg"
-  private val accessTokenSecret = "Ye9bo17hKMxyCb9IaGgv7RVnRY5qUxOaxjq5w6l0"
+  private val consumerKey = "PUT KEY HERE"
+  private val consumerSecret = "PUT SECRET HERE"
+  private val accessToken = "PUT TOKEN HERE"
+  private val accessTokenSecret = "PUT TOKEN SECRET HERE"
 
   private var searchSize = 50 //how many tweets should a request retrieve at once
 
@@ -62,8 +62,8 @@ class TwitterModule extends Module {
   
   private val twitter = new TwitterFactory(cb.build()).getInstance()
 
-  private val USER = "goatbot"
-  private val PASSWORD = "slashnet"
+  private val USER = "USERNAME"
+  private val PASSWORD = "PASSWORD"
   private var chan = "jism" //BotStats.getInstance().getChannels()(0)
   //for messaging actor
   private val TWEET = "TWEET"
