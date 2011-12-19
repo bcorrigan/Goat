@@ -1,4 +1,8 @@
-An IRC bot with many commands. Probably more useful to steal code from for your own bot, than to run your own instance:
+An IRC bot with many commands, written by me and robotslave, if we forget abotu the fact that huge chunks of goat's interior have been lifted from many parts of the internet over the last ten years.
+
+Nearly all written in java, apart from the twitter stuff which is in scala.
+
+Probably more useful to steal code from for your own bot, than to run your own instance, which would be a painful experience probably, as goat has not been designed for easy public consumption:
 
 (bc): lsmod
 (goat): Loaded modules: CTCP, ModuleCommands, NickServ, Help, Auth, Core, Users, ServerCommands, GoatSay, More, Confessions2, WordGame, Say, Weather, ZipCodes, RandWords, Psychiatrist, Colours, Define, Threat, Calc, TODO, Adventure, Horoscope, Remind, CurrencyConverter, StockQuote, Quiz, Google, Bible, BookTitle, ShutUp, UnitConverter, Googlism, DiceRoll, Lastfm, Etymology, TwitterModule, Guru, CountDown, Uno.
@@ -10,6 +14,9 @@ An IRC bot with many commands. Probably more useful to steal code from for your 
 (goat): Trends of the moment for Glasgow:  1:Kim Jong 2:Boxing Day 3:#IfiHadThreeWishes 4:North Korea 5:Michael Buble 6:#YourPerfectGift 7:Willie Collum 8:The Krankies 9:Merry Christmas 10:Kris Boyd
 (bc): t willie collum radius=5
 (goat): 4 hours and 57 minutes ago, GordonRBell: Willie Collum for the game against the huns. Can't believe he ruled Hooper offside and that was never a penalty.
+
+(bc): nowplaying
+(goat): st : Uninvited — Alanis Morissette
 
 (bc): quote AAPL
 (goat): Apple Inc. (AAPL):  382.46 +1.44 (0.38%), 4:54pm GMT Open: 382.47 Range: 381.52 - 384.85 Volume: 3.83M Market cap: 355.5B EBITDA: 35.57B Book: 82.45 52-week Range: 310.5 - 426.7 Float: 923.69M Short Ratio: 0.8
@@ -40,6 +47,14 @@ An IRC bot with many commands. Probably more useful to steal code from for your 
 
 (bc): threat
 (goat): The current Department of Homeland Security terror threat level is GREEN (low danger)
+
+(bc): roll 2d20 + 4d6
+(goat): bc: 2d20:19,13:32 4d6:6,2,2,5:15  Total:47
+
+(bc): convert
+(goat): The supported currencies are: [AUD, BGN, BRL, CAD, CHF, CNY, CZK, DKK, EUR, GBP, HKD, HRK, HUF, IDR, ILS, INR, JPY, KRW, LTL, LVL, MXN, MYR, NOK, NZD, PHP, PLN, RON, RUB, SEK, SGD, THB, TRY, USD, ZAR]
+(bc): convert 1 quid to USD
+(goat): £1 GBP = 1.553 USD
 
 (bc): define cult dict=urban
 (goat): cult (urban): a religious group which promotes worship of a human leader and devotion of one's life to a specific purpose.  Some have members practice certain rituals or follow a set of principle rules.  The group usually believes its way is the only correct way to live life, and all non-members are doomed to some horrible fate if they cannot be persuaded to join. Ex: "Mormonism could easily be seen as a… [more]
@@ -92,5 +107,16 @@ An IRC bot with many commands. Probably more useful to steal code from for your 
 40238726007709377354370243392300398571937486421071463254379991042993851239862902059204420848696940480047998861019719605863166687299480855890132382966994459099742450408707375991882362772718873251977950595099527612087497546249704360141827809464649629105639388743788648733711918104582578364784997701247663288983595573543251318532395846307555740911426241747434934755342864657661166779739666882029120737… [more]
 (av): more
 (goat): …914385371958824980812686783837455973174613608537953452422158659320192809087829730843139284440328123155861103697680135730421616874760967587134831202547858932076716913244842623613141250878020800026168315102734182797770478463586817016436502415369139828126481021309276124489635992870511496497541990934222156683257208082133318611681155361583654698404670897560290095053761647584772842188967964624494516076535340819890… [more]
+(bc): calc roman(9427)
+(goat): MMMMMMMMMCDXXVIIxR
 
-....and many more commands I can't even be bothered demonstrating, like Uno.
+(bc): Quiz
+(goat): Question #1
+(goat): Geography.  Name the only Central American country without an Atlantic coastline.
+(goat): tip: E_ _a______
+(ct): costa ricka
+(ct): el salvador
+(goat): ct: Congratulations, you got the correct answer, "El Salvador".
+
+
+....and many more commands I can't even be bothered demonstrating
