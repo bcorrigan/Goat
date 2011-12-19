@@ -1,4 +1,4 @@
-An IRC bot with many commands, written by me and robotslave, if we forget abotu the fact that huge chunks of goat's interior have been lifted from many parts of the internet over the last ten years.
+An IRC bot with many commands, written by me and robotslave, if we forget about the fact that huge chunks of goat's interior have been lifted from many parts of the internet over the last ten years.
 
 Nearly all written in java, apart from the twitter stuff which is in scala.
 
@@ -118,5 +118,9 @@ Probably more useful to steal code from for your own bot, than to run your own i
 (ct): el salvador
 (goat): ct: Congratulations, you got the correct answer, "El Salvador".
 
+(bc): remind me in 1 minute to demonstrate goat
+(goat): bc: Okay, I'll remind you about that on 19/12/11 17:51 Europe/London
+...1 minute later...
+(goat): bc, you asked me to remind you to demonstrate goat
 
 ....and many more commands I can't even be bothered demonstrating
