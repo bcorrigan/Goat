@@ -96,7 +96,7 @@ Probably more useful to steal code from for your own bot, than to run your own i
 
 # bible querying
 (**bc**): bibles  
-(**goat**): King James Version (KJV), New International Version (NIV), New American Standard Bible(NASB), The Message (MSG), Amplified Bible (AMP), New Living Translation (NLT), English Standard Version (ESV), COntemporary English Version (CEV), New King James Version (NKJV), 21st Century King James Version (KJ21), American Standard Version (ASV), Young's Literal Translation (YLT), Darby Translation (DARBY), New Life… [more]  
+(**goat**): King James Version (KJV), New International Version (NIV), New American Standard Bible(NASB), The Message (MSG), Amplified Bible (AMP), New Living Translation (NLT), English Standard Version (ESV), COntemporary English Version (CEV), New King James Version (NKJV), 21st Century King James Version (KJ21), American Standard Version (ASV), Young's Literal Translation (YLT), Darby Translation (DARBY), New Life… \[more\]  
 (**bc**): more  
 (**goat**): … Version (NLV), Holman Christian Standard Bible (HCSB), New International Reader's Version (NIRV), Wycliffe New Testament (WNT), World English New Testament (WE), New International Version - UK (NIVUK), Hatian Creole Version (HCV), Luther Bibel 1545 (LUTH1545).  
 (**bc**): bible genesis 1:1 bible=MSG  
