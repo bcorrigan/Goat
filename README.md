@@ -68,22 +68,22 @@ Probably more useful to steal code from for your own bot, than to run your own i
 
 # currency conversions
 (**bc**): convert  
-(**goat**): The supported currencies are: [AUD, BGN, BRL, CAD, CHF, CNY, CZK, DKK, EUR, GBP, HKD, HRK, HUF, IDR, ILS, INR, JPY, KRW, LTL, LVL, MXN, MYR, NOK, NZD, PHP, PLN, RON, RUB, SEK, SGD, THB, TRY, USD, ZAR]  
+(**goat**): The supported currencies are: \[AUD, BGN, BRL, CAD, CHF, CNY, CZK, DKK, EUR, GBP, HKD, HRK, HUF, IDR, ILS, INR, JPY, KRW, LTL, LVL, MXN, MYR, NOK, NZD, PHP, PLN, RON, RUB, SEK, SGD, THB, TRY, USD, ZAR\]  
 (**bc**): convert 1 quid to USD  
 (**goat**): £1 GBP = 1.553 USD  
 
 # many dictionaries supported
 (**bc**): dictionaries  
-(**goat**): gcide, wn, moby-thes, elements, vera, jargon, foldoc, easton, hitchcock, bouvier, devil, world02, gaz2k-counties, gaz2k-places, gaz2k-zips, eng-swe, nld-eng, eng-cze, eng-swa, ita-eng, tur-deu, nld-fra, lat-eng, eng-fra, deu-fra, eng-hin, dan-eng, nld-deu, jpn-deu, swa-eng, fra-deu, fra-eng, deu-ita, slo-eng, eng-rom, hin-eng, spa-eng, eng-lat, por-deu, gla-deu, swe-eng, scr-eng, deu-nld, ita-deu, fra-nld,… [more]  
+(**goat**): gcide, wn, moby-thes, elements, vera, jargon, foldoc, easton, hitchcock, bouvier, devil, world02, gaz2k-counties, gaz2k-places, gaz2k-zips, eng-swe, nld-eng, eng-cze, eng-swa, ita-eng, tur-deu, nld-fra, lat-eng, eng-fra, deu-fra, eng-hin, dan-eng, nld-deu, jpn-deu, swa-eng, fra-deu, fra-eng, deu-ita, slo-eng, eng-rom, hin-eng, spa-eng, eng-lat, por-deu, gla-deu, swe-eng, scr-eng, deu-nld, ita-deu, fra-nld,… \[more\]  
 (**bc**): more  
 (**goat**): … afr-deu, ara-eng, deu-por, tur-eng, eng-spa, eng-ara, eng-rus, wel-eng, hun-eng, eng-cro, eng-por, world95, eng-wel, cro-eng, lat-deu, por-eng, eng-nld, eng-deu, iri-eng, eng-tur, eng-scr, eng-iri, cze-eng, deu-eng, eng-ita, eng-hun, english, trans, all, urban, oed, trends  
 (**bc**): define cult dict=urban  
-(**goat**): cult (urban): a religious group which promotes worship of a human leader and devotion of one's life to a specific purpose.  Some have members practice certain rituals or follow a set of principle rules.  The group usually believes its way is the only correct way to live life, and all non-members are doomed to some horrible fate if they cannot be persuaded to join. Ex: "Mormonism could easily be seen as a… [more]  
+(**goat**): cult (urban): a religious group which promotes worship of a human leader and devotion of one's life to a specific purpose.  Some have members practice certain rituals or follow a set of principle rules.  The group usually believes its way is the only correct way to live life, and all non-members are doomed to some horrible fate if they cannot be persuaded to join. Ex: "Mormonism could easily be seen as a… \[more\]  
 (**goat**): Definitions available: urban(7)  
 (**bc**): more  
 (**goat**): … cult.  Jesus is the savior, and unless you devote your life to following his teachings you will suffer a firey torture in Hell."  
 (**bc**): define cult  
-(**goat**): Cult (gcide): Cult \Cult\ (k[u^]lt) n. [F. culte, L. cultus care, culture, fr.  colere to cultivate. Cf. {Cultus}.]  1. Attentive care; homage; worship.  [1913 Webster]  Every one is convinced of the reality of a better  self, and of the cult or homage which is due to it.  --Shaftesbury.  [1913 Webster]  2. A system of religious belief and worship.  [1913 Webster]  That which was the religion of Moses is the … [more]  
+(**goat**): Cult (gcide): Cult \Cult\ (k[u^]lt) n. [F. culte, L. cultus care, culture, fr.  colere to cultivate. Cf. {Cultus}.]  1. Attentive care; homage; worship.  [1913 Webster]  Every one is convinced of the reality of a better  self, and of the cult or homage which is due to it.  --Shaftesbury.  [1913 Webster]  2. A system of religious belief and worship.  [1913 Webster]  That which was the religion of Moses is the … \[more\]  
 (**goat**): Definitions available: gcide(1) wn(1) moby-thes(1)  
 
 # more google stuff
