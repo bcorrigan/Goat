@@ -12,17 +12,29 @@ Probably more useful to steal code from for your own bot, than to run your own i
 (**goat**): 46F/8C, partly cloudy.  Wind W 16mph.  Humidity 87%.  Windchill 39.3F/4.0C.  Sunrise 8:43am, sunset 3:47pm.  Moon 38%-.  Reported 28 minutes ago at EGPK.  Score 17.58.
 
 # Twitter stuff
+
 (**bc**): trends near
+
 (**goat**): Trends of the moment for Glasgow:  1:Kim Jong 2:Boxing Day 3:#IfiHadThreeWishes 4:North Korea 5:Michael Buble 6:#YourPerfectGift 7:Willie Collum 8:The Krankies 9:Merry Christmas 10:Kris Boyd
+
 (**bc**): t willie collum radius=5
+
 (**goat**): 4 hours and 57 minutes ago, GordonRBell: Willie Collum for the game against the huns. Can't believe he ruled Hooper offside and that was never a penalty.
+
 (**bc**): t location=http://maps.google.co.uk/?ll=39.048552,125.780196&spn=0.036795,0.03901&t=h&z=15&vpsrc=6 radius=50
+
 (**goat**): 7 minutes and 56 seconds ago, 753_193: 明日は喪に服すか
+
 (**bc**): guru translate from korean 明日は喪に服すか
+
 (**goat**): I mourn tomorrow
+
 (**bc**): define kim jong dict=trends
+
 (**goat**): bc, I'm starting to hate you.
+
 (**goat**): kim jong (trends): North Korean Leader, Kim Jong Il, has died at the age of 69. 2011-12-19T04:19:25Z Definition by whatthetrend.com
+
 (**goat**): Definitions available: trends(11)
 
 # lastfm support
@@ -141,11 +153,17 @@ Probably more useful to steal code from for your own bot, than to run your own i
 
 # quiz
 (**bc**): Quiz
+
 (**goat**): Question #1
+
 (**goat**): Geography.  Name the only Central American country without an Atlantic coastline.
+
 (**goat**): tip: E_ _a______
+
 (**ct**): costa ricka
+
 (**ct**): el salvador
+
 (**goat**): ct: Congratulations, you got the correct answer, "El Salvador".
 
 # reminders
