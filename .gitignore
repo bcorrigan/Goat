@@ -2,3 +2,4 @@ classes/
 jars/
 goat\.jar
 config/passwords.properties
+resources/users.xml

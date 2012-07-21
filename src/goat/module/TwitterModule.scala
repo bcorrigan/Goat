@@ -14,6 +14,7 @@ import goat.util.CommandParser
 
 import java.lang.System
 import goat.Goat
+
 import twitter4j.auth.{Authorization, AccessToken}
 import twitter4j.conf._
 import twitter4j._
@@ -36,12 +37,15 @@ import scala.collection.JavaConversions._
 class TwitterModule extends Module {
   private var lastFilterTime: Long = 0 //these few vars are for some stats keeping
   private var filterTimeAvg: Long = 0
-  private var filterCount: Int = 0 
-  
-  private val consumerKey = "PUT KEY HERE"
-  private val consumerSecret = "PUT SECRET HERE"
-  private val accessToken = "PUT TOKEN HERE"
-  private val accessTokenSecret = "PUT TOKEN SECRET HERE"
+  private var filterCount: Int = 0
+
+  private var pwds = Goat.getPasswords()
+  private val consumerKey = pwds.getProperty("twitter.consumerKey")
+  private val consumerSecret = pwds.getProperty("twitter.consumerSecret")
+  private val accessToken = pwds.getProperty("twitter.accessToken")
+  private val accessTokenSecret = pwds.getProperty("twitter.accessTokenSecret")
+  pwds = null // lame, yes. but it's Good Housekeeping; the object contains many
+              // other passwords, and shouldn't be kept in memory.
 
   private var searchSize = 50 //how many tweets should a request retrieve at once
 
@@ -51,7 +55,7 @@ class TwitterModule extends Module {
 
   //OAuth connection bullshit
   private val token = new AccessToken(accessToken,accessTokenSecret)
-  
+
   val cb = new ConfigurationBuilder();
 
   cb.setDebugEnabled(true)
@@ -59,11 +63,11 @@ class TwitterModule extends Module {
   .setOAuthConsumerSecret(consumerSecret)
   .setOAuthAccessToken(accessToken)
   .setOAuthAccessTokenSecret(accessTokenSecret);
-  
+
   private val twitter = new TwitterFactory(cb.build()).getInstance()
 
-  private val USER = "USERNAME"
-  private val PASSWORD = "PASSWORD"
+  private val USER = "goatbot"
+  private val PASSWORD = "slashnet"
   private var chan = "jism" //BotStats.getInstance().getChannels()(0)
   //for messaging actor
   private val TWEET = "TWEET"
@@ -94,6 +98,7 @@ class TwitterModule extends Module {
 
 
   private def refreshTwitterStream() {
+    println("refreshing the tweetstream...")
     refreshIdsToFollow()
     followIDs(followedIDs)
   }
@@ -126,7 +131,7 @@ class TwitterModule extends Module {
       }
     }
   }
-  
+
   private val trendsNotifyActor = actor {
     while (true) {
       receive {
@@ -135,25 +140,26 @@ class TwitterModule extends Module {
       }
     }
   }
-  
+
   //TODO use receiveWithin and TIMEOUT
   private def trendsNotify(chan:String) {
     var seenTrends:List[String] = Nil
-    
+
     while(true) {
       try {
-	    val trends = twitter.getTrends.getTrends.toList.map(_.getName)
+	    // woeid 1 is "world"
+	    val trends = twitter.getLocationTrends(1).getTrends.toList.map(_.getName)
 	    val newTrends = trends diff seenTrends
-	
+
 	    if(!newTrends.isEmpty) {
 	      val msgTrends = newTrends map( t => if(t.startsWith("#") && t.length>1) {
 	        								 t.substring(1)
             								 //hey rs, this is where you can hook in and turn "reasonstobeatgirlfriend" into somethign readable
 	        							 } else t)
-	        
+
 		  val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
 		  Message.createPrivmsg(chan, msg).send()
-		      
+
 		  seenTrends = (newTrends ++ seenTrends).take(1000)
 	    }
 	    Thread.sleep(60000)
@@ -162,16 +168,16 @@ class TwitterModule extends Module {
         ex.printStackTrace()
         Thread.sleep(60000)
       }
-    } 
+    }
   }
-  
+
   private def showTrends(m: Message) {
     try {
 	    val parser = new CommandParser(m);
 	    val query: Query = new Query(parser.remaining())
 	    val user = Goat.getUsers().getOrCreateUser(m.getSender)
 	    var woeId: Option[Int] = None
-	
+
 	    if(parser.has("near") || m.getModTrailing.contains("near")) {
 	      val woeIdStr = parser.get("near")
 	      if(woeIdStr==null) {
@@ -182,18 +188,19 @@ class TwitterModule extends Module {
 	        }
 	      }
 	    }
-	    
+
 	    var reply = "Trends of the moment"
-	    
+
 	    val trends: List[Trend] = if (woeId.isEmpty) {
 	      reply += ": "
-	      twitter.getTrends().getTrends().toList
+	      // woeid 1 is "world"
+	      twitter.getLocationTrends(1).getTrends().toList
 	    } else {
 	      val locTrends = twitter.getLocationTrends(woeId.get)
 	      reply += " for " + locTrends.getLocation().getName() + ": "
 	      locTrends.getTrends.toList
 	    }
-	    
+
 	    var count = 1
 	    for (trend <- trends) {
 	      reply += " " + BOLD + count + ":" + BOLD + trend.getName()
@@ -441,7 +448,7 @@ class TwitterModule extends Module {
         } else m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
       case "trendsnotify" =>
         if( m.isAuthorised()) {
-          if(m.getModTrailing.split(' ').size!=1) 
+          if(m.getModTrailing.split(' ').size!=1)
             m.reply("Master, your humble servant can only follow one channel at once. Forgive me.")
           else {
             val chan = m.getModTrailing().split(' ')(0)
@@ -563,7 +570,7 @@ class TwitterModule extends Module {
     def onTrackLimitationNotice(numberOfLimitedStatuses:Int) {
       //ignore, now and forever
     }
-    
+
     def onScrubGeo(userId:Long, upToStatusId:Long) {
       //who gives a shit
     }

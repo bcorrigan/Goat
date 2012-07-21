@@ -1,5 +1,6 @@
 package goat.module;
 
+import goat.Goat;
 import goat.core.Module;
 import goat.core.Message;
 import goat.core.BotStats;
@@ -7,6 +8,7 @@ import goat.core.BotStats;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.io.*;
+import java.util.Properties;
 
 /**
  * <p>Date: 18-Dec-2003</p>
@@ -15,7 +17,7 @@ import java.io.*;
 public class Auth extends Module {
 
     private String passwordhash;
-	 private static final String passwordFile = "resources/password.txt" ;
+    private static final String passwordFile = "resources/password.txt" ;
 
     public Auth() {
         loadPassword();
@@ -24,7 +26,7 @@ public class Auth extends Module {
     public void processPrivateMessage(Message m) {
         if (checkPassword(m.getModTrailing().trim().toLowerCase())) {
             BotStats.getInstance().setOwner( m.getPrefix() );
-            m.reply("Authorisation successful."); 
+            m.reply("Authorisation successful.");
             m.reply("You (" + m.getPrefix() + ") are now my registered owner.");	//TODO: This still needs to watch the user to determine if they drop.
             new Message("", "MODE", m.getChanname() + " +o " + BotStats.getInstance().getOwner(), "").send();
         } else
@@ -64,16 +66,7 @@ public class Auth extends Module {
     }
 
     private void loadPassword() {
-        BufferedReader r;
-        try {
-            r = new BufferedReader(new FileReader(passwordFile));
-            passwordhash = r.readLine();
-            r.close();
-        } catch (IOException e) {
-            System.err.println("Could not open password file \"" + passwordFile + "\".");
-            passwordhash = "";
-            return;
-        }
+	passwordhash = Goat.getPasswords().getProperty("auth.hash", "");
     }
 
     public void updatePassword(String newpassword, String ownername) {
@@ -83,7 +76,7 @@ public class Auth extends Module {
             new Message("", "NOTICE", ownername, "There was an error updating the authentication tokens;  new password not set.").send();
 		  }
     }
-	 
+
     public boolean updatePassword(String newpassword) {
         PrintWriter w;
         MessageDigest d;
@@ -91,16 +84,10 @@ public class Auth extends Module {
             d = MessageDigest.getInstance("MD5");
             d.update(newpassword.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            System.out.println("PASSWORD UPDATE for FAILED -- Could not open Message Digest algorithm.") ;
+            System.out.println("PASSWORD UPDATE FAILED -- Could not open Message Digest algorithm.") ;
             return false;
         }
         byte[] digest = d.digest();
-        try {
-            w = new PrintWriter(new FileWriter(passwordFile));
-        } catch (IOException e) {
-            System.out.println("PASSWORD UPDATE FAILED -- Couldn't open file \"" + passwordFile + "\"") ;
-            return false;
-        }
         byte current, hibits, lobits;
         String out = "";
         for (byte aDigest : digest) {
@@ -110,12 +97,17 @@ public class Auth extends Module {
             out += Integer.toString((int) hibits, 16);
             out += Integer.toString((int) lobits, 16);
         }
-        w.println(out);
-        w.close();
-		  passwordhash = out ;
-		  return true ;
+	Properties pwds = Goat.getPasswords();
+	pwds.setProperty("auth.hash", out);
+	try {
+	    Goat.writePasswords(pwds);
+	} catch (IOException e) {
+	    System.out.println("I/O Exception when writing new passwords file.  You may be well fucked.");
+	    return false;
+	}
+	return true ;
     }
-	 
+
 	/**
 	 * Sets new password.
 	 * <p/>

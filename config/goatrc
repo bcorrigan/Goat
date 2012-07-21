@@ -33,5 +33,5 @@ insmod More all
 #insmod Etymology all
 #join #jism
 #join #adventure
-#insmod TwitterModule all
+insmod TwitterModule all
 join #goat
