@@ -1,14 +1,13 @@
 package goat.module;
 
-import goat.Goat;
 import goat.core.Module;
 import goat.core.Message;
 import goat.core.BotStats;
+import static goat.util.Passwords.*;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.io.*;
-import java.util.Properties;
 
 /**
  * <p>Date: 18-Dec-2003</p>
@@ -66,7 +65,7 @@ public class Auth extends Module {
     }
 
     private void loadPassword() {
-	passwordhash = Goat.getPasswords().getProperty("auth.hash", "");
+	passwordhash = getPasswords().getProperty("auth.hash", "");
     }
 
     public void updatePassword(String newpassword, String ownername) {
@@ -97,10 +96,10 @@ public class Auth extends Module {
             out += Integer.toString((int) hibits, 16);
             out += Integer.toString((int) lobits, 16);
         }
-	Properties pwds = Goat.getPasswords();
+	Properties pwds = getPasswords();
 	pwds.setProperty("auth.hash", out);
 	try {
-	    Goat.writePasswords(pwds);
+	    writePasswords(pwds);
 	} catch (IOException e) {
 	    System.out.println("I/O Exception when writing new passwords file.  You may be well fucked.");
 	    return false;

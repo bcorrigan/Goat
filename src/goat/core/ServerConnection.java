@@ -1,7 +1,6 @@
 package goat.core;
 
 import goat.Goat;
-import goat.module.Logger;
 
 import java.net.*;
 import java.nio.charset.Charset;
@@ -39,7 +38,7 @@ public class ServerConnection extends Thread {
 
     private void connect() throws UnknownHostException, IOException {
         IrcServer = new Socket(serverName, 6667);
-        
+
         BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream(), BotStats.getInstance().getCharset()));
         PrintWriter pw = new PrintWriter( new OutputStreamWriter( IrcServer.getOutputStream(), BotStats.getInstance().getCharset() ), true);
         ih = new InputHandler(br);
@@ -152,7 +151,7 @@ public class ServerConnection extends Thread {
                 }
             }
         }
-        
+
         protected void setBR( BufferedReader br) {
         	in = br;
         }
@@ -191,7 +190,7 @@ public class ServerConnection extends Thread {
         	out = pw;
         }
     }
-    
+
     protected void setCharset( Charset cs) {
     	try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(IrcServer.getInputStream(), cs));
@@ -200,7 +199,7 @@ public class ServerConnection extends Thread {
 			oh.setOSW(pw);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}   
+		}
     }
 
 	public void setAlreadySeenMOTD(boolean alreadySeenMOTD) {

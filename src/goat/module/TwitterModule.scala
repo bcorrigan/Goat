@@ -11,9 +11,10 @@ import scala.collection.immutable.HashSet
 
 import goat.util.Profile._
 import goat.util.CommandParser
+import goat.util.Passwords._
+import goat.Goat
 
 import java.lang.System
-import goat.Goat
 
 import twitter4j.auth.{Authorization, AccessToken}
 import twitter4j.conf._
@@ -39,7 +40,7 @@ class TwitterModule extends Module {
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0
 
-  private var pwds = Goat.getPasswords()
+  private var pwds = getPasswords()
   private val consumerKey = pwds.getProperty("twitter.consumerKey")
   private val consumerSecret = pwds.getProperty("twitter.consumerSecret")
   private val accessToken = pwds.getProperty("twitter.accessToken")
