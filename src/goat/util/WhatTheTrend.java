@@ -1,7 +1,5 @@
 package goat.util;
 
-import goat.Goat;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -10,45 +8,46 @@ import java.util.Properties;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static goat.util.Passwords.*;
+
 public class WhatTheTrend {
-	
+
 	public Boolean debug = true;
 	public static final String ATTRIBUTION = "Definition by whatthetrend.com";
-	
-	private String API_KEY = null;	
+
+	private String API_KEY = null;
 	private final String URI_HOST = "api.whatthetrend.com";
 	private final String URI_PATH = "/api/";
-	
+
 	// For documentation of the methods named below, see: http://api.whatthetrend.com/api
-	// private static final String[] v1methods = {"listAll", "listExplained", "getByName", "getById", 
+	// private static final String[] v1methods = {"listAll", "listExplained", "getByName", "getById",
 	//	"search", "search_extended", "update" };
-	// private static final String[] v2methods = {"trends", "", "trends/active", "trends/spam", 
+	// private static final String[] v2methods = {"trends", "", "trends/active", "trends/spam",
 	//	"trends/location/top", "revert", "update", "spam", "categories", "locations", "locations/all",
 	//	"vote_up", "vote_down", "flag"};
-	
+
 	public WhatTheTrend () {
-		Properties props = Goat.getPasswords();
-		API_KEY = props.getProperty("wtt.apikey");
+		API_KEY = getPassword("wtt.apikey");
 		if (API_KEY == null) {
 			System.err.println("I couldn't read the API key for WhatTheTrend");
 		}
 	}
-	
+
 	// note that the query string should be the full URI query part, minus the API key, e.g. "ID=4321&versions=3"
-	// if we weren't lazy, we might do convenience methods wrapping this for each API method. 
+	// if we weren't lazy, we might do convenience methods wrapping this for each API method.
 	private JSONObject doApiCall(String path, String query) throws Exception {
 		JSONObject ret;
 		HttpURLConnection connection = null;
 
 		if(path != null && !path.equals(""))
 			path = URI_PATH + path;
-		else 
+		else
 			path = URI_PATH;
 		if(query != null && !query.trim().equals(""))
 			query = query + "&api_key=" + API_KEY;
 		else
 			query = "api_key=" + API_KEY;
-		
+
 		// farting around with URI instead of URL to get query encoded correctly
 		URI uri = new URI("http", URI_HOST, path, query, null);
 		if(debug)
@@ -105,9 +104,9 @@ public class WhatTheTrend {
 		}
 		return doApiCall(path, query);
 	}
-	
+
 	public JSONObject getByName(String trend) throws Exception {
 		return getByName(trend, 1);
 	}
-	
+
 }
