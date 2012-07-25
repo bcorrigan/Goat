@@ -5,3 +5,4 @@ config/passwords.properties
 resources/users.xml
 resources/words.index
 resources/zipcodes
+config/goatrc
