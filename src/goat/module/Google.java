@@ -15,6 +15,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Random;
 
 import goat.core.Constants;
 import goat.core.Message ;
@@ -206,7 +207,7 @@ public class Google extends Module {
 					r += "en";
 				else
 					r += "dis";
-				r += "abled";
+				   r += "abled"; // wtf.
 			} else if (mTrail.equals("m-x news-link")) {
 				r = newsLinkReply("", m.getChanname());
 			} else if (mTrail.startsWith("m-x news-link ")){
@@ -222,6 +223,25 @@ public class Google extends Module {
 			m.reply("What do you want news of?");
 			return;
 		}
+
+		// fix news about duke nukem
+		query = query.replaceAll("(?i)duke nukem", "gay muscles");
+
+		// be mean to joey
+		//if (true) {
+		if (m.getHostmask().matches(".*\\.ca\\.comcast\\.net.*")) {
+			if(query.matches("(?i).*(apple|ipad|iphone|sonic|hedgehog|generations|nukem|eden|sega|lady gaga).*")) {
+				String[] newquery1 = {"gay", "homosexual", "bisexual"};
+				String[] newquery2 = {"autistic", "hispanic", "stammering"};
+				if (query.matches("(?i).*(sonic|hedgehog|generations|sega|nukem|eden).*")) {
+					newquery1 = newquery2;
+				   newquery2 = new String[] {"pedophile", "paedophile", "child molestor"};
+				}
+				Random r = new Random();
+				query = newquery1[r.nextInt(newquery1.length)] + " " + newquery2[r.nextInt(newquery2.length)];
+			}
+		}
+
 		NewsSearcher ns = new NewsSearcher();
 		NewsSearchResponse nsr = ns.search(query);
 		if(null == nsr) {
