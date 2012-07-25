@@ -36,7 +36,7 @@ import java.io.IOException;
 public class Weather extends Module {
 
 	private static Users users;	//all the users of this weather module
-	private String codes_url = "https://pilotweb.nas.faa.gov/qryhtml/icao/" ;
+	private String codes_url = "http://aviationweather.gov/adds/metars/stations.txt" ;
 
 	public Weather() {
 		users = goat.Goat.getUsers() ;
@@ -116,10 +116,9 @@ public class Weather extends Module {
 
 			String report = getReport(m.getSender(), m.getModCommand(), station);
 			//debug
-            //System.out.println("report:" + report + ":");
-            if (report.matches(".*[ (]" + station + "[).].*")) {
-            	
-            	User user = users.getOrCreateUser(m.getSender());
+         //System.out.println("report:" + report + ":");
+         if (report.matches(".*[ (]" + station + "[).].*")) {
+            User user = users.getOrCreateUser(m.getSender());
 				if (! user.getWeatherStation().equals(station)) {
 					user.setWeatherStation(station);
 				}
@@ -128,10 +127,58 @@ public class Weather extends Module {
 		}
 	}
 
-	private String getReport(String username, String command, String station) {
+	private String getMetar(String username, String command, String station) {
+		// System.out.println("getting metar");
         HttpURLConnection connection = null;
         BufferedReader in = null;
 		  station = station.toUpperCase() ;
+		  String response = "";
+		try {
+			URL url = new URL("http://weather.noaa.gov/pub/data/observations/metar/stations/" + station + ".TXT");
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setConnectTimeout(5000);  //just five seconds, we can't hang around
+			connection.connect();
+			if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+				return "That doesn't seem to be a valid location, " + username + ", sorry.  See " + codes_url ;
+			}
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				return "Hmmmn. " + username + ", the NOAA weather server is giving me an HTTP Status-Code " + connection.getResponseCode() + ", sorry.";
+			}
+			in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine = null ; 
+			while ((inputLine = in.readLine()) != null) {
+				inputLine = inputLine.trim();
+				if(!inputLine.equals("")) {
+					if (!response.equals("")) {
+						response = response + " " + inputLine;
+					} else {
+						response = inputLine;
+					}
+				}
+			}
+		} catch  (SocketTimeoutException e) {
+			response = "I got bored waiting for the METAR for " + station ;
+		} catch (IOException e) {
+			e.printStackTrace();
+			response = "I had an I/O problem when trying to fetch the METAR for " + station;
+		} finally {
+      	if(connection!=null) connection.disconnect();
+            try {
+                if(in!=null) in.close();
+            } catch (IOException ioe) {
+                System.out.println("Cannot close input stream");
+                ioe.printStackTrace();
+            }
+		}
+		return response;
+	}
+
+	private String getReport(String username, String command, String station) {
+		if (command.toLowerCase().matches(".*(:?raw|metar).*"))
+			return getMetar(username, command, station);
+      HttpURLConnection connection = null;
+      BufferedReader in = null;
+		station = station.toUpperCase() ;
 		try {
 			URL url = new URL("http://weather.noaa.gov/pub/data/observations/metar/decoded/" + station + ".TXT");
 			connection = (HttpURLConnection) url.openConnection();
@@ -265,6 +312,7 @@ public class Weather extends Module {
 				windchill = Double.parseDouble(temp_f) ;
 				if (!"".equals(wind_mph))
 					windchill = windchill(Double.parseDouble(temp_f),Double.parseDouble(wind_mph)) ;
+				// System.out.println("windchill: " + windchill);
 			}
 			String sunrise_string = "" ;
 			String sunset_string = "" ;
@@ -307,11 +355,12 @@ public class Weather extends Module {
 			//	short_response += ".  Precip last hour: " + precipitation ;
 			//}
 			String windchillString = "" ;
-			if (windchill != 666.0) {
+			Double d_temp_f = Double.parseDouble(temp_f);
+			if (windchill != 666.0 && windchill != d_temp_f) {
 				windchillString = ".  Windchill " + String.format("%2.1fF/%2.1fC", new Object[] {windchill, fToC(windchill)}) ;
 				response += windchillString ;
-				if ((Double.parseDouble(temp_f) - windchill) > 5)
-					short_response += windchillString ;
+				if ((d_temp_f - windchill) > 2.0)
+					short_response += windchillString;
 			}
 			if (! (sunrise_string.equals("") || sunset_string.equals(""))) {
 				short_response +=  ".  " + sun_report ;
@@ -325,7 +374,7 @@ public class Weather extends Module {
 			}
 			response += ".  Score " + scoreRounded + ".";
             short_response += ".  Score " + scoreRounded + ".";               
-            if (command.equalsIgnoreCase("fullweather")) {
+            if (command.matches("(?i)fullw(a|e){2}th(a|e)r")) {
 				return response;
 			} else {
 				return short_response ;
@@ -502,7 +551,11 @@ public class Weather extends Module {
 	}
 	
 	public double windchill(double t, double v) {
-		return 35.74 + 0.6215*t - 35.75*(Math.pow(v, 0.16)) + 0.4275*t*(Math.pow(v,0.16)) ;
+		double ret = t;
+		if (t <= 50.0 && v > 3.0) {
+			ret = 35.74 + 0.6215*t - 35.75*(Math.pow(v, 0.16)) + 0.4275*t*(Math.pow(v,0.16)) ;
+		}
+		return ret;
 	}
 	
 	public double fToC (double f) {
@@ -510,7 +563,8 @@ public class Weather extends Module {
 	}
 		
 	public String[] getCommands() {
-		return new String[]{"weather", "fullweather"};
+		return new String[]{"weather", 
+			"weathar", "waether", "fullweather", "fullweathar", "fullwaether", "raweather", "weatheraw", "metar", "rawmetar"};
 	}
 	
 	public static void main(String[] args) {
