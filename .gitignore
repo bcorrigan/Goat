@@ -3,3 +3,5 @@ jars/
 goat\.jar
 config/passwords.properties
 resources/users.xml
+resources/words.index
+resources/zipcodes
