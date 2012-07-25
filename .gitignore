@@ -3,4 +3,6 @@ jars/
 goat\.jar
 config/passwords.properties
 resources/users.xml
-resources/confessions.gz
+resources/words.index
+resources/zipcodes
+config/goatrc
