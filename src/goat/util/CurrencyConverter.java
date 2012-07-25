@@ -124,15 +124,18 @@ public class CurrencyConverter {
 
 	public static String translateCurrencyAliases(String input) {
 		String ret = input;
-        ret = ret.replaceAll("(?i)gay money", "EUR");
+        ret = ret.replaceAll("(?i)gay( money)?", "EUR");
         ret = ret.replaceAll("(?i)real money", "USD");
         ret = ret.replaceAll("(?i)proper money", "GBP");
-        ret = ret.replaceAll("(?i)blood money", "USD");
+        ret = ret.replaceAll("(?i)blood money", "ILS");
         ret = ret.replaceAll("(?i)oil money", "USD");
         ret = ret.replaceAll("(?i)dirty money", "USD");
         ret = ret.replaceAll("(?i)eddie money", "USD");
         ret = ret.replaceAll("(?i)monopoly money", "CAD");
-        ret = ret.replaceAll("(?i)tubgirl money", "JPY");
+        ret = ret.replaceAll("(?i)tubgirl( money)?", "JPY");
+        ret = ret.replaceAll("(?i)soccer( money)?", "BRL");
+        ret = ret.replaceAll("(?i)yellow( money)?", "CNY");
+        ret = ret.replaceAll("(?i)nokias?", "NOK");
         ret = ret.replaceAll("(?i)dinero", "MXN");
         ret = ret.replaceAll("(?i)pounds", "GBP");
         ret = ret.replaceAll("(?i)pound", "GBP");
@@ -141,6 +144,10 @@ public class CurrencyConverter {
         ret = ret.replaceAll("(?i)bucks?", "USD");
         ret = ret.replaceAll("(?i)quid?", "GBP");
         ret = ret.replaceAll("(?i)loonies?", "CAD");
+        ret = ret.replaceAll("(?i)communism", "RUB");
+        ret = ret.replaceAll("(?i)jews?( money)?", "ILS");
+        ret = ret.replaceAll("(?i)kiwis?( money)?", "NZD");
+        ret = ret.replaceAll("(?i)hindoos?( money)?", "INR");
 
 		return ret;
 	}
