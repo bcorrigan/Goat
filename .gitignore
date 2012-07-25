@@ -2,7 +2,9 @@ classes/
 jars/
 goat\.jar
 config/passwords.properties
+config/goatrc
 resources/users.xml
 resources/words.index
 resources/zipcodes
-config/goatrc
+resources/confessions.gz
+resources/confessions/
