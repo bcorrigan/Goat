@@ -8,4 +8,6 @@ resources/words.index
 resources/zipcodes
 resources/confessions.gz
 resources/confessions/
-
+resources/reminders
+resources/adventureData/saves
+resources/scores/
