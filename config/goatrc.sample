@@ -5,7 +5,7 @@
 insmod Say all
 insmod More all
 #insmod GoatSay all
-#insmod Confessions all
+#insmod Confessions2 all
 #insmod WordGame all
 #insmod Uno #wordgame
 #insmod Weather all
