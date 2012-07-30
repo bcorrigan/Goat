@@ -96,8 +96,17 @@ class TwitterModule extends Module {
   streamTwitter.addListener( new GoatStatusListener() )
 
   followIDs(followedIDs)
-
-
+  
+  private val trendsMap:Map[String,Int] = {
+    var tLocs = twitter.getAvailableTrends().toList;
+    var tLocsMap:Map[String,Int] = Map();
+    for(t <- tLocs) {
+      println("name:" + t.getName + ":woeId:" + t.getWoeid());
+      tLocsMap += t.getName -> t.getWoeid
+    }
+    tLocsMap
+  }
+  
   private def refreshTwitterStream() {
     println("refreshing the tweetstream...")
     refreshIdsToFollow()
@@ -174,18 +183,28 @@ class TwitterModule extends Module {
 
   private def showTrends(m: Message) {
     try {
-	    val parser = new CommandParser(m);
-	    val query: Query = new Query(parser.remaining())
+	    //val parser = new CommandParser(m);
+	    //val query: Query = new Query(parser.remaining())
 	    val user = Goat.getUsers().getOrCreateUser(m.getSender)
 	    var woeId: Option[Int] = None
-
-	    if(parser.has("near") || m.getModTrailing.contains("near")) {
-	      val woeIdStr = parser.get("near")
-	      if(woeIdStr==null) {
+	    var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
+	    if(isNear) {
+	      val searchStr = m.getModTrailing.trim.toLowerCase.replaceFirst("near","").trim();
+	      if(searchStr==null || searchStr=="") {
 	        woeId = Some(user.getWoeId())
 	      } else {
-	        if(woeIdStr.trim().matches("\\d+")) {
-	          woeId = Some(Integer.parseInt(woeIdStr.trim()))
+	        //look at the trends map and see what matches
+	        val matchingTrends = trendsMap.filter(_._1.toLowerCase().contains(searchStr.toLowerCase()))
+	        if(matchingTrends.size==0) {
+	          m.reply(m.getSender+": No matching trends found.")
+	          return
+	        } else if(matchingTrends.size>1) {
+	          var replyStr = matchingTrends.foldRight("")((x,y) => x._1 + ", " + y)
+	          replyStr=replyStr.substring(0,replyStr.length()-2)
+	          m.reply(m.getSender+": choose one of: " + replyStr)
+	          return
+	        } else {
+	          woeId=Some(matchingTrends.head._2);
 	        }
 	      }
 	    }
