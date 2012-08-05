@@ -98,12 +98,9 @@ class TwitterModule extends Module {
   followIDs(followedIDs)
 
   private val trendsMap:Map[String,Int] = {
-    var tLocs = twitter.getAvailableTrends().toList;
-    var tLocsMap:Map[String,Int] = Map();
-    for(t <- tLocs) {
-      println("name:" + t.getName + ":woeId:" + t.getWoeid());
-      tLocsMap += t.getName -> t.getWoeid
-    }
+    var tLocs = twitter.getAvailableTrends().toList
+    var tLocsMap:Map[String,Int] = Map()
+    println("\n   TwitterModule:  loaded " + tLocs.size + " locations packed with inane tweeters")
     tLocsMap
   }
 
