@@ -6,6 +6,7 @@ import java.net.*;
 import java.nio.charset.Charset;
 import java.io.*;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -16,6 +17,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 
 public class ServerConnection extends Thread {
+
+    public boolean debug = true;
 
     private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue; //Queue of messages FROM the server
     private static LinkedBlockingQueue<Message> outqueue = Goat.outqueue; //Queue of messages TO the server
@@ -73,13 +76,20 @@ public class ServerConnection extends Thread {
                 System.out.println("Hmmn unknown host, will wait 305 seconds then try connecting again.. ");
             } catch (IOException ioe) {
                 System.out.println("IOException, waiting 305 secs then retry. ");
-            }
+            } catch (Exception e) {
+		System.err.println("Unexpected exception while trying reconnect() :");
+		e.printStackTrace();
+	    }
 
             try {
                 sleep(305000);
             } catch (InterruptedException e) {
+		System.err.println("Interrupted from sleep between reconnect attempts :");
                 e.printStackTrace();
-            }
+            } catch (Exception e) {
+		System.err.println("Unexpected exception while sleeping between reconnects :");
+		e.printStackTrace();
+	    }
 
         }
     }
@@ -128,8 +138,12 @@ public class ServerConnection extends Thread {
                             }
                         }
 
-                        if (m.getCommand().equals("PING"))
+                        if (m.getCommand().equals("PING")) {
                             outqueue.add(new Message("", "PONG", "", m.getTrailing()));
+			    if (debug) {
+				System.out.println("PUNG at " + new Date());
+			    }
+			}
                         else
                             inqueue.add(m); //add to inqueue
                         // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
@@ -148,7 +162,10 @@ public class ServerConnection extends Thread {
                     System.out.println("EOF on connection: " + ioe.getMessage());
                 } catch (InterruptedException ie) {
                     System.out.println("Interrupted: " + ie.getMessage());
-                }
+                } catch (Exception e) {
+		    System.err.println("Unexpected exception in InputHandler :" );
+		    e.printStackTrace();
+		}
             }
         }
 
@@ -182,7 +199,10 @@ public class ServerConnection extends Thread {
         			out.println(m.toString());
         			//}
                 } catch (InterruptedException e) {
-                }
+                } catch (Exception e) {
+		    System.err.println("unexpected exception in OuputHandler");
+		    e.printStackTrace();
+		}
             }
         }
 
@@ -199,7 +219,10 @@ public class ServerConnection extends Thread {
 			oh.setOSW(pw);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+	} catch (Exception e) {
+	    System.err.println("Unexpected exception in setCharset :");
+	    e.printStackTrace();
+	}
     }
 
 	public void setAlreadySeenMOTD(boolean alreadySeenMOTD) {

@@ -250,7 +250,7 @@ public class UnitConverter extends Module {
 		try {
 			File filesource = new File(filename);
 			//open data file
-			BufferedReader in = new BufferedReader(new InputStreamReader(filesource.toURL().openStream()));
+			BufferedReader in = new BufferedReader(new InputStreamReader(filesource.toURI().toURL().openStream()));
 			//count elements
 			while(null != (dataline = in.readLine())) {
 				i++;
@@ -277,7 +277,7 @@ public class UnitConverter extends Module {
 			}
 
 			i = 0;
-			in = new BufferedReader(new InputStreamReader(filesource.toURL().openStream()));
+			in = new BufferedReader(new InputStreamReader(filesource.toURI().toURL().openStream()));
 			//read lines (each line is one menu element)
 			while(null != (dataline = in.readLine())) {
 				//get element data array
@@ -392,7 +392,7 @@ public class UnitConverter extends Module {
 
 
     public void processPrivateMessage(Message m) {
-        processChannelMessage(m);    
+        processChannelMessage(m);
     }
 
     public void processChannelMessage(Message m) {

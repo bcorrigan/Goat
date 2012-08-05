@@ -31,4 +31,12 @@ insmod More all
 #insmod Lastfm all
 #insmod Etymology all
 #insmod TwitterModule all
+
 join #goat
+
+#TwitterModule takes ages to instantiate, to ensure it is alive and receiving messages
+##when trendsnotify command is issued, we sleep 225 seconds
+#sleep 25000
+#trendsnotify #goat
+
+

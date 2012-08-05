@@ -96,7 +96,7 @@ class TwitterModule extends Module {
   streamTwitter.addListener( new GoatStatusListener() )
 
   followIDs(followedIDs)
-  
+
   private val trendsMap:Map[String,Int] = {
     var tLocs = twitter.getAvailableTrends().toList;
     var tLocsMap:Map[String,Int] = Map();
@@ -106,7 +106,7 @@ class TwitterModule extends Module {
     }
     tLocsMap
   }
-  
+
   private def refreshTwitterStream() {
     println("refreshing the tweetstream...")
     refreshIdsToFollow()
@@ -114,8 +114,10 @@ class TwitterModule extends Module {
   }
 
   private def followIDs(followIDs:Array[Long]) {
-    val query = new FilterQuery(followIDs)
-    streamTwitter.filter(query)
+    if (followIDs.nonEmpty) {
+      val query = new FilterQuery(followIDs)
+      streamTwitter.filter(query)
+    }
   }
 
   //this actor will send tweets, do searches, etc - we can fire up several of these
@@ -401,7 +403,7 @@ class TwitterModule extends Module {
 
   //there has to be a better way to do this array munging ffs
   private def fetchFriendStatuses(twitter: Twitter): List[String] = {
-    val statuses = twitter.getFriendsTimeline().toArray(new Array[Status](0))
+    val statuses = twitter.getHomeTimeline().toArray(new Array[Status](0))
     var strStatuses: List[String] = Nil
     for (status <- statuses)
       strStatuses = (BOLD + status.getUser.getName + NORMAL + ": " + status.getText) :: strStatuses
