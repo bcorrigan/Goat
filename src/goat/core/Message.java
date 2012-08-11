@@ -376,7 +376,7 @@ public class Message {
 			}
 		}
 
-		if (isPrivate() && getPrefix().equals(BotStats.getInstance().getOwner()))
+		if (getPrefix().equals(BotStats.getInstance().getOwner()))
 			setAuthorised(true);
 	}
 
