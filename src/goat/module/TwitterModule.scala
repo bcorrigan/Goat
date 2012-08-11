@@ -100,7 +100,10 @@ class TwitterModule extends Module {
   private val trendsMap:Map[String,Int] = {
     var tLocs = twitter.getAvailableTrends().toList
     var tLocsMap:Map[String,Int] = Map()
-    println("\n   TwitterModule:  loaded " + tLocs.size + " locations packed with inane tweeters")
+    for(t <- tLocs) {
+      tLocsMap += t.getName -> t.getWoeid
+    }
+    println("\n   TwitterModule:  loaded " + tLocsMap.size + " locations packed with inane tweeters")
     tLocsMap
   }
 
@@ -198,10 +201,17 @@ class TwitterModule extends Module {
 	          m.reply(m.getSender+": No matching trends found.")
 	          return
 	        } else if(matchingTrends.size>1) {
-	          var replyStr = matchingTrends.foldRight("")((x,y) => x._1 + ", " + y)
-	          replyStr=replyStr.substring(0,replyStr.length()-2)
-	          m.reply(m.getSender+": choose one of: " + replyStr)
-	          return
+	          //if there's an exact match, display trends for it
+	          if( matchingTrends.exists(_._1.toLowerCase().equals(searchStr)) ) {
+	            woeId = Some (matchingTrends.filter(_._1.toLowerCase().equals(searchStr)).head._2 )
+	          } else {
+	        	var replyStr = (if(searchStr.equals("all") || searchStr.equals("list")) {
+	        	  trendsMap
+	        	} else matchingTrends).foldRight("")((x,y) => x._1 + ", " + y)
+	            replyStr=replyStr.substring(0,replyStr.length()-2)
+	          	m.reply(m.getSender+": choose one of: " + replyStr)
+	          	return
+	          }
 	        } else {
 	          woeId=Some(matchingTrends.head._2);
 	        }
