@@ -88,11 +88,11 @@ public class TestCommandParser {
 	
 	@Test
 	public void testNonenseString() {
-		commandParser = new CommandParser("&£:hjs *(\"ggg fock and=\"buttock  ");
+		commandParser = new CommandParser("&Â£:hjs *(\"ggg fock and=\"buttock  ");
 		assertEquals("remaining array list should have 3 items",3,commandParser.remainingAsArrayList().size());
 		assertEquals("remaining should be set correctly", "*(\"ggg fock and=\"buttock", commandParser.remaining());
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
-		assertEquals("Command should be set","&£:hjs",commandParser.command());
+		assertEquals("Command should be set","&Â£:hjs",commandParser.command());
 	}
 	
 	@Test
