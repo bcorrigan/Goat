@@ -143,6 +143,10 @@ public class PlotMaker extends Module {
 		"a female who inexplicably becomes attracted to the damaged protagonist for unstated reasons",
 		"a supposedly androgynous robot with an unaccountably sexy female voice and the suggestion of metallic breasts",
 		"a furry - some kind of dog in fact - blessed with a disturbingly attractive behind, big eyes, and full lips",
+		"an androgynous boy who turns out to be an attractive young girl much to the relief of all",
+		"a freakishly tall, leggy, blonde and unfortunately very stupid woman with very good taste in futuristic boots",
+		"a nunchuck-wielding femi-ninja",
+		"a young female schoolteacher",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -158,6 +162,8 @@ public class PlotMaker extends Module {
 		"copy of vogue",
 		"interfering, spying duenna",
 		"obsession with the bechdel test",
+		"amazing martial arts abilities",
+		"facility with reading"
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -173,7 +179,8 @@ public class PlotMaker extends Module {
 		"wish-fulfillment solutions to real-world problems",
 		"a cliffhanger for the sake of prompting a series",
 		"entirely avoidable tragedy",
-		"restoration of a static and possibly repressive cis-phobic society"
+		"restoration of a static and possibly repressive cis-phobic society",
+		"all of humanity cursed to a bleak and desolate future"
 	};
 
 	// Bank of word fragments to use for generation of the title
