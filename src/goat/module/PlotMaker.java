@@ -114,6 +114,8 @@ public class PlotMaker extends Module {
 		" skull of a dragon",
 		" jewel encrusted crown",
 		" plain wooden goblet",
+		" secret government programme",
+		" the last specimen of a great and near-mythical creature",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -147,6 +149,16 @@ public class PlotMaker extends Module {
 		"a freakishly tall, leggy, blonde and unfortunately very stupid woman with very good taste in futuristic boots",
 		"a nunchuck-wielding femi-ninja",
 		"a young female schoolteacher",
+		"a chain-smoking, wizened MILF",
+		"a sultry widow aching for release",
+		"a lost, wanton stripper",
+		"a streetsmart orphan girl",
+		"a sassy female bounty hunter",
+		"a wily gypsy girl",
+		"a snooty female research scientist",
+		"a cigar chomping butch lesbian",
+		"a veteran female soldier who must take medication to keep her sane",
+		"a librarian who hides her beauty behind a pair of thick-framed spectacles",
 	};
 	String p7[] = {
 		"wacky pet",
