@@ -48,6 +48,12 @@ public class PlotMaker extends Module {
 		" sex-saturated",
 		" transhumanist",
 		" cyberpunk",
+		"n interwar",
+		" agricultural",
+		" utopian",
+		" fascist",
+		" racist",
+		" sexist",
 	};
 	String p2[] = {
 		"America",
@@ -64,7 +70,12 @@ public class PlotMaker extends Module {
 		"set from Road Warrior",
 		"Dyson sphere",
 		"Belle Epoque Paris",
-		"Naboo",
+		"Rome",
+		"China",
+		"Germany",
+		"Athens",
+		"Sparta",
+		"Ancient Realm"
 	};
 	String p3[] = {
 		"flying message courier",
@@ -82,6 +93,8 @@ public class PlotMaker extends Module {
 		"robot seeking out its humanity",
 		"far right revolutionary",
 		"newly qualified veterinarian",
+		"gentleman professor of archaeology",
+		"patent clerk",
 	};
 	String p4[] = {
 		" magic diadem",
@@ -99,6 +112,8 @@ public class PlotMaker extends Module {
 		" talking robotic head from the far future",
 		" humming monitor-obelisk",
 		" skull of a dragon",
+		" jewel encrusted crown",
+		" plain wooden goblet",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -140,6 +155,9 @@ public class PlotMaker extends Module {
 		"discomfort in formal wear",
 		"propensity for being captured",
 		"ability to ignore the lead character's blatant sexism and hostility towards her liberated sexuality",
+		"copy of vogue",
+		"interfering, spying duenna",
+		"obsession with the bechdel test",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
