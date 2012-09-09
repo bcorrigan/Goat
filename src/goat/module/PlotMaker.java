@@ -127,6 +127,7 @@ public class PlotMaker extends Module {
 		"a cherubic girl with pigtails and spunk",
 		"a female who inexplicably becomes attracted to the damaged protagonist for unstated reasons",
 		"a supposedly androgynous robot with an unaccountably sexy female voice and the suggestion of metallic breasts",
+		"a furry - some kind of dog in fact - blessed with a disturbingly attractive behind, big eyes, and full lips",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -138,6 +139,7 @@ public class PlotMaker extends Module {
 		"condescending tone",
 		"discomfort in formal wear",
 		"propensity for being captured",
+		"ability to ignore the lead character's blatant sexism and hostility towards her liberated sexuality",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -153,6 +155,7 @@ public class PlotMaker extends Module {
 		"wish-fulfillment solutions to real-world problems",
 		"a cliffhanger for the sake of prompting a series",
 		"entirely avoidable tragedy",
+		"restoration of a static and possibly repressive cis-phobic society"
 	};
 
 	// Bank of word fragments to use for generation of the title
@@ -169,6 +172,11 @@ public class PlotMaker extends Module {
 		"Steam",
 		"Meta",
 		"Black",
+		"White",
+		"Power",
+		"Vibro",
+		"Dark",
+		"Death",
 	};
 	String t2[] = {
 		"punk",
@@ -183,6 +191,8 @@ public class PlotMaker extends Module {
 		"tron",
 		"mancer",
 		"War",
+		"man",
+		"mage",
 	};
 	String t3[] = {
 		"s",
@@ -222,7 +232,7 @@ public class PlotMaker extends Module {
 		reply += p8[generator.nextInt(p8.length)];
 		reply += ".";
 		
-		reply += " The Electro-Plasmic Hydrocephalic Genre-Fiction Generator 2000 recommends that your title be: \"";
+		reply += " Your title is: \"";
 		reply += "The ";
 		reply += t1[generator.nextInt(t1.length)];
 		reply += t2[generator.nextInt(t2.length)];
