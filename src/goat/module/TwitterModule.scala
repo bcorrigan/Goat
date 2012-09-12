@@ -377,7 +377,7 @@ class TwitterModule extends Module {
 
   private def tweetMessage(m: Message, message: String): Boolean = {
     try {
-      twitter.updateStatus(m.getTrailing)
+      twitter.updateStatus(message)
       true
     } catch {
       case ex: TwitterException =>
