@@ -54,6 +54,11 @@ public class PlotMaker extends Module {
 		" fascist",
 		" racist",
 		" sexist",
+		" utopian",
+		" laughably innacurate",
+		" unrelentingly criminal",
+		" cyberpunk",
+		" mechanoid"
 	};
 	String p2[] = {
 		"America",
@@ -75,7 +80,11 @@ public class PlotMaker extends Module {
 		"Germany",
 		"Athens",
 		"Sparta",
-		"Ancient Realm"
+		"Ancient Realm",
+		"Robot Realm",
+		"all-woman slave planet",
+		"Trantor",
+		"Frontier"
 	};
 	String p3[] = {
 		"flying message courier",
@@ -95,6 +104,9 @@ public class PlotMaker extends Module {
 		"newly qualified veterinarian",
 		"gentleman professor of archaeology",
 		"patent clerk",
+		"truth-seeking journalist",
+		"feckless obscenely wealthy heir",
+		"young, trainee preist harbouring secret doubts"
 	};
 	String p4[] = {
 		" magic diadem",
@@ -116,6 +128,7 @@ public class PlotMaker extends Module {
 		" plain wooden goblet",
 		" secret government programme",
 		" the last specimen of a great and near-mythical creature",
+		" mathematical insight of great beauty and practical use",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -133,6 +146,7 @@ public class PlotMaker extends Module {
 		"bureaucrats from the civil service",
 		"a twisted artificial intelligence intent on universal domination",
 		"a socialist",
+		"an arrogant atheist",
 	};
 	String p6[] = {
 		"a sarcastic female techno-geek",
@@ -159,6 +173,7 @@ public class PlotMaker extends Module {
 		"a cigar chomping butch lesbian",
 		"a veteran female soldier who must take medication to keep her sane",
 		"a librarian who hides her beauty behind a pair of thick-framed spectacles",
+		"a feminine robot from heinlein's fantasies"
 	};
 	String p7[] = {
 		"wacky pet",
