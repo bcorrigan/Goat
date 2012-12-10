@@ -142,12 +142,26 @@ public class CommandParser {
 	 * 
 	 * @return true if we've got a var with that name (case insensitive), otherwise false.
 	 */
-	public boolean has(String name) {
+	public boolean hasVar(String name) {
 		name = name.toLowerCase() ;
 		if(vars.containsKey(name))
 			return true ;
 		else
 			return false ;
+	}
+	
+	/**
+	 * Checks for a standalone word - not part of an arg - among those remaining after command
+	 * @param name
+	 * @return
+	 */
+	public boolean hasWord(String name) {
+		name = name.toLowerCase();
+		for(String r : remainingAsArrayList) {
+			if(name.equals(r))
+				return true;
+		}
+		return false;
 	}
 		
 	/**

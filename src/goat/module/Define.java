@@ -76,16 +76,16 @@ public class Define extends Module {
 	private void define(Message m) {
 		CommandParser parser = new CommandParser(m) ;
 		String dictionary = "*" ;
-		if (parser.has("dictionary")) 
+		if (parser.hasVar("dictionary")) 
 			dictionary = parser.get("dictionary") ;
-		else if (parser.has("dict") ) 
+		else if (parser.hasVar("dict") ) 
 			dictionary = parser.get("dict");
 		if (m.getModCommand().equalsIgnoreCase("thesaurus"))
 			dictionary = "moby-thes";
 		int num = 1 ;
-		if (parser.has("number"))
+		if (parser.hasVar("number"))
 			num = parser.getInt("number") ;
-		else if (parser.has("num")) 
+		else if (parser.hasVar("num")) 
 			num = parser.getInt("num") ;
 		// check for num not negative, not zero (will be zero if specified, or if parsing input threw an Num Exception)
 		if (num <= 0 ) {

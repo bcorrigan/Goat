@@ -99,9 +99,9 @@ public class Lastfm extends Module {
 		if("nowplaying".equalsIgnoreCase(m.getModCommand())
 				|| "nowplaying".equalsIgnoreCase(parser.command()))
 			ircNowPlaying(m);
-		else if(parser.has("country"))
+		else if(parser.hasVar("country"))
 			ircCountry(m);
-		else if(parser.has("chart"))
+		else if(parser.hasVar("chart"))
 			ircChart(m, lastfmUser);
 		else if ("setuser".equalsIgnoreCase(parser.command()))
 			ircSetUser(m);
@@ -116,9 +116,9 @@ public class Lastfm extends Module {
 
 	private String getLastfmUser(Message m) {
 		String lastfmUser = "";
-		if(parser.has("user"))
+		if(parser.hasVar("user"))
 			lastfmUser = parser.get("user");
-		else if(parser.has("ircuser"))
+		else if(parser.hasVar("ircuser"))
 			if(users.hasUser(parser.get("ircuser"))) {
 				goat.core.User u = users.getUser(parser.get("ircuser"));
 				if (null != u.getLastfmname() && !"".equals(u.getLastfmname()))
@@ -176,7 +176,7 @@ public class Lastfm extends Module {
 			return;
 		}
 
-		if(parser.has("type")) {
+		if(parser.hasVar("type")) {
 			for(ChartCoverage c: ChartCoverage.values())
 				if(c.name().equalsIgnoreCase(parser.get("type"))) {
 					coverage = c;
@@ -249,7 +249,7 @@ public class Lastfm extends Module {
 		if (ChartType.ALBUMS == type) {
 			m.reply("Sorry, lastfm won't let you see which albums are most popular in a given country.");
 			return;
-		} else if (! parser.has("chart")) {
+		} else if (! parser.hasVar("chart")) {
 			type = ChartType.TRACKS;
 		}
 

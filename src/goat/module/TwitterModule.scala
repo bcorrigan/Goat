@@ -248,10 +248,10 @@ class TwitterModule extends Module {
       val parser = new CommandParser(m);
       val query: Query = new Query(parser.remaining())
       val user = Goat.getUsers().getOrCreateUser(m.getSender)
-      if (parser.has("radius") || parser.has("location")) {
+      if (parser.hasVar("radius") || parser.hasVar("location")) {
         //parse radius
         var radius: Double = 50 //50km by default
-        if (parser.has("radius")) {
+        if (parser.hasVar("radius")) {
           try {
             radius = java.lang.Double.parseDouble(parser.get("radius"))
           } catch {
@@ -262,7 +262,7 @@ class TwitterModule extends Module {
         }
         var latitude = user.getLatitude
         var longitude = user.getLongitude
-        if (parser.has("location")) {
+        if (parser.hasVar("location")) {
           val url = parser.get("location")
           try {
             val location: Array[Double] = StringUtil.getPositionFromMapsLink(url)

@@ -11,8 +11,8 @@ public class TestCommandParser {
 	public void testParser() {
 		//test the basics of the parser
 		commandParser = new CommandParser("testCommand command=somecommand somecommand2=\"another command\" remaining crap" );
-		assertTrue("command should be set as a variable", commandParser.has("command"));
-		assertTrue("somecommand2 should be set as a variable", commandParser.has("somecommand2"));
+		assertTrue("command should be set as a variable", commandParser.hasVar("command"));
+		assertTrue("somecommand2 should be set as a variable", commandParser.hasVar("somecommand2"));
 		assertEquals("command value should be set correctly","somecommand",commandParser.get("command"));
 		assertEquals("somecommand2 value should be set correctly","another command",commandParser.get("somecommand2"));
 		assertEquals("testCommand should be set correctly","testCommand",commandParser.command());
@@ -99,8 +99,8 @@ public class TestCommandParser {
 	public void testDoubleQuotes() {
 		//test the basics of the parser
 		commandParser = new CommandParser("testCommand command=\"somecommand one\" somecommand2=\"another command\" remaining crap" );
-		assertTrue("command should be set as a variable", commandParser.has("command"));
-		assertTrue("somecommand2 should be set as a variable", commandParser.has("somecommand2"));
+		assertTrue("command should be set as a variable", commandParser.hasVar("command"));
+		assertTrue("somecommand2 should be set as a variable", commandParser.hasVar("somecommand2"));
 		assertEquals("command value should be set correctly","somecommand one",commandParser.get("command"));
 		assertEquals("somecommand2 value should be set correctly","another command",commandParser.get("somecommand2"));
 		assertEquals("testCommand should be set correctly","testCommand",commandParser.command());

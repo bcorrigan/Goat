@@ -43,7 +43,7 @@ public class RandWords extends Module {
 				|| m.getModCommand().equals("randwords")) {
 			String numString = "";
 			CommandParser parser = new CommandParser(m) ;
-			if (parser.has("num")) 
+			if (parser.hasVar("num")) 
 				numString = parser.get("num") ;
 			else if (parser.remaining().matches("^\\d+$")) 
 				numString = parser.remaining() ;

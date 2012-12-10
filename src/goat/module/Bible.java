@@ -82,7 +82,7 @@ public class Bible extends Module {
         CommandParser parser = new CommandParser(m);
         String bible="KJV";
         String bibleQuery = null;
-        if(parser.has("bible"))
+        if(parser.hasVar("bible"))
             bible=parser.get("bible").toUpperCase();
         if(!bibles.containsKey(bible)) {
             m.reply("I'm afraid that bible is not supported. Try one of these: ");
