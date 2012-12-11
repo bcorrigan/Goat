@@ -108,6 +108,18 @@ public class CommandParser {
 		// System.out.println("remaining in remaining(): " + this.remaining) ;
 		return remaining ;
 	}
+	
+	/**
+	 * "films search num=20 poopy poop" 
+	 * 
+	 * Gives you "poopy poop" if you call remainingAfterWord("search")
+	 *
+	 * @return what remains of the line, after the command and vars and a supplied subcommand have been parsed out
+	 */
+	public String remainingAfterWord(String word) {
+		// System.out.println("remaining in remaining(): " + this.remaining) ;
+		return remaining.replaceFirst(word, "");
+	}
 
 	public ArrayList<String> remainingAsArrayList() {
 		return remainingAsArrayList ;

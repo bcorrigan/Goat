@@ -27,62 +27,152 @@ class RottenTomatoes extends Module {
     val parser = new CommandParser(m);
     
     if(parser.hasWord("boxoffice") || parser.hasWord("top")) {
-      results = api.getInTheaters().toSeq
-      showResults(m)
-    } else if(parser.hasVar("num")) {
-      showFilm(m,parser.getInt("num")+1)
+      results = api.getInTheaters()
+      showResults(m, "Top box office:")
+    } else if(parser.hasVar("num") && !parser.hasRemaining()) {
+        var num=sanitiseAndScoldForNum(m,parser)
+        if(num!=0) {
+        	showFilm(m,num-1)
+        }
+    } else if(parser.hasWord("dvd") || parser.hasWord("pirate")) {
+      var lead=""
+      if(parser.hasWord("new")) {
+    	  results = api.getNewReleaseDvds()
+    	  lead = "New to pirate"
+      } else {
+    	  results = api.getCurrentReleaseDvds()
+    	  lead = "Best to pirate"
+      }
+      showResults(m, lead)
+    } else if(parser.hasWord("upcoming")) {
+      results = api.getUpcomingMovies();
+      showResults(m, "Upcoming")
+    } else if(parser.hasWord("search")) {
+      results=api.getMoviesSearch(parser.remainingAfterWord("search"))
+      showResults(m, "Results")
+    } else if(parser.hasWord("similar")) {
+      if(parser.hasVar("num")) {
+        var num=sanitiseAndScoldForNum(m,parser)
+        if(num!=0) {
+        	results = api.getMoviesSimilar(results(num-1).getId())
+        	showResults(m, "Similar")
+        }
+      } else {
+        m.reply(m.getSender() + ": Similar to what?")
+      }
     }
   }
   
-  private def showResults(m:Message):Unit = {
+  private def sanitiseAndScoldForNum(m:Message, parser:CommandParser):Int = {
+    var num=parser.getInt("num")
+    
+    if(results.length<num || num<0) {
+      m.reply("You're not being funny, you know.") 
+      return 0;
+    }
+    return num;
+  }
+  
+  private def showResults(m:Message, lead:String):Unit = {
     var i:Int=0;
     var reply="";
     for(movie <- results) {
       i=i+1;
-      reply+= BOLD + i + ":" + BOLD + movie.getTitle() + " ";
+      reply+= BOLD + i + ":" + BOLD + movie.getTitle()
+      val condensedRating = getCondensedRating(movie)
+      if(condensedRating.length()>0)
+    	  reply+="(" + getCondensedRating(movie) + ")";
+      
     }
     
-    m.reply(m.getSender() + ":" + reply);
+    m.reply(m.getSender() + ":" +lead+ ", " + reply);
   }
   
   private def showFilm(m:Message, num:Int):Unit = {
     if(results.length>0) {
       var movie = results.get(num);
       var reply = BOLD + movie.getTitle() + BOLD + "(" + movie.getYear() + ")" 
-      if(movie.getCertification!=null)
+      if(movie.getCertification!=null && !movie.getCertification.equals(""))
         reply+=", certified " + movie.getCertification()
       if(movie.getDirectors().size()>0)
     	  reply += "Director(s):" + movie.getDirectors().map(_.getName()).mkString("&")
-      reply+= " Runtime:" + movie.getRuntime()
+      if(movie.getRuntime()>0)
+    	  reply+= " Runtime:" + movie.getRuntime()
       if(movie.getStudio()!=null)
     	  reply+= " Studio:" + movie.getStudio()
       if(movie.getRatings().size()>0)
-        reply+=" Ratings: " + getRating(movie) 
+        reply+=getRating(movie) 
       if(movie.getGenres().size()>0)
     	  reply += movie.getGenres().mkString(",")
-      if(movie.getCriticsConsensus()!=null)
+      if(movie.getCriticsConsensus()!=null && !movie.getCriticsConsensus().equals(""))
     	  reply+=" Critics say \"" + movie.getCriticsConsensus();
-      if(movie.getSynopsis()!=null)
+      if(movie.getSynopsis()!=null && !movie.getSynopsis().equals(""))
     	  reply+= "\" Synopsis:\"" + movie.getSynopsis() + "\""
       m.reply(reply);
     } else {
-      m.createReply("You have to search for a film, before I can show you a film, foolish child.")
+      m.reply("You have to search for a film, before I can show you a film, foolish child.")
     }
   }
   
   //critics_rating:Certified Fresh, critics_score:73, audience_rating:Upright, audience_score:84
   private def getRating(film:RTMovie):String = {
-    val ratings=film.getRatings().toMap
     var rating=""
+    var score = getRatings(film)
+
+    if(score.ponceFactor.isDefined)
+    	rating+=" ponceFactor:" + score.ponceFactorString.get
+    
+    
+    if(score.cS>0)
+    	rating+=" critics:" + score.cS 
+    if(score.aS>0)	
+    	rating+=" plebs:" + score.aS
+    
+    rating
+  }
+  
+  private def getRatings(film:RTMovie):Ratings = {
+    val ratings=film.getRatings().toMap
+    
+    var cS,aS = 0
+    var aR,cR = "";
     for(r<-ratings) {
       r._1 match {
-      	case "critics_rating" => rating+=r._2+" "
-      	case "critics_score" => rating+=" Critics:" + r._2
-      	case "audience_score" => rating+=" Plebs:" + r._2
+      	case "critics_rating" => cR=r._2
+      	case "critics_score" => cS=r._2.toInt
+      	case "audience_score" => aS=r._2.toInt
+      	case "audience_rating" => aR=r._2
       	case _ => 
       }
     }
-    rating
+    new Ratings(cS,aS,aR,cR);
   }
+  
+  private def getCondensedRating(film:RTMovie):String = {
+    var score = getRatings(film);
+    var condensedRating=""
+    if(score.cS>75)
+      condensedRating+=GREEN+"C"+NORMAL
+    else if(score.cS<50&&score.cS>0)
+      condensedRating+=RED+"C"+NORMAL
+    else if(score.cS<=75&&score.cS>=50)
+      condensedRating+="C"
+    
+    if(score.aS>75)
+      condensedRating+=GREEN+"P"+NORMAL
+    else if(score.aS<50&&score.aS>0)
+      condensedRating+=RED+"P"+NORMAL
+    else if(score.aS<=75&&score.aS>=50)
+      condensedRating+="P"
+    
+    condensedRating+=score.ponceFactorString.getOrElse("")
+        
+    condensedRating
+  }
+  
+  private case class Ratings(cS:Int,aS:Int,aR:String,cR:String) {
+    val ponceFactor:Option[Double] = if(cS>0&&aS>0) Some(cS/aS.toDouble) else None
+    val ponceFactorString:Option[String] = if(ponceFactor.isDefined) Some("%1.2f" format ponceFactor.get) else None
+  };
 
 }
