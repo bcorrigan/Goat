@@ -61,6 +61,8 @@ public class PlotMaker extends Module {
 		" mechanoid",
 		" zombie-filled",
 		" all woman",
+		" nudist",
+
 	};
 	String p2[] = {
 		"America",
@@ -119,6 +121,10 @@ public class PlotMaker extends Module {
 		"reformed ex-convict",
 		"magical negro",
 		"scam artist",
+		"FBI agent in deep cover",
+		"pimp with a heart of gold",
+
+
 	};
 	String p4[] = {
 		" magic diadem",
@@ -162,6 +168,8 @@ public class PlotMaker extends Module {
 		"a socialist",
 		"an arrogant atheist",
 		"Anonymous",
+		"the prophet of a suicide cult",
+
 	};
 	String p6[] = {
 		"a sarcastic female techno-geek",
@@ -191,6 +199,7 @@ public class PlotMaker extends Module {
 		"a feminine robot from heinlein's fantasies",
 		"the leader of a polyamarous anti-capitalist collective",
 		"a sheltered Amish girl",
+		"a post-op transexual genderqueer womyn",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -237,6 +246,7 @@ public class PlotMaker extends Module {
 		"a technological singularity",
 		"the death of every single character",
 		"an inappropriately happy ending",
+		"a quarter hour of gratuitous explosions",
 	};
 
 	// Bank of word fragments to use for generation of the title
