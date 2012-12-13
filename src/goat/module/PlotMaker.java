@@ -110,7 +110,7 @@ public class PlotMaker extends Module {
 		"patent clerk",
 		"truth-seeking journalist",
 		"feckless obscenely wealthy heir",
-		"young, trainee preist harbouring secret doubts",
+		"trainee priest harbouring secret doubts",
 		"nerd virgin",
 		"'sperg",
 		"Joe Sixpack",
