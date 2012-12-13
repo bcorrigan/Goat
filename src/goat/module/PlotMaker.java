@@ -1,15 +1,15 @@
 package goat.module;
-/* 
+/*
  * This code is lifted WHOLESALE from "DoorBot" - see:
  * https://github.com/lietk12/DoorBot/blob/master/src/Modules/FictionGenerator/FictionGenerator.java
- * 
+ *
  * And integrated into the goat way.
- * 
+ *
  * This will randomly generate a story plot out of 214,990,848 possible plots.
  * Based on http://wondermark.com/554/
- * 
+ *
  * Copyright 2009 John French, Ethan Li, Alex Kohanski
- * 
+ *
  * This file is part of DoorBot.
  * Doorbot is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,9 @@ public class PlotMaker extends Module {
 		" laughably innacurate",
 		" unrelentingly criminal",
 		" cyberpunk",
-		" mechanoid"
+		" mechanoid",
+		" zombie-filled",
+		" all woman",
 	};
 	String p2[] = {
 		"America",
@@ -82,9 +84,10 @@ public class PlotMaker extends Module {
 		"Sparta",
 		"Ancient Realm",
 		"Robot Realm",
-		"all-woman slave planet",
+		"slave planet",
 		"Trantor",
-		"Frontier"
+		"Frontier",
+		"Everytown, USA",
 	};
 	String p3[] = {
 		"flying message courier",
@@ -107,7 +110,14 @@ public class PlotMaker extends Module {
 		"truth-seeking journalist",
 		"feckless obscenely wealthy heir",
 		"young, trainee preist harbouring secret doubts",
-		"nerd virgin"
+		"nerd virgin",
+		"'sperg",
+		"Joe Sixpack",
+		"doting father",
+		"documentarian",
+		"reformed ex-convict",
+		"magical negro",
+		"scam artist",
 	};
 	String p4[] = {
 		" magic diadem",
@@ -130,6 +140,8 @@ public class PlotMaker extends Module {
 		" secret government programme",
 		" the last specimen of a great and near-mythical creature",
 		" mathematical insight of great beauty and practical use",
+		" improbably complicated conspiracy",
+		" obvious MacGuffin",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -148,6 +160,7 @@ public class PlotMaker extends Module {
 		"a twisted artificial intelligence intent on universal domination",
 		"a socialist",
 		"an arrogant atheist",
+		"Anonymous",
 	};
 	String p6[] = {
 		"a sarcastic female techno-geek",
@@ -174,7 +187,8 @@ public class PlotMaker extends Module {
 		"a cigar chomping butch lesbian",
 		"a veteran female soldier who must take medication to keep her sane",
 		"a librarian who hides her beauty behind a pair of thick-framed spectacles",
-		"a feminine robot from heinlein's fantasies"
+		"a feminine robot from heinlein's fantasies",
+		"the leader of a polyamarous anti-capitalist collective",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -191,7 +205,11 @@ public class PlotMaker extends Module {
 		"interfering, spying duenna",
 		"obsession with the bechdel test",
 		"amazing martial arts abilities",
-		"facility with reading"
+		"facility with reading",
+		"vast wealth",
+		"sexually transmitted diseases",
+		"powerful father",
+		"talking car",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -208,7 +226,9 @@ public class PlotMaker extends Module {
 		"a cliffhanger for the sake of prompting a series",
 		"entirely avoidable tragedy",
 		"restoration of a static and possibly repressive cis-phobic society",
-		"all of humanity cursed to a bleak and desolate future"
+		"all of humanity cursed to a bleak and desolate future",
+		"a revelation that it was all a dream",
+		"a technological singularity",
 	};
 
 	// Bank of word fragments to use for generation of the title
@@ -230,6 +250,8 @@ public class PlotMaker extends Module {
 		"Vibro",
 		"Dark",
 		"Death",
+		"Inner",
+		"Jingo",
 	};
 	String t2[] = {
 		"punk",
@@ -255,7 +277,7 @@ public class PlotMaker extends Module {
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
-	
+
 	@Override
 	public String[] getCommands() {
 		return new String[]{"plot"};
@@ -284,14 +306,14 @@ public class PlotMaker extends Module {
 		reply += ", culminating in ";
 		reply += p8[generator.nextInt(p8.length)];
 		reply += ".";
-		
+
 		reply += " Your title is: \"";
 		reply += "The ";
 		reply += t1[generator.nextInt(t1.length)];
 		reply += t2[generator.nextInt(t2.length)];
 		reply += t3[generator.nextInt(t3.length)];
 		reply += "\"";
-		
+
 		m.reply(reply);
 	}
 }
