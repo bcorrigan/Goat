@@ -106,7 +106,8 @@ public class PlotMaker extends Module {
 		"patent clerk",
 		"truth-seeking journalist",
 		"feckless obscenely wealthy heir",
-		"young, trainee preist harbouring secret doubts"
+		"young, trainee preist harbouring secret doubts",
+		"nerd virgin"
 	};
 	String p4[] = {
 		" magic diadem",
