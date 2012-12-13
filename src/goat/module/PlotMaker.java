@@ -88,6 +88,7 @@ public class PlotMaker extends Module {
 		"Trantor",
 		"Frontier",
 		"Everytown, USA",
+		"Disneyland knockoff",
 	};
 	String p3[] = {
 		"flying message courier",
@@ -140,8 +141,8 @@ public class PlotMaker extends Module {
 		" secret government programme",
 		" the last specimen of a great and near-mythical creature",
 		" mathematical insight of great beauty and practical use",
-		" improbably complicated conspiracy",
-		" obvious MacGuffin",
+		"n improbably complicated conspiracy",
+		"n obvious MacGuffin",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -189,6 +190,7 @@ public class PlotMaker extends Module {
 		"a librarian who hides her beauty behind a pair of thick-framed spectacles",
 		"a feminine robot from heinlein's fantasies",
 		"the leader of a polyamarous anti-capitalist collective",
+		"a sheltered Amish girl",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -207,9 +209,13 @@ public class PlotMaker extends Module {
 		"amazing martial arts abilities",
 		"facility with reading",
 		"vast wealth",
-		"sexually transmitted diseases",
 		"powerful father",
 		"talking car",
+		"mechanical third arm",
+		"positive attitude",
+		"encyclopedic knowledge of Woody Allen films",
+		"obsessive boyfriend",
+		"racial purity",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -229,6 +235,8 @@ public class PlotMaker extends Module {
 		"all of humanity cursed to a bleak and desolate future",
 		"a revelation that it was all a dream",
 		"a technological singularity",
+		"every single character dying",
+		"an inappropriately happy ending",
 	};
 
 	// Bank of word fragments to use for generation of the title
