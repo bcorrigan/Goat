@@ -235,7 +235,7 @@ public class PlotMaker extends Module {
 		"all of humanity cursed to a bleak and desolate future",
 		"a revelation that it was all a dream",
 		"a technological singularity",
-		"every single character dying",
+		"the death of every single character",
 		"an inappropriately happy ending",
 	};
 
