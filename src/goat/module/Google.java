@@ -899,7 +899,7 @@ public class Google extends Module {
 
 	public String imageGoogleUrl(String s) {
 		try {
-			return "http://images.google.com/images?safe=off&nfpr=1&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
+			return "http://www.bing.com/images/search?adlt=off&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
