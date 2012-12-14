@@ -33,35 +33,35 @@ public class PlotMaker extends Module {
 	Random generator = new Random();
 	// Bank of phrases to use in the plot.
 	String p1[] = {
-		" neo-noir",
-		"n alternate-history",
-		"n ancient",
-		" post-apocalyptic",
-		" dystopian",
-		" VR-simulated",
-		" metaphorical",
-		"n anachronistic",
-		" leather-clad",
-		" coal-powered",
-		" dragon-filled",
-		" shrill",
-		" sex-saturated",
-		" transhumanist",
-		" cyberpunk",
-		"n interwar",
-		"n agricultural",
-		" utopian",
-		" fascist",
-		" racist",
-		" sexist",
-		" utopian",
-		" laughably innacurate",
-		" unrelentingly criminal",
-		" cyberpunk",
-		" mechanoid",
-		" zombie-filled",
-		" all woman",
-		" nudist",
+		"a neo-noir",
+		"an alternate-history",
+		"an ancient",
+		"a post-apocalyptic",
+		"a dystopian",
+		"a VR-simulated",
+		"a metaphorical",
+		"an anachronistic",
+		"a leather-clad",
+		"a coal-powered",
+		"a dragon-filled",
+		"a shrill",
+		"a sex-saturated",
+		"a transhumanist",
+		"a cyberpunk",
+		"an interwar",
+		"an agricultural",
+		"a utopian",
+		"a fascist",
+		"a racist",
+		"a sexist",
+		"a utopian",
+		"a laughably innacurate",
+		"an unrelentingly criminal",
+		"a cyberpunk",
+		"a mechanoid",
+		"a zombie-filled",
+		"an all woman",
+		"a nudist",
 
 	};
 	String p2[] = {
@@ -324,7 +324,7 @@ public class PlotMaker extends Module {
 	@Override
 	public void processChannelMessage(Message m) {
 		//plot is args free.
-		String reply = m.getSender() + ": In a";
+		String reply = m.getSender() + ": In";
 		reply += p1[generator.nextInt(p1.length)];
 		reply += " ";
 		reply += p2[generator.nextInt(p2.length)];
