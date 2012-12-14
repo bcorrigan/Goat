@@ -31,6 +31,8 @@ insmod More all
 #insmod Lastfm all
 #insmod Etymology all
 #insmod TwitterModule all
+#insmod RottenTomatoes all
+#insmod PlotMaker all
 
 join #goat
 
