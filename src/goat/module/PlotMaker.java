@@ -64,6 +64,7 @@ public class PlotMaker extends Module {
 		"a nudist",
 		"an oppressive",
 		"a heteronormative",
+		"a theocratic",
 	};
 	String p2[] = {
 		"America",
@@ -93,6 +94,7 @@ public class PlotMaker extends Module {
 		"Everytown, USA",
 		"Disneyland knockoff",
 		"Old West",
+		"military dictatorship",
 	};
 	String p3[] = {
 		"flying message courier",
@@ -126,6 +128,7 @@ public class PlotMaker extends Module {
 		"FBI agent in deep cover",
 		"pimp with a heart of gold",
 		"anthropomorphic horse",
+		"bi-sexual male prostitute",
 	};
 	String p4[] = {
 		"a magic diadem",
@@ -159,6 +162,7 @@ public class PlotMaker extends Module {
 		"a rising caliphate",
 		"a terrorist plot",
 		"a superhero's secret identity",
+		"an underground resistance movement",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -184,6 +188,7 @@ public class PlotMaker extends Module {
 		"a sleeper cell of jihadis",
 		"his evil twin",
 		"a nasty bout of depression",
+		"the Church",
 	};
 	String p6[] = {
 		"a sarcastic female techno-geek",
@@ -214,6 +219,7 @@ public class PlotMaker extends Module {
 		"the leader of a polyamarous anti-capitalist collective",
 		"a sheltered Amish girl",
 		"a post-op transexual genderqueer womyn",
+		"a tomboy princess",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -240,6 +246,7 @@ public class PlotMaker extends Module {
 		"obsessive boyfriend",
 		"superior racial background",
 		"case of the mondays",
+		"suicide",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -288,6 +295,7 @@ public class PlotMaker extends Module {
 		"Jingo",
 		"Mega",
 		"Anti",
+		"Aqua",
 	};
 	String t2[] = {
 		"punk",
