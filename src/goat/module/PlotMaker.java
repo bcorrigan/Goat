@@ -62,7 +62,8 @@ public class PlotMaker extends Module {
 		"a zombie-filled",
 		"an all woman",
 		"a nudist",
-
+		"an oppressive",
+		"a heteronormative",
 	};
 	String p2[] = {
 		"America",
@@ -91,6 +92,7 @@ public class PlotMaker extends Module {
 		"Frontier",
 		"Everytown, USA",
 		"Disneyland knockoff",
+		"Old West",
 	};
 	String p3[] = {
 		"flying message courier",
@@ -126,37 +128,37 @@ public class PlotMaker extends Module {
 		"anthropomorphic horse",
 	};
 	String p4[] = {
-		" magic diadem",
-		"n arcane prophecy",
-		" dusty tome",
-		" crazy old man",
-		"n alien artifact",
-		"n enchanted sword",
-		"n otherworldly portal",
-		" dream-inducing drug",
-		"n encrypted data feed",
-		" time-travelling soldier",
-		"n exiled angel",
-		" talking fish",
-		" talking robotic head from the far future",
-		" humming monitor-obelisk",
-		" skull of a dragon",
-		" jewel encrusted crown",
-		" plain wooden goblet",
-		" secret government programme",
-		" great and near-mythical creature thought to be extinct",
-		" mathematical insight of great beauty and practical use",
-		"n improbably complicated conspiracy",
-		"n obvious MacGuffin",
-		"n additional ten commandments",
-		" priceless bejeweled dildo",
-		"n incredible deal on car insurance",
-		" bag of money",
-		" secret passageway",
-		" mind control device",
-		" rising caliphate",
-		" terrorist plot",
-		" superhero's secret identity",
+		"a magic diadem",
+		"an arcane prophecy",
+		"a dusty tome",
+		"a crazy old man",
+		"an alien artifact",
+		"an enchanted sword",
+		"an otherworldly portal",
+		"a dream-inducing drug",
+		"an encrypted data feed",
+		"a time-travelling soldier",
+		"an exiled angel",
+		"a talking fish",
+		"a talking robotic head from the far future",
+		"a humming monitor-obelisk",
+		"a skull of a dragon",
+		"a jewel encrusted crown",
+		"a plain wooden goblet",
+		"a secret government programme",
+		"a great and near-mythical creature thought to be extinct",
+		"a mathematical insight of great beauty and practical use",
+		"an improbably complicated conspiracy",
+		"an obvious MacGuffin",
+		"an additional ten commandments",
+		"a priceless bejeweled dildo",
+		"an incredible deal on car insurance",
+		"a bag of money",
+		"a secret passageway",
+		"a mind control device",
+		"a rising caliphate",
+		"a terrorist plot",
+		"a superhero's secret identity",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -324,13 +326,13 @@ public class PlotMaker extends Module {
 	@Override
 	public void processChannelMessage(Message m) {
 		//plot is args free.
-		String reply = m.getSender() + ": In";
+		String reply = m.getSender() + ": In ";
 		reply += p1[generator.nextInt(p1.length)];
 		reply += " ";
 		reply += p2[generator.nextInt(p2.length)];
 		reply += ", a young ";
 		reply += p3[generator.nextInt(p3.length)];
-		reply += " stumbles across a";
+		reply += " stumbles across ";
 		reply += p4[generator.nextInt(p4.length)];
 		reply += " which spurs him into conflict with ";
 		reply += p5[generator.nextInt(p5.length)];
