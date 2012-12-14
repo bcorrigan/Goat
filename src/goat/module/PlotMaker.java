@@ -49,7 +49,7 @@ public class PlotMaker extends Module {
 		" transhumanist",
 		" cyberpunk",
 		"n interwar",
-		" agricultural",
+		"n agricultural",
 		" utopian",
 		" fascist",
 		" racist",
@@ -111,7 +111,7 @@ public class PlotMaker extends Module {
 		"gentleman professor of archaeology",
 		"patent clerk",
 		"truth-seeking journalist",
-		"feckless obscenely wealthy heir",
+		"feckless but obscenely wealthy heir",
 		"trainee priest harbouring secret doubts",
 		"nerd virgin",
 		"'sperg",
@@ -123,16 +123,15 @@ public class PlotMaker extends Module {
 		"scam artist",
 		"FBI agent in deep cover",
 		"pimp with a heart of gold",
-
-
+		"anthropomorphic horse",
 	};
 	String p4[] = {
 		" magic diadem",
 		"n arcane prophecy",
 		" dusty tome",
 		" crazy old man",
-		" alien artifact",
-		" enchanted sword",
+		"n alien artifact",
+		"n enchanted sword",
 		"n otherworldly portal",
 		" dream-inducing drug",
 		"n encrypted data feed",
@@ -145,10 +144,19 @@ public class PlotMaker extends Module {
 		" jewel encrusted crown",
 		" plain wooden goblet",
 		" secret government programme",
-		" the last specimen of a great and near-mythical creature",
+		" great and near-mythical creature thought to be extinct",
 		" mathematical insight of great beauty and practical use",
 		"n improbably complicated conspiracy",
 		"n obvious MacGuffin",
+		"n additional ten commandments",
+		" priceless bejeweled dildo",
+		"n incredible deal on car insurance",
+		" bag of money",
+		" secret passageway",
+		" mind control device",
+		" rising caliphate",
+		" terrorist plot",
+		" superhero's secret identity",
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -169,7 +177,11 @@ public class PlotMaker extends Module {
 		"an arrogant atheist",
 		"Anonymous",
 		"the prophet of a suicide cult",
-
+		"a vast right-wing conspiracy",
+		"the leftist media bias",
+		"a sleeper cell of jihadis",
+		"his evil twin",
+		"a nasty bout of depression",
 	};
 	String p6[] = {
 		"a sarcastic female techno-geek",
@@ -224,7 +236,8 @@ public class PlotMaker extends Module {
 		"positive attitude",
 		"encyclopedic knowledge of Woody Allen films",
 		"obsessive boyfriend",
-		"racial purity",
+		"superior racial background",
+		"case of the mondays",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -247,6 +260,7 @@ public class PlotMaker extends Module {
 		"the death of every single character",
 		"an inappropriately happy ending",
 		"a quarter hour of gratuitous explosions",
+		"an enlightened understanding of different cultures",
 	};
 
 	// Bank of word fragments to use for generation of the title
@@ -270,6 +284,8 @@ public class PlotMaker extends Module {
 		"Death",
 		"Inner",
 		"Jingo",
+		"Mega",
+		"Anti",
 	};
 	String t2[] = {
 		"punk",
@@ -286,10 +302,11 @@ public class PlotMaker extends Module {
 		"War",
 		"man",
 		"mage",
-	};
-	String t3[] = {
-		"s",
-		"",
+		"run",
+		"fall",
+		"path",
+		"freeze",
+		"crash",
 	};
 
 	public int messageType() {
@@ -329,7 +346,6 @@ public class PlotMaker extends Module {
 		reply += "The ";
 		reply += t1[generator.nextInt(t1.length)];
 		reply += t2[generator.nextInt(t2.length)];
-		reply += t3[generator.nextInt(t3.length)];
 		reply += "\"";
 
 		m.reply(reply);
