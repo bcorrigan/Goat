@@ -1,25 +1,30 @@
 package goat.core;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.HashMap;
+
+import javax.script.ScriptException;
+
+import goat.module.JSR223Module;
 
 /**
- * <p>Loads and unloads Modules. Provides methods allowing you
+ * Loads and unloads Modules. Provides methods allowing you
  * to find out what Modules are loaded, to control the Modules, and
- * to return them.<p>
- * @version <p>Date: 17-Dec-2003</p>
- * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
+ * to return them.
+ * @version Date: 17-Dec-2003
+ * @author 
  *
  */
 public class ModuleController  {
@@ -33,15 +38,16 @@ public class ModuleController  {
 	//private ArrayList<Module> loadedModules = new ArrayList<Module>();
 	
 	private ArrayList<Class<? extends Module>> allModules = new ArrayList<Class<? extends Module>>() ;
-	private ArrayList<String> allCommands = new ArrayList<String>() ;
+	//private ArrayList<String> allCommands = new ArrayList<String>() ;
+	private ArrayList<File> allScriptModules = new ArrayList<File>();
+	
+	
 	
 	private BotStats bot = BotStats.getInstance();
 	
 	public ModuleController() {
-		buildAllModulesList() ;
-		//buildAllCommandsList() ;
-		
-		//BotStats.getInstance().setModules( getAllModules() );
+		buildAllModulesList();
+		buildScriptModulesList();
 	}	
 	
     /**
@@ -52,18 +58,38 @@ public class ModuleController  {
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 * @throws ClassNotFoundException
-	 * @throws NoClassDefFoundError
+     * @throws IOException 
+     * @throws ScriptException 
+     * @throws NoSuchMethodException 
+     * @throws NoClassDefFoundError
 	 * @throws ClassCastException
 	 */
 	public Module load(String moduleName) 
-	throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-		if(! moduleName.startsWith("goat.module."))
+			throws ClassNotFoundException, IllegalAccessException, InstantiationException, IOException, NoSuchMethodException, ScriptException {
+		if(moduleName.contains(".")) {
+			//if the name has a dot, assume a script
+			System.out.print("Loading Module " + moduleName + " ... ");
+			File file = new File("scripts/" + moduleName);
+			BufferedReader bis = new BufferedReader(  new FileReader(file));
+			String line;
+			String script="";
+			while((line=bis.readLine())!=null) {
+				script+=line+"\n";
+			}
+			String extension = moduleName.replaceAll(".*\\.", "");
+			JSR223Module mod = new JSR223Module(extension,script);
+			mod.moduleName=moduleName;
+			bootModule(mod);
+			return mod;
+		} else {
 			moduleName = "goat.module." + moduleName;
-		return load(Class.forName(moduleName));
+			return load(Class.forName(moduleName));
+		}
+		
 	}
 
 	public Module loadInAllChannels(String moduleName) 
-	throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+	throws ClassNotFoundException, IllegalAccessException, InstantiationException, IOException, NoSuchMethodException, ScriptException {
 		Module ret = load(moduleName);
 		if (null == ret) // wasn't loaded
 			ret = getLoaded(moduleName);
@@ -83,8 +109,14 @@ public class ModuleController  {
 
 		module = (Module) modClass.newInstance();
 
+		bootModule(module);
+		module.moduleName=modClass.getName();
+		return module;
+	}
+
+	private void bootModule(Module module) {
 		if(null == module)
-			return null;
+			return;
 		pool.execute(module);
 		while(! module.isRunning()) {// wait to make sure module is running before adding it to loaded module list
 			try {
@@ -93,12 +125,11 @@ public class ModuleController  {
 		}
 		System.out.print("running ... ");
 
-		BotStats.getInstance().addModule(module);
+		bot.addModule(module);
 		
 		bot.addCommands(module.getCommands());
 		
 		System.out.println("loaded.");
-		return module;
 	}
 		
 	public Module loadInAllChannels(Class<?> modClass)
@@ -162,7 +193,7 @@ public class ModuleController  {
 			Enumeration<JarEntry> jes = jf.entries() ;
 			while(jes.hasMoreElements()) {
 				JarEntry je = jes.nextElement() ;
-				if(je.getName().matches(".*goat/module/[^\\$]*\\.class")) {
+				if(je.getName().matches(".*goat/module/[^\\$]*\\.class") && !je.getName().matches(".*goat/module/JSR223Module.class")) {
 					// System.out.println(je.toString()) ;
 					try {
 						Class<?> modClass = Class.forName(je.getName().replace(".class", "").replaceAll("/", ".").replaceAll("$.*", "")) ;
@@ -171,7 +202,7 @@ public class ModuleController  {
 					} catch (ClassNotFoundException e) {
 						System.err.println("Error while building goat modules list, jar entry: \"" + je.getName() + "\", skipping") ;
 					}
-				}
+				} 
 			}
 		} catch (IOException e) {
 			e.printStackTrace() ;
@@ -197,6 +228,20 @@ public class ModuleController  {
         	System.out.println("   " + modName);
         }
         System.out.println() ;
+	}
+	
+	/**
+	 * Looks in script/ dir and assumes any files in there are modules.
+	 */
+	private void buildScriptModulesList() {
+		  String path = "scripts"; 
+		  File folder = new File(path);
+		  File[] listOfFiles = folder.listFiles();
+		  System.out.println("Available script modules:");
+		  for(File scriptModuleFile : listOfFiles) {
+			  System.out.println("   " +scriptModuleFile.getName());
+			  allScriptModules.add(scriptModuleFile);
+		  }
 	}
 		
 	public List<Class<? extends Module>> getAllModules() {

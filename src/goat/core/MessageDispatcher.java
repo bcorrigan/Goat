@@ -15,7 +15,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class MessageDispatcher {
     private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue;
-    private ModuleController modController;
 
 	/**
 	 *
@@ -23,7 +22,6 @@ public class MessageDispatcher {
 	 */
 
     public MessageDispatcher(ModuleController modController) {
-        this.modController = modController;
         monitor();
     }
     /**

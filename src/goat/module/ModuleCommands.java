@@ -5,8 +5,11 @@ import goat.core.Message;
 import goat.core.ModuleController;
 import goat.core.BotStats;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import javax.script.ScriptException;
 
 /**
  * @version <p>Date: 18-Dec-2003</p>
@@ -100,7 +103,7 @@ public class ModuleCommands extends Module {
 			Module mod = modControl.load(moduleName);
 			if(mod!=null) {
 				setChans(chans, mod);
-				response = "Module '" + mod.getClass().getName() + "' successfully loaded.";
+				response = "Module '" + mod.moduleName + "' successfully loaded.";
 			} else
 				response = "Module '" + moduleName + "' is already loaded!";
 		} catch (IllegalAccessException e) {
@@ -113,6 +116,13 @@ public class ModuleCommands extends Module {
 			response = "ClassCastException: Module " + moduleName + " is not an instance of Module and is thereforenot a viable module for " + BotStats.getInstance().getBotname() + '.';
 		} catch (NoClassDefFoundError e) {
 			response = "NoClassDefFoundError: Module " + moduleName + " not found.";
+		} catch (NoSuchMethodException e) {
+			response = "NoSuchMethodException: Module " + moduleName + " doesn't actually implement all the module methods. Make it a module!" + e.getLocalizedMessage(); 
+			e.printStackTrace();
+		} catch (IOException e) {
+			response = "IOException: Module " + moduleName + " couldn't be found in scripts/ dir and thus couldn't be loaded." + e.getLocalizedMessage();
+		} catch (ScriptException e) {
+			response = "ScriptException: Module " + moduleName + " had a fatal error: " + e.getLocalizedMessage() + " - lazy scripter programmer screwed up, most likely.";
 		}
 		
 		/*We check the message before sending a response because insmod() is called many times

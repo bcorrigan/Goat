@@ -17,6 +17,7 @@ public abstract class Module implements Runnable {
 
 	public boolean inAllChannels;
 	public boolean wantsPrivate = true;
+	public String moduleName; 
 
 	//todo have "other" type always hit processOtherMessage
 	public static final int WANT_ALL_MESSAGES = 0;
@@ -187,7 +188,7 @@ public abstract class Module implements Runnable {
 	        } catch(Exception e) {
 	            e.printStackTrace();
 	            m.createReply( this.getClass().getSimpleName() + " caused an exception: " 
-	                    + e.getClass().getSimpleName() + ". You will probably want to fix this.").send();
+	                    + e.getLocalizedMessage() + ". You will probably want to fix this.").send();
 	        }
 		
 	}
