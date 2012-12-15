@@ -1,15 +1,15 @@
 package goat.module;
-/* 
+/*
  * This code is lifted WHOLESALE from "DoorBot" - see:
  * https://github.com/lietk12/DoorBot/blob/master/src/Modules/FictionGenerator/FictionGenerator.java
- * 
+ *
  * And integrated into the goat way.
- * 
+ *
  * This will randomly generate a story plot out of 214,990,848 possible plots.
  * Based on http://wondermark.com/554/
- * 
+ *
  * Copyright 2009 John French, Ethan Li, Alex Kohanski
- * 
+ *
  * This file is part of DoorBot.
  * Doorbot is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,32 +33,48 @@ public class PlotMaker extends Module {
 	Random generator = new Random();
 	// Bank of phrases to use in the plot.
 	String p1[] = {
-		" neo-noir",
-		"n alternate-history",
-		"n ancient",
-		" post-apocalyptic",
-		" dystopian",
-		" VR-simulated",
-		" metaphorical",
-		"n anachronistic",
-		" leather-clad",
-		" coal-powered",
-		" dragon-filled",
-		" shrill",
-		" sex-saturated",
-		" transhumanist",
-		" cyberpunk",
-		"n interwar",
-		" agricultural",
-		" utopian",
-		" fascist",
-		" racist",
-		" sexist",
-		" utopian",
-		" laughably innacurate",
-		" unrelentingly criminal",
-		" cyberpunk",
-		" mechanoid"
+		"a neo-noir",
+		"an alternate-history",
+		"an ancient",
+		"a post-apocalyptic",
+		"a dystopian",
+		"a VR-simulated",
+		"a metaphorical",
+		"an anachronistic",
+		"a leather-clad",
+		"a coal-powered",
+		"a dragon-filled",
+		"a shrill",
+		"a sex-saturated",
+		"a transhumanist",
+		"a cyberpunk",
+		"an interwar",
+		"an agricultural",
+		"a utopian",
+		"a fascist",
+		"a racist",
+		"a sexist",
+		"a utopian",
+		"a laughably innacurate",
+		"an unrelentingly criminal",
+		"a cyberpunk",
+		"a mechanoid",
+		"a zombie-filled",
+		"an all woman",
+		"a nudist",
+		"an oppressive",
+		"a heteronormative",
+		"a theocratic",
+		"a dying",
+		"a dilapidated",
+		"a cartoonish",
+		"a poverty-stricken",
+		"an abandoned",
+		"a forgotten",
+		"an eternally dark",
+		"a hellish",
+		"a steampunk",
+		"a feudal",
 	};
 	String p2[] = {
 		"America",
@@ -82,9 +98,21 @@ public class PlotMaker extends Module {
 		"Sparta",
 		"Ancient Realm",
 		"Robot Realm",
-		"all-woman slave planet",
+		"slave planet",
 		"Trantor",
-		"Frontier"
+		"Everytown, USA",
+		"Disneyland knockoff",
+		"Old West",
+		"military dictatorship",
+		"North Korea",
+		"Gotham City",
+		"fortress of solitude",
+		"barren wasteland",
+		"dirigible",
+		"battlefield",
+		"cloud city",
+		"mine",
+		"American frontier",
 	};
 	String p3[] = {
 		"flying message courier",
@@ -105,30 +133,69 @@ public class PlotMaker extends Module {
 		"gentleman professor of archaeology",
 		"patent clerk",
 		"truth-seeking journalist",
-		"feckless obscenely wealthy heir",
-		"young, trainee preist harbouring secret doubts"
+		"feckless but obscenely wealthy heir",
+		"trainee priest harbouring secret doubts",
+		"nerd virgin",
+		"'sperg",
+		"Joe Sixpack",
+		"doting father",
+		"documentarian",
+		"reformed ex-convict",
+		"magical negro",
+		"scam artist",
+		"FBI agent in deep cover",
+		"pimp with a heart of gold",
+		"anthropomorphic horse",
+		"bi-sexual male prostitute",
+		"Jackie Chan",
+		"Rob Schneider",
+		"convenience store clerk",
+		"children's show host",
+		"wannabe clown",
+		"vampire hearthrob",
+		"garage band drummer",
+		"werewolf",
 	};
 	String p4[] = {
-		" magic diadem",
-		"n arcane prophecy",
-		" dusty tome",
-		" crazy old man",
-		" alien artifact",
-		" enchanted sword",
-		"n otherworldly portal",
-		" dream-inducing drug",
-		"n encrypted data feed",
-		" time-travelling soldier",
-		"n exiled angel",
-		" talking fish",
-		" talking robotic head from the far future",
-		" humming monitor-obelisk",
-		" skull of a dragon",
-		" jewel encrusted crown",
-		" plain wooden goblet",
-		" secret government programme",
-		" the last specimen of a great and near-mythical creature",
-		" mathematical insight of great beauty and practical use",
+		"a magic diadem",
+		"an arcane prophecy",
+		"a dusty tome",
+		"a crazy old man",
+		"an alien artifact",
+		"an enchanted sword",
+		"an otherworldly portal",
+		"a dream-inducing drug",
+		"an encrypted data feed",
+		"a time-travelling soldier",
+		"an exiled angel",
+		"a talking fish",
+		"a talking robotic head from the far future",
+		"a humming monitor-obelisk",
+		"a skull of a dragon",
+		"a jewel encrusted crown",
+		"a plain wooden goblet",
+		"a secret government programme",
+		"a great and near-mythical creature thought to be extinct",
+		"a mathematical insight of great beauty and practical use",
+		"an improbably complicated conspiracy",
+		"an obvious MacGuffin",
+		"an additional ten commandments",
+		"a priceless bejeweled dildo",
+		"an incredible deal on car insurance",
+		"a bag of money",
+		"a secret passageway",
+		"a mind control device",
+		"a rising caliphate",
+		"a terrorist plot",
+		"a superhero's secret identity",
+		"an underground resistance movement",
+		"the fountain of youth",
+		"his inner child",
+		"his long-lost journal",
+		"a mixtape",
+		"his keys",
+		"an escaped monkey",
+
 	};
 	String p5[] = {
 		"a megalomaniacal dictator",
@@ -145,8 +212,25 @@ public class PlotMaker extends Module {
 		"his own insecurity vis-a-vis girls",
 		"bureaucrats from the civil service",
 		"a twisted artificial intelligence intent on universal domination",
-		"a socialist",
+		"a foolish socialist",
 		"an arrogant atheist",
+		"Anonymous",
+		"the prophet of a suicide cult",
+		"a vast right-wing conspiracy",
+		"the bias of the leftist media",
+		"a sleeper cell of jihadis",
+		"his evil twin",
+		"a nasty bout of depression",
+		"the Church",
+		"the march of technological progress",
+		"the Germans",
+		"a vicious sexual predator",
+		"a demonic tentacle monster",
+		"a super-genius toddler",
+		"the living dead",
+		"his own mind",
+		"diabetes",
+
 	};
 	String p6[] = {
 		"a sarcastic female techno-geek",
@@ -173,7 +257,14 @@ public class PlotMaker extends Module {
 		"a cigar chomping butch lesbian",
 		"a veteran female soldier who must take medication to keep her sane",
 		"a librarian who hides her beauty behind a pair of thick-framed spectacles",
-		"a feminine robot from heinlein's fantasies"
+		"a feminine robot from heinlein's fantasies",
+		"the leader of a polyamarous anti-capitalist collective",
+		"a sheltered Amish girl",
+		"a post-op transexual genderqueer womyn",
+		"a tomboy princess",
+		"an adolescent female love interest",
+		"a fantasy girl made flesh",
+		"a sassy black woman",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -190,7 +281,17 @@ public class PlotMaker extends Module {
 		"interfering, spying duenna",
 		"obsession with the bechdel test",
 		"amazing martial arts abilities",
-		"facility with reading"
+		"facility with reading",
+		"vast wealth",
+		"powerful father",
+		"talking car",
+		"mechanical third arm",
+		"positive attitude",
+		"encyclopedic knowledge of Woody Allen films",
+		"obsessive boyfriend",
+		"superior racial background",
+		"case of the mondays",
+		"suicide",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
@@ -207,7 +308,13 @@ public class PlotMaker extends Module {
 		"a cliffhanger for the sake of prompting a series",
 		"entirely avoidable tragedy",
 		"restoration of a static and possibly repressive cis-phobic society",
-		"all of humanity cursed to a bleak and desolate future"
+		"all of humanity cursed to a bleak and desolate future",
+		"a revelation that it was all a dream",
+		"a technological singularity",
+		"the death of every single character",
+		"an inappropriately happy ending",
+		"a quarter hour of gratuitous explosions",
+		"an enlightened understanding of different cultures",
 	};
 
 	// Bank of word fragments to use for generation of the title
@@ -229,6 +336,11 @@ public class PlotMaker extends Module {
 		"Vibro",
 		"Dark",
 		"Death",
+		"Inner",
+		"Jingo",
+		"Mega",
+		"Anti",
+		"Aqua",
 	};
 	String t2[] = {
 		"punk",
@@ -245,16 +357,17 @@ public class PlotMaker extends Module {
 		"War",
 		"man",
 		"mage",
-	};
-	String t3[] = {
-		"s",
-		"",
+		"run",
+		"fall",
+		"path",
+		"freeze",
+		"crash",
 	};
 
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
-	
+
 	@Override
 	public String[] getCommands() {
 		return new String[]{"plot"};
@@ -266,13 +379,13 @@ public class PlotMaker extends Module {
 	@Override
 	public void processChannelMessage(Message m) {
 		//plot is args free.
-		String reply = m.getSender() + ": In a";
+		String reply = m.getSender() + ": In ";
 		reply += p1[generator.nextInt(p1.length)];
 		reply += " ";
 		reply += p2[generator.nextInt(p2.length)];
 		reply += ", a young ";
 		reply += p3[generator.nextInt(p3.length)];
-		reply += " stumbles across a";
+		reply += " stumbles across ";
 		reply += p4[generator.nextInt(p4.length)];
 		reply += " which spurs him into conflict with ";
 		reply += p5[generator.nextInt(p5.length)];
@@ -283,14 +396,13 @@ public class PlotMaker extends Module {
 		reply += ", culminating in ";
 		reply += p8[generator.nextInt(p8.length)];
 		reply += ".";
-		
+
 		reply += " Your title is: \"";
 		reply += "The ";
 		reply += t1[generator.nextInt(t1.length)];
 		reply += t2[generator.nextInt(t2.length)];
-		reply += t3[generator.nextInt(t3.length)];
 		reply += "\"";
-		
+
 		m.reply(reply);
 	}
 }
