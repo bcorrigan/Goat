@@ -28,6 +28,12 @@ public class ModuleCommands extends Module {
 				rmmod(m);
 			} else if (m.getModCommand().equals("chans")) {
 				parse();
+			} else if (m.getModCommand().equals("reload")) {
+				rmmod(m);
+				String moduleName = m.getModTrailing();
+				ArrayList<String> chan = new ArrayList<String>(1);
+				chan.add("all");
+				insmod(moduleName.trim(),chan);
 			}
 		}
 		if (m.getModCommand().equals("lsmod")) {
@@ -120,6 +126,7 @@ public class ModuleCommands extends Module {
 			e.printStackTrace();
 		} catch (IOException e) {
 			response = "IOException: Module " + moduleName + " couldn't be found in scripts/ dir and thus couldn't be loaded." + e.getLocalizedMessage();
+			e.printStackTrace();
 		} catch (ScriptException e) {
 			response = "ScriptException: Module " + moduleName + " had a fatal error: " + e.getLocalizedMessage() + " - lazy scripter programmer screwed up, most likely.";
 		}
@@ -163,7 +170,7 @@ public class ModuleCommands extends Module {
 
 
 	public String[] getCommands() {
-		return new String[]{"lsmod", "rmmod", "insmod", "chans", "showcommands"};
+		return new String[]{"lsmod", "rmmod", "insmod", "chans", "showcommands", "reload"};
 	}
 
 

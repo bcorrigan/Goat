@@ -72,7 +72,7 @@ public class ModuleController  {
 		if(moduleName.contains(".")) {
 			//if the name has a dot, assume a script
 			System.out.print("Loading Module " + moduleName + " ... ");
-			File file = new File("scripts/" + moduleName);
+			File file = new File("scripts" + File.separatorChar + moduleName);
 			BufferedReader bis = new BufferedReader(  new FileReader(file));
 			String line;
 			String script="";
@@ -122,7 +122,7 @@ public class ModuleController  {
 		module = (Module) modClass.newInstance();
 
 		bootModule(module);
-		module.moduleName=modClass.getName();
+		module.moduleName=modClass.getName().replace("goat.module.", "");
 		return module;
 	}
 
@@ -180,14 +180,14 @@ public class ModuleController  {
 		return ret;
 	}
 	
-	public Module getLoaded(String className) {
-		if(!className.startsWith("goat.module."))
-			className = "goat.module." + className;
-		Class<?> modClass = null;
-		try {
-			modClass = Class.forName(className);
-		} catch (ClassNotFoundException cnfe) {}
-		return getLoaded(modClass) ;
+	public Module getLoaded(String modName) {
+		List<Module> mods = bot.getModules();
+		for(Module mod: mods) {
+			if(mod.moduleName.equals(modName)) {
+				return mod;
+			}
+		}
+		return null;
 	}
 	
 	/**
