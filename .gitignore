@@ -1,3 +1,8 @@
+# editor droppings
+*~
+\#*#
+
+# actual project stuff
 classes/
 jars/
 goat\.jar
@@ -11,3 +16,7 @@ resources/confessions/
 resources/reminders
 resources/adventureData/saves
 resources/scores/
+lib/cachedir/
+
+# thanks a lot, slashnet...
+config/passwords.properties-before-slashnet-fuckup
