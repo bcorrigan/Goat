@@ -113,6 +113,10 @@ public class PlotMaker extends Module {
 		"cloud city",
 		"mine",
 		"American frontier",
+		"Los Angeles",
+		"San Francisco",
+		"London",
+		"New York",
 	};
 	String p3[] = {
 		"flying message courier",
@@ -155,6 +159,11 @@ public class PlotMaker extends Module {
 		"vampire hearthrob",
 		"garage band drummer",
 		"werewolf",
+		"MRA",
+		"prepper",
+		"junkie",
+		"private investigator",
+		"earnest police detective",
 	};
 	String p4[] = {
 		"a magic diadem",
@@ -195,6 +204,7 @@ public class PlotMaker extends Module {
 		"a mixtape",
 		"his keys",
 		"an escaped monkey",
+		"a partially overheard conversation",
 
 	};
 	String p5[] = {
@@ -230,6 +240,7 @@ public class PlotMaker extends Module {
 		"the living dead",
 		"his own mind",
 		"diabetes",
+		"his extremely dysfunctional family",
 
 	};
 	String p6[] = {
@@ -265,6 +276,10 @@ public class PlotMaker extends Module {
 		"an adolescent female love interest",
 		"a fantasy girl made flesh",
 		"a sassy black woman",
+		"his ex",
+		"his overprotective mother",
+		"his soulmate",
+		"an illegal immigrant who convinces him that she's a wereseal",
 	};
 	String p7[] = {
 		"wacky pet",
@@ -292,6 +307,7 @@ public class PlotMaker extends Module {
 		"superior racial background",
 		"case of the mondays",
 		"suicide",
+		"fat acceptance activism",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
