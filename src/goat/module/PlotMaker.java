@@ -164,6 +164,7 @@ public class PlotMaker extends Module {
 		"junkie",
 		"private investigator",
 		"earnest police detective",
+		"Doctor Who",
 	};
 	String p4[] = {
 		"a magic diadem",
