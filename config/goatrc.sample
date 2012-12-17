@@ -33,6 +33,7 @@ insmod More all
 #insmod TwitterModule all
 #insmod RottenTomatoes all
 #insmod PlotMaker all
+#insmod Bitcoin all
 
 join #goat
 
