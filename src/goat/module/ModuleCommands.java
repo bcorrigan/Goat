@@ -8,7 +8,6 @@ import goat.core.BotStats;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import javax.script.ScriptException;
 
 /**

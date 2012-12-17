@@ -16,6 +16,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.script.ScriptException;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.Invocable;
 
 import goat.module.JSR223Module;
 
@@ -77,7 +80,16 @@ public class ModuleController  {
 				script+=line+"\n";
 			}
 			String extension = moduleName.replaceAll(".*\\.", "");
-			JSR223Module mod = new JSR223Module(extension,script);
+			ScriptEngine engine = new ScriptEngineManager().getEngineByExtension(extension);
+			engine.eval(script);
+			Invocable inv = (Invocable) engine;
+			Module mod;
+			Object moduleCandidate = inv.invokeFunction("getInstance");
+			if(moduleCandidate instanceof Module) {
+				mod = (Module) moduleCandidate;
+			} else {
+				mod = new JSR223Module(extension,script);
+			}
 			mod.moduleName=moduleName;
 			bootModule(mod);
 			return mod;

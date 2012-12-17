@@ -166,7 +166,7 @@ public class BotStats {
 		String[] modNames = new String[modules.size()];
 		for(int i=0;i<modules.size();i++) {
 			mod = modules.get(i);
-			modNames[i] = mod.getClass().getName();
+			modNames[i] = mod.moduleName;
 		}
 		return modNames;
 	}

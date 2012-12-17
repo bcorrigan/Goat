@@ -33,7 +33,7 @@ public class JSR223Module extends Module {
 	public String[] getCommands() {
 		try {
 			return (String[]) inv.invokeMethod(module, "getCommands");
-		} catch (NoSuchMethodException | ScriptException e) {
+		} catch (Exception e) {
 			System.out.println("Error with getCommands():" + e.getLocalizedMessage() );
 		}
 		
@@ -44,7 +44,7 @@ public class JSR223Module extends Module {
 	public void processOtherMessage(Message m) {
 		try {
 			inv.invokeMethod(module, "processOtherMessage", m);
-		} catch (NoSuchMethodException | ScriptException e) {
+		} catch (Exception e) {
 			m.reply(m.getSender() + ": error calling into script:" + e.getLocalizedMessage() );
 		}
 	}
@@ -53,7 +53,7 @@ public class JSR223Module extends Module {
 	public void processPrivateMessage(Message m) {
 		try {
 			inv.invokeMethod(module, "processPrivateMessage", m);
-		} catch (NoSuchMethodException | ScriptException e) {
+		} catch (Exception e) {
 			m.reply(m.getSender() + ": error calling into script:" + e.getLocalizedMessage() );
 		}
 	}
@@ -62,7 +62,7 @@ public class JSR223Module extends Module {
 	public void processChannelMessage(Message m) {
 		try {
 			inv.invokeMethod(module, "processChannelMessage", m);
-		} catch (NoSuchMethodException | ScriptException e) {
+		} catch (Exception e) {
 			m.reply(m.getSender() + ": error calling into script:" + e.getLocalizedMessage() );
 		}
 	}
