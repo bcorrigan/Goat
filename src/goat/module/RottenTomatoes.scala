@@ -49,17 +49,17 @@ class RottenTomatoes extends Module {
       showResults(m, "Upcoming")
     } else if(parser.hasWord("search")) {
       results=api.getMoviesSearch(parser.remainingAfterWord("search"))
-      showResults(m, "Results")
+      showResults(m,"Results");
     } else if(parser.hasWord("similar")) {
       if(parser.hasVar("num")) {
         var num=sanitiseAndScoldForNum(m,parser)
         if(num!=0) {
-        	results = api.getMoviesSimilar(results(num-1).getId())
+        	results = api.getMoviesSimilar(results.get(num-1).getId())
         	showResults(m, "Similar")
         }
       } else {
         m.reply(m.getSender() + ": Similar to what?")
-      }
+      } 
     }
   }
   
@@ -74,18 +74,22 @@ class RottenTomatoes extends Module {
   }
   
   private def showResults(m:Message, lead:String):Unit = {
-    var i:Int=0;
-    var reply="";
-    for(movie <- results) {
-      i=i+1;
-      reply+= BOLD + i + ":" + BOLD + movie.getTitle()
-      val condensedRating = getCondensedRating(movie)
-      if(condensedRating.length()>0)
-    	  reply+="(" + getCondensedRating(movie) + ")";
-      
+      if(results.length==1)
+        showFilm(m,0)
+      else if (results.length==0)
+        m.reply(m.getSender+": There were no results :-(")
+      else {
+    	var i:Int=0;
+        var reply="";
+        for(movie <- results) {
+          i=i+1;
+          reply+= BOLD + i + ":" + BOLD + movie.getTitle()
+          val condensedRating = getCondensedRating(movie)
+          if(condensedRating.length()>0)
+    	    reply+="(" + getCondensedRating(movie) + ")";
+          m.reply(lead+", " + reply);
+        }
     }
-    
-    m.reply(m.getSender() + ":" +lead+ ", " + reply);
   }
   
   private def showFilm(m:Message, num:Int):Unit = {
