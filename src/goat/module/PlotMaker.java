@@ -395,7 +395,9 @@ public class PlotMaker extends Module {
 	}
 	@Override
 	public void processChannelMessage(Message m) {
-		//plot is args free.
+
+		String arg = m.getModTrailing().trim();
+
 		String reply = m.getSender() + ": In ";
 		reply += p1[generator.nextInt(p1.length)];
 		reply += " ";
@@ -415,9 +417,13 @@ public class PlotMaker extends Module {
 		reply += ".";
 
 		reply += " Your title is: \"";
-		reply += "The ";
-		reply += t1[generator.nextInt(t1.length)];
-		reply += t2[generator.nextInt(t2.length)];
+		if (arg.equals("") || arg == null ) {
+			reply += "The ";
+			reply += t1[generator.nextInt(t1.length)];
+			reply += t2[generator.nextInt(t2.length)];
+		} else {
+			reply += arg;
+		}
 		reply += "\"";
 
 		m.reply(reply);
