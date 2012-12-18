@@ -40,7 +40,7 @@ class TwitterModule extends Module {
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0
 
-  private var pwds = getPasswords()
+  private var pwds = getPasswords() 
   private val consumerKey = pwds.getProperty("twitter.consumerKey")
   private val consumerSecret = pwds.getProperty("twitter.consumerSecret")
   private val accessToken = pwds.getProperty("twitter.accessToken")
@@ -82,7 +82,7 @@ class TwitterModule extends Module {
 
   //HashSet of tuples (queries and tweets), we will use this as a local cache
   //should make a facility for this generic
-  private var searchResults: Set[Tuple2[String, List[Tweet]]] = new HashSet
+  private var searchResults: Set[Tuple2[String, List[Status]]] = new HashSet
 
   private var followedIDs: Array[Long] = null
   refreshIdsToFollow()
@@ -160,7 +160,7 @@ class TwitterModule extends Module {
     while(true) {
       try {
 	    // woeid 1 is "world"
-	    val trends = twitter.getLocationTrends(1).getTrends.toList.map(_.getName)
+	    val trends = twitter.getPlaceTrends(1).getTrends.toList.map(_.getName)
 	    val newTrends = trends diff seenTrends
 
 	    if(!newTrends.isEmpty) {
@@ -223,9 +223,9 @@ class TwitterModule extends Module {
 	    val trends: List[Trend] = if (woeId.isEmpty) {
 	      reply += ": "
 	      // woeid 1 is "world"
-	      twitter.getLocationTrends(1).getTrends().toList
+	      twitter.getPlaceTrends(1).getTrends().toList
 	    } else {
-	      val locTrends = twitter.getLocationTrends(woeId.get)
+	      val locTrends = twitter.getPlaceTrends(woeId.get)
 	      reply += " for " + locTrends.getLocation().getName() + ": "
 	      locTrends.getTrends.toList
 	    }
@@ -278,7 +278,8 @@ class TwitterModule extends Module {
         query.setGeoCode(geo, radius, Query.KILOMETERS)
       }
 
-      query.setRpp(searchSize)
+      //query.setRpp(searchSize)
+      query.setCount(searchSize)
       val results = twitter.search(query).getTweets().toArray()
       if (results.size == 0)
         m.reply("Nobody has tweeted about that shit recently.")
@@ -297,14 +298,14 @@ class TwitterModule extends Module {
 
   private def addTweetsToCache(query: String, tweetsArr: Array[Object]) {
     //condense tweets - strip dups
-    val tweets: List[Tweet] = filterSimilarTweets(tweetsArr.toList.asInstanceOf[List[Tweet]])
+    val tweets: List[Status] = filterSimilarTweets(tweetsArr.toList.asInstanceOf[List[Status]])
     searchResults = searchResults + Tuple2(query, tweets) //Tuple2 needed or just for eclipse?
   }
 
-  private def filterSimilarTweets(tweets: List[Tweet]): List[Tweet] = {
+  private def filterSimilarTweets(tweets: List[Status]): List[Status] = {
     val start = System.currentTimeMillis
     //a map of the tweets we have already seen, against the count of similar tweets (which we throw away)
-    var filtCount: Map[Tweet, Int] = Map()
+    var filtCount: Map[Status, Int] = Map()
 
     for (t <- tweets) {
       val simTweet = firstSimilarTweet(filtCount.keys.toList, t)
@@ -314,8 +315,8 @@ class TwitterModule extends Module {
         filtCount += simTweet.get -> (filtCount.get(simTweet.get).get + 1)
     }
 
-    var filtTweetsPaired: List[Tuple2[Tweet, Int]] = filtCount.toList
-    var sortedTweetsPaired: List[Tuple2[Tweet, Int]] = Nil
+    var filtTweetsPaired: List[Tuple2[Status, Int]] = filtCount.toList
+    var sortedTweetsPaired: List[Tuple2[Status, Int]] = Nil
     //sort this by spamminess (ie the Int)
     filtTweetsPaired = filtTweetsPaired.sortWith((t1, t2) => t1._2 < t2._2)
     //now do takeWhile chunks and sort those chunks into new list by secondary sort key, the time posted at
@@ -336,7 +337,7 @@ class TwitterModule extends Module {
   /**
    * Are the two tweets passed in 50% or more similar to each other?
    */
-  private def similar(t1: Tweet, t2: Tweet): Boolean = {
+  private def similar(t1: Status, t2: Status): Boolean = {
     val distLimit = t1.getText.length / 2
     var dist = 0
     //levlim is expensive call, guard just says don't call it for most obviously different cases based on string length
@@ -346,14 +347,14 @@ class TwitterModule extends Module {
     return dist < distLimit
   }
 
-  private def firstSimilarTweet(l: List[Tweet], t: Tweet): Option[Tweet] = {
+  private def firstSimilarTweet(l: List[Status], t: Status): Option[Status] = {
     l.find(similar(t, _))
     //l.filter(similar(t,_))
   }
 
   private def enableNotification(m: Message, user: String) {
     try {
-      if (twitter.enableNotification(user) == null)
+      if (twitter.updateFriendship(user, true,false) == null)
         m.reply("Oh Master, I am now following that user just as you desire.")
       else m.reply("Looks like that user doesn't exist, my master.")
     } catch {
@@ -365,7 +366,7 @@ class TwitterModule extends Module {
 
   private def disableNotification(m: Message, user: String) {
     try {
-      if (twitter.disableNotification(user) == null)
+      if (twitter.updateFriendship(user, false, false) == null)
         m.reply("Oh Wise Master, I am no longer following that user.")
       else m.reply("Master! That user - it does not exist. I beg forgiveness.")
     } catch {
@@ -394,17 +395,17 @@ class TwitterModule extends Module {
       case None =>
         false
       case Some(result) =>
-        val tweet: Tweet = result._2.head
+        val tweet: Status = result._2.head
         searchResults = searchResults - result
         if (result._2.length > 1 && result._2.tail.length > 0)
           searchResults = searchResults + Tuple2(result._1, result._2.tail)
-        m.reply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getFromUser + BOLD + ": " + unescapeHtml(tweet.getText).replaceAll("\n", ""))
+        m.reply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getUser().getName() + " [@" + tweet.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(tweet.getText).replaceAll("\n", ""))
         true
     }
   }
 
 
-  private def ageOfTweet(tweet: Tweet): String = {
+  private def ageOfTweet(tweet: Status): String = {
     return StringUtil.shortDurationString(System.currentTimeMillis - tweet.getCreatedAt.getTime)
   }
 
@@ -602,6 +603,10 @@ class TwitterModule extends Module {
 
     def onScrubGeo(userId:Long, upToStatusId:Long) {
       //who gives a shit
+    }
+    
+    def onStallWarning(sw:StallWarning) {
+      //pass
     }
   }
 }
