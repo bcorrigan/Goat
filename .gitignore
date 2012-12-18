@@ -17,6 +17,8 @@ resources/reminders
 resources/adventureData/saves
 resources/scores/
 lib/cachedir/
+goat\.sh
+\.gitignore
 
 # thanks a lot, slashnet...
 config/passwords.properties-before-slashnet-fuckup

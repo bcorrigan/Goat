@@ -4,6 +4,8 @@ import goat.Goat;
 import goat.core.Constants;
 import goat.core.Module;
 import goat.core.Message;
+import goat.core.User;
+import goat.core.Users;
 import goat.util.CommandParser;
 
 import java.io.*;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 
 public class Bitcoin extends Module {
 
@@ -48,13 +51,21 @@ public class Bitcoin extends Module {
                 TimeZone tz = null;
                 if(Goat.getUsers().hasUser(m.getSender()))
                         tz = Goat.getUsers().getUser(m.getSender()).getTimeZone();
+		String userCurrency = "";
+		Users users = goat.Goat.getUsers();
+		if(users.hasUser(m.getSender()))
+			userCurrency = users.getUser(m.getSender()).getCurrency();
+		if (userCurrency.equals(""))
+			userCurrency = "USD";
 		CommandParser parser = new CommandParser(m.getModTrailing());
 		if ("help".equalsIgnoreCase(parser.command())){
-			m.reply("usage: bitcoin [column=COLUMN] {available columns: volume, bid, high, currency_volume, ask, close, avg, low} results cached for 15 minutes");
+			m.reply("usage: bitcoin [column=COLUMN] [currency=CURRENCY] [symbol=SYMBOL] {available columns: volume, bid, high, currency_volume, ask, close, avg, low; available currencies: AUD, CAD, CHF, EUR, GBP, JPY, NZD, PLN, SEK, SLL, USD; if both currency and symbol are specified, symbol overrides currency; results cached for 15 minutes}");
 			return;
 		}
+		// defaults
 		String symbol = "mtgoxUSD";
-		String column = "avg";
+		String column = "close";
+		String currency = "";
 		JSONArray quote;
 		double price = 0;
 		long trade_t = 0;
@@ -67,11 +78,31 @@ public class Bitcoin extends Module {
 		columns.add("close");
 		columns.add("avg");
 		columns.add("low");
-		if(parser.hasVar("column")) {
+		if (parser.hasVar("column")) {
 			if (columns.contains(parser.get("column")))
 				column=parser.get("column");
 		}
-			
+		HashMap<String,String> symbols = new HashMap<String,String>();
+		// This list is based on popular exchanges as of 2012-12-17, will most likely need periodic updates.
+		symbols.put("USD", new String("mtgoxUSD"));
+		symbols.put("CAD", new String("virtexCAD"));
+		symbols.put("AUD", new String("cryptoxAUD"));
+		symbols.put("CHF", new String("ruxumCHF"));
+		symbols.put("EUR", new String("mtgoxEUR"));
+		symbols.put("GBP", new String("mtgoxGBP"));
+		symbols.put("JPY", new String("mtgoxJPY"));
+		symbols.put("NZD", new String("mtgoxNZD"));
+		symbols.put("PLN", new String("mtgoxPLN"));
+		symbols.put("SEK", new String("kptnSEK"));
+		symbols.put("SLL", new String("virwoxSLL"));
+		if (parser.hasVar("currency")) {
+			if (symbols.containsKey(parser.get("currency")))
+				symbol = symbols.get(parser.get("currency"));
+		} else if (symbols.containsKey(userCurrency)){
+			symbol = symbols.get(userCurrency);
+		}
+		if (parser.hasVar("symbol"))
+			symbol = parser.get("symbol");
 		if (tooSoon()) {
 			quote = lastQuote;
 			//System.out.println("Getting last quote");
@@ -89,13 +120,18 @@ public class Bitcoin extends Module {
 				if (symbol.equals(x.getString("symbol"))){
 					price = x.getDouble(column);
 					trade_t = x.getLong("latest_trade");
+					currency = x.getString("currency");
 				}
 			}
-			Date date = new Date();
-			date.setTime(trade_t*1000);
-			double price_fmt = Double.parseDouble(new DecimalFormat("#.##").format(price));
-			String time_fmt = compactDate(date,tz);
-			m.reply(time_fmt+" mtgoxUSD: $"+price_fmt);
+			if (trade_t != 0) {
+				Date date = new Date();
+				date.setTime(trade_t*1000);
+				double price_fmt = Double.parseDouble(new DecimalFormat("#.##").format(price));
+				String time_fmt = compactDate(date,tz);
+				m.reply(time_fmt+" "+symbol+" "+price_fmt);
+			} else {
+				m.reply("Unable to locate that symbol");
+			}
 			
 		} catch (JSONException e) {
 			m.reply("JSON Error!");
