@@ -87,8 +87,8 @@ class RottenTomatoes extends Module {
           val condensedRating = getCondensedRating(movie)
           if(condensedRating.length()>0)
     	    reply+="(" + getCondensedRating(movie) + ")";
-          m.reply(lead+", " + reply);
         }
+        m.reply(lead+", " + reply);
     }
   }
   
