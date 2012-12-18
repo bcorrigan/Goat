@@ -96,7 +96,7 @@ public class Bitcoin extends Module {
 		symbols.put("SEK", new String("kptnSEK"));
 		symbols.put("SLL", new String("virwoxSLL"));
 		if (parser.hasVar("currency")) {
-			String cmd_cur = parser.get("currency").toUppercase();
+			String cmd_cur = parser.get("currency").toUpperCase();
 			if (symbols.containsKey(cmd_cur))
 				symbol = symbols.get(cmd_cur);
 		} else if (symbols.containsKey(userCurrency)){
