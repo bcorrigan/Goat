@@ -19,13 +19,13 @@ class HelloWorld(Module):
 	if(numPoops>30):
 	  m.reply("Too much poop")
 	else:
-	  m.reply("poop "*numPoops)
+	  m.reply("p00p "*numPoops)
       else:
 	m.reply("You must tell me how much to poop")
 	
     
   def processPrivateMessage(self, m):
-    processChannelMessage(m)
+    self.processChannelMessage(m)
     
   def getCommands(self):
     return array(["pyhello","poop"], String)

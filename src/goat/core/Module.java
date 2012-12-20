@@ -193,8 +193,26 @@ public abstract class Module implements Runnable {
 		
 	}
 	
-	 
+	public <T> KVStore<T> getChanStore(Message m) {
+		return new KVStore<T>(m.getChanname()+":"+moduleName);
+	}
 	
+	public <T> KVStore<T> getUserStore(Message m) {
+		return new KVStore<T>(m.getSender()+":"+moduleName);
+	}
+	
+	public <T> KVStore<T> getUserStore(String user) {
+		return new KVStore<T>(user+":"+moduleName);
+	}
+	
+	public boolean hasUserStore(String user) {
+		return KVStore.hasStore(user+":"+moduleName);
+	}
+	
+	public <T> KVStore<T> getModuleStore() {
+		return new KVStore<T>(moduleName);
+	}
+
 	protected LinkedBlockingQueue<Message> incomingQueue = new LinkedBlockingQueue<Message>();
 	
 	public void queueIncomingMessage(Message m) {
