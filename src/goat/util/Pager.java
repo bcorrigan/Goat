@@ -1,6 +1,8 @@
 package goat.util ;
 
-import goat.core.Constants;
+import static goat.util.StringUtil.byteLength;
+import static goat.util.StringUtil.truncateWhenUTF8;
+import static goat.core.Constants.*;
 
 /**
  * A wee IRC pager
@@ -16,20 +18,26 @@ public class Pager {
 	private String buffer = "";
 	
 	// Config-like stuff
-	public static final int maxMessageLength = 420 ;
+	//this is really bytes, not chars.
+	//slashdot varies max bytes of message based on content! plain ascii - 460 bytes. 
+	public static final int maxBytes = 456;
 	private String innerPre = "\u2026" ;
 	private String innerPost = "\u2026 [more]" ;
 	private int maxWalkback = 32;
 	
-	private String inputExceededMsg = " " + Constants.BOLD + "[" + Constants.NORMAL + "no more \u2014 buffer protection engaged" + Constants.BOLD + "]";
-	private int maxInputLength = maxMessageLength * 17 - inputExceededMsg.length();  // 17 pages of crap should be enough for anyone, but not enough to swamp goat's heap 
+	private String inputExceededMsg = " " + BOLD + "[" + NORMAL + "no more \u2014 buffer protection engaged" + BOLD + "]";
+	private int maxInputLength = maxBytes * 17 - byteLength(inputExceededMsg);  // 17 pages of crap should be enough for anyone, but not enough to swamp goat's heap 
 	
 	private boolean untapped = true ; 
 	
 	// various easier-making fiddly numbers
-	private int firstMax = maxMessageLength - innerPost.length() ;
-	private int lastMax = maxMessageLength - innerPre.length() ;
-	private int midMax = maxMessageLength - innerPre.length() - innerPost.length() ;
+	private int firstMax = maxBytes - byteLength(innerPost);
+	
+	private int lastMax = maxBytes - byteLength(innerPre) ;
+	
+	
+	private int midMax = maxBytes - byteLength(innerPre) - byteLength(innerPost) ;
+	
 
 	/**
 	 * Ye Olde empty constructor
@@ -47,9 +55,9 @@ public class Pager {
 	 * @param text to put in the buffer, blowing away anything already there
 	 */
 	private void init(String text) {
-		if(maxInputLength > 0 && text.length() > maxInputLength)
-			text = text.substring(0, maxInputLength) + inputExceededMsg;
-		buffer = smush(text) ;	
+		if(maxInputLength > 0 && byteLength(text) > maxInputLength)
+			text = truncateWhenUTF8(text,maxInputLength) + inputExceededMsg;
+		buffer = smush(text);
 		untapped = true ;
 	}
 	/**
@@ -67,8 +75,8 @@ public class Pager {
 	public synchronized String getNext() {
 		String ret = "" ;
 		if (untapped) {
-			if (remaining() <= maxMessageLength) {
-				ret = getPoliteChunk(maxMessageLength) ;
+			if (remaining() <= maxBytes) {
+				ret = getPoliteChunk(maxBytes) ;
 			} else {
 				ret = getPoliteChunk(firstMax) + innerPost ;
 			}
@@ -96,17 +104,18 @@ public class Pager {
 	 * @return length of buffer remaining
 	 */
 	public synchronized int remaining() {
-		return buffer.length() ;
+		return byteLength(buffer);
 	}
 	
 	/* private things */
 
 	//pop the first num chars off the buffer
-	private String getChunk(int num) {
+	private String getChunk(int numBytes) {
 		String ret = "" ;
-		if ( remaining() >= num ) {
-			ret = buffer.substring(0, num) ;
-			buffer = buffer.substring(num) ;
+		if ( remaining() >= numBytes ) {
+			ret = truncateWhenUTF8(buffer, numBytes);
+			int chop = ret.length();
+			buffer = buffer.substring(chop) ;
 		} else {
 			ret = buffer ;
 			buffer = "" ;
@@ -114,16 +123,21 @@ public class Pager {
 		return ret ;
 	}
 
-	//pop the first num chars off the buffer, after first walking num back
+	//pop the first num bytes off the buffer, after first walking num back
 	//to the nearest whitespace (but not walking back further than maxWalkback
-	private String getPoliteChunk(int num) {
-		if ( remaining() > num )
-			for (int i = num; i>=num-maxWalkback; i--) 
+	private String getPoliteChunk(int numBytes) {
+		int numCharsBack=0;
+		if ( remaining() > numBytes )
+			for (int i = truncateWhenUTF8(buffer, numBytes).length(); i>=numBytes-maxWalkback; i--) 
 				if(buffer.substring(i, i+1).matches("\\s")) {
-					num = i;
+					numCharsBack = i;
 					break;
 				}
-		return getChunk(num);
+		
+		if(numCharsBack>0)
+			numBytes=byteLength(buffer.substring(0,numCharsBack));
+		
+		return getChunk(numBytes);
 	}
 
 	public static String smush(String text) {
@@ -146,7 +160,7 @@ public class Pager {
 		}
 		System.out.println("\n\nA more synthetic test...\n\n");
 		testString = "B" ;
-		for (int i=2 ; i<Pager.maxMessageLength ; i++) {
+		for (int i=2 ; i<Pager.maxBytes ; i++) {
 			testString = testString + String.valueOf(i % 10) ;
 		}
 		testString = testString + "E" ;
@@ -159,6 +173,19 @@ public class Pager {
 		pager.init(testString) ;
 		while (! pager.isEmpty()) {
 			System.out.println(pager.getNext() + "\n") ;
+		}
+		//exceeds max allowed by one char (3 bytes)
+		testString="Top box office:, "+BOLD+"1"+BOLD+":The Hobbit: An Unexpected Journey(★★★)"+BOLD+"2"+BOLD+":Rise of the Guardians(★★★✫)"+BOLD+"3"+BOLD+":Lincoln(★★★★✫)"+BOLD+"4"+BOLD+":Life of Pi(★★★★☆)"+BOLD+"5"+BOLD+":Skyfall(★★★★✫)"+BOLD+"6"+BOLD+":The Twilight Saga: Breaking Dawn Part 2(★★☆)"+BOLD+"7"+BOLD+":Wreck-it Ralph(★★★★☆)"+BOLD+"8"+BOLD+":Red Dawn(✫)"+BOLD+"9"+BOLD+":Playing for Keeps"+BOLD+"10"+BOLD+":Flight(★★★✰)"+BOLD+"11"+BOLD+":Hitchcock(★★★☆)"+BOLD+"12"+BOLD+":Argo(★★★★✫)"+BOLD+"13"+BOLD+":Silver Linings Playbook(★★★★✫)"+BOLD+"14"+BOLD+":Hotel Transylvania(★★)"+BOLD+"15"+BOLD+":Anna Karenina(★★★)"+BOLD+"16"+BOLD+":Here Comes the Boom(★✰)";
+		//testString="★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★"; //max unicode case.. still 460 chars
+		//testString="123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_";
+		//testString=" I do so well in school, but I feel so horrible about it. Like in a lot of the \"hard\" classes, where a lot of my friends would fail the test, I would ace it. I feel so bad because I ruin the curve for them. Sometimes I just want to completely bomb a test just so they would get a better grade. But I can't get myself to do that for some odd reason. Everytime that I want to bomb a test, I always convince myself otherwise when it comes to it. I don't know what's so hard about these classes";
+		System.out.println(testString.length() + ", bytes:" + byteLength(testString) );
+		pager.init(testString) ;
+		while (! pager.isEmpty()) {
+			String next = pager.getNext();
+			System.out.println("str length:" + next.length());
+			System.out.println("byte length:" + byteLength(next));
+			System.out.println(next + "\n") ;
 		}
 	}
 }

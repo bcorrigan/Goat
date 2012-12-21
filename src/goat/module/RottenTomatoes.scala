@@ -9,11 +9,18 @@ import com.omertron.rottentomatoesapi.model._
 
 import scala.collection.JavaConversions._
 
+//todo let user save personal picks - films they want to watch etc
+
 class RottenTomatoes extends Module {
 
   val apiKey = "qdcearnjeudmt6kq5kmtsq5w"
   
   val api = new RottenTomatoesApi(apiKey)
+  
+  private val STAR="★"
+  private val STAR_12="✫"
+  private val STAR_34="✰"
+  private val STAR_14="☆"
   
   var results:Seq[RTMovie] = Nil;
   
@@ -86,9 +93,9 @@ class RottenTomatoes extends Module {
         for(movie <- results) {
           i=i+1;
           reply+= BOLD + i + ":" + BOLD + movie.getTitle()
-          val condensedRating = getCondensedRating(movie)
+          val condensedRating = getStarRating(movie)
           if(condensedRating.length()>0)
-    	    reply+="(" + getCondensedRating(movie) + ")";
+    	    reply+="(" + getStarRating(movie) + ") ";
         }
         m.reply(lead+", " + reply);
     }
@@ -180,5 +187,50 @@ class RottenTomatoes extends Module {
     val ponceFactor:Option[Double] = if(cS>0&&aS>0) Some(cS/aS.toDouble) else None
     val ponceFactorString:Option[String] = if(ponceFactor.isDefined) Some("%1.2f" format ponceFactor.get) else None
   };
+  
+  private def getStarRating(film:RTMovie):String = {
+    var score = getRatings(film)
+    var starRating=""
+    if(score.cS>0) {
+      starRating+=ratingToStars(score.cS)
+    } else if(score.aS>0) {
+      starRating+=ratingToStars(score.aS)
+    }
+    return starRating
+  }
+  
+  private def stepToStar(step:Int):String = {
+    step match {
+      case 20 => return STAR
+      case 15 => return STAR_34
+      case 10 => return STAR_12
+      case 5 => return STAR_14
+      case _ => return ""
+    }
+  }
+  
+  private def extractStars(rating:Int,step:Int):Tuple2[Int,String] = {
+    var r=rating;
+    var stars:String="";
+    while(r>step) {
+      r-=step
+      stars+=stepToStar(step);
+    }
+    
+    return new Tuple2(r,stars)
+  }
+  
+  private def ratingToStars(rating:Int):String = {
+    var r=rating
+    var stars=""
+    
+    List(20,15,10,5) foreach { step=>
+      var t=extractStars(r,step)
+      stars+=t._2
+      r=t._1
+    }
+      
+    return stars
+  }
 
 }

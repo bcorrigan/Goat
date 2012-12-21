@@ -466,7 +466,7 @@ public class Message {
 		Message ret;
 		String smushedPayload = Pager.smush(trailing);
 		if(getCommand().equals("PRIVMSG"))
-			if (smushedPayload.length() <= Pager.maxMessageLength) 
+			if (goat.util.StringUtil.byteLength(smushedPayload) <= Pager.maxBytes) 
 				ret = createReply(smushedPayload) ;
 			else
 				ret = createPagedPrivmsg(getReplyTo(), trailing);
