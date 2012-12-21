@@ -60,6 +60,8 @@ class RottenTomatoes extends Module {
       } else {
         m.reply(m.getSender() + ": Similar to what?")
       } 
+    } else if(parser.hasWord("help")) {
+      m.reply("Usage: films [search] query | [to pirate] | [new to pirate] | [boxoffice] | upcoming.  film num=N to view a film in result set.");
     }
   }
   
