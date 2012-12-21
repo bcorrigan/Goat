@@ -33,16 +33,19 @@ class Stats(Module):
     self.incSave(chanStore, "wordCount", wordCount)
 
     curseCount=self.countCurses(m)
-    self.incSave(userStore, "curseCount", curseCount)
-    self.incSave(chanStore, "curseCount", curseCount)
+    if(curseCount<5):
+      self.incSave(userStore, "curseCount", curseCount)
+      self.incSave(chanStore, "curseCount", curseCount)
 
     racistCount=self.countRacisms(m)
-    self.incSave(userStore, "racistCount", racistCount)
-    self.incSave(chanStore, "racistCount", racistCount)
+    if(racistCount<5):
+      self.incSave(userStore, "racistCount", racistCount)
+      self.incSave(chanStore, "racistCount", racistCount)
 
     homoPhobiaCount=self.countHomophobia(m)
-    self.incSave(userStore, "homoPhobiaCount", homoPhobiaCount)
-    self.incSave(chanStore, "homoPhobiaCount", homoPhobiaCount)
+    if(homoPhobiaCount<5):
+      self.incSave(userStore, "homoPhobiaCount", homoPhobiaCount)
+      self.incSave(chanStore, "homoPhobiaCount", homoPhobiaCount)
 
   def processChannelMessage(self, m):
     if(m.modCommand=="stats"):
