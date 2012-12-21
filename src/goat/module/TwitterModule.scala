@@ -381,8 +381,14 @@ class TwitterModule extends Module {
 
   private def tweetMessage(m: Message, message: String): Boolean = {
     try {
-      twitter.updateStatus(message)
-      true
+      if(message.length()<140) {
+    	twitter.updateStatus(message)
+    	return true
+      } else {
+    	val remains=message.substring(140);
+    	m.reply(m.getSender() + ": tweet too long, goes over at …" + remains.substring(0, 10) + "…" )
+    	false
+      }
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
