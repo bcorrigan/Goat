@@ -141,7 +141,7 @@ class Stats(Module):
     return len(re.findall(r'fuck[a-z]*|cunt[a-z]*|shit[a-z]*|piss[a-z]*|fag[a-z]*|jizz[a-z]*|cock[a-z]*|tits[a-z]*|pussy[a-z]*|pendejo[a-z]*|mierd[a-z]*', m.getTrailing().lower()))
 
   def countRacisms(self,m):
-    return len(re.findall(r'kike[a-z]*|chink[a-z]*|paki[a-z]*|nigger[a-z]*|spic[a-z]*|gook[a-z]*|boche[a-z]*|wetback[a-z]*|kraut[a-z]*|honkey[a-z]*|porch monkey|raghead[a-z]*|anglo[a-z]*|camel jockey|darkie[a-z]*|greaser[a-z]*|jew[a-z]*|paddy[a-z]*|paddie[a-z]*|mick[a-z]*|pikey[a-z]*|fenian[a-z]*|gypsy[a-z]*|eskimo[a-z]*|shylock[a-z]*|musselman[a-z]*|moslem[a-z]*|mosselman[a-z]*|gringo[a-z]*', m.getTrailing().lower()))
+    return len(re.findall(r'kike[a-z]*|chink[a-z]*|paki[a-z]*|nigger[a-z]*|spic[a-z]*|gook[a-z]*|boche[a-z]*|wetback[a-z]*|kraut[a-z]*|honkey[a-z]*|porch monkey|raghead[a-z]*|anglo[a-z]*|camel jockey|darkie[a-z]*|greaser[a-z]*|jew[a-z]*|paddy[a-z]*|paddie[a-z]*|mick[a-z]*|pikey[a-z]*|fenian[a-z]*|gypsy[a-z]*|eskimo[a-z]*|shylock[a-z]*|musselman[a-z]*|moslem[a-z]*|mosselman[a-z]*|gringo[a-z]*|porridge wog|white pride|slitt[a-z]* eye[a-z*|red indian[a-z]*|juden[a-z]*', m.getTrailing().lower()))
 
   def countHomophobia(self,m):
     return len(re.findall(r'fag[a-z]*|gaylord[a-z]*|fudgepack[a-z]*|fudge pack[a-z]*|tranny[a-z]*|queer[a-z]*|homo[a-z]*|cocksucker[a-z]*|buttrammer[a-z]*|poof[a-z]*|womyn[a-z]*|sodomite[a-z]*|dyke[a-z]*|carpetmunch[a-z]*|carpet munch[a-z]*|butch lesb[a-z]*|frigid[a-z]*|muff diver[a-z]*', m.getTrailing().lower()))
