@@ -5,21 +5,16 @@ import goat.util.StringUtil
 import goat.core.Module
 import goat.core.Message
 import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
-
 import scala.actors.Actor._
 import scala.collection.immutable.HashSet
-
 import goat.util.Profile._
 import goat.util.CommandParser
 import goat.util.Passwords._
 import goat.Goat
-
 import java.lang.System
-
 import twitter4j.auth.{Authorization, AccessToken}
 import twitter4j.conf._
 import twitter4j._
-
 import scala.collection.JavaConversions._
 
 
@@ -69,7 +64,7 @@ class TwitterModule extends Module {
 
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
-  private var chan = "jism" //BotStats.getInstance().getChannels()(0)
+  private var chan = "#jism" //BotStats.getInstance().getChannels()(0)
   //for messaging actor
   private val TWEET = "TWEET"
   private val TWEET_TOPIC = "TWEET_TOPIC"
@@ -93,7 +88,10 @@ class TwitterModule extends Module {
 
   private val streamTwitter: TwitterStream = new TwitterStreamFactory().getInstance(twitter.getAuthorization())
 
-  streamTwitter.addListener( new GoatStatusListener() )
+  //streamTwitter.addListener( new GoatStatusListener() )
+  streamTwitter.addListener( new GoatUserListener() )
+  //we relay all @mentions to channel - this sets it up 
+  streamTwitter.user();
 
   followIDs(followedIDs)
 
@@ -119,6 +117,8 @@ class TwitterModule extends Module {
       streamTwitter.filter(query)
     }
   }
+  
+
 
   //this actor will send tweets, do searches, etc - we can fire up several of these
   private val twitterActor = actor {
@@ -127,7 +127,10 @@ class TwitterModule extends Module {
       receive {
         case (msg: Message, TWEET) =>
           if (tweetMessage(msg, msg.getModTrailing))
-            msg.reply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.")
+            if(msg.isAuthorised())
+              msg.reply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.")
+            else 
+              msg.reply(msg.getSender + ", I have tweeted your rash words.")
         case (msg: Message, TWEET_TOPIC) =>
           tweetMessage(msg, msg.getTrailing)
         case (msg: Message, FOLLOW) =>
@@ -423,7 +426,8 @@ class TwitterModule extends Module {
   }
 
   private def sendStatusToChan(status: Status, chan: String) {
-    Message.createPrivmsg(chan, BOLD + status.getUser.getName + NORMAL + ": " + status.getText)
+    println("got here, chan:" + chan);
+    Message.createPrivmsg(chan, BOLD + status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
   }
 
   def processPrivateMessage(m: Message) {
@@ -434,9 +438,7 @@ class TwitterModule extends Module {
     manageCache()
     m.getModCommand.toLowerCase() match {
       case "tweet" =>
-        if (m.isAuthorised())
-          tweet(m)
-        else m.reply("You are " + BOLD + "not" + BOLD + " my Master.")
+        tweet(m)
       case "tweetchannel" =>
         chan = m.getChanname
         Message.createPrivmsg(chan, "This channel is now the main channel for twitter following.").send()
@@ -497,18 +499,7 @@ class TwitterModule extends Module {
   }
 
   private def tweetpurge(m: Message) {
-    if (m.getModTrailing.split("\\s+").size > 1)
-      m.reply(m.getSender + ": that doesn't look at all right. Try just specifying a number, then I will purge all tweets older than that many minutes.")
-    else {
-      var mins: Int = 0;
-      try {
-        mins = Integer.parseInt(m.getModTrailing.trim)
-        m.reply(m.getSender + ": Purged " + purge(mins) + " tweets from cache.")
-      } catch {
-        case ex: NumberFormatException =>
-          m.reply(m.getSender + ": that's no good at all. Try just specifying a number, then I will purge all tweets older than that many minutes.")
-      }
-    }
+    m.reply(m.getSender + ": Purged " + purge(0) + " tweets from cache.")
   }
 
   private def cacheSize(): Int = {
@@ -543,10 +534,8 @@ class TwitterModule extends Module {
 
   private def tweet(m: Message) {
     val now = System.currentTimeMillis
-    if ((now - lastTweet) > HOUR || m.isAuthorised()) {
-      //twitter.updateStatus(m.getModTrailing)
+    if ((now - lastTweet) > MINUTE ) {
       twitterActor ! (m, TWEET)
-      m.reply("Tweet!")
       lastTweet = now
     } else {
       m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastTweet) + " ago.")
@@ -580,8 +569,14 @@ class TwitterModule extends Module {
     }
     false
   }
+  
+  private def isMention(status:Status):Boolean = {
+    println("sn:"+status.getInReplyToScreenName() + ":USER:" + USER) 
+    println("getText():" + status.getText())
+    status.getText().contains("@"+USER)
+  }
 
-  class GoatStatusListener extends StatusListener {
+  /*class GoatStatusListener extends StatusListener {
     def onException(e: Exception) {
       //pass
       e.printStackTrace()
@@ -608,6 +603,54 @@ class TwitterModule extends Module {
     def onStallWarning(sw:StallWarning) {
       //pass
     }
+  }*/
+  
+  class GoatUserListener extends UserStreamListener {
+    def onException(e: Exception) {
+      //pass
+      e.printStackTrace()
+    }
+
+    def onStatus(status: Status) {
+      if (isMention(status) || isFollowed(status.getUser.getId))
+        sendStatusToChan(status, chan);
+      println(status.getText)
+    }
+
+    def onDeletionNotice(statusDeletionNotice:StatusDeletionNotice) {
+      //TODO ignore for now ; should really remove the deleted account
+    }
+
+    def onTrackLimitationNotice(numberOfLimitedStatuses:Int) {
+      //ignore, now and forever
+    }
+
+    def onScrubGeo(userId:Long, upToStatusId:Long) {
+      //who gives a shit
+    }
+    
+    def onStallWarning(sw:StallWarning) {
+      //pass
+    }
+    
+    def onBlock(source:User, blockedUser:User) { }
+    def onDeletionNotice(directMessageId:Long, userId:Long) { }  
+    def onDirectMessage(directMessage:DirectMessage) {
+      //TODO
+    }  
+    def onFavorite(source:User, target:User, favoritedStatus:Status) { }  
+    def onFollow(source:User, followedUser:User) { }  
+    def onFriendList(friendIds:Array[Long]) { }  
+    def onUnblock(source:User, unblockedUser:User) { }  
+    def onUnfavorite(source:User, target:User, unfavoritedStatus:Status) { }  
+    def onUserListCreation(listOwner:User, list:UserList) { }  
+    def onUserListDeletion(listOwner:User, list:UserList) { }  
+    def onUserListMemberAddition(addedMember:User, listOwner:User, list:UserList) { } 
+    def onUserListMemberDeletion(deletedMember:User, listOwner:User, list:UserList) { } 
+    def onUserListSubscription(subscriber:User, listOwner:User, list:UserList) { }  
+    def onUserListUnsubscription(subscriber:User, listOwner:User, list:UserList) { }  
+    def onUserListUpdate(listOwner:User, list:UserList) { }  
+    def onUserProfileUpdate(updatedUser:User) { } 
   }
 }
 
