@@ -3,152 +3,156 @@ from java.lang import String
 from goat.core import Message
 from goat.core import Module
 from goat.util import CommandParser
+from goat.util import StringUtil
 from jarray import array
 
 import re
 
-#A simple stats counting module to try out goat's 
+#A simple stats counting module to try out goat's
 #amazing new persistence solution
 
-#todo curse ratio
-#todo smiley counter
-#todo homophobia counter
-#religious counter
-#violence meter
+# TODO:
+# smiley counter
+# religious counter
+# violence meter
+# example bc racism - show last few examples of racism
+# sexism
+# open source
+LINE_COUNT = "lineCount"
+WORD_COUNT = "wordCount"
 
-#example bc racism - show last few examples of racism
+WORD_CURSE = "curseCount"
+WORD_RACISM = "racistCount"
+WORD_HOMOPHOBIA = "homoPhobiaCount"
+WORD_TYPES_RX = {
+    WORD_CURSE: re.compile(
+        r'(fuck|cunt|shit|piss|fag|jizz|cock|tits|pussy|pendejo|mierd|bitch)'
+    ),
+
+    WORD_RACISM: re.compile(
+        r'(kike|chink|nigger|spick?|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|jew|paddy|paddie|mick|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj)'
+    ),
+
+    WORD_HOMOPHOBIA: re.compile(
+        r'(fag|gaylord|(that\'?s|so|how|be) gay|fudge ?pack|tranny|cock ?sucker|butt ?(ram|fuck)|sodomite|dyke|carpet ?munch|muff ?diver|cock ?sucker|homo\b|gaa+y|gayy+)'
+    ),
+
+}
+
 class Stats(Module):
-  def __init__(self):
-    pass
+    def __init__(self):
+        pass
 
-  def updateStats(self, m):
-    chanStore = self.getChanStore(m)
-    self.incSave(chanStore, "linesSeen")
+    def updateStats(self, m):
+        stores = []
+        stores.append(self.getChanStore(m))
+        stores.append(self.getUserStore(m))
 
-    userStore = self.getUserStore(m)
-    self.incSave(userStore, "linesSeen")
+        msg = StringUtil.removeFormattingAndColors(m.getTrailing())
+        word_count = len(msg.split())
+        seen_types = dict()
+        for word_type, rx in WORD_TYPES_RX.items():
+            if re.search(rx, msg):
+                seen_types[word_type] = True
 
-    wordCount=len(re.findall(r'\w+', m.getTrailing()))
-    self.incSave(userStore, "wordCount", wordCount)
-    self.incSave(chanStore, "wordCount", wordCount)
+        for store in stores:
+            self.incSave(store, LINE_COUNT)
+            self.incSave(store, WORD_COUNT, word_count)
+            for word_type, seen in seen_types.items():
+                self.incSave(store, word_type, 1)
 
-    curseCount=self.countCurses(m)
-    if(curseCount<5):
-      self.incSave(userStore, "curseCount", curseCount)
-      self.incSave(chanStore, "curseCount", curseCount)
+    # this should really be a method on the stores themselves, maybe it
+    # already is? TODO check
+    def get_default(self, store, key, default):
+        if store.has(key):
+            return store.get(key)
+        else:
+            return default
 
-    racistCount=self.countRacisms(m)
-    if(racistCount<5):
-      self.incSave(userStore, "racistCount", racistCount)
-      self.incSave(chanStore, "racistCount", racistCount)
+    # TODO this should also probably be a method of the store object.
+    def incSave(self, store, propName, inc=1):
+        if store.has(propName):
+            if inc>0:
+                prop=store.get(propName)
+                prop+=inc
+                store.save(propName,prop)
+        else:
+            store.save(propName,inc)
 
-    homoPhobiaCount=self.countHomophobia(m)
-    if(homoPhobiaCount<5):
-      self.incSave(userStore, "homoPhobiaCount", homoPhobiaCount)
-      self.incSave(chanStore, "homoPhobiaCount", homoPhobiaCount)
 
-  def processChannelMessage(self, m):
-    if(m.modCommand=="stats"):
-      parser = CommandParser(m)
-      if(parser.hasVar("user")):
-	user=parser.get("user")
-        if(self.hasUserStore(user)):
-          userStore=self.getUserStore(user)
+    def generate_stat_text(self, store, stat, source, verb, pure):
+        """used by generate_reply to generate a sentence about a particular
+        stat."""
 
-          reply = m.sender+": "+user+" has written " + str(userStore.get("linesSeen")) + " lines"
-          if(userStore.has("wordCount")):
-            reply += " with an average of " + self.getAvg(userStore) + " words per line. "
-          if(userStore.has("curseCount")):
-            if(userStore.get("curseCount")>0):
-              reply+=user+" has cursed "+str(userStore.get("curseCount"))+" times"
-              reply+=", a ratio of " + self.getCurseAvg(userStore) + ". " 
+        stat_count = self.get_default(store, stat, 0)
+        line_count = self.get_default(store, LINE_COUNT, 0)
+        reply = " %s" % source
+        if stat_count:
+            reply += " has %s %d times, a ratio of %.02f%%." % (
+                verb, stat_count, float(stat_count) / line_count * 100)
+        else:
+            reply += " %s." % pure
+        return reply
+
+    def generate_reply(self, asker, source, store, channel=False):
+        lines_seen = self.get_default(store, LINE_COUNT, 0)
+        word_count = self.get_default(store, WORD_COUNT, 0)
+        if lines_seen == 0:
+            return "uhhh... what?"
+
+        verb = channel and "seen" or "written"
+        reply = "%s: %s has %s %d lines" % (asker, source, verb, lines_seen)
+        reply += " with an average of %.2f words per line." % (
+            word_count / float(lines_seen))
+
+        if channel:
+            reply += self.generate_stat_text(store, WORD_CURSE, source,
+                "seen curses", "needs to get out more")
+            reply += self.generate_stat_text(store, WORD_RACISM, source,
+                "seen race hatred", "is colour blind")
+            reply += self.generate_stat_text(store, WORD_HOMOPHOBIA, source,
+                "seen ugly homophobic incidents",
+                "is as gay friendly as Dan Savage")
+        else:
+            reply += self.generate_stat_text(store, WORD_CURSE, source,
+                "cursed",  "is clean of mouth")
+            reply += self.generate_stat_text(store, WORD_RACISM, source,
+                "indulged in race hatred", "is colour blind")
+            reply += self.generate_stat_text(store, WORD_HOMOPHOBIA, source,
+                "been in ugly homophobic incidents",
+                "is as gay friendly as Dan Savage")
+        return reply
+
+    # methods past this point are for implementing parts of the goat module
+    # API
+    def processChannelMessage(self, m):
+        if m.modCommand=="stats":
+            parser = CommandParser(m)
+            if parser.hasVar("user"):
+                user=parser.get("user")
+                if self.hasUserStore(user):
+                    userStore=self.getUserStore(user)
+                    reply = self.generate_reply(m.sender, user, userStore)
+                    m.reply(reply)
+                else:
+                    m.reply(m.sender+": I have never seen that person.")
             else:
-              reply+=user+" is clean of mouth. "
-          if(userStore.has("racistCount")):
-            if(userStore.get("racistCount")>0):
-              reply+=user + " has indulged in race hatred " + str(userStore.get("racistCount"))+" times"
-              reply+=", a ratio of "+self.getRacistAvg(userStore) + ". "
-            else:
-              reply+=user + " is colour blind."
-          if(userStore.has("homoPhobiaCount")):
-            if(userStore.get("homoPhobiaCount")>0):
-              reply+=user+" has been in ugly homophobic incidents "+str(userStore.get("homoPhobiaCount"))+" times"
-              reply+=", a ratio of " + self.getHomoAvg(userStore) + "."
-            else:
-              reply+=user+" is as cisfriendly as Dan Savage. "
-          m.reply(reply)
-	else:
-	  m.reply(m.sender+": I have never seen that person.")
-      else:
-        chanStore=self.getChanStore(m)
-        reply = m.sender+": "+m.getChanname()+" has seen " + str(chanStore.get("linesSeen")) + " lines"
-        if(chanStore.has("wordCount")):
-          reply += " with an average of " + self.getAvg(chanStore) + " words per line. "
-        if(chanStore.has("curseCount")):
-          if(chanStore.get("curseCount")>0):
-            reply+=m.getChanname()+" has seen curses "+str(chanStore.get("curseCount"))+" times"
-            reply+=", a ratio of " + self.getCurseAvg(chanStore) + ". " 
-          else:
-            reply+=m.getChanname()+" needs to get out more. "
-        if(chanStore.has("racistCount")):
-          if(chanStore.get("racistCount")>0):
-            reply+=m.getChanname() + " has seen race hatred " + str(chanStore.get("racistCount"))+" times"
-            reply+=", a ratio of "+self.getRacistAvg(chanStore) + ". "
-          else:
-            reply+=m.getChanname() + " is colour blind."
-        if(chanStore.has("homoPhobiaCount")):
-          if(chanStore.get("homoPhobiaCount")>0):
-            reply+=m.getChanname()+" has seen ugly homophobic incidents "+str(chanStore.get("homoPhobiaCount"))+" times"
-            reply+=", a ratio of " + self.getHomoAvg(chanStore) + "."
-          else:
-            reply+=m.getChanname()+" is as cisfriendly as Dan Savage. "
-        m.reply(reply)
+                chanStore=self.getChanStore(m)
+                reply = self.generate_reply(m.sender, m.getChanname(),
+                    chanStore)
+                m.reply(reply)
+        else:
+            self.updateStats(m)
 
-    else:
-      self.updateStats(m)
-    
-  def processPrivateMessage(self, m):
-    self.processChannelMessage(m)
+    def processPrivateMessage(self, m):
+        self.processChannelMessage(m)
 
-  def incSave(self, store, propName, inc=1):
-    if(store.has(propName)):
-      if(inc>0):
-        prop=store.get(propName)
-        prop+=inc
-        store.save(propName,prop)
-    else:
-      store.save(propName,inc)
-    
-  def getCommands(self):
-    return array([""], String)
-  
-  def messageType(self):
-    return self.WANT_UNCLAIMED_MESSAGES
-  
-  def runningAvg(self,oldAvg,newcount, newValue):
-    return ((oldAvg*(newcount-1))+newValue)/newcount
+    def getCommands(self):
+        return array([""], String)
 
-  def getAvg(self,userStore):
-    return '%0.3f'%(userStore.get("wordCount")/float(userStore.get("linesSeen")))
-
-  def getRacistAvg(self, userStore):
-    return '{0:.3%}'.format(userStore.get("racistCount")/float(userStore.get("wordCount")))
-
-  def getCurseAvg(self,userStore):
-    return '{0:.3%}'.format(userStore.get("curseCount")/float(userStore.get("wordCount")))
-
-  def getHomoAvg(self, userStore):
-    return '{0:.3%}'.format(userStore.get("homoPhobiaCount")/float(userStore.get("wordCount")))
-
-  def countCurses(self,m):
-    return len(re.findall(r'fuck[a-z]*|cunt[a-z]*|shit[a-z]*|piss[a-z]*|fag[a-z]*|jizz[a-z]*|cock[a-z]*|tits[a-z]*|pussy[a-z]*|pendejo[a-z]*|mierd[a-z]*', m.getTrailing().lower()))
-
-  def countRacisms(self,m):
-    return len(re.findall(r'kike[a-z]*|chink[a-z]*|paki[a-z]*|nigger[a-z]*|spic[a-z]*|gook[a-z]*|boche[a-z]*|wetback[a-z]*|kraut[a-z]*|honkey[a-z]*|porch monkey|raghead[a-z]*|anglo[a-z]*|camel jockey|darkie[a-z]*|greaser[a-z]*|jew[a-z]*|paddy[a-z]*|paddie[a-z]*|mick[a-z]*|pikey[a-z]*|fenian[a-z]*|gypsy[a-z]*|eskimo[a-z]*|shylock[a-z]*|musselman[a-z]*|moslem[a-z]*|mosselman[a-z]*|gringo[a-z]*|porridge wog|white pride|slitt[a-z]* eye[a-z*|red indian[a-z]*|juden[a-z]*', m.getTrailing().lower()))
-
-  def countHomophobia(self,m):
-    return len(re.findall(r'fag[a-z]*|gaylord[a-z]*|fudgepack[a-z]*|fudge pack[a-z]*|tranny[a-z]*|queer[a-z]*|cocksucker[a-z]*|buttrammer[a-z]*|poof[a-z]*|womyn[a-z]*|sodomite[a-z]*|dyke[a-z]*|carpetmunch[a-z]*|carpet munch[a-z]*|butch lesb[a-z]*|frigid[a-z]*|muff diver[a-z]*', m.getTrailing().lower()))
+    def messageType(self):
+        return self.WANT_UNCLAIMED_MESSAGES
 
 #This should always return a new instance
 def getInstance():
-  return Stats()
+    return Stats()
