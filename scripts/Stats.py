@@ -26,7 +26,7 @@ WORD_RACISM = "racistCount"
 WORD_HOMOPHOBIA = "homoPhobiaCount"
 WORD_TYPES_RX = {
     WORD_CURSE: re.compile(
-        r'(fuck|cunt|shit|piss|fag|jizz|cock|tits|pussy|pendejo|mierd|bitch)'
+        r'(fuck|cunt|shit|piss|fag|jizz|cock|tits|pussy|pendejo|mierd|bitch|god\s*dam)'
     ),
 
     WORD_RACISM: re.compile(
@@ -34,35 +34,103 @@ WORD_TYPES_RX = {
     ),
 
     WORD_HOMOPHOBIA: re.compile(
-        r'(fag|gaylord|(that\'?s|so|how|be) gay|fudge ?pack|tranny|cock ?sucker|butt ?(ram|fuck)|sodomite|dyke|carpet ?munch|muff ?diver|cock ?sucker|homo\b|gaa+y|gayy+)'
+        r'(fag|gaylord|(that\'?s|so|how|be|more)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo\b|gaa+y|gayy+)'
     ),
-
 }
+
+# purity constants
+PURITY_SCORE = "purityScore"
+PURITY_BEST = "purityBest"
+PURITY_BEST_FAILED_MSG = "purityBestFailedMessage"
+PURITY_BEST_FAILED_SENDER = "purityBestFailedSender"
+PURITY_RECENT_FAILED_MSG = "purityRecentFailedMessage"
+PURITY_RECENT_FAILED_SENDER = "purityRecentFailedSender"
 
 class Stats(Module):
     def __init__(self):
         pass
 
     def updateStats(self, m):
-        stores = []
-        stores.append(self.getChanStore(m))
-        stores.append(self.getUserStore(m))
-
         msg = StringUtil.removeFormattingAndColors(m.getTrailing())
         word_count = len(msg.split())
         seen_types = dict()
+        pure = True
         for word_type, rx in WORD_TYPES_RX.items():
             if re.search(rx, msg):
+                pure = False
                 seen_types[word_type] = True
 
-        for store in stores:
+        chan_store = self.getChanStore(m)
+        user_store = self.getUserStore(m)
+        for store, is_channel in [(chan_store, True), (user_store, False)]:
+            if pure:
+                self.purity_update(m, store, is_channel)
+            else:
+                self.purity_fail(m, store, is_channel)
             self.incSave(store, LINE_COUNT)
             self.incSave(store, WORD_COUNT, word_count)
             for word_type, seen in seen_types.items():
                 self.incSave(store, word_type, 1)
 
-    # this should really be a method on the stores themselves, maybe it
-    # already is? TODO check
+    def purity_update(self, m, store, is_channel):
+        self.incSave(store, PURITY_SCORE)
+        score = store.get(PURITY_SCORE)
+
+        if is_channel:
+            msg = "%s: The channel has now reached %d lines of pure text.  I just couldn't be more proud."
+        else:
+            msg = "%s: Well done! You've spoken %d times without the least bit of hate."
+
+        if score in [50, 100, 150, 200, 250, 500, 1000]:
+            m.reply(msg % (m.sender, score))
+
+    def purity_fail(self, m, store, is_channel):
+        score = self.get_default(store, PURITY_SCORE, 0)
+        store.save(PURITY_SCORE, 0)
+        store.save(PURITY_RECENT_FAILED_MSG, m.getTrailing())
+        store.save(PURITY_RECENT_FAILED_SENDER, m.sender)
+
+        if is_channel:
+            msg = "%s: You've ruined it for everyone.  The channel had %d lines of pure discussion until you spouted off."
+        else:
+            msg = "%s: Shame on you for using that kind of language.  You were doing so well too, with %d lines of appropriate chat 'til now."
+
+        best = self.get_default(store, PURITY_BEST, 0)
+        if score > best:
+            store.save(PURITY_BEST, score)
+            store.save(PURITY_BEST_FAILED_MSG, m.getTrailing())
+            store.save(PURITY_BEST_FAILED_SENDER, m.sender)
+            msg += "  AND that was the best run ever, beating the previous best of %d.  What a disappointment." % best
+
+        if score < 50:
+            return
+
+        m.reply(msg % (m.sender, score))
+
+    def gen_purity_reply(self, sender, target, store):
+        score = self.get_default(store, PURITY_SCORE, 0)
+        best = self.get_default(store, PURITY_BEST, "")
+
+        reply = "%s: %s has a current purity score of %d, and " % (sender, target, score)
+        if best is "":
+            reply += "is as pure as the driven snow."
+        else:
+            reply += "a previous best of %d." % best
+
+        best_msg = self.get_default(store, PURITY_BEST_FAILED_MSG, "")
+        best_sender = self.get_default(store, PURITY_BEST_FAILED_SENDER, "")
+        if best_msg is not "":
+            reply += "  The previous best run failed when %s said: \"%s\"" % (
+                best_sender, best_msg)
+
+        recent_msg = self.get_default(store, PURITY_RECENT_FAILED_MSG, "")
+        recent_sender = self.get_default(store, PURITY_RECENT_FAILED_SENDER, "")
+        if recent_msg is not "" and recent_msg != best_msg:
+            reply += "  Most recently, %s was heard to say: \"%s\"" % (
+                recent_sender, recent_msg)
+        return reply
+
+    # TODO this should really be a method on the stores themselves
     def get_default(self, store, key, default):
         if store.has(key):
             return store.get(key)
@@ -139,6 +207,21 @@ class Stats(Module):
             else:
                 chanStore=self.getChanStore(m)
                 reply = self.generate_reply(m.sender, m.getChanname(),
+                    chanStore)
+                m.reply(reply)
+        elif m.modCommand=="purity":
+            parser = CommandParser(m)
+            if parser.hasVar("user"):
+                user = parser.get("user")
+                if self.hasUserStore(user):
+                    userStore = self.getUserStore(user)
+                    reply = self.gen_purity_reply(m.sender, user, userStore)
+                    m.reply(reply)
+                else:
+                    m.reply(m.sender+": I'm afraid I just don't know.")
+            else:
+                chanStore = self.getChanStore(m)
+                reply = self.gen_purity_reply(m.sender, m.getChanname(),
                     chanStore)
                 m.reply(reply)
         else:
