@@ -19,8 +19,11 @@ public class Pager {
 	
 	// Config-like stuff
 	//this is really bytes, not chars.
-	//slashdot varies max bytes of message based on content! plain ascii - 460 bytes. 
-	public static final int maxBytes = 456;
+	//slashdot varies max bytes of message based on content! plain ascii - 460 bytes.
+	//IRC max message size is 512 bytes including CR/LF and prefix, command etc. Goat messages are preceded by:
+	//"goat!goat@cloak-XXXXXXXX.edslocomb.com (r676) PRIVMSG #goat :" = 61 bytes off 512. 
+	//hardcode this for now - but one day, goat should work it out dynamically.
+	public static final int maxBytes = 445;
 	private String innerPre = "\u2026" ;
 	private String innerPost = "\u2026 [more]" ;
 	private int maxWalkback = 32;
