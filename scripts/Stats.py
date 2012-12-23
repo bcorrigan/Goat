@@ -24,18 +24,24 @@ WORD_COUNT = "wordCount"
 WORD_CURSE = "curseCount"
 WORD_RACISM = "racistCount"
 WORD_HOMOPHOBIA = "homoPhobiaCount"
+WORD_SEX = "sexCount"
 WORD_TYPES_RX = {
-    WORD_CURSE: re.compile(
+    WORD_CURSE: (True, re.compile(
         r'(fuck|cunt|shit|piss|fag|jizz|cock|tits|pussy|pendejo|mierd|bitch|god\s*dam)'
-    ),
+    )),
 
-    WORD_RACISM: re.compile(
+    WORD_RACISM: (True, re.compile(
         r'(kike|chink|nigger|spick?|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|jew|paddy|paddie|mick|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey)'
-    ),
+    )),
 
-    WORD_HOMOPHOBIA: re.compile(
+    WORD_HOMOPHOBIA: (True, re.compile(
         r'(fag|gaylord|(that\'?s|so|how|be|more)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo\b|gaa+y|gayy+)'
-    ),
+    )),
+    WORD_SEX: (False, re.compile(
+        # any sexual terms or even common euphemisms for sexual terms.  we
+        # expect and are okay with extremely loose matches here
+        r'(sex|fuck|cock|butt|puss|vag\b|vagina|cunt|slit|kitty|schlong|penis|balls|pecker|member|muff|glans|head|blow|suck|lick|swallow|spit|deep|throat|tight|loose|hard|soft|tit|breast|nipple|knocker|cup|double\s*d|porn|virgin|chaste|pure|impure|bondage|discipline|sado|sadism|masochis|punish|spank|tie|69|plow|rape|ream|bugger|ride|missionary|dog[a-z]*\s*style|cowgirl|wheelbarrow|sodom|anal|erotic|gay|lesb|insert|slam|complet|fetish|fan\s*fic|fantasy|libid|pound|master|slave|subjugat|penetrat)'
+    ))
 }
 
 # purity constants
@@ -45,19 +51,21 @@ PURITY_BEST_FAILED_MSG = "purityBestFailedMessage"
 PURITY_BEST_FAILED_SENDER = "purityBestFailedSender"
 PURITY_RECENT_FAILED_MSG = "purityRecentFailedMessage"
 PURITY_RECENT_FAILED_SENDER = "purityRecentFailedSender"
+PURITY_IMPURE_COUNT = "purityImpureCount"
 
 class Stats(Module):
     def __init__(self):
         pass
 
     def updateStats(self, m):
-        msg = StringUtil.removeFormattingAndColors(m.getTrailing())
+        msg = StringUtil.removeFormattingAndColors(m.getTrailing()).lower()
         word_count = len(msg.split())
         seen_types = dict()
         pure = True
-        for word_type, rx in WORD_TYPES_RX.items():
+        for word_type, (impure, rx) in WORD_TYPES_RX.items():
             if re.search(rx, msg):
-                pure = False
+                if impure:
+                    pure = False
                 seen_types[word_type] = True
 
         chan_store = self.getChanStore(m)
@@ -85,6 +93,7 @@ class Stats(Module):
             m.reply(msg % (m.sender, score))
 
     def purity_fail(self, m, store, is_channel):
+        score = self.incSave(store, PURITY_IMPURE_COUNT, 1)
         score = self.get_default(store, PURITY_SCORE, 0)
         store.save(PURITY_SCORE, 0)
         store.save(PURITY_RECENT_FAILED_MSG, m.getTrailing())
@@ -110,12 +119,14 @@ class Stats(Module):
     def gen_purity_reply(self, sender, target, store):
         score = self.get_default(store, PURITY_SCORE, 0)
         best = self.get_default(store, PURITY_BEST, "")
+        impure_count = self.get_default(store, PURITY_IMPURE_COUNT, 0)
+        line_count = self.get_default(store, LINE_COUNT, 0)
 
-        reply = "%s: %s has a current purity score of %d, and " % (sender, target, score)
+        reply = "%s: %s has a current purity score of %d, " % (sender, target, score)
         if best is "":
-            reply += "is as pure as the driven snow."
+            reply += "and is as pure as the driven snow."
         else:
-            reply += "a previous best of %d." % best
+            reply += "has a previous best of %d and is impure %.1f%% of the time" % (best, 100 * impure_count / float(line_count))
 
         best_msg = self.get_default(store, PURITY_BEST_FAILED_MSG, "")
         best_sender = self.get_default(store, PURITY_BEST_FAILED_SENDER, "")
