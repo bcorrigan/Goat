@@ -21,26 +21,26 @@ import re
 LINE_COUNT = "lineCount"
 WORD_COUNT = "wordCount"
 
-WORD_CURSE = "curseCount"
-WORD_RACISM = "racistCount"
-WORD_HOMOPHOBIA = "homoPhobiaCount"
-WORD_SEX = "sexCount"
+CURSE_COUNT = "curseCount"
+RACISM_COUNT = "racistCount"
+HOMOPHOBIA_COUNT = "homoPhobiaCount"
+SEX_COUNT = "sexCount"
 WORD_TYPES_RX = {
-    WORD_CURSE: (True, re.compile(
+    CURSE_COUNT: (True, re.compile(
         r'(fuck|cunt|shit|piss|fag|jizz|cock|tits|pussy|pendejo|mierd|bitch|god\s*dam)'
     )),
 
-    WORD_RACISM: (True, re.compile(
-        r'(kike|chink|nigger|spick?|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|jew|paddy|paddie|mick|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey)'
+    RACISM_COUNT: (True, re.compile(
+        r'(kike|chink|nigger|spick?|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|paddy|paddie|mick|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey)'
     )),
 
-    WORD_HOMOPHOBIA: (True, re.compile(
+    HOMOPHOBIA_COUNT: (True, re.compile(
         r'(fag|gaylord|(that\'?s|so|how|be|more)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo\b|gaa+y|gayy+)'
     )),
-    WORD_SEX: (False, re.compile(
+    SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
-        # expect and are okay with extremely loose matches here
-        r'(sex|fuck|cock|butt|puss|vag\b|vagina|cunt|slit|kitty|schlong|penis|balls|pecker|member|muff|glans|head|blow|suck|lick|swallow|spit|deep|throat|tight|loose|hard|soft|tit|breast|nipple|knocker|cup|double\s*d|porn|virgin|chaste|pure|impure|bondage|discipline|sado|sadism|masochis|punish|spank|tie|69|plow|rape|ream|bugger|ride|missionary|dog[a-z]*\s*style|cowgirl|wheelbarrow|sodom|anal|erotic|gay|lesb|insert|slam|complet|fetish|fan\s*fic|fantasy|libid|pound|master|slave|subjugat|penetrat)'
+        # expect and want extremely loose matches here
+        r'(sex|fuck|cock|butt|puss|vag\b|vagina|cunt|slit|kitty|schlong|penis|ball|pecker|member|muff|glans|head|blow|suck|lick|swallow|spit|deep|throat|tight|loose|hard|soft|tit|breast|nip|knocker|cup|double\s*d|porn|virgin|chaste|pure|impure|bondage|discipline|sado|sadism|masochis|punish|spank|tie|69|plow|rape|ream|bugger|ride|missionary|dog[a-z]*\s*style|cowgirl|wheelbarrow|sodom|anal|erotic|gay|lesb|insert|slam|complet|fetish|fan\s*fic|fantasy|libid|pound|master|slave|subjugat|penetrat|thrust|use|cum|jiz|jism|semen|ejac|jack|get\s*(off|some)|enter|moan|scream|orgasm|deflower|ravage|ravish|violate|defile|maiden|celibate|vestal|foreplay|caress|cuddl|pet|kiss|love\s*mak|make\s*love|mak[a-z]*\s*out|oral|manhood|womanhood|fornicat|coitus|copulat|intima|relation|sleep[a-z]*\s*(around|with)|screw|carnal|nooky|intercourse|coupling|consumm|mate|mating|shove\s*it|up\s*your|mom|mother|dad|father|oedip|pa?edo|epheb|furr(y|ies)|yiff|ass|boot(y|ie)|junk|camel\s*toe|yoga\s*pants|skirt|pant(y|ies)|\bbra\b|lingerie|negligee|condom|birth\s*control|the\s*pill|depo|estrogen|testosterone|yaz|facial|creampie|double\s*pen|teen|fap|beast.*two\s*backs|strap-?\s*on|dildo|finger|reproduc|cunnilingus|std|hiv|aids|incest|minors|prostitut|whore|pimp|slut|bestiality|pregna|pleasure|gonorrhea|clap|chlamydia|syphilis|\bhep\b|hepatitis|herpes|hpv|crab|anilingus|toss[a-z]*\s*salad|vulva|trib|labia|masturbat|scissor|frot|dagger|hump|scrump|grind|rub|job|phallus|phallic|venus|philia|dental\s*dam|latex|silicon|implant|enlarge|engorge|fla|flacid|turgid|passion|torrid|affair|extramarital|sultra|ardent|spurt|spray|shoot|throb|nut|huevo|fertil|egg|cervix|uter(us|ine)|fallopian|ovar(y|ies))'
     ))
 }
 
@@ -116,15 +116,25 @@ class Stats(Module):
 
         m.reply(msg % (m.sender, score))
 
-    def gen_purity_reply(self, sender, target, store):
+    def gen_sex_reply(self, target, store):
+        sex_count = self.get_default(store, SEX_COUNT, 0)
+        line_count = self.get_default(store, LINE_COUNT, 0)
+        if line_count == 0:
+            reply = "I haven't the slightest."
+        else:
+            reply = "%s has sex on the mind about %.1f%% of the time" % (
+                target, 100 * sex_count / float(line_count))
+        return reply
+
+    def gen_purity_reply(self, target, store):
         score = self.get_default(store, PURITY_SCORE, 0)
         best = self.get_default(store, PURITY_BEST, "")
         impure_count = self.get_default(store, PURITY_IMPURE_COUNT, 0)
         line_count = self.get_default(store, LINE_COUNT, 0)
 
-        reply = "%s: %s has a current purity score of %d, " % (sender, target, score)
+        reply = "%s has a current purity score of %d, " % (target, score)
         if best is "":
-            reply += "and is as pure as the driven snow."
+            reply += "and has never had an impure thought."
         else:
             reply += "has a previous best of %d and is impure %.1f%% of the time" % (best, 100 * impure_count / float(line_count))
 
@@ -158,9 +168,8 @@ class Stats(Module):
         else:
             store.save(propName,inc)
 
-
     def generate_stat_text(self, store, stat, source, verb, pure):
-        """used by generate_reply to generate a sentence about a particular
+        """used by gen_stat_reply to generate a sentence about a particular
         stat."""
 
         stat_count = self.get_default(store, stat, 0)
@@ -173,31 +182,31 @@ class Stats(Module):
             reply += " %s." % pure
         return reply
 
-    def generate_reply(self, asker, source, store, channel=False):
+    def gen_stats_reply(self, target, store, channel=False):
         lines_seen = self.get_default(store, LINE_COUNT, 0)
         word_count = self.get_default(store, WORD_COUNT, 0)
         if lines_seen == 0:
             return "uhhh... what?"
 
         verb = channel and "seen" or "written"
-        reply = "%s: %s has %s %d lines" % (asker, source, verb, lines_seen)
+        reply = "%s has %s %d lines" % (target, verb, lines_seen)
         reply += " with an average of %.2f words per line." % (
             word_count / float(lines_seen))
 
         if channel:
-            reply += self.generate_stat_text(store, WORD_CURSE, source,
+            reply += self.generate_stat_text(store, CURSE_COUNT, target,
                 "seen curses", "needs to get out more")
-            reply += self.generate_stat_text(store, WORD_RACISM, source,
+            reply += self.generate_stat_text(store, RACISM_COUNT, target,
                 "seen race hatred", "is colour blind")
-            reply += self.generate_stat_text(store, WORD_HOMOPHOBIA, source,
+            reply += self.generate_stat_text(store, HOMOPHOBIA_COUNT, target,
                 "seen ugly homophobic incidents",
                 "is as gay friendly as Dan Savage")
         else:
-            reply += self.generate_stat_text(store, WORD_CURSE, source,
+            reply += self.generate_stat_text(store, CURSE_COUNT, target,
                 "cursed",  "is clean of mouth")
-            reply += self.generate_stat_text(store, WORD_RACISM, source,
+            reply += self.generate_stat_text(store, RACISM_COUNT, target,
                 "indulged in race hatred", "is colour blind")
-            reply += self.generate_stat_text(store, WORD_HOMOPHOBIA, source,
+            reply += self.generate_stat_text(store, HOMOPHOBIA_COUNT, target,
                 "been in ugly homophobic incidents",
                 "is as gay friendly as Dan Savage")
         return reply
@@ -205,36 +214,24 @@ class Stats(Module):
     # methods past this point are for implementing parts of the goat module
     # API
     def processChannelMessage(self, m):
-        if m.modCommand=="stats":
-            parser = CommandParser(m)
-            if parser.hasVar("user"):
-                user=parser.get("user")
-                if self.hasUserStore(user):
-                    userStore=self.getUserStore(user)
-                    reply = self.generate_reply(m.sender, user, userStore)
-                    m.reply(reply)
-                else:
-                    m.reply(m.sender+": I have never seen that person.")
-            else:
-                chanStore=self.getChanStore(m)
-                reply = self.generate_reply(m.sender, m.getChanname(),
-                    chanStore)
-                m.reply(reply)
-        elif m.modCommand=="purity":
+        commands = {
+            "stats": self.gen_stats_reply,
+            "purity": self.gen_purity_reply,
+            "sexstats": self.gen_sex_reply,
+        }
+
+        if m.modCommand in commands:
+            reply = "I'm afraid I just don't know."
             parser = CommandParser(m)
             if parser.hasVar("user"):
                 user = parser.get("user")
                 if self.hasUserStore(user):
-                    userStore = self.getUserStore(user)
-                    reply = self.gen_purity_reply(m.sender, user, userStore)
-                    m.reply(reply)
-                else:
-                    m.reply(m.sender+": I'm afraid I just don't know.")
+                    user_store = self.getUserStore(user)
+                    reply = commands[m.modCommand](user, user_store)
             else:
-                chanStore = self.getChanStore(m)
-                reply = self.gen_purity_reply(m.sender, m.getChanname(),
-                    chanStore)
-                m.reply(reply)
+                chan_store = self.getChanStore(m)
+                reply = commands[m.modCommand](m.getChanname(), chan_store)
+            m.reply("%s: %s" % (m.sender, reply))
         else:
             self.updateStats(m)
 
