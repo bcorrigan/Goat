@@ -89,7 +89,7 @@ class Stats(Module):
         else:
             msg = "%s: Well done! You've spoken %d times without the least bit of hate."
 
-        if score in [50, 100, 150, 200, 250, 500, 1000]:
+        if score in [100, 200, 400, 800]:
             m.reply(msg % (m.sender, score))
 
     def purity_fail(self, m, store, is_channel):
