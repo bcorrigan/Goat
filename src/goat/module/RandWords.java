@@ -7,6 +7,7 @@ import goat.util.CommandParser;
 import static goat.core.Constants.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -109,7 +110,37 @@ public class RandWords extends Module {
             }
             m.reply(reply) ;
         } else if (m.getModCommand().equalsIgnoreCase("emoji")) {
-            m.reply(randEmojiWithName());
+            String numString = "";
+            CommandParser parser = new CommandParser(m) ;
+            if (parser.hasVar("num"))
+                numString = parser.get("num") ;
+            else if (parser.remaining().matches("^\\d+$"))
+                numString = parser.remaining() ;
+            if (! numString.equals(""))
+                try {
+                    num = Integer.parseInt(numString) ;
+                } catch (NumberFormatException e) {
+                    m.reply("Don't fuck with me, tough guy.") ;
+                    return ;
+                }
+            if (num > 10000) {
+                m.reply("No.") ;
+                return ;
+            } else if (num < 1) {
+                m.reply("er...") ;
+                return ;
+            } else if (num == 1) {
+                m.reply(randEmojiWithName());
+            } else {
+                if (num > emoji.size())
+                    num = emoji.size();
+                ArrayList<Integer> tmp = new ArrayList<Integer>(emoji);
+                Collections.shuffle(tmp);
+                String ret = "";
+                for (int i = 0; i < num; i++)
+                    ret += new String(Character.toChars(tmp.get(i))) + " ";
+                m.reply(ret) ;
+            }
         } else if (m.getModCommand().equalsIgnoreCase("goatji")) {
             m.reply(new String(Character.toChars(128016)));
         } else if (m.getModCommand().equalsIgnoreCase("brofist")) {
