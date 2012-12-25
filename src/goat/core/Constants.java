@@ -2,9 +2,9 @@ package goat.core;
 
 public class Constants {
 
-	
+
 	// Formatting
-	
+
 	/**
 	 * Bold text.
 	 */
@@ -21,9 +21,9 @@ public class Constants {
 	 * Reversed text (may be rendered as italic text in some clients).
 	 */
 	public static final String REVERSE = "\u0016";
-	
+
 	// Colors
-	
+
 	/**
 	 * A colour code, provided for doing bg colours and stuff
 	 */
@@ -92,10 +92,15 @@ public class Constants {
 	 * Teal coloured text.
 	 */
 	public static final String TEAL = "\u000310";
-	
+
+
+        // Emoji.
+
+        public static final String GOATJI = new String(Character.toChars(128016));
+
+
 	// Error Replies.
-	
-	
+
 	public static final int ERR_NOSUCHNICK = 401;
 	public static final int ERR_NOSUCHSERVER = 402;
 	public static final int ERR_NOSUCHCHANNEL = 403;
@@ -221,9 +226,9 @@ public class Constants {
 	public static final int RPL_USERS = 393;
 	public static final int RPL_ENDOFUSERS = 394;
 	public static final int RPL_NOUSERS = 395;
-	
+
 	// Reserved Numerics.
-	
+
 	public static final int RPL_TRACECLASS = 209;
 	public static final int RPL_STATSQLINE = 217;
 	public static final int RPL_SERVICEINFO = 231;
