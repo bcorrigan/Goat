@@ -1,0 +1,17 @@
+;; This config was generated using ensime-config-gen. Feel free to customize its contents manually.
+
+(
+
+:project-name "goat"
+
+:project-package "goat"
+
+:sources ("./src/")
+
+;; you'll need to set this to your local SCALA_HOME/lib, as
+;;   ensime-lisp seems incapable of combining concat and getenv
+:compile-jars ("./lib/" "/usr/local/Cellar/scala/2.9.2/libexec/lib/")
+
+:target "./classes"
+
+)

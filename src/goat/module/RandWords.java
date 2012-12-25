@@ -142,7 +142,7 @@ public class RandWords extends Module {
                 m.reply(ret) ;
             }
         } else if (m.getModCommand().equalsIgnoreCase("goatji")) {
-            m.reply(new String(Character.toChars(128016)));
+            m.reply(GOATJI);
         } else if (m.getModCommand().equalsIgnoreCase("brofist")) {
             m.reply(new String(Character.toChars(128074)));
         } else if (m.getModCommand().equalsIgnoreCase("slowclap")) {

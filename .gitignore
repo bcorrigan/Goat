@@ -16,7 +16,11 @@ resources/confessions/
 resources/reminders
 resources/adventureData/saves
 resources/scores/
+resources/goatdb.*
 lib/cachedir/
+
+# no idea why ensime poops this out
+.ensime_lucene/
 
 # thanks a lot, slashnet...
 config/passwords.properties-before-slashnet-fuckup

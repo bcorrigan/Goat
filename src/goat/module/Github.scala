@@ -51,7 +51,7 @@ class Github extends Module {
 
   def formatCommit(rc: RepositoryCommit): String =
     rc.getCommit().getCommitter().getDate() + ", " +
-    rc.getCommit.getCommitter().getName() +
+    rc.getCommit.getCommitter().getName() + " - " +
     rc.getCommit().getMessage()
 
   def issueReport = "goat!"
