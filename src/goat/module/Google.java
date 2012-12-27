@@ -18,10 +18,12 @@ import java.util.HashMap;
 import java.util.Random;
 
 import goat.core.Constants;
-import goat.core.Message ;
+import goat.core.Message;
 import goat.core.Module ;
 import goat.util.HTMLUtil;
 import goat.util.StringUtil;
+import goat.util.CommandParser;
+
 import goojax.*;
 import goojax.search.SearchResponse;
 import goojax.search.SearchResult;
@@ -34,9 +36,9 @@ import goojax.search.web.WebSearcher;
 
 /**
  * Module to ask google about stuff.
- * 
+ *
  * This module is over 1000 lines long now, that's probably too much.
- * 
+ *
  * @author encontrado
  *         Created on 27-Feb-2006
  */
@@ -59,21 +61,21 @@ public class Google extends Module {
 
 	public String[] getCommands() {
 		return new String[]{
-				"google", "goatle", 
-				"googlefight", 
+				"google", "goatle",
+				"googlefight",
 				//		"pornometer", "pronometer", "pr0nometer",
-				"sexiness", 
-				"gis", 
-				"yis", 
-				"wikipedia", 
-				"youtube", 
+				"sexiness",
+				"gis",
+				"yis",
+				"wikipedia",
+				"youtube",
 				"imdb",
-				"gayness", 
-				"flickr", 
-				"gnews", "googlenews", 
-				"newslink", "nlink", 
+				"gayness",
+				"flickr",
+				"gnews", "googlenews",
+				"newslink", "nlink",
 				"translate",
-				"detectlanguage", "languagedetect", "detectlang", "langdetect", 
+				"detectlanguage", "languagedetect", "detectlang", "langdetect",
 				"languages",
 				"googlebooks", "booksgoogle", "bookgoogle", "booksearch",
 				"booklink",
@@ -93,30 +95,30 @@ public class Google extends Module {
 		//System.out.println("PROCESSING:  " + m.modCommand) ;
 		String command = StringUtil.removeFormattingAndColors(m.getModCommand()) ;
 		try {
-			if ("google".equalsIgnoreCase(command) || 
+			if ("google".equalsIgnoreCase(command) ||
 					"goatle".equalsIgnoreCase(command)) {
 				ircGoogle(m) ;
-			} else if ("gnews".equalsIgnoreCase(command) || 
+			} else if ("gnews".equalsIgnoreCase(command) ||
 					"googlenews".equalsIgnoreCase(command)) {
 				ircGoogleNews(m);
-			} else if ("nlink".equalsIgnoreCase(command) || 
+			} else if ("nlink".equalsIgnoreCase(command) ||
 					"newslink".equalsIgnoreCase(command)) {
 				ircNewsLink(m);
-			} else if ("googlebooks".equalsIgnoreCase(command) || 
+			} else if ("googlebooks".equalsIgnoreCase(command) ||
 					"bookgoogle".equalsIgnoreCase(command) ||
 					"booksgoogle".equalsIgnoreCase(command) ||
 					"booksearch".equalsIgnoreCase(command)) {
 				ircGoogleBooks(m);
 			} else if ("booklink".equalsIgnoreCase(command)) {
 				ircBookLink(m);
-			} else if ("googlepatents".equalsIgnoreCase(command) || 
+			} else if ("googlepatents".equalsIgnoreCase(command) ||
 					"patentgoogle".equalsIgnoreCase(command) ||
 					"patentsearch".equalsIgnoreCase(command)) {
 				ircGooglePatents(m);
 			} else if ("patentlink".equalsIgnoreCase(command)
 					|| "plink".equalsIgnoreCase(command)) {
 				ircPatentLink(m);
-			} else if ("googleblogs".equalsIgnoreCase(command) || 
+			} else if ("googleblogs".equalsIgnoreCase(command) ||
 					"bloggoogle".equalsIgnoreCase(command) ||
 					"blogsearch".equalsIgnoreCase(command)) {
 				ircGoogleBlogs(m);
@@ -144,7 +146,11 @@ public class Google extends Module {
 			} else if ("gayness".equalsIgnoreCase(command)) {
 				ircGayness(m) ;
 			} else if ("gis".equalsIgnoreCase(command)) {
-				m.reply(imageGoogleUrl(m.getModTrailing())) ;
+			    CommandParser cp = new CommandParser(m);
+			    if (cp.hasVar("provider") && cp.get("provider").equalsIgnoreCase("my mommy"))
+				m.reply(imageGoogleUrl(cp.remaining()));
+			    else
+				m.reply(imageBingUrl(cp.remaining()));
 			} else if ("yis".equalsIgnoreCase(command)) {
 				m.reply(imageYahooUrl(m.getModTrailing())) ;
 			} else if ("wikipedia".equalsIgnoreCase(command)) {
@@ -169,7 +175,7 @@ public class Google extends Module {
 		}
 	}
 
-	private void ircGoogleIncludeWikipedia (Message m, String query) 
+	private void ircGoogleIncludeWikipedia (Message m, String query)
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		m.reply(luckyString(StringUtil.removeFormattingAndColors(query))) ;
 	}
@@ -184,10 +190,10 @@ public class Google extends Module {
 	}
 
 	private String lastCachedResultType = null;
-	private HashMap<String,NewsSearchResponse> newsResponseCache = new HashMap<String,NewsSearchResponse>(); 
+	private HashMap<String,NewsSearchResponse> newsResponseCache = new HashMap<String,NewsSearchResponse>();
 	private boolean newsLinkMode = false;
-	
-	private void ircGoogleNews(Message m) 
+
+	private void ircGoogleNews(Message m)
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		//for em
 		String mTrail = StringUtil.removeFormattingAndColors(m.getModTrailing()).toLowerCase().replaceAll("\\s+", " ").trim();
@@ -203,7 +209,7 @@ public class Google extends Module {
 			} else if(mTrail.equals("m-x news-link-mode")) {
 				newsLinkMode = !newsLinkMode;
 				r = "News-link mode ";
-				if(newsLinkMode) 
+				if(newsLinkMode)
 					r += "en";
 				else
 					r += "dis";
@@ -276,7 +282,7 @@ public class Google extends Module {
 		lastCachedResultType = "news";
 		m.pagedReply(reply);
 	}
-	
+
 	private String newsLinkReply(String modTrailing, String channel) {
 		if (! newsResponseCache.containsKey(channel)) {
 			return "I'm sorry, I don't have any news for this channel.";
@@ -285,7 +291,7 @@ public class Google extends Module {
 		if (null == nsr) {
 			return "something has gone horribly wrong; my news for this channel seems to be null.";
 		}
-		
+
 		int resultNum = 0;
 		try {
 			String mTrail = StringUtil.removeFormattingAndColors(modTrailing).trim();
@@ -294,9 +300,9 @@ public class Google extends Module {
 		} catch (NumberFormatException nfe) {
 			return "There's no need to be like that, qpt.";
 		}
-		
+
 		String reply = "";
-		if(resultNum > nsr.getResponseData().getResults().length) {	
+		if(resultNum > nsr.getResponseData().getResults().length) {
 			reply = "I don't have that many results :(";
 		} else if(resultNum < 0) {
 			reply = "Oh, come on.";
@@ -336,7 +342,7 @@ public class Google extends Module {
 //		} catch (NumberFormatException nfe) {
 //			m.reply("There's no need to be like that, qpt.");
 //		}
-//		if(resultNum > nsr.getResponseData().getResults().length) {	
+//		if(resultNum > nsr.getResponseData().getResults().length) {
 //			m.reply("I don't have that many results :(");
 //			return;
 //		} else if(resultNum < 0) {
@@ -358,9 +364,9 @@ public class Google extends Module {
 //		}
 	}
 
-	private HashMap<String,BookSearchResponse> booksResponseCache = new HashMap<String,BookSearchResponse>(); 
+	private HashMap<String,BookSearchResponse> booksResponseCache = new HashMap<String,BookSearchResponse>();
 
-	private void ircGoogleBooks(Message m) 
+	private void ircGoogleBooks(Message m)
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
@@ -429,7 +435,7 @@ public class Google extends Module {
 		} catch (NumberFormatException nfe) {
 			m.reply("There's no need to be like that, qpt.");
 		}
-		if(resultNum > bsr.getResponseData().getResults().length) {	
+		if(resultNum > bsr.getResponseData().getResults().length) {
 			m.reply("I don't have that many results :(");
 			return;
 		} else if(resultNum < 0) {
@@ -440,14 +446,14 @@ public class Google extends Module {
 			String reply = re.getUnescapedUrl()
 			+ "  " + Constants.UNDERLINE + re.getTitleNoFormatting() + Constants.NORMAL
 			+ ", " + re.getPublishedYear()
-			+ ",  " + re.getAuthors(); 				
+			+ ",  " + re.getAuthors();
 			m.pagedReply(reply);
 		}
 	}
 
-	private HashMap<String,PatentSearchResponse> patentsResponseCache = new HashMap<String,PatentSearchResponse>(); 
+	private HashMap<String,PatentSearchResponse> patentsResponseCache = new HashMap<String,PatentSearchResponse>();
 
-	private void ircGooglePatents(Message m) 
+	private void ircGooglePatents(Message m)
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
@@ -509,7 +515,7 @@ public class Google extends Module {
 		} catch (NumberFormatException nfe) {
 			m.reply("There's no need to be like that, qpt.");
 		}
-		if(resultNum > psr.getResponseData().getResults().length) {	
+		if(resultNum > psr.getResponseData().getResults().length) {
 			m.reply("I don't have that many results :(");
 			return;
 		} else if(resultNum < 0) {
@@ -523,9 +529,9 @@ public class Google extends Module {
 		}
 	}
 
-	private HashMap<String,BlogSearchResponse> blogsResponseCache = new HashMap<String,BlogSearchResponse>(); 
+	private HashMap<String,BlogSearchResponse> blogsResponseCache = new HashMap<String,BlogSearchResponse>();
 
-	private void ircGoogleBlogs(Message m) 
+	private void ircGoogleBlogs(Message m)
 	throws IOException, SocketTimeoutException, MalformedURLException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
 		if(query.matches("^\\s*$")) {
@@ -599,7 +605,7 @@ public class Google extends Module {
 		} catch (NumberFormatException nfe) {
 			m.reply("There's no need to be like that, qpt.");
 		}
-		if(resultNum > bsr.getResponseData().getResults().length) {	
+		if(resultNum > bsr.getResponseData().getResults().length) {
 			m.reply("I don't have that many results :(");
 			return;
 		} else if(resultNum < 0) {
@@ -649,7 +655,7 @@ public class Google extends Module {
 
 	private void ircTranslate(Message m) throws MalformedURLException, SocketTimeoutException, IOException {
 		String text = StringUtil.removeFormattingAndColors(m.getModTrailing());
-		GooJAXFetcher.Language toLanguage = DEFAULT_GOAT_LANGUAGE; 
+		GooJAXFetcher.Language toLanguage = DEFAULT_GOAT_LANGUAGE;
 		GooJAXFetcher.Language fromLanguage = null;
 
 		int toFrom = 0;
@@ -734,7 +740,7 @@ public class Google extends Module {
 			m.reply("I'm not going to translate that into the language it's already in.  Jerk.");
 		else if (fromLanguage == null)
 			m.reply("(from " + trs.getDetectedSourceLanguage().getEnglishName() + ")   " + trs.getTranslatedText());
-		else 
+		else
 			m.reply(trs.getTranslatedText());
 	}
 
@@ -747,20 +753,20 @@ public class Google extends Module {
 		try {
 			DetectLanguageResponse dls = tranny.detect(m.getModTrailing());
 			if(! dls.statusNormal()) {
-				m.pagedReply("I had a problem talking to Google:  " 
-						+ dls.getResponseStatus() + ", " 
+				m.pagedReply("I had a problem talking to Google:  "
+						+ dls.getResponseStatus() + ", "
 						+ dls.getResponseDetails());
 				return;
 			}
 			if(dls.getResponseData().isReliable())
-				m.reply("I think that's " + Constants.BOLD 
+				m.reply("I think that's " + Constants.BOLD
 						+ dls.getResponseData().getLanguage().getEnglishName() + Constants.NORMAL
-						+ ", with a confidence of " 
+						+ ", with a confidence of "
 						+ dls.getResponseData().getConfidence());
 			else if(dls.getResponseData().getLanguage() != null)
-				m.reply("That might be " + Constants.BOLD 
+				m.reply("That might be " + Constants.BOLD
 						+ dls.getResponseData().getLanguage().getEnglishName() + Constants.NORMAL
-						+ ", but I'm not sure, my confidence is only " 
+						+ ", but I'm not sure, my confidence is only "
 						+ dls.getResponseData().getConfidence());
 			else
 				m.reply("I have no idea what kind of gibber-jabber that might be.");
@@ -777,18 +783,18 @@ public class Google extends Module {
 	private void ircLanguages(Message m) {
 		String msg = "I am fluent in:  ";
 		for(int i=0; i < GooJAXFetcher.Language.values().length; i++)
-			if(GooJAXFetcher.Language.values()[i].isTranslateable()) 
-				msg += GooJAXFetcher.Language.values()[i].getEnglishName() + 
+			if(GooJAXFetcher.Language.values()[i].isTranslateable())
+				msg += GooJAXFetcher.Language.values()[i].getEnglishName() +
 				" (" + GooJAXFetcher.Language.values()[i].getCode() + "), ";
 		msg = msg.substring(0, msg.lastIndexOf(","));
 		String tmp = msg.substring(msg.lastIndexOf(",") + 1);
 		msg = msg.substring(0, msg.lastIndexOf(","));
 		msg += " and" + tmp + ".";
-		//GooJAXmsg += "and " + lastLang.getEnglishName() + " (" + lastLang.getCode() + ")"; 
+		//GooJAXmsg += "and " + lastLang.getEnglishName() + " (" + lastLang.getCode() + ")";
 		m.pagedReply(msg);
 	}
 
-	private void ircSexiness (Message m) 
+	private void ircSexiness (Message m)
 	throws SocketTimeoutException, MalformedURLException, IOException {
 		String query = quoteAndClean(m.getModTrailing()) ;
 		int sexyPercentage = Math.round((float) 100 * sexiness(query)) ;
@@ -799,7 +805,7 @@ public class Google extends Module {
 		}
 	}
 
-	private void ircGayness (Message m) 
+	private void ircGayness (Message m)
 	throws SocketTimeoutException, MalformedURLException, IOException {
 		String query = quoteAndClean(m.getModTrailing()) ;
 		int sexyPercentage = Math.round((float) 100 * gayness(query)) ;
@@ -811,7 +817,7 @@ public class Google extends Module {
 	}
 
 	/*
-	private void ircPornometer(Message m) 
+	private void ircPornometer(Message m)
 		throws GoogleSearchFault {
 		String query = quoteAndClean(m.modTrailing) ;
 		if (query.matches("^[\\\"\\s]*$")) {
@@ -847,7 +853,7 @@ public class Google extends Module {
 	 */
 
 	/**
-	 * 
+	 *
 	 */
 	private void ircGoogleFight (Message m)
 	throws SocketTimeoutException, MalformedURLException, IOException {
@@ -856,7 +862,7 @@ public class Google extends Module {
 			m.reply("Usage:  \"googlefight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"") ;
 			return ;
 		}
-		for (int i = 0 ; i < contestants.length ; i++) 
+		for (int i = 0 ; i < contestants.length ; i++)
 			contestants[i] = contestants[i].trim() ;
 		int [] scores = getResultCounts(contestants) ;
 		int [] winners = getWinners(scores) ;
@@ -897,26 +903,28 @@ public class Google extends Module {
 		return s ;
 	}
 
-	public String imageGoogleUrl(String s) {
+	public String imageBingUrl(String s) {
+		s = StringUtil.removeFormattingAndColors(s) ;
 		try {
 			return "http://www.bing.com/images/search?adlt=off&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		/*
-		s = Message.removeFormattingAndColors(s) ;
-		URL u;
+		return "";
+	}
+
+        public String imageGoogleUrl(String s) {
+		s = StringUtil.removeFormattingAndColors(s) ;
 		try {
-			u = new URL("http://images.google.com/images?safe=off&q=" + s) ;
-			return u.toString();
-		} catch(MalformedURLException e) {
+		        return "http://images.google.com/images?safe=off&q=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
+		} catch(UnsupportedEncodingException e) {
 			e.printStackTrace() ;
 		}
-		 */
 		return "";
 	}
 
 	public String imageYahooUrl(String s) {
+		s = StringUtil.removeFormattingAndColors(s) ;
 		try {
 			return "http://images.search.yahoo.com/search/images?&p=" + URLEncoder.encode(s.trim(), encoding) + " " + Constants.BOLD + " "  ;
 		} catch (UnsupportedEncodingException e) {
@@ -990,7 +998,7 @@ public class Google extends Module {
 	 */
 	public int [] getWinners(int [] scores) {
 		int[] indices = new int[scores.length] ;
-		if (indices.length == 0) 
+		if (indices.length == 0)
 			return indices ;
 		indices[0] = 0 ;
 		int lastIndex = -1 ;
@@ -1104,7 +1112,7 @@ public class Google extends Module {
 
 	/*
 	 * main() replaced with junit class in src/goat/test
-	 * 
+	 *
 	public static void main(String[] args) {
 		Google g = new Google() ;
 		try {
@@ -1118,4 +1126,3 @@ public class Google extends Module {
 	}
 	 */
 }
-
