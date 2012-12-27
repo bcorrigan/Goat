@@ -35,7 +35,7 @@ WORD_TYPES_RX = {
     )),
 
     HOMOPHOBIA_COUNT: (True, re.compile(
-        r'(fag|gaylord|(that\'?s|so|how|be|more)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo\b|gaa+y|gayy+)'
+        r'(fag|gaylord|(that\'?s|so|how)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo\b|gaa+y|gayy+)'
     )),
     SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
