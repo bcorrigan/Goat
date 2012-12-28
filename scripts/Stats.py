@@ -169,7 +169,7 @@ class Stats(Module):
             line_count = user_line[user]
             # TODO make the threshold adjustable to exclude the 20% least
             # talkative users.
-            if line_count < 1: # up to a minimum threshold.
+            if line_count < 50: # up to a minimum threshold.
                 continue
             impure_count = user_impure[user] or 0
             pure_ratio = (line_count - impure_count) / float(line_count) * 100
