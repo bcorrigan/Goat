@@ -2,6 +2,8 @@ package goat.core;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Map;
@@ -134,6 +136,32 @@ public class KVStore<T> implements Map<String, T> {
 		return new KVStore<T>("user.");
 	}
 	
+	//should return a list of all known user names
+	public static Set<String> getAllUsers() {
+		Map<String,Object> allUsers = getAllUsersStore();
+		Set<String> users = new HashSet<String>();
+		for(String prop : allUsers.keySet()) {
+			//always user.something.. so:
+			String user = prop.replaceFirst("user\\.", "").replaceFirst("\\..*", "");
+			users.add(user);
+		}
+		
+		return users;
+	}
+	
+	//for supplied property, should return a map of userNames to value - for that property. Not writable.
+	public static <T> Map<String,T> getAllUsers(String key) {
+		Set<String> users = getAllUsers();
+		Map<String,T> userToProps = new HashMap<String,T>();
+		for(String user : users) {
+			KVStore<Object> store = new KVStore<Object>("user." + user + ".");
+			if(store.has(key)) {
+				userToProps.put(user, (T) store.get(key)); 
+			}
+		}
+		return userToProps;
+	}
+	
 	public static boolean hasUserStore(String user) {
 		return KVStore.hasStore("user."+user+".");
 	}
@@ -164,6 +192,16 @@ public class KVStore<T> implements Map<String, T> {
 		//we should NOT see store2 data here though
 		val = store.get("blahc");
 		System.out.println("This shoudl be null:" + val);
+		
+		Set<String> users = getAllUsers();
+		for(String user: users) {
+			System.out.println("Got:" + user);
+		}
+		
+		Map<String,String> userToProps = getAllUsers("blaha");
+		for(String user : userToProps.keySet()) {
+			System.out.println("User:" + user + ":has blaha:" + userToProps.get(user));
+		}
 		
 	}
 
