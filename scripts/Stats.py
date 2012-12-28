@@ -164,32 +164,40 @@ class Stats(Module):
 
         user_line = KVStore.getAllUsers(LINE_COUNT)
         user_impure = KVStore.getAllUsers(PURITY_IMPURE_COUNT)
-        most_pure = None
-        least_pure = None
+        purity_stats =  []
         for user in user_line:
             line_count = user_line[user]
             # TODO make the threshold adjustable to exclude the 20% least
             # talkative users.
-            if line_count < 50: # up to a minimum threshold.
+            if line_count < 1: # up to a minimum threshold.
                 continue
             impure_count = user_impure[user] or 0
-            pure_ratio = (line_count - impure_count) / float(line_count)
-            if most_pure is None or most_pure[0] < pure_ratio:
-                most_pure = (pure_ratio, user)
-            if least_pure is None or least_pure[0] > pure_ratio:
-                least_pure = (pure_ratio, user)
+            pure_ratio = (line_count - impure_count) / float(line_count) * 100
+            purity_stats.append((pure_ratio, user))
 
+        purity_stats.sort(reverse=True)
+        most_pure = purity_stats[0]
+        least_pure = purity_stats[-1]
         if most_pure == least_pure:
             return reply
 
         if most_pure is not None:
-            reply += "  %s is on the spoke at %.2f%% pure" % (
-                most_pure[1], most_pure[0] * 100)
+            reply += "  %s is on the spoke at %.1f%% purity" % (
+                most_pure[1], most_pure[0])
         if least_pure is not None:
-            reply += ", and %s is off in the weeds at %.2f%% pure." % (
-                least_pure[1], least_pure[0] * 100)
+            reply += ", and %s is off in the weeds at %.1f%% purity." % (
+                least_pure[1], least_pure[0])
         else:
             reply += "."
+
+        if len(purity_stats) > 2:
+            reply += " Here's everyone else: "
+            results = []
+            for stat in purity_stats[1:-1]:
+                results.append("%s %.1f%%" % (stat[1], stat[0]))
+            reply += ", ".join(results)
+            reply += "."
+
         return reply
 
     def generate_stat_text(self, store, stat, source, verb, pure):
