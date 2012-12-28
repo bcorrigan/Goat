@@ -173,13 +173,11 @@ class Stats(Module):
             if line_count < 50: # up to a minimum threshold.
                 continue
             impure_count = user_impure[user] or 0
-            print user, impure_count, line_count
             pure_ratio = (line_count - impure_count) / float(line_count)
             if most_pure is None or most_pure[0] < pure_ratio:
                 most_pure = (pure_ratio, user)
             if least_pure is None or least_pure[0] > pure_ratio:
                 least_pure = (pure_ratio, user)
-        print most_pure, least_pure
 
         if most_pure == least_pure:
             return reply
