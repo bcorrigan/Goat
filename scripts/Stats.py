@@ -174,8 +174,10 @@ class Stats(Module):
                 continue
             impure_count = user_impure[user] or 0
             pure_ratio = (line_count - impure_count) / float(line_count) * 100
-            purity_stats.append((pure_ratio, user))
+            purity_stats.append((pure_ratio, line_count, user))
 
+        # sort for highest purity score to lowest purity score with line count
+        # as a tie breaker.
         purity_stats.sort(reverse=True)
         if not purity_stats:
             return reply
@@ -183,22 +185,20 @@ class Stats(Module):
         most_pure = purity_stats[0]
         least_pure = purity_stats[-1]
         if most_pure[0] == least_pure[0]:
+            # it's not worth reporting if the first and last place user
+            # have the same score. (or are the same user)
             return reply
 
-        if most_pure is not None:
-            reply += "  %s is on the spoke at %.1f%% purity" % (
-                most_pure[1], most_pure[0])
-        if least_pure is not None:
-            reply += ", and %s is off in the weeds at %.1f%% purity." % (
-                least_pure[1], least_pure[0])
-        else:
-            reply += "."
+        reply += "  %s is on the spoke at %.1f%% purity" % (
+            most_pure[2], most_pure[0])
+        reply += ", and %s is off in the weeds at %.1f%% purity." % (
+            least_pure[2], least_pure[0])
 
         if len(purity_stats) > 2:
             reply += " Here's everyone else: "
             results = []
             for stat in purity_stats[1:-1]:
-                results.append("%s %.1f%%" % (stat[1], stat[0]))
+                results.append("%s %.1f%%" % (stat[2], stat[0]))
             reply += ", ".join(results)
             reply += "."
 
