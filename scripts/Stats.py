@@ -182,7 +182,7 @@ class Stats(Module):
 
         most_pure = purity_stats[0]
         least_pure = purity_stats[-1]
-        if most_pure == least_pure:
+        if most_pure[0] == least_pure[0]:
             return reply
 
         if most_pure is not None:
