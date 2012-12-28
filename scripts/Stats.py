@@ -176,6 +176,9 @@ class Stats(Module):
             purity_stats.append((pure_ratio, user))
 
         purity_stats.sort(reverse=True)
+        if not purity_stats:
+            return reply
+
         most_pure = purity_stats[0]
         least_pure = purity_stats[-1]
         if most_pure == least_pure:
