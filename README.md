@@ -165,4 +165,6 @@ Probably more useful to steal code from for your own bot, than to run your own i
 (**bc**): glink 3  
 (**goat**): http://www.time.com/time/world/article/0,8599,2102759,00.html  US Aid a Step Toward Korea Nuke Talks  5am PST,  (TIME)  —  18, 2011 The United States is poised to announce a significant donation of food aid to North Korea this week, the first concrete accomplishment after months of behind-the-scenes diplomatic contacts between the two wartime enemies. An agreement by North ...  
 
-....and many more commands I can't even be bothered demonstrating
+....and many more commands I can't even be bothered demonstrating. 
+
+See config/goatrc
