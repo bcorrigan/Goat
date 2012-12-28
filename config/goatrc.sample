@@ -34,6 +34,8 @@ insmod More all
 #insmod RottenTomatoes all
 #insmod PlotMaker all
 #insmod Bitcoin all
+#insmod Github all
+#insmod Stats.py all
 
 join #goat
 
