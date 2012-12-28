@@ -2,6 +2,7 @@ from java.lang import System as javasystem
 from java.lang import String
 from goat.core import Message
 from goat.core import Module
+from goat.core import KVStore
 from goat.util import CommandParser
 from goat.util import StringUtil
 from jarray import array
@@ -68,20 +69,20 @@ class Stats(Module):
                     pure = False
                 seen_types[word_type] = True
 
-        chan_store = self.getChanStore(m)
-        user_store = self.getUserStore(m)
+        chan_store = KVStore.getChanStore(m)
+        user_store = KVStore.getUserStore(m)
         for store, is_channel in [(chan_store, True), (user_store, False)]:
             if pure:
                 self.purity_update(m, store, is_channel)
             else:
                 self.purity_fail(m, store, is_channel)
-            self.incSave(store, LINE_COUNT)
-            self.incSave(store, WORD_COUNT, word_count)
+            store.incSave(LINE_COUNT)
+            store.incSave(WORD_COUNT, word_count)
             for word_type, seen in seen_types.items():
-                self.incSave(store, word_type, 1)
+                store.incSave(word_type, 1)
 
     def purity_update(self, m, store, is_channel):
-        self.incSave(store, PURITY_SCORE)
+        store.incSave(PURITY_SCORE)
         score = store.get(PURITY_SCORE)
 
         if is_channel:
@@ -93,8 +94,8 @@ class Stats(Module):
             m.reply(msg % (m.sender, score))
 
     def purity_fail(self, m, store, is_channel):
-        score = self.incSave(store, PURITY_IMPURE_COUNT, 1)
-        score = self.get_default(store, PURITY_SCORE, 0)
+        score = store.incSave(PURITY_IMPURE_COUNT, 1)
+        score = store.getOrElse(PURITY_SCORE, 0)
         store.save(PURITY_SCORE, 0)
         store.save(PURITY_RECENT_FAILED_MSG, m.getTrailing())
         store.save(PURITY_RECENT_FAILED_SENDER, m.sender)
@@ -104,7 +105,7 @@ class Stats(Module):
         else:
             msg = "%s: Shame on you for using that kind of language.  You were doing so well too, with %d lines of appropriate chat 'til now."
 
-        best = self.get_default(store, PURITY_BEST, 0)
+        best = store.getOrElse(PURITY_BEST, 0)
         new_best = False
         if score > best:
             new_best = True
@@ -119,8 +120,8 @@ class Stats(Module):
         m.reply(msg % (m.sender, score))
 
     def gen_sex_reply(self, target, store):
-        sex_count = self.get_default(store, SEX_COUNT, 0)
-        line_count = self.get_default(store, LINE_COUNT, 0)
+        sex_count = store.getOrElse(SEX_COUNT, 0)
+        line_count = store.getOrElse(LINE_COUNT, 0)
         if line_count == 0:
             reply = "I haven't the slightest."
         else:
@@ -129,53 +130,36 @@ class Stats(Module):
         return reply
 
     def gen_purity_reply(self, target, store):
-        score = self.get_default(store, PURITY_SCORE, 0)
-        best = self.get_default(store, PURITY_BEST, "")
-        impure_count = self.get_default(store, PURITY_IMPURE_COUNT, 0)
-        line_count = self.get_default(store, LINE_COUNT, 0)
+        score = store.getOrElse(PURITY_SCORE, 0)
+        best = store.getOrElse(PURITY_BEST, 0)
+        impure_count = store.getOrElse(PURITY_IMPURE_COUNT, 0)
+        line_count = store.getOrElse(LINE_COUNT, 0)
 
         reply = "%s has a current purity score of %d, " % (target, score)
-        if best is "":
+        if best == 0:
             reply += "and has never had an impure thought."
         else:
             reply += "has a previous best of %d and is impure %.1f%% of the time" % (best, 100 * impure_count / float(line_count))
 
-        best_msg = self.get_default(store, PURITY_BEST_FAILED_MSG, "")
-        best_sender = self.get_default(store, PURITY_BEST_FAILED_SENDER, "")
-        if best_msg is not "":
+        best_msg = store.getOrElse(PURITY_BEST_FAILED_MSG, "")
+        best_sender = store.getOrElse(PURITY_BEST_FAILED_SENDER, "")
+        if best_msg != "": #lb, for some reason ' best_msg is not "" ' wasn't working :-\
             reply += "  The previous best run failed when %s said: \"%s\"" % (
                 best_sender, best_msg)
 
-        recent_msg = self.get_default(store, PURITY_RECENT_FAILED_MSG, "")
-        recent_sender = self.get_default(store, PURITY_RECENT_FAILED_SENDER, "")
-        if recent_msg is not "" and recent_msg != best_msg:
+        recent_msg = store.getOrElse(PURITY_RECENT_FAILED_MSG, "")
+        recent_sender = store.getOrElse(PURITY_RECENT_FAILED_SENDER, "")
+        if recent_msg != "" and recent_msg != best_msg:
             reply += "  Most recently, %s was heard to say: \"%s\"" % (
                 recent_sender, recent_msg)
         return reply
-
-    # TODO this should really be a method on the stores themselves
-    def get_default(self, store, key, default):
-        if store.has(key):
-            return store.get(key)
-        else:
-            return default
-
-    # TODO this should also probably be a method of the store object.
-    def incSave(self, store, propName, inc=1):
-        if store.has(propName):
-            if inc>0:
-                prop=store.get(propName)
-                prop+=inc
-                store.save(propName,prop)
-        else:
-            store.save(propName,inc)
 
     def generate_stat_text(self, store, stat, source, verb, pure):
         """used by gen_stat_reply to generate a sentence about a particular
         stat."""
 
-        stat_count = self.get_default(store, stat, 0)
-        line_count = self.get_default(store, LINE_COUNT, 0)
+        stat_count = store.getOrElse(stat, 0)
+        line_count = store.getOrElse(LINE_COUNT, 0)
         reply = " %s" % source
         if stat_count:
             reply += " has %s %d times, a ratio of %.02f%%." % (
@@ -185,8 +169,8 @@ class Stats(Module):
         return reply
 
     def gen_stats_reply(self, target, store, channel=False):
-        lines_seen = self.get_default(store, LINE_COUNT, 0)
-        word_count = self.get_default(store, WORD_COUNT, 0)
+        lines_seen = store.getOrElse(LINE_COUNT, 0)
+        word_count = store.getOrElse(WORD_COUNT, 0)
         if lines_seen == 0:
             return "uhhh... what?"
 
@@ -227,18 +211,18 @@ class Stats(Module):
             parser = CommandParser(m)
             if parser.hasVar("user"):
                 user = parser.get("user")
-                if self.hasUserStore(user):
-                    user_store = self.getUserStore(user)
+                if KVStore.hasUserStore(user):
+                    user_store = KVStore.getUserStore(user)
                     reply = commands[m.modCommand](user, user_store)
             else:
-                chan_store = self.getChanStore(m)
+                chan_store = KVStore.getChanStore(m)
                 reply = commands[m.modCommand](m.getChanname(), chan_store)
             m.reply("%s: %s" % (m.sender, reply))
         else:
             self.updateStats(m)
 
     def processPrivateMessage(self, m):
-        self.processChannelMessage(m)
+        pass
 
     def getCommands(self):
         return array([""], String)

@@ -485,4 +485,15 @@ public class StringUtil {
         }
         return s;
     }
+    
+    /**
+     * Returns the string one after the supplied string
+     * @param str
+     * @return
+     */
+	public static String incString(String str) {
+		return str.substring(0, str.length()-1) 
+						+(char) (str.substring(
+						str.length()-1).charAt(0)+1);
+	}
 }
