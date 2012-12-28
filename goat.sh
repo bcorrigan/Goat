@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 # goat's space age initialization script
 
 # load environment config
@@ -12,5 +12,5 @@ $JAVA \
     -server \
     -XX:+UseParallelGC \
     -XX:+UseCompressedOops \
-    -Xbootclasspath/a:`echo lib/*.jar | tr " " :`:$SCALA_HOME/scala-library.jar:goat.jar \
+    -Xbootclasspath/a:`echo lib/*.jar | tr " " :`:$SCALA_LIB:goat.jar \
     goat.Goat

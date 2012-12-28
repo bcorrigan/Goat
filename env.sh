@@ -1,8 +1,9 @@
 # this is your git root.
-GOAT_HOME=/home/jon/git/goat
+GOAT_HOME=/home/goat/goat
 
 # the java binary
-JAVA=/usr/lib/jvm/java-7-openjdk-amd64/bin/java
+JAVA=/usr/local/bin/java
 
 # this is the path to scala-library.jar
-SCALA_LIB=/usr/share/java/scala-library.jar
+SCALA_LIB=/usr/local/share/scala/lib/scala-library.jar
+
