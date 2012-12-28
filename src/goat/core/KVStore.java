@@ -59,7 +59,6 @@ public class KVStore<T> implements Map<String, T> {
 		ns=nameSpace;
 		
 		String toKey = incString(nameSpace);
-		System.out.println("ns:"+nameSpace+":toKey:"+toKey);
 		mapSlice = (SortedMap<String,T>) globalMap.subMap(nameSpace, toKey);
 	}
 	
@@ -105,7 +104,6 @@ public class KVStore<T> implements Map<String, T> {
 	}
 	
 	public T getOrElse(String key, T defaultObj) {
-		System.out.println("defaultObj:" + defaultObj + ":" + defaultObj.getClass().getName()+":");
 		if(has(key)) 
 			return get(key);
 		else
