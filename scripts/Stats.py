@@ -1,5 +1,6 @@
 from java.lang import System as javasystem
 from java.lang import String
+from goat.core import Constants
 from goat.core import Message
 from goat.core import Module
 from goat.core import KVStore
@@ -144,14 +145,14 @@ class Stats(Module):
         best_msg = store.getOrElse(PURITY_BEST_FAILED_MSG, "")
         best_sender = store.getOrElse(PURITY_BEST_FAILED_SENDER, "")
         if best_msg != "":
-            reply += "  The previous best run failed when %s said: \"%s\"." % (
-                best_sender, best_msg)
+            reply += "  The previous best run failed when %s said: \"%s%s\"." % (
+                best_sender, best_msg, Constants.NORMAL)
 
         recent_msg = store.getOrElse(PURITY_RECENT_FAILED_MSG, "")
         recent_sender = store.getOrElse(PURITY_RECENT_FAILED_SENDER, "")
         if recent_msg != "" and recent_msg != best_msg:
-            reply += "  Most recently, %s was heard to say: \"%s\"." % (
-                recent_sender, recent_msg)
+            reply += "  Most recently, %s was heard to say: \"%s%s\"." % (
+                recent_sender, recent_msg, Constants.NORMAL)
 
         # let's test out some of these new kv store interfaces!
         if target.startswith('#'):
