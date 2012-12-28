@@ -139,19 +139,59 @@ class Stats(Module):
         if best == 0:
             reply += "and has never had an impure thought."
         else:
-            reply += "has a previous best of %d and is impure %.1f%% of the time" % (best, 100 * impure_count / float(line_count))
+            reply += "has a previous best of %d and is impure %.1f%% of the time." % (best, 100 * impure_count / float(line_count))
 
         best_msg = store.getOrElse(PURITY_BEST_FAILED_MSG, "")
         best_sender = store.getOrElse(PURITY_BEST_FAILED_SENDER, "")
-        if best_msg != "": #lb, for some reason ' best_msg is not "" ' wasn't working :-\
-            reply += "  The previous best run failed when %s said: \"%s\"" % (
+        if best_msg != "":
+            reply += "  The previous best run failed when %s said: \"%s\"." % (
                 best_sender, best_msg)
 
         recent_msg = store.getOrElse(PURITY_RECENT_FAILED_MSG, "")
         recent_sender = store.getOrElse(PURITY_RECENT_FAILED_SENDER, "")
         if recent_msg != "" and recent_msg != best_msg:
-            reply += "  Most recently, %s was heard to say: \"%s\"" % (
+            reply += "  Most recently, %s was heard to say: \"%s\"." % (
                 recent_sender, recent_msg)
+
+        # let's test out some of these new kv store interfaces!
+        if target.startswith('#'):
+            reply += self.gen_purity_highscore()
+
+        return reply
+
+    def gen_purity_highscore(self):
+        reply = ""
+
+        user_line = KVStore.getAllUsers(LINE_COUNT)
+        user_impure = KVStore.getAllUsers(PURITY_IMPURE_COUNT)
+        most_pure = None
+        least_pure = None
+        for user in user_line:
+            line_count = user_line[user]
+            # TODO make the threshold adjustable to exclude the 20% least
+            # talkative users.
+            if line_count < 50: # up to a minimum threshold.
+                continue
+            impure_count = user_impure[user] or 0
+            print user, impure_count, line_count
+            pure_ratio = (line_count - impure_count) / float(line_count)
+            if most_pure is None or most_pure[0] < pure_ratio:
+                most_pure = (pure_ratio, user)
+            if least_pure is None or least_pure[0] > pure_ratio:
+                least_pure = (pure_ratio, user)
+        print most_pure, least_pure
+
+        if most_pure == least_pure:
+            return reply
+
+        if most_pure is not None:
+            reply += "  %s is on the spoke at %.2f%% pure" % (
+                most_pure[1], most_pure[0] * 100)
+        if least_pure is not None:
+            reply += ", and %s is off in the weeds at %.2f%% pure." % (
+                least_pure[1], least_pure[0] * 100)
+        else:
+            reply += "."
         return reply
 
     def generate_stat_text(self, store, stat, source, verb, pure):
