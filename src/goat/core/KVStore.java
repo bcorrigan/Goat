@@ -97,7 +97,7 @@ public class KVStore<T> implements Map<String, T> {
 		if(has(propName)) {
 			if(inc>0) {
 				Integer prop = (Integer) get(propName);
-				prop=prop+1;
+				prop=prop+inc;
 				save(propName,(T) prop);
 			}
 		} else {
@@ -185,6 +185,7 @@ public class KVStore<T> implements Map<String, T> {
 		store.save("blaha", "this is against user2 value1");
 		store.save("blahc", "this is against user2 value2");
 		
+		
 		//now the difficult part, can we retrieve store1 again?
 		store = new KVStore<String>("user.user1.");
 		String val = store.get("blaha");
@@ -203,6 +204,11 @@ public class KVStore<T> implements Map<String, T> {
 			System.out.println("User:" + user + ":has blaha:" + userToProps.get(user));
 		}
 		
+		KVStore<Integer> storeInt = new KVStore<Integer>("user.user1.");
+		storeInt.save("myInt", 0);
+		storeInt.incSave("myInt",5);
+		storeInt.incSave("myInt",4);
+		System.out.println("So it is:" + storeInt.get("myInt"));
 	}
 
 	@Override
