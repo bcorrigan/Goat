@@ -91,7 +91,7 @@ class Stats(Module):
         else:
             msg = "%s: Well done! You've spoken %d times without the least bit of hate."
 
-        if score in [100, 200, 400, 800]:
+        if score == 100 or score % 250 == 0:
             m.reply(msg % (m.sender, score))
 
     def purity_fail(self, m, store, is_channel):
@@ -115,10 +115,8 @@ class Stats(Module):
             store.save(PURITY_BEST_FAILED_SENDER, m.sender)
             msg += "  AND that was the best run ever, beating the previous best of %d.  What a disappointment." % best
 
-        if score < 100 or new_best:
-            return
-
-        m.reply(msg % (m.sender, score))
+        if score > 150 or (new_best and score > 100):
+            m.reply(msg % (m.sender, score))
 
     def gen_sex_reply(self, target, store):
         sex_count = store.getOrElse(SEX_COUNT, 0)
