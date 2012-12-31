@@ -1,6 +1,7 @@
 # editor droppings
 *~
 \#*#
+*.sw*
 
 # actual project stuff
 classes/
