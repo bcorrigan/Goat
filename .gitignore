@@ -4,10 +4,14 @@
 
 # actual project stuff
 classes/
+bin/
 jars/
-goat\.jar
+goat.jar
 config/passwords.properties
 config/goatrc
+worksheet/
+.worksheet/
+worksheet.sc
 resources/*.xml
 resources/words.index
 resources/zipcodes
@@ -18,6 +22,7 @@ resources/adventureData/saves
 resources/scores/
 resources/goatdb.*
 lib/cachedir/
+.cache
 
 # no idea why ensime poops this out
 .ensime_lucene/
