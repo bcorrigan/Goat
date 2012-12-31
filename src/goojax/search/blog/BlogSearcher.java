@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-public class BlogSearcher extends AbstractSearcher {
+public class BlogSearcher extends AbstractSearcher<BlogSearchResponse> {
 
 	public Scoring scoring = null;
 	

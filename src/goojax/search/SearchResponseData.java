@@ -8,10 +8,11 @@ import goojax.Cursor;
  *  Similarly, there's no reason this shouldn't be an abstract
  *  class, apart from GSON's tendency to choke on them */
 
-public class SearchResponseData {
+public class SearchResponseData<T extends SearchResult> {
 
+	
 	public Cursor cursor;
-	public SearchResult results[];
+	public T results[];
 
 	// public SearchResponseData() {}
 
@@ -22,12 +23,12 @@ public class SearchResponseData {
 	public void setCursor(Cursor cursor) {
 		this.cursor = cursor;
 	}
-
-	public SearchResult[] getResults() {
+	
+	public T[] getResults() {
 		return results;
 	}
 
-	public void setResults(SearchResult[] results) {
+	public void setResults(T[] results) {
 		this.results = results;
 	}
 

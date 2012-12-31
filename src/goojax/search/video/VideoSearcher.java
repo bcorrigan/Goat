@@ -8,7 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class VideoSearcher extends AbstractSearcher {
+public class VideoSearcher extends AbstractSearcher<VideoSearchResponse> {
 
 	public Scoring scoring = null;
 	

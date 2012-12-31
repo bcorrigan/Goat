@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class LocalSearcher extends AbstractSearcher {
+public class LocalSearcher extends AbstractSearcher<LocalSearchResponse> {
 
 	public Float latitude = 91f;
 	public Float longitude = 181f;

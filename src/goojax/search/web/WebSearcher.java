@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class WebSearcher extends AbstractSearcher {
+public class WebSearcher extends AbstractSearcher<WebSearchResponse> {
 
 	public SearchType getSearchType() {
 		return SearchType.WEB;

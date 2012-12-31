@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class BookSearcher extends AbstractSearcher {
+public class BookSearcher extends AbstractSearcher<BookSearchResponse> {
 
 	public boolean fullViewOnly = false;
 	public String libraryName = null;

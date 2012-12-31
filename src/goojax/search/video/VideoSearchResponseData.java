@@ -2,18 +2,6 @@ package goojax.search.video;
 
 import goojax.search.SearchResponseData;
 
-public class VideoSearchResponseData extends SearchResponseData {
-	public VideoSearchResult results[];
-	//public VideoSearchResponseData() {
-		//super();
-	//}
+public class VideoSearchResponseData extends SearchResponseData<VideoSearchResult> {
 
-	public VideoSearchResult[] getResults() {
-		return results;
-	}
-
-	public void setResults(VideoSearchResult[] results) {
-		this.results = results;
-	}
-	
 }

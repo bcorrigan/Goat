@@ -2,19 +2,19 @@ package goojax.search;
 
 import goojax.GooJAXResponse;
 
-public abstract class SearchResponse extends GooJAXResponse {
+public abstract class SearchResponse<T extends SearchResponseData<?>> extends GooJAXResponse {
 	
-	public SearchResponseData responseData;
+	public T responseData;
 	
 	public SearchResponse() {
 		super();
 	}
 
-	public SearchResponseData getResponseData() {
+	public T getResponseData() {
 		return responseData;
 	}
 
-	public void setResponseData(SearchResponseData responseData) {
+	public void setResponseData(T responseData) {
 		this.responseData = responseData;
 	}
 	

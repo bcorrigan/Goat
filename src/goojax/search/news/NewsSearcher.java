@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class NewsSearcher extends AbstractSearcher {
+public class NewsSearcher extends AbstractSearcher<NewsSearchResponse> {
 	
 	public Scoring scoring = null;
 	public String geo = null;

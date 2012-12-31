@@ -2,18 +2,8 @@ package goojax.search.image;
 
 import goojax.search.SearchResponseData;
 
-public class ImageSearchResponseData extends SearchResponseData {
-	public ImageSearchResult results[];
-	
+public class ImageSearchResponseData extends SearchResponseData<ImageSearchResult> {
 	public ImageSearchResponseData() {
 		super();
-	}
-
-	public ImageSearchResult[] getResults() {
-		return results;
-	}
-
-	public void setResults(ImageSearchResult[] results) {
-		this.results = results;
 	}
 }

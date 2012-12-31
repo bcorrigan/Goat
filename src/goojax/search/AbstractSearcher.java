@@ -22,7 +22,7 @@ import java.util.Iterator;
 
 import com.google.gson.Gson;
 
-public abstract class AbstractSearcher extends GooJAXFetcher {
+abstract public class AbstractSearcher<T extends SearchResponse<?>> extends GooJAXFetcher {
 	
 	public enum SearchType {
 		WEB (BASE_SEARCH_URL + "web", WebSearchResponse.class),
@@ -35,9 +35,9 @@ public abstract class AbstractSearcher extends GooJAXFetcher {
 		PATENT (BASE_SEARCH_URL + "patent", PatentSearchResponse.class);
 			
 		public final String baseUrl;
-		public final Class<? extends SearchResponse> responseClass;
+		public final Class<? extends SearchResponse<?>> responseClass;
 		
-		SearchType(String url, Class<? extends SearchResponse> responseClass) {
+		SearchType(String url, Class<? extends SearchResponse<?>> responseClass) {
 			this.baseUrl = url;
 			this.responseClass = responseClass;
 		}
@@ -100,7 +100,7 @@ public abstract class AbstractSearcher extends GooJAXFetcher {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T extends SearchResponse> T search() throws MalformedURLException, IOException, SocketTimeoutException {
+	public T search() throws MalformedURLException, IOException, SocketTimeoutException {
 		Gson gson = new Gson();
 		URL url = getURL(getSearchType().baseUrl, encodeStandardOpts(), encodeExtraSearchOpts());
 		String goojax = getGoojax(url);
@@ -108,8 +108,7 @@ public abstract class AbstractSearcher extends GooJAXFetcher {
 		return ret;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends SearchResponse> T search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
+	public T search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
 		this.query = query;
 		return (T) search();
 	}
@@ -117,7 +116,6 @@ public abstract class AbstractSearcher extends GooJAXFetcher {
 	abstract public String encodeExtraSearchOpts();
 
 	abstract public SearchType getSearchType();
-
 	
 	public ResultSize getSize() {
 		return size;

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 
-public class PatentSearcher extends AbstractSearcher {
+public class PatentSearcher extends AbstractSearcher<PatentSearchResponse> {
 
 	public boolean onlyFiled = false;
 	public boolean onlyRegistered = false;

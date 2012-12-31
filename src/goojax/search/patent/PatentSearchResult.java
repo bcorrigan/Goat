@@ -1,7 +1,6 @@
 package goojax.search.patent;
 
 import goojax.search.SearchResult;
-import java.text.ParseException;
 import java.util.Date;
 
 public class PatentSearchResult extends SearchResult {

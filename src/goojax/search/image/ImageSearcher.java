@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class ImageSearcher extends AbstractSearcher {
+public class ImageSearcher extends AbstractSearcher<ImageSearchResponse> {
 
 	public enum ImageSize {
 		ICON    ("icon"),

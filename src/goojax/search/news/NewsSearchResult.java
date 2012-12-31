@@ -3,7 +3,6 @@ package goojax.search.news;
 import goojax.search.SearchResult;
 import goojax.GooJAXFetcher.Language;
 
-import java.text.ParseException;
 import java.util.Date;
 
 public class NewsSearchResult extends SearchResult {
