@@ -35,6 +35,8 @@ public class SearchResult {
 			ret = sdf.parse(dateString);
 		} catch (ParseException pe) {
 			pe.printStackTrace();
+		} catch (NullPointerException npe) {
+		    // dateString is null
 		}
 		return ret;
 	}
