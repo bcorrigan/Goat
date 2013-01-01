@@ -14,6 +14,7 @@ import org.eclipse.egit.github.core.service.IssueService
 import org.eclipse.egit.github.core.RepositoryCommit
 import org.eclipse.egit.github.core.CommitFile
 import org.eclipse.egit.github.core.Issue
+import org.eclipse.egit.github.core.RepositoryIssue
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.client.PageIterator
 
@@ -22,41 +23,47 @@ import java.util.TimeZone
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Buffer
+import scala.Math.max
 
 class Github extends Module {
 
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("git", "commits", "issues", "commit")
+    Array("git", "commits", "issues", "commit", "issue")
   }
 
   def processPrivateMessage(m: Message) = {
     processChannelMessage(m)
   }
 
-  def processChannelMessage(m: Message) = {
-    m.getModCommand.toLowerCase match {
-      case "git" =>
-        m.reply("I know \"commits\" and \"issues\"")
-      case "commits" =>
-        m.reply(commitsReport)
-      case "issues" =>
-        m.reply(issuesReport)
-      case "commit" => 
-        try {
-          val cp = new CommandParser(m)
-          if (cp.hasVar("num"))
-          	m.reply(commit(removeFormattingAndColors(cp.get("num")).toInt))
-          else if (cp.hasRemaining)
-            m.reply(commit(removeFormattingAndColors(cp.remaining).toInt))
-        } catch {
-          case nfe: NumberFormatException =>
-            m.reply("I don't believe that's a number.")
-        }
+  def processChannelMessage(m: Message) =
+    try {
+      m.getModCommand.toLowerCase match {
+        case "git" =>
+          m.reply("I know \"commits\" and \"issues\"")
+        case "commits" =>
+          m.reply(commitsReport)
+        case "issues" =>
+          m.reply(issuesReport)
+        case "commit" =>
+          m.reply(commit(findNum(m)))
+        case "issue" =>
+          m.reply(issue(findNum(m)))
+      }
+    } catch {
+      case nfe: NumberFormatException =>
+        m.reply("I don't believe that's a number.")
     }
-  }
 
+  def findNum(m: Message): Int = {
+    val cp = new CommandParser(m)
+    if (cp.hasVar("num"))
+      removeFormattingAndColors(cp.get("num")).toInt
+    else
+      removeFormattingAndColors(cp.remaining).toInt
+  }
+  
   val githubClient = new GitHubClient
   githubClient.setCredentials(Passwords.getPassword("github.login"), Passwords.getPassword("github.password"))
 
@@ -77,19 +84,6 @@ class Github extends Module {
   def commitsReport: String =
     commits.slice(0, 9).map(shortCommit(_)).reduce(_ + separator + _)
     
-  def shortCommit(rc: RepositoryCommit): String =
-    formatUtcTime(rc.getCommit.getCommitter.getDate) + " " +
-    "(" + rc.getCommit.getCommitter.getName + ") " +
-    rc.getCommit.getMessage
-
-  def issuesReport: String =
-    issueService.pageIssues(goatRepo).next.map(shortIssue(_)).reduce(_ + separator + _)
-  
-  def shortIssue (issue: Issue): String =
-    formatUtcTime(issue.getCreatedAt) + " " +
-    "(" + issue.getUser.getLogin + ") " +
-    issue.getTitle
-
   def commit(num: Int): String =
     if(num > commits.size)
       "I only have " + commits.size + " commits."
@@ -101,29 +95,74 @@ class Github extends Module {
       "I'm only up to " + commits.size + " commits."
     else
       longCommit(getCommit(commits.size + num)) // num is negative here
-    
+
+  def shortCommit(rc: RepositoryCommit): String =
+    formatUtcTime(rc.getCommit.getCommitter.getDate) + " " +
+    "(" + rc.getCommit.getCommitter.getName + ") " +
+    rc.getCommit.getMessage
+  
   def longCommit(rc: RepositoryCommit): String =
-    rc.getSha + " " +
-  	rc.getCommit.getCommitter.getDate + " " +
+    rc.getCommit.getMessage + "  " +
   	"(" + rc.getCommit.getCommitter.getName + ") " +
-    DARK_BLUE + "+" + rc.getStats.getAdditions + " " +
-    RED + "-" + rc.getStats.getDeletions + " " +
-    NORMAL + rc.getCommit.getMessage + "  " +
-    "Files:  " + filesReport(rc)
+    {if (rc.getStats.getAdditions > 0) DARK_BLUE + "+" + rc.getStats.getAdditions + " " + NORMAL else ""} +
+    {if (rc.getStats.getDeletions > 0) RED + "-" + rc.getStats.getDeletions + " " + NORMAL else "" } +
+    {if (rc.getCommit.getCommentCount > 0) OLIVE + rc.getCommit.getCommentCount + " Comments " + NORMAL else ""} +
+    rc.getCommit.getCommitter.getDate + " " +
+    "https://github.com/bcorrigan/Goat/commit/" + rc.getSha() + "  " +
+    filesReport(rc)
 
   def filesReport(rc: RepositoryCommit): String =
     if(rc.getFiles == null || rc.getFiles.isEmpty)
-      "no files."
+      ""
     else
-      rc.getFiles.map(fileSummary(_)).reduce(_ + ", " + _)
+      "Files:  " + rc.getFiles.map(fileSummary(_)).reduce(_ + ", " + _)
       
   def fileSummary(cf: CommitFile): String = 
     cf.getFilename + " " +
     "(" + DARK_BLUE + "+" + cf.getAdditions + " " +
     RED + "-" + cf.getDeletions + NORMAL + ")"
-    
+  
+  def issuesReport: String = {
+    val issuepage = issueService.pageIssues(goatRepo)
+    if(issuepage.hasNext)
+      issuepage.next.map(shortIssue(_)).reduce(_ + separator + _)
+    else
+      "No issues."
+  }
+
+  def issue(num: Int): String = { 
+    val openIssues: Int = goatRepo.getOpenIssues
+    if(num < 1)
+      "You're such a kidder."
+    else if(num > openIssues)
+      "My issues only go up to #" + openIssues
+    else
+      longIssue(issueService.getIssue(goatRepo, num))
+  }
+
+  def shortIssue (issue: Issue): String =
+    "#" + issue.getNumber + " " +
+    formatUtcTime(issue.getCreatedAt) + " " +
+    "(" + issue.getUser.getLogin + assignedString(issue) + ") " +
+    issue.getTitle
+
+  def longIssue(ri: Issue): String = 
+    "Issue #" + ri.getNumber + ":  " +
+    ri.getTitle + "  " +
+    RED + "Complainer: " + ri.getUser.getLogin + NORMAL + " " +
+    {if (ri.getAssignee != null) DARK_BLUE + "Fixer: " + ri.getAssignee.getLogin + NORMAL + " " else ""} +
+    {if (ri.getComments > 0) OLIVE + "Comments: " + ri.getComments + NORMAL + " " else ""} +
+    ri.getHtmlUrl + "  " +
+    {if (ri.getBody == null) "" else ri.getBody}
+
+  def assignedString(issue: Issue): String =
+    if(issue.getAssignee == null)
+      ""
+    else
+      " -> " + issue.getAssignee.getLogin    
+        
   // Getting the nth most recent commit via github's api is, um, inconvenient.
-  // So we do some caching.  Which adds up to more than half of our code.
+  // So we do some caching.  Caching is no fun.
     
   var commitsListBuffer: Buffer[RepositoryCommit] = null
   var lastCommitsBufferUpdate: Date = new Date(0)
@@ -131,21 +170,8 @@ class Github extends Module {
   val commitsListStore = new KVStore[Buffer[RepositoryCommit]]("github.commitList")
   val commitStore = new KVStore[RepositoryCommit]("github.commits")
   
-  def getCommit(num: Int): RepositoryCommit = {
-    if(commitsListBuffer == null)
-      initCommitsBuffer
-    val sha = commitsListBuffer(num).getSha
-    if(commitStore.has(sha))
-      commitStore.get(sha)
-    else
-      fetchCommit(sha)
-  }
-    
-  def fetchCommit(sha: String): RepositoryCommit = {
-    val commit = commitService.getCommit(goatRepo, sha)
-    commitStore.save(sha, commit)
-    commit
-  }
+  def getCommit(num: Int): RepositoryCommit = 
+    commitService.getCommit(goatRepo, commits(num).getSha)
   
   def getSha(num: Int): String = commitsListBuffer(num).getSha
   
@@ -179,7 +205,7 @@ class Github extends Module {
   
   def getNewCommits: List[RepositoryCommit] = {
     val oldHeadSha = commitsListBuffer.head.getSha
-    val newCommitsPager = commitService.pageCommits(goatRepo, 32)
+    val newCommitsPager = commitService.pageCommits(goatRepo, 32)  // 32 is more or less arbitrary
     getCommitsUntilSha(newCommitsPager.next, newCommitsPager, oldHeadSha, List[RepositoryCommit]()).dropRight(1)
   }
   
