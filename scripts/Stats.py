@@ -162,20 +162,29 @@ class Stats(Module):
         reply = ""
 
         user_line = KVStore.getAllUsers(LINE_COUNT)
+        user_score = KVStore.getAllUsers(PURITY_SCORE)
         user_impure = KVStore.getAllUsers(PURITY_IMPURE_COUNT)
         purity_stats =  []
         for user in user_line:
             line_count = user_line[user]
-            # TODO make the threshold adjustable to exclude the 20% least
+            pure_score = user_score[user]
+            # TODO make the threshold adjustable to exclude the X% least
             # talkative users.
             if line_count < 50: # up to a minimum threshold.
                 continue
             impure_count = user_impure[user] or 0
-            pure_ratio = (line_count - impure_count) / float(line_count) * 100
-            purity_stats.append((pure_ratio, line_count, user))
+            impure_ratio = impure_count / float(line_count)
+            purity_stats.append((pure_score, impure_ratio, user))
 
-        # sort for highest purity score to lowest purity score with line count
-        # as a tie breaker.
+        # sort for highest purity score to lowest purity score, for the tie
+        # breaker use the most impure to the least impure, so that:
+        # a generally highly pure user who makes a mistake will be lower
+        # scoring than a low purity user who curses, and a low purity user
+        # who has a good run will beat out a high purity suer who is just
+        # doing the normal thing.
+        # TODO look into making an arbitrary score that combines the two
+        # factors so that we can highlight people who are acting the
+        # the farthest away from their normal ebhavior.
         purity_stats.sort(reverse=True)
         if not purity_stats:
             return reply
@@ -187,16 +196,16 @@ class Stats(Module):
             # have the same score. (or are the same user)
             return reply
 
-        reply += "  %s is on the spoke at %.1f%% purity" % (
+        reply += "  %s is on the spoke at %d purity" % (
             most_pure[2], most_pure[0])
-        reply += ", and %s is off in the weeds at %.1f%% purity." % (
+        reply += ", and %s is off in the weeds at %d purity." % (
             least_pure[2], least_pure[0])
 
         if len(purity_stats) > 2:
             reply += " Here's everyone else: "
             results = []
             for stat in purity_stats[1:-1]:
-                results.append("%s %.1f%%" % (stat[2], stat[0]))
+                results.append("%s %d" % (stat[2], stat[0]))
             reply += ", ".join(results)
             reply += "."
 
