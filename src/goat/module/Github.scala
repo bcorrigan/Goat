@@ -11,10 +11,13 @@ import goat.util.StringUtil.removeFormattingAndColors
 import org.eclipse.egit.github.core.service.RepositoryService
 import org.eclipse.egit.github.core.service.CommitService
 import org.eclipse.egit.github.core.service.IssueService
+import org.eclipse.egit.github.core.service.OAuthService
 import org.eclipse.egit.github.core.RepositoryCommit
 import org.eclipse.egit.github.core.CommitFile
 import org.eclipse.egit.github.core.Issue
 import org.eclipse.egit.github.core.RepositoryIssue
+import org.eclipse.egit.github.core.User
+import org.eclipse.egit.github.core.Authorization
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.client.PageIterator
 
@@ -26,11 +29,11 @@ import scala.collection.mutable.Buffer
 import scala.Math.max
 
 class Github extends Module {
-
+  
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("git", "commits", "issues", "commit", "issue")
+    Array("git", "commits", "issues", "commit", "issue", "goatbug")
   }
 
   def processPrivateMessage(m: Message) = {
@@ -50,6 +53,8 @@ class Github extends Module {
           m.reply(commit(findNum(m)))
         case "issue" =>
           m.reply(issue(findNum(m)))
+        case "goatbug" =>
+          m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
       }
     } catch {
       case nfe: NumberFormatException =>
@@ -64,12 +69,11 @@ class Github extends Module {
       removeFormattingAndColors(cp.remaining).toInt
   }
   
-  val githubClient = new GitHubClient
-  githubClient.setCredentials(Passwords.getPassword("github.login"), Passwords.getPassword("github.password"))
-
+  val githubClient = getAuthorizedClient
+  
   val repositoryService = new RepositoryService(githubClient)
-  val commitService = new CommitService
-  val issueService = new IssueService
+  val commitService = new CommitService(githubClient)
+  val issueService = new IssueService(githubClient)
   val goatRepo = repositoryService.getRepository("bcorrigan", "goat")
   
   val utc = TimeZone.getTimeZone("UTC")
@@ -131,36 +135,116 @@ class Github extends Module {
   }
 
   def issue(num: Int): String = { 
-    val openIssues: Int = goatRepo.getOpenIssues
-    if(num < 1)
-      "You're such a kidder."
-    else if(num > openIssues)
-      "My issues only go up to #" + openIssues
-    else
-      longIssue(issueService.getIssue(goatRepo, num))
+    val pager = issueService.pageIssues(goatRepo)
+    if(pager.hasNext) {
+      val page = pager.next
+      if (page.isEmpty)
+        "No Issues."
+      else {
+        val maxNum = page.head.getNumber()
+        if(num < 1)
+          "You're such a kidder."
+        else if(num > maxNum)
+          "My issues only go up to #" + maxNum
+        else
+          longIssue(issueService.getIssue(goatRepo, num))
+      }
+    } else
+      "No Issues."
   }
 
   def shortIssue (issue: Issue): String =
     "#" + issue.getNumber + " " +
     formatUtcTime(issue.getCreatedAt) + " " +
-    "(" + issue.getUser.getLogin + assignedString(issue) + ") " +
-    issue.getTitle
+    "(" + getComplainer(issue) + assignedString(issue) + ") " +
+    titleString(issue)
 
   def longIssue(ri: Issue): String = 
     "Issue #" + ri.getNumber + ":  " +
-    ri.getTitle + "  " +
-    RED + "Complainer: " + ri.getUser.getLogin + NORMAL + " " +
+    titleString(ri) + "  " +
+    RED + "Complainer: " + getComplainer(ri) + NORMAL + " " +
     {if (ri.getAssignee != null) DARK_BLUE + "Fixer: " + ri.getAssignee.getLogin + NORMAL + " " else ""} +
     {if (ri.getComments > 0) OLIVE + "Comments: " + ri.getComments + NORMAL + " " else ""} +
+    {if (ri.getState.equals("closed")) BOLD + "Closed: " + NORMAL + formatUtcTime(ri.getClosedAt) 
+      else ri.getCreatedAt} + " " +
     ri.getHtmlUrl + "  " +
     {if (ri.getBody == null) "" else ri.getBody}
 
+  def titleString(issue: Issue): String = 
+    if(issue.getUser.getLogin.equals("jgoat") && hasIrcUser(issue))
+      issue.getTitle.substring(issue.getTitle.indexOf("\u00BB") + 1).trim
+    else
+      issue.getTitle
+    
   def assignedString(issue: Issue): String =
     if(issue.getAssignee == null)
       ""
     else
       " -> " + issue.getAssignee.getLogin    
         
+  def getComplainer(issue: Issue): String =
+    if(issue.getUser.getLogin.equals("jgoat"))
+      if(hasIrcUser(issue))
+        issue.getTitle.substring(1, issue.getTitle.indexOf("\u00BB"))
+      else
+        "goat"
+    else
+      issue.getUser.getLogin
+      
+  def hasIrcUser(issue: Issue): Boolean =
+    issue.getTitle.substring(0,1).equals("\u00AB") && issue.getTitle.substring(1).contains("\u00BB")
+      
+  def buildIssue(m: Message): Issue = {
+      val issue = new Issue
+      val cp = new CommandParser(m)
+      val remaining = removeFormattingAndColors(m.getTrailing).trim
+      val (title: String, body: String) = 
+        if(cp.hasVar("title") && ! removeFormattingAndColors(cp.get("title")).trim.equals(""))
+          (removeFormattingAndColors(cp.get("title")).trim, removeFormattingAndColors(cp.remaining).trim)
+        else if (remaining.length < 80)
+          (remaining, "")
+        else {
+          val splitpoint = remaining.substring(0, 72).lastIndexOf(" ")
+          (remaining.substring(0, splitpoint).trim + "\u20206", "... " + remaining.substring(splitpoint).trim)
+        } 
+      issue.setTitle("\u00AB" + m.getSender + "\u00BB " + title)
+      if (! body.equals(""))
+        issue.setBody(body)
+      issue
+   }
+   
+   def confirmIssue(issue: Issue): String = 
+     BOLD + "Bug reported!  " + NORMAL +
+     shortIssue(issue) + "  " +
+     issue.getHtmlUrl
+        
+  // OAuth gunk
+  def getAuthorizedClient(): GitHubClient = {
+    val client = new GitHubClient
+    if(Passwords.getPassword("github.token") != null && !Passwords.getPassword("github.token").equals(""))
+      client.setOAuth2Token(Passwords.getPassword("github.token"))
+    else {
+      // um, retrieve our oauth token using basic auth...
+      val basicClient = new GitHubClient
+      var passwords = Passwords.getPasswords;
+      basicClient.setCredentials(Passwords.getPassword("github.login"), Passwords.getPassword("github.password"))
+      val authService = new OAuthService(basicClient)
+      if(authService.getAuthorizations().isEmpty) {
+        // create a new auth token if we don't have any
+        val auth = new Authorization
+        auth.setNote("goat!")
+        auth.setScopes(List("user", "public_repo", "repo"))
+        authService.createAuthorization(auth)
+      }
+      // just grab the first available auth token; might want to be smarter about this some day
+      val token = authService.getAuthorizations.get(0).getToken
+      passwords.put("github.token", token)
+      Passwords.writePasswords(passwords)
+      passwords = null
+      client.setOAuth2Token(token)
+    }
+  }
+      
   // Getting the nth most recent commit via github's api is, um, inconvenient.
   // So we do some caching.  Caching is no fun.
     
@@ -168,7 +252,6 @@ class Github extends Module {
   var lastCommitsBufferUpdate: Date = new Date(0)
   val cacheTimeout = 1 * 60 * 1000
   val commitsListStore = new KVStore[Buffer[RepositoryCommit]]("github.commitList")
-  val commitStore = new KVStore[RepositoryCommit]("github.commits")
   
   def getCommit(num: Int): RepositoryCommit = 
     commitService.getCommit(goatRepo, commits(num).getSha)
