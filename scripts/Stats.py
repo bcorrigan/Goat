@@ -156,8 +156,63 @@ class Stats(Module):
         if line_count == 0:
             reply = "I haven't the slightest."
         else:
-            reply = "%s has sex on the mind about %.1f%% of the time" % (
+            reply = "%s has sex on the mind about %.1f%% of the time." % (
                 target, 100 * sex_count / float(line_count))
+
+        if not target.startswith("#"):
+            return reply
+
+        # TODO this needs to be generalized.
+        user_line = KVStore.getAllUsers(LINE_COUNT)
+        user_stat = KVStore.getAllUsers(SEX_COUNT)
+        user_seen = KVStore.getAllUsers(LAST_SEEN)
+        now = time.time()
+
+        stats = []
+        for user in user_line:
+            lines = user_line[user]
+            stat = user_stat[user]
+            seen = user_seen[user]
+
+            if stat is None:
+                stat = 0
+
+            # this should only be the case for users that we have not seen
+            # since we started tracking when a user was last seen.
+            if seen is None:
+                continue
+
+            # exclude silent users or users that have been idle.
+            if lines < 50 or now - seen > 60*60*24:
+                continue
+
+            score = (float(stat) / lines) * 100
+            stats.append((score, user))
+
+            stats.sort(reverse=True)
+            if not stats:
+                return reply
+
+        highest = stats[0]
+        lowest = stats[-1]
+        if highest[0] == lowest[0]:
+            # it's not worth reporting if the first and last place user
+            # have the same score. (or are the same user)
+            return reply
+
+        reply += "  %s is a sexual predator and talks about sex %.1f%% of the time" % (
+            highest[1], highest[0])
+        reply += ", and %s is lonely and probably asexual at only %.1f%%." % (
+            lowest[1], lowest[0])
+
+        if len(stats) > 2:
+            reply += " Here's everyone else: "
+            results = []
+            for stat in stats[1:-1]:
+                results.append("%s %.1f%%" % (stat[1], stat[0]))
+            reply += ", ".join(results)
+            reply += "."
+
         return reply
 
     def gen_purity_reply(self, target, store):
