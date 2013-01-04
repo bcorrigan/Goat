@@ -200,7 +200,7 @@ class Stats(Module):
             # have the same score. (or are the same user)
             return reply
 
-        reply += "  %s is a sexual predator and talks about sex %.1f%% of the time" % (
+        reply += "  %s is a sexual predator and has sex on the mind %.1f%% of the time" % (
             highest[1], highest[0])
         reply += ", and %s is lonely and probably asexual at only %.1f%%." % (
             lowest[1], lowest[0])
