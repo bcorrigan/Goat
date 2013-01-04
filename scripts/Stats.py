@@ -10,6 +10,7 @@ from jarray import array
 
 import random
 import re
+import time
 
 #A simple stats counting module to try out goat's
 #amazing new persistence solution
@@ -23,6 +24,7 @@ import re
 # open source
 LINE_COUNT = "lineCount"
 WORD_COUNT = "wordCount"
+LAST_SEEN = "lastSeen"
 
 CURSE_COUNT = "curseCount"
 RACISM_COUNT = "racistCount"
@@ -104,6 +106,8 @@ class Stats(Module):
             store.incSave(WORD_COUNT, word_count)
             for word_type, seen in seen_types.items():
                 store.incSave(word_type, 1)
+
+        user_store = user_store.save(LAST_SEEN, time.time())
 
     def purity_update(self, m, store, is_channel):
         store.incSave(PURITY_SCORE)
@@ -188,18 +192,27 @@ class Stats(Module):
 
     def gen_purity_highscore(self):
         reply = ""
+        now = time.time()
 
         user_line = KVStore.getAllUsers(LINE_COUNT)
         user_score = KVStore.getAllUsers(PURITY_SCORE)
         user_impure = KVStore.getAllUsers(PURITY_IMPURE_COUNT)
+        user_seen = KVStore.getAllUsers(LAST_SEEN)
         purity_stats =  []
         for user in user_line:
             line_count = user_line[user]
             pure_score = user_score[user]
-            # TODO make the threshold adjustable to exclude the X% least
-            # talkative users.
-            if line_count < 50: # up to a minimum threshold.
+            seen_time = user_seen[user]
+
+            # this should only be the case for users that we have not seen
+            # since we started tracking when a user was last seen.
+            if seen_time is None:
                 continue
+
+            # exclude silent users or users that have been idle.
+            if line_count < 50 or now - seen_time > 60*60*24:
+                continue
+
             impure_count = user_impure[user] or 0
             impure_ratio = impure_count / float(line_count)
             purity_stats.append((pure_score, impure_ratio, user))
@@ -226,7 +239,7 @@ class Stats(Module):
 
         reply += "  %s is on the spoke at %d purity" % (
             most_pure[2], most_pure[0])
-        reply += ", and %s is off in the weeds at %d purity." % (
+        reply += ", and %s is off in the weeds at a measly %d." % (
             least_pure[2], least_pure[0])
 
         if len(purity_stats) > 2:
