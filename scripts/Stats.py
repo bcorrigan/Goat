@@ -8,6 +8,7 @@ from goat.util import CommandParser
 from goat.util import StringUtil
 from jarray import array
 
+import random
 import re
 
 #A simple stats counting module to try out goat's
@@ -55,6 +56,28 @@ PURITY_RECENT_FAILED_MSG = "purityRecentFailedMessage"
 PURITY_RECENT_FAILED_SENDER = "purityRecentFailedSender"
 PURITY_IMPURE_COUNT = "purityImpureCount"
 
+def praise_words():
+    return random.choice([
+        "Well done!",
+        "I just couldn't be more proud.",
+        "I can hardly believe it!",
+        "You've set an example for us all.",
+        "Excellent work!",
+        "Bravo, bravo!",
+    ])
+
+def chastise_words():
+    return random.choice([
+        "You've ruined it for everyone.",
+        "Disgusting, just disgusting.",
+        "What a disappointment.",
+        "I'm so disappointed in you.",
+        "What shameful behavior.",
+        "How could you do it?",
+        "My goodness, I've never heard such nastiness.",
+        "I wish I could say I was surprised.",
+    ])
+
 class Stats(Module):
     def __init__(self):
         pass
@@ -87,9 +110,11 @@ class Stats(Module):
         score = store.get(PURITY_SCORE)
 
         if is_channel:
-            msg = "%s: The channel has now reached %d lines of pure text.  I just couldn't be more proud."
+            msg = "%s: The channel has reached %d lines of pure text."
         else:
-            msg = "%s: Well done! You've spoken %d times without the least bit of hate."
+            msg = "%s: You've spoken %d times without the least bit of hate."
+
+        msg += " %s" % praise_words()
 
         if score == 100 or score % 250 == 0:
             m.reply(msg % (m.sender, score))
@@ -102,9 +127,10 @@ class Stats(Module):
         store.save(PURITY_RECENT_FAILED_SENDER, m.sender)
 
         if is_channel:
-            msg = "%s: You've ruined it for everyone.  The channel had %d lines of pure discussion until you spouted off."
+            msg = "%s: The channel had %d lines of pure discussion until you spouted off."
         else:
-            msg = "%s: Shame on you for using that kind of language.  You were doing so well too, with %d lines of appropriate chat 'til now."
+            msg = "%s: You had %d lines of appropriate chat before you ruined it just now."
+
 
         best = store.getOrElse(PURITY_BEST, 0)
         new_best = False
@@ -113,7 +139,9 @@ class Stats(Module):
             store.save(PURITY_BEST, score)
             store.save(PURITY_BEST_FAILED_MSG, m.getTrailing())
             store.save(PURITY_BEST_FAILED_SENDER, m.sender)
-            msg += "  AND that was the best run ever, beating the previous best of %d.  What a disappointment." % best
+            msg += "  And that was the best run ever, beating the previous best of %d." % best
+
+        msg += " %s" % chastise_words()
 
         if score > 150 or (new_best and score > 100):
             m.reply(msg % (m.sender, score))
