@@ -2,18 +2,46 @@ from java.lang import String
 from goat.core import Module
 from jarray import array
 
+import htmlentitydefs
 import re
 import urllib
 
 URL_RX = re.compile(r'https?://\S+')
 TITLE_RX = re.compile(r"<title>([^<]*).*</title>", re.I)
 
+##
+# Removes HTML or XML character references and entities from a text string.
+#
+# @param text The HTML (or XML) source text.
+# @return The plain text, as a Unicode string, if necessary.
+# stolen from http://effbot.org/zone/re-sub.htm#unescape-html
+def unescape(text):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
+
 def get_page_content(url):
     """Will not return any content for https urls in our jython config"""
     content = None
     try:
         fh = content = urllib.urlopen(url)
-        content = ''.join(fh.readlines())
+        content = ''.join(fh.readlines(1024*50))
     except IOError, e:
         content = None
     return content
@@ -27,14 +55,14 @@ def get_page_title(url):
     # half-assed attempt to parse title!
     match = TITLE_RX.search(page_content)
     if match:
-        title = match.groups()[0]
+        title = unescape(match.groups()[0])
 
         # strip extra whitespace
         title = " ".join(title.split())
 
-        # cutoff long titles
-        if len(title) > 60:
-            title = "%s ..." % title[:60]
+        # cutoff extremely long titles
+        if len(title) > 500:
+            title = "%s ..." % title[:500]
 
     return title
 
