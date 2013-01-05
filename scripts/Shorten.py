@@ -42,7 +42,7 @@ def get_page_content(url):
     content = None
     try:
         fh = content = urllib.urlopen(url)
-        content = ''.join(fh.readlines(1024*50))
+        content = ''.join(fh.readlines(1024*250))
     except IOError, e:
         content = None
     return content
@@ -68,8 +68,11 @@ def get_page_title(url):
     return title
 
 def get_short_url(url):
+    short_url = None
     shortener = 'http://be.gs/shorten?url=%s' % urllib.quote_plus(url)
     short_url = get_page_content(shortener)
+    if "BACKTRACE" in short_url:
+        short_url = None
     return short_url
 
 def shorten_url_message(url):
@@ -98,7 +101,7 @@ class Shortener(Module):
         if match:
             url = match.group()
             # arbitrary treshold for long urls
-            if len(url) > 24:
+            if len(url) > 24 and "git.io" not in url:
                 msg = shorten_url_message(match.group())
                 if msg is not None:
                     m.reply(msg)
