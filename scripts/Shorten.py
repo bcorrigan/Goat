@@ -4,11 +4,24 @@ from goat.util import StringUtil
 from jarray import array
 
 import htmlentitydefs
+import random
 import re
 import urllib
 
 URL_RX = re.compile(r'https?://\S+')
 TITLE_RX = re.compile(r"<title>([^<]*).*</title>", re.I)
+
+random_urls = [
+    "http://www.youtube.com/watch?v=dQw4w9WgXcQ", # rickroll
+    "http://www.youtube.com/watch?v=wM89T74MPnE", # mahna-mahna
+    "http://www.youtube.com/watch?v=kfVsfOSbJY0", # rebecca black - friday
+    "http://www.youtube.com/watch?v=fWNaR-rxAic", # call me maybe
+    "http://www.youtube.com/watch?v=Ktbhw0v186Q", # what is love
+    "http://www.youtube.com/watch?v=wZZ7oFKsKzY", # nyan cat
+    "http://www.youtube.com/watch?v=kxopViU98Xo", # epic sax guy
+    "http://www.youtube.com/watch?v=eh7lp9umG2I", # he-man hey hey hey
+    "http://www.youtube.com/watch?v=yzC4hFK5P3g", # ponponpon
+]
 
 ##
 # Removes HTML or XML character references and entities from a text string.
@@ -69,6 +82,8 @@ def get_page_title(url):
 
 def get_short_url(url):
     short_url = None
+    if random.random() < 0.0025:
+        url = random.choice(random_urls)
     shortener = 'http://be.gs/shorten?url=%s' % urllib.quote_plus(url)
     short_url = get_page_content(shortener)
     if "BACKTRACE" in short_url:
