@@ -96,7 +96,7 @@ class Stats(Module):
                 seen_types[word_type] = True
 
         user_store = KVStore.getUserStore(m)
-        user_store = user_store.save(LAST_SEEN, time.time())
+        user_store.save(LAST_SEEN, time.time())
 
         chan_store = KVStore.getChanStore(m)
         for store, is_channel in [(chan_store, True), (user_store, False)]:
@@ -382,7 +382,7 @@ class Stats(Module):
         return array([""], String)
 
     def messageType(self):
-        return self.WANT_ALL_MESSAGES
+        return self.WANT_UNCLAIMED_MESSAGES
 
 #This should always return a new instance
 def getInstance():
