@@ -1,5 +1,6 @@
 from java.lang import String
 from goat.core import Module
+from goat.util import StringUtil
 from jarray import array
 
 import htmlentitydefs
@@ -92,11 +93,15 @@ class Shortener(Module):
     # methods past this point are for implementing parts of the goat module
     # API
     def processChannelMessage(self, m):
-        match = URL_RX.search(m.getTrailing())
+        match = URL_RX.search(
+            StringUtil.removeFormattingAndColors(m.getTrailing()))
         if match:
-            msg = shorten_url_message(match.group())
-            if msg is not None:
-                m.reply(msg)
+            url = match.group()
+            # arbitrary treshold for long urls
+            if len(url) > 24:
+                msg = shorten_url_message(match.group())
+                if msg is not None:
+                    m.reply(msg)
 
     def processPrivateMessage(self, m):
         pass
