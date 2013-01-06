@@ -35,8 +35,6 @@ import goojax.search.*;
  */
 public class Google extends Module {
 
-    private final GooJAXFetcher.Language DEFAULT_GOAT_LANGUAGE = GooJAXFetcher.Language.EN;
-
     public static final String encoding = "UTF-8";
     public static final String noResultString = "No results found";
 
@@ -61,8 +59,7 @@ public class Google extends Module {
                 // "pornometer", "pronometer", "pr0nometer",
                 "sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
                 "gayness", "flickr", "gnews", "googlenews", "newslink",
-                "nlink", "translate", "detectlanguage", "languagedetect",
-                "detectlang", "langdetect", "languages", "googlebooks",
+                "nlink", "googlebooks",
                 "booksgoogle", "bookgoogle", "booksearch", "booklink",
                 "patentsearch", "patentgoogle", "googlepatents", "patentlink",
                 "plink", "blogsearch", "bloggoogle", "googleblogs", "bloglink",
@@ -110,15 +107,6 @@ public class Google extends Module {
                 ircBlogLink(m);
             } else if ("glink".equalsIgnoreCase(command)) {
                 ircCachedLink(m);
-            } else if ("translate".equalsIgnoreCase(command)) {
-                ircTranslate(m);
-            } else if ("detectlang".equalsIgnoreCase(command)
-                    || "langdetect".equalsIgnoreCase(command)
-                    || "detectlanguage".equalsIgnoreCase(command)
-                    || "languagedetect".equalsIgnoreCase(command)) {
-                ircDetectLanguage(m);
-            } else if ("languages".equalsIgnoreCase(command)) {
-                ircLanguages(m);
             } else if ("googlefight".equalsIgnoreCase(command)) {
                 ircGoogleFight(m);
                 // } else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
@@ -660,169 +648,6 @@ public class Google extends Module {
         return getDateLine(date, TimeZone.getDefault());
     }
 
-    private void ircTranslate(Message m) throws MalformedURLException,
-            SocketTimeoutException, IOException {
-        String text = StringUtil.removeFormattingAndColors(m.getModTrailing());
-        GooJAXFetcher.Language toLanguage = DEFAULT_GOAT_LANGUAGE;
-        GooJAXFetcher.Language fromLanguage = null;
-
-        int toFrom = 0;
-        while (toFrom < 2
-                && (text.toLowerCase().startsWith("to ") || text.toLowerCase()
-                        .startsWith("from "))) {
-            if (text.toLowerCase().startsWith("to ")) {
-                if (text.length() < 4) {
-                    m.reply("translate to...?");
-                    return;
-                }
-                text = text.substring(3).trim();
-                int spacepos = text.indexOf(' ');
-                if (-1 == spacepos) {
-                    m.reply("uh, I need at least two words after that \"to\" of yours");
-                    return;
-                }
-                String langString = text.substring(0, spacepos).trim();
-                text = text.substring(spacepos).trim();
-                GooJAXFetcher.Language tempLang = GooJAXFetcher.Language
-                        .fromCode(langString);
-                if (null == tempLang)
-                    tempLang = GooJAXFetcher.Language
-                            .fromEnglishName(langString);
-                if (null == tempLang) {
-                    m.reply("Sorry, I don't speak \""
-                            + langString
-                            + "\".  Type \"languages\", and I'll tell you which ones I know.");
-                    return;
-                }
-                toLanguage = tempLang;
-                if (text.matches("\\s*")) {
-                    m.reply("Er, what do you want me to translate to "
-                            + toLanguage.getEnglishName());
-                    return;
-                }
-            } else if (text.toLowerCase().startsWith("from ")) {
-                if (text.length() < 6) {
-                    m.reply("translate from...?");
-                    return;
-                }
-                text = text.substring(5).trim();
-                int spacepos = text.indexOf(' ');
-                if (-1 == spacepos) {
-                    m.reply("uh, I need at least two words after that \"from\" of yours");
-                    return;
-                }
-                String langString = text.substring(0, spacepos).trim();
-                text = text.substring(spacepos).trim();
-                GooJAXFetcher.Language tempLang = GooJAXFetcher.Language
-                        .fromCode(langString);
-                if (null == tempLang)
-                    tempLang = GooJAXFetcher.Language
-                            .fromEnglishName(langString);
-                if (null == tempLang) {
-                    m.reply("Sorry, I don't speak \""
-                            + langString
-                            + "\".  Type \"languages\", and I'll tell you which ones I know.");
-                    return;
-                }
-                fromLanguage = tempLang;
-                if (text.matches("\\s*")) {
-                    m.reply("Er, what do you want me to translate from "
-                            + fromLanguage.getEnglishName());
-                    return;
-                }
-            }
-            toFrom++;
-        }
-        if (text.matches("\\s*")) {
-            m.reply("Er, translate what, exactly?");
-            return;
-        }
-        if (!toLanguage.isTranslateable()) {
-            m.reply("Sorry, but I'm not fluent in "
-                    + toLanguage.getEnglishName() + ".");
-            return;
-        }
-        Translator tranny = new Translator();
-        TranslateResponse trs = tranny
-                .translate(text, fromLanguage, toLanguage);
-        if (null == trs) {
-            // should never get here
-            m.reply("something went horribly wrong when I tried to translate.");
-            return;
-        }
-        if (!trs.statusNormal()) {
-            m.reply("problem at Google:  " + trs.getResponseStatus() + ", "
-                    + trs.getResponseDetails());
-            return;
-        }
-        if (fromLanguage == null
-                && (null == trs.getDetectedSourceLanguage() || "".equals(trs
-                        .getDetectedSourceLanguage())))
-            m.reply("The Google couldn't figure out what language you're speaking, there.");
-        else if (null == trs.getTranslatedText())
-            m.reply("Translated text is null.  Like, whoa.");
-        else if (toLanguage.equals(trs.getDetectedSourceLanguage()))
-            m.reply("I'm not going to translate that into the language it's already in.  Jerk.");
-        else if (fromLanguage == null)
-            m.reply("(from " + trs.getDetectedSourceLanguage().getEnglishName()
-                    + ")   " + trs.getTranslatedText());
-        else
-            m.reply(trs.getTranslatedText());
-    }
-
-    private void ircDetectLanguage(Message m) {
-        Translator tranny = new Translator();
-        if (m.getModTrailing().matches("^\\s*$")) {
-            m.reply("I detect a " + Constants.BOLD + "jerk" + Constants.NORMAL
-                    + ", with a confidence of 1.0");
-            return;
-        }
-        try {
-            DetectLanguageResponse dls = tranny.detect(m.getModTrailing());
-            if (!dls.statusNormal()) {
-                m.pagedReply("I had a problem talking to Google:  "
-                        + dls.getResponseStatus() + ", "
-                        + dls.getResponseDetails());
-                return;
-            }
-            if (dls.getResponseData().isReliable())
-                m.reply("I think that's " + Constants.BOLD
-                        + dls.getResponseData().getLanguage().getEnglishName()
-                        + Constants.NORMAL + ", with a confidence of "
-                        + dls.getResponseData().getConfidence());
-            else if (dls.getResponseData().getLanguage() != null)
-                m.reply("That might be " + Constants.BOLD
-                        + dls.getResponseData().getLanguage().getEnglishName()
-                        + Constants.NORMAL
-                        + ", but I'm not sure, my confidence is only "
-                        + dls.getResponseData().getConfidence());
-            else
-                m.reply("I have no idea what kind of gibber-jabber that might be.");
-
-        } catch (SocketTimeoutException ste) {
-            m.reply("I got bored waiting for Google to figure out what language you were using");
-            ste.printStackTrace();
-        } catch (IOException ioe) {
-            m.reply("Something went wrong when I tried to talk to Google");
-            ioe.printStackTrace();
-        }
-    }
-
-    private void ircLanguages(Message m) {
-        String msg = "I am fluent in:  ";
-        for (int i = 0; i < GooJAXFetcher.Language.values().length; i++)
-            if (GooJAXFetcher.Language.values()[i].isTranslateable())
-                msg += GooJAXFetcher.Language.values()[i].getEnglishName()
-                        + " (" + GooJAXFetcher.Language.values()[i].getCode()
-                        + "), ";
-        msg = msg.substring(0, msg.lastIndexOf(","));
-        String tmp = msg.substring(msg.lastIndexOf(",") + 1);
-        msg = msg.substring(0, msg.lastIndexOf(","));
-        msg += " and" + tmp + ".";
-        // GooJAXmsg += "and " + lastLang.getEnglishName() + " (" +
-        // lastLang.getCode() + ")";
-        m.pagedReply(msg);
-    }
 
     private void ircSexiness(Message m) throws SocketTimeoutException,
             MalformedURLException, IOException {
