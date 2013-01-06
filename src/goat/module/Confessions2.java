@@ -4,19 +4,15 @@ import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.util.StringUtil;
-import goojax.search.SearchResponse;
-import goojax.search.web.WebSearcher;
+import static goat.util.Confessions.*;
+import static goat.util.HTMLUtil.*;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 
-import static goat.util.Confessions.*;
-import static goat.util.HTMLUtil.*;
 import com.sleepycat.je.DatabaseException;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
