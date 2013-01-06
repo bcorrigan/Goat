@@ -12,9 +12,6 @@ import random
 import re
 import time
 
-#A simple stats counting module to try out goat's
-#amazing new persistence solution
-
 # TODO:
 # smiley counter
 # religious counter
@@ -22,14 +19,30 @@ import time
 # example bc racism - show last few examples of racism
 # sexism
 # open source
+
+# these are all kvstore keys
 LINE_COUNT = "lineCount"
 WORD_COUNT = "wordCount"
 LAST_SEEN = "lastSeen"
 
+# regex count keys
 CURSE_COUNT = "curseCount"
 RACISM_COUNT = "racistCount"
 HOMOPHOBIA_COUNT = "homoPhobiaCount"
 SEX_COUNT = "sexCount"
+
+# purity keys
+PURITY_SCORE = "purityScore"
+PURITY_BEST = "purityBest"
+PURITY_BEST_FAILED_MSG = "purityBestFailedMessage"
+PURITY_BEST_FAILED_SENDER = "purityBestFailedSender"
+PURITY_RECENT_FAILED_MSG = "purityRecentFailedMessage"
+PURITY_RECENT_FAILED_SENDER = "purityRecentFailedSender"
+PURITY_IMPURE_COUNT = "purityImpureCount"
+
+BOT_NAMES = ["goatsee", "zuul"]
+
+
 WORD_TYPES_RX = {
     CURSE_COUNT: (True, re.compile(
         r'(fuck|cunt|shit|piss|jizz|cock|\btits?\b|pussy|pendejo|mierd|bitch|god\s*dam|bloody)'
@@ -48,15 +61,6 @@ WORD_TYPES_RX = {
         r'(sex|fuck|cock|butt|puss|vag\b|vagina|cunt|slit|kitty|schlong|penis|ball|pecker|member|muff|glans|head|blow|suck|lick|swallow|spit|deep|throat|tight|loose|hard|soft|tit|breast|nip|knocker|cup|double\s*d|porn|virgin|chaste|pure|impure|bondage|discipline|sado|sadism|masochis|punish|spank|tie|69|plow|rape|ream|bugger|ride|missionary|dog[a-z]*\s*style|cowgirl|wheelbarrow|sodom|anal|erotic|gaa*y|lesb|insert|slam|complet|fetish|fan\s*fic|fantasy|libid|pound|master|slave|subjugat|penetrat|thrust|use|cum|jiz|jism|semen|ejac|jack|get\s*(off|some)|enter|moan|scream|orgasm|deflower|ravage|ravish|violate|defile|maiden|celibate|vestal|foreplay|caress|cuddl|pet|kiss|love\s*mak|make\s*love|mak[a-z]*\s*out|oral|manhood|womanhood|fornicat|coitus|copulat|intima|relation|sleep[a-z]*\s*(around|with)|screw|carnal|nooky|intercourse|coupling|consumm|mate|mating|shove\s*it|up\s*your|mom|mother|dad|father|oedip|pa?edo|epheb|furr(y|ies)|yiff|ass|boot(y|ie)|junk|camel\s*toe|yoga\s*pants|dress|skirt|pant(y|ies)|\bbra\b|lingerie|negligee|condom|birth\s*control|the\s*pill|depo|estrogen|testosterone|yaz|facial|creampie|double\s*pen|teen|fap|beast.*two\s*backs|strap-?\s*on|dildo|finger|reproduc|cunnilingus|std|hiv|aids|incest|minors|prostitut|whore|pimp|slut|bestiality|pregna|pleasure|gonorrhea|clap|chlamydia|syphilis|\bhep\b|hepatitis|herpes|hpv|crab|anilingus|toss[a-z]*\s*salad|vulva|trib|labia|masturbat|scissor|frot|dagger|hump|scrump|grind|rub|job|phallus|phallic|venus|philia|dental\s*dam|latex|silicon|implant|enlarge|engorge|fla|flacid|turgid|passion|torrid|affair|extramarital|sultra|ardent|spurt|spray|shoot|throb|nut|huevo|fertil|egg|cervix|uter(us|ine)|fallopian|ovar(y|ies)|nail|(take|get)\s*it|cross|tran(n|s)|gender|figure|bdsm|split|divide|cleave|cigar|banana|gun|pistol|ammunition|ammo|tower|sausage|wiener|hot\s*dog|pipe|tube|wank|jerk|drill|inside|taste|tongue|\blips?\b|fag|ga+y+|fudge|chocolate|pack|tuck|sodom|bugger|clit|force|\brams?\b)'
     ))
 }
-
-# purity constants
-PURITY_SCORE = "purityScore"
-PURITY_BEST = "purityBest"
-PURITY_BEST_FAILED_MSG = "purityBestFailedMessage"
-PURITY_BEST_FAILED_SENDER = "purityBestFailedSender"
-PURITY_RECENT_FAILED_MSG = "purityRecentFailedMessage"
-PURITY_RECENT_FAILED_SENDER = "purityRecentFailedSender"
-PURITY_IMPURE_COUNT = "purityImpureCount"
 
 def praise_words():
     return random.choice([
@@ -171,6 +175,8 @@ class Stats(Module):
 
         stats = []
         for user in user_line:
+            if user in BOT_NAMES:
+                continue
             lines = user_line[user]
             stat = user_stat[user]
             seen = user_seen[user]
@@ -256,6 +262,8 @@ class Stats(Module):
         user_seen = KVStore.getAllUsers(LAST_SEEN)
         purity_stats =  []
         for user in user_line:
+            if user in BOT_NAMES:
+                continue
             line_count = user_line[user]
             pure_score = user_score[user]
             seen_time = user_seen[user]
