@@ -74,7 +74,7 @@ public class Translation extends Module {
                 }
                 String langString = text.substring(0, spacepos).trim();
                 text = text.substring(spacepos).trim();
-                Language tempLang = Language.fromString(langString);
+                Language tempLang = languageFromString(langString);
                 if (null == tempLang) {
                     m.reply("Sorry, I don't speak \""
                             + langString
@@ -100,7 +100,7 @@ public class Translation extends Module {
                 }
                 String langString = text.substring(0, spacepos).trim();
                 text = text.substring(spacepos).trim();
-                Language tempLang = Language.fromString(langString);
+                Language tempLang = languageFromString(langString);
                 if (null == tempLang) {
                     m.reply("Sorry, I don't speak \""
                             + langString
@@ -159,13 +159,40 @@ public class Translation extends Module {
         for(String langName : localizedMap.keySet()) {
             Language lang = localizedMap.get(langName);
             if (! lang.toString().equals(""))
-            msg += lang.name().toLowerCase().replaceAll("_", " ") + " (" + lang.toString() + "), ";
+            msg += lang.name().toLowerCase() + " (" + lang.toString() + "), ";
         }
         msg = msg.substring(0, msg.lastIndexOf(","));
         String tmp = msg.substring(msg.lastIndexOf(",") + 1);
         msg = msg.substring(0, msg.lastIndexOf(","));
         msg += " and" + tmp + ".";
         m.pagedReply(msg);
+    }
+    
+    private Language languageFromString(String str) throws Exception {
+        str = StringUtil.removeFormattingAndColors(str.toLowerCase());
+        Map<String, Language> langs = Language.values(DEFAULT_GOAT_LANGUAGE);
+        Language ret = null;
+        if (langs.containsKey(str))
+            ret = langs.get(str);
+        if (ret == null)
+            for(Language l: langs.values())
+                if (l.toString().equals(str)) {
+                    ret = l;
+                    break;
+                }
+        if (ret == null)
+            for(Language l: langs.values())
+                if (l.name().toLowerCase().equals(str.replaceAll("\\s", "_"))) {
+                    ret = l;
+                    break;
+                }
+        if (ret == null && str.length() > 3)
+            for(Language l: langs.values())
+                if (l.name().toLowerCase().startsWith(str)) {
+                    ret = l;
+                    break;
+                }
+        return ret;
     }
 
 }
