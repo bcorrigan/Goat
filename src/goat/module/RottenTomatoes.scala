@@ -17,10 +17,10 @@ class RottenTomatoes extends Module {
   
   val api = new RottenTomatoesApi(apiKey)
   
-  private val STAR="★"
-  private val STAR_12="✫"
-  private val STAR_34="✰"
-  private val STAR_14="☆"
+  private val STAR="\u2605"    // "★"
+  private val STAR_12="\u272B" // "✫"
+  private val STAR_34="\u2730" // "✰"
+  private val STAR_14="\u2606" // "☆"
   
   var results:Seq[RTMovie] = Nil;
   
