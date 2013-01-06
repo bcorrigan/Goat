@@ -3,14 +3,6 @@ package goojax.search;
 import static java.net.URLEncoder.encode;
 
 import goojax.GooJAXFetcher;
-import goojax.search.blog.BlogSearchResponse;
-import goojax.search.book.BookSearchResponse;
-import goojax.search.image.ImageSearchResponse;
-import goojax.search.local.LocalSearchResponse;
-import goojax.search.news.NewsSearchResponse;
-import goojax.search.patent.PatentSearchResponse;
-import goojax.search.video.VideoSearchResponse;
-import goojax.search.web.WebSearchResponse;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -19,29 +11,33 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.lang.reflect.Type;
 
 import com.google.gson.Gson;
 
-abstract public class AbstractSearcher<T extends SearchResponse<?>> extends GooJAXFetcher {
+abstract public class AbstractSearcher<T extends AbstractSearchResult> extends GooJAXFetcher {
 	
-	public enum SearchType {
-		WEB (BASE_SEARCH_URL + "web", WebSearchResponse.class),
-		LOCAL (BASE_SEARCH_URL + "local", LocalSearchResponse.class),
-		VIDEO (BASE_SEARCH_URL + "video", VideoSearchResponse.class),
-		BLOGS (BASE_SEARCH_URL + "blogs", BlogSearchResponse.class),
-		NEWS (BASE_SEARCH_URL + "news", NewsSearchResponse.class),
-		BOOKS (BASE_SEARCH_URL + "books", BookSearchResponse.class),
-		IMAGES (BASE_SEARCH_URL + "images", ImageSearchResponse.class),
-		PATENT (BASE_SEARCH_URL + "patent", PatentSearchResponse.class);
+    // this is a very wrong way to do this sort of thing.
+/*
+    public enum SearchType {
+		WEB (BASE_SEARCH_URL + "web", new TypeToken<SearchResponse<goojax.search.WebSearchResult>>(){}.getType()),
+		LOCAL (BASE_SEARCH_URL + "local", new TypeToken<SearchResponse<goojax.search.LocalSearchResult>>(){}.getType()),
+		VIDEO (BASE_SEARCH_URL + "video", new TypeToken<SearchResponse<goojax.search.VideoSearchResult>>(){}.getType()),
+		
+		NEWS (BASE_SEARCH_URL + "news", new TypeToken<SearchResponse<goojax.search.NewsSearchResult>>(){}.getType()),
+		BOOKS (BASE_SEARCH_URL + "books", new TypeToken<SearchResponse<goojax.search.BookSearchResult>>(){}.getType()),
+		IMAGES (BASE_SEARCH_URL + "images", new TypeToken<SearchResponse<goojax.search.ImageSearchResult>>(){}.getType()),
+		PATENT (BASE_SEARCH_URL + "patent", new TypeToken<SearchResponse<goojax.search.PatentSearchResult>>(){}.getType());
 			
 		public final String baseUrl;
-		public final Class<? extends SearchResponse<?>> responseClass;
+		public final Type responseType;
 		
-		SearchType(String url, Class<? extends SearchResponse<?>> responseClass) {
+		SearchType(String url, Type type) {
 			this.baseUrl = url;
-			this.responseClass = responseClass;
+			this.responseType = type;
 		}
 	}
+	*/
 	
 	public enum SafeSearch {
 		HIGH    ("active"),
@@ -100,22 +96,25 @@ abstract public class AbstractSearcher<T extends SearchResponse<?>> extends GooJ
 	}
 	
 	@SuppressWarnings("unchecked")
-	public T search() throws MalformedURLException, IOException, SocketTimeoutException {
+	public SearchResponse<T> search() throws MalformedURLException, IOException, SocketTimeoutException {
 		Gson gson = new Gson();
-		URL url = getURL(getSearchType().baseUrl, encodeStandardOpts(), encodeExtraSearchOpts());
+		URL url = getURL(getBaseUrl(), encodeStandardOpts(), encodeExtraSearchOpts());
 		String goojax = getGoojax(url);
-		T ret = (T) gson.fromJson(goojax, getSearchType().responseClass);
-		return ret;
+		
+		return (SearchResponse<T>) gson.fromJson(goojax, getResponseType());
 	}
 	
-	public T search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
+	public SearchResponse<T> search(String query) throws MalformedURLException, IOException, SocketTimeoutException {
 		this.query = query;
-		return (T) search();
+		return search();
 	}
 	
 	abstract public String encodeExtraSearchOpts();
 
-	abstract public SearchType getSearchType();
+	abstract public String getBaseUrl();
+
+	// GSON can't cope with generics all that well, so you've got to give it an explicit response type
+	abstract public Type getResponseType();
 	
 	public ResultSize getSize() {
 		return size;
@@ -124,7 +123,6 @@ abstract public class AbstractSearcher<T extends SearchResponse<?>> extends GooJ
 	public void setSize(ResultSize size) {
 		this.size = size;
 	}
-
 
 	public int getStart() {
 		return start;

@@ -8,14 +8,14 @@ public class AllSearchTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite("Test for goojax.search");
 		//$JUnit-BEGIN$
-		suite.addTestSuite(goojax.search.blog.TestBlogSearch.class);
-		suite.addTestSuite(goojax.search.book.TestBookSearch.class);
-		suite.addTestSuite(goojax.search.image.TestImageSearch.class);
-		suite.addTestSuite(goojax.search.local.TestLocalSearch.class);
-		suite.addTestSuite(goojax.search.news.TestNewsSearch.class);
-		suite.addTestSuite(goojax.search.patent.TestPatentSearch.class);
-		suite.addTestSuite(goojax.search.video.TestVideoSearch.class);
-		suite.addTestSuite(goojax.search.web.TestWebSearch.class);
+		suite.addTestSuite(goojax.search.TestBlogSearch.class);
+		suite.addTestSuite(goojax.search.TestBookSearch.class);
+		suite.addTestSuite(goojax.search.TestImageSearch.class);
+		suite.addTestSuite(goojax.search.TestLocalSearch.class);
+		suite.addTestSuite(goojax.search.TestNewsSearch.class);
+		suite.addTestSuite(goojax.search.TestPatentSearch.class);
+		suite.addTestSuite(goojax.search.TestVideoSearch.class);
+		suite.addTestSuite(goojax.search.TestWebSearch.class);
 		//$JUnit-END$
 		return suite;
 	}

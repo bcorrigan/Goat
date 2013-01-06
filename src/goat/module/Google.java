@@ -24,14 +24,7 @@ import goat.util.StringUtil;
 import goat.util.CommandParser;
 
 import goojax.*;
-import goojax.search.SearchResponse;
-import goojax.search.SearchResult;
-import goojax.search.news.*;
-import goojax.search.book.*;
-import goojax.search.patent.*;
-import goojax.search.blog.*;
-import goojax.search.patent.PatentSearchResult.PatentStatus;
-import goojax.search.web.WebSearcher;
+import goojax.search.*;
 
 /**
  * Module to ask google about stuff.
@@ -185,7 +178,7 @@ public class Google extends Module {
     }
 
     private String lastCachedResultType = null;
-    private HashMap<String, NewsSearchResponse> newsResponseCache = new HashMap<String, NewsSearchResponse>();
+    private HashMap<String, SearchResponse<NewsSearchResult>> newsResponseCache = new HashMap<String, SearchResponse<NewsSearchResult>>();
     private boolean newsLinkMode = false;
 
     private void ircGoogleNews(Message m) throws IOException,
@@ -250,7 +243,7 @@ public class Google extends Module {
         }
 
         NewsSearcher ns = new NewsSearcher();
-        NewsSearchResponse nsr = ns.search(query);
+        SearchResponse<NewsSearchResult> nsr = ns.search(query);
         if (null == nsr) {
             m.reply("Something went horribly wrong in my GooJAX processor");
             return;
@@ -296,7 +289,7 @@ public class Google extends Module {
         if (!newsResponseCache.containsKey(channel)) {
             return "I'm sorry, I don't have any news for this channel.";
         }
-        NewsSearchResponse nsr = newsResponseCache.get(channel);
+        SearchResponse<NewsSearchResult> nsr = newsResponseCache.get(channel);
         if (null == nsr) {
             return "something has gone horribly wrong; my news for this channel seems to be null.";
         }
@@ -373,7 +366,7 @@ public class Google extends Module {
         // }
     }
 
-    private HashMap<String, BookSearchResponse> booksResponseCache = new HashMap<String, BookSearchResponse>();
+    private HashMap<String, SearchResponse<BookSearchResult>> booksResponseCache = new HashMap<String, SearchResponse<BookSearchResult>>();
 
     private void ircGoogleBooks(Message m) throws IOException,
             SocketTimeoutException, MalformedURLException {
@@ -383,7 +376,7 @@ public class Google extends Module {
             return;
         }
         BookSearcher bs = new BookSearcher();
-        BookSearchResponse bsr = bs.search(query);
+        SearchResponse<BookSearchResult> bsr = bs.search(query);
         if (null == bsr) {
             m.reply("Something went horribly wrong in my GooJAX processor");
             return;
@@ -430,7 +423,7 @@ public class Google extends Module {
             m.reply("I'm sorry, I don't have any books cached for this channel.");
             return;
         }
-        BookSearchResponse bsr = booksResponseCache.get(m.getChanname());
+        SearchResponse<BookSearchResult> bsr = booksResponseCache.get(m.getChanname());
         if (null == bsr) {
             m.reply("something has gone horribly wrong; my books cache for this channel seems to be null.");
             return;
@@ -461,7 +454,7 @@ public class Google extends Module {
         }
     }
 
-    private HashMap<String, PatentSearchResponse> patentsResponseCache = new HashMap<String, PatentSearchResponse>();
+    private HashMap<String, SearchResponse<PatentSearchResult>> patentsResponseCache = new HashMap<String, SearchResponse<PatentSearchResult>>();
 
     private void ircGooglePatents(Message m) throws IOException,
             SocketTimeoutException, MalformedURLException {
@@ -471,7 +464,7 @@ public class Google extends Module {
             return;
         }
         PatentSearcher ps = new PatentSearcher();
-        PatentSearchResponse psr = ps.search(query);
+        SearchResponse<PatentSearchResult> psr = ps.search(query);
         if (null == psr) {
             m.reply("Something went horribly wrong in my GooJAX processor");
             return;
@@ -493,7 +486,7 @@ public class Google extends Module {
             reply += Constants.BOLD + (patent + 1) + ")" + Constants.NORMAL;
             PatentSearchResult result = results[patent];
             reply += " #" + result.getPatentNumber();
-            if (result.getPatentStatus().equals(PatentStatus.PENDING))
+            if (result.getPatentStatus().equals(PatentSearchResult.PatentStatus.PENDING))
                 reply += " (pending)";
             if (result.getApplicationDate() != null)
                 reply += ", " + sdf.format(result.getApplicationDate());
@@ -511,7 +504,7 @@ public class Google extends Module {
             m.reply("I'm sorry, I don't have any patents cached for this channel.");
             return;
         }
-        PatentSearchResponse psr = patentsResponseCache.get(m.getChanname());
+        SearchResponse<PatentSearchResult> psr = patentsResponseCache.get(m.getChanname());
         if (null == psr) {
             m.reply("something has gone horribly wrong; my patents cache for this channel seems to be null.");
             return;
@@ -541,7 +534,7 @@ public class Google extends Module {
         }
     }
 
-    private HashMap<String, BlogSearchResponse> blogsResponseCache = new HashMap<String, BlogSearchResponse>();
+    private HashMap<String, SearchResponse<BlogSearchResult>> blogsResponseCache = new HashMap<String, SearchResponse<BlogSearchResult>>();
 
     private void ircGoogleBlogs(Message m) throws IOException,
             SocketTimeoutException, MalformedURLException {
@@ -551,7 +544,7 @@ public class Google extends Module {
             return;
         }
         BlogSearcher bs = new BlogSearcher();
-        BlogSearchResponse bsr = bs.search(query);
+        SearchResponse<BlogSearchResult> bsr = bs.search(query);
         if (null == bsr) {
             m.reply("Something went horribly wrong in my GooJAX processor");
             return;
@@ -603,7 +596,7 @@ public class Google extends Module {
             m.reply("I'm sorry, I don't have any blogs cached for this channel.");
             return;
         }
-        BlogSearchResponse bsr = blogsResponseCache.get(m.getChanname());
+        SearchResponse<BlogSearchResult> bsr = blogsResponseCache.get(m.getChanname());
         if (null == bsr) {
             m.reply("something has gone horribly wrong; my blogs cache for this channel seems to be null.");
             return;
@@ -1072,7 +1065,7 @@ public class Google extends Module {
      * Takes a GoogleSearchResultElement and gives you a simple, irc-friendly
      * string representation of it.
      */
-    public String simpleResultString(SearchResult re) {
+    public String simpleResultString(AbstractSearchResult re) {
         if (null == re)
             return noResultString;
         return boldConvert(re.getTitle()) + "  " + re.getUnescapedUrl();
