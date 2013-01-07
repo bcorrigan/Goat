@@ -368,6 +368,9 @@ class Stats(Module):
     # methods past this point are for implementing parts of the goat module
     # API
     def processChannelMessage(self, m):
+        if m.sender in BOT_NAMES:
+            return
+
         commands = {
             "stats": self.gen_stats_reply,
             "purity": self.gen_purity_reply,
