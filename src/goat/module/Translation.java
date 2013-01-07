@@ -5,21 +5,16 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.util.StringUtil;
 import goat.util.Passwords;
+import goat.util.TranslateWrapper;
+import static goat.util.TranslateWrapper.DEFAULT_GOAT_LANGUAGE;
 
 import java.util.Map;
 
-import com.memetix.mst.detect.Detect;
 import com.memetix.mst.language.Language;
-import com.memetix.mst.translate.Translate;
 
 public class Translation extends Module {
-    
-    {
-        Translate.setClientId(Passwords.getPassword("microsoft.clientId"));
-        Translate.setClientSecret(Passwords.getPassword("microsoft.secret"));
-        Detect.setClientId(Passwords.getPassword("microsoft.clientId"));
-        Detect.setClientSecret(Passwords.getPassword("microsoft.secret"));
-    }
+
+    public TranslateWrapper translator = new TranslateWrapper();
     
     public String[] getCommands() {
         return new String[] { "translate", "languages", "detectlang" };
@@ -48,8 +43,6 @@ public class Translation extends Module {
             e.printStackTrace();
         }
     }
-
-    private final Language DEFAULT_GOAT_LANGUAGE = Language.ENGLISH;
     
     private void ircTranslate(Message m) throws Exception {
         
@@ -122,7 +115,7 @@ public class Translation extends Module {
         }
         Boolean autoDetected = false;
         if (null == fromLanguage) {
-            fromLanguage = Detect.execute(text);
+            fromLanguage = translator.detect(text);
             // this is not what we want to do, ideally...
             if(! fromLanguage.equals(Language.ENGLISH)) // stupid API defaults to English if it can't detect the language
                 autoDetected = true;
@@ -131,9 +124,9 @@ public class Translation extends Module {
             m.reply("I'm not going to translate that into the language it's already written in!");
         else if (autoDetected)
             m.reply("(from " + fromLanguage.getName(DEFAULT_GOAT_LANGUAGE)
-                    + ")   " + Translate.execute(text, toLanguage));
+                    + ")   " + translator.translate(text, toLanguage));
         else
-            m.reply(Translate.execute(text, fromLanguage, toLanguage));
+            m.reply(translator.translate(text, fromLanguage, toLanguage));
     }
 
     private void ircDetectLanguage(Message m) throws Exception {
@@ -142,7 +135,7 @@ public class Translation extends Module {
                     + ", with a confidence of 1.0");
             return;
         }
-        Language detectedLanguage = Detect.execute(StringUtil
+        Language detectedLanguage = translator.detect(StringUtil
                 .removeFormattingAndColors(m.getModTrailing()));
         if (detectedLanguage != null && !detectedLanguage.toString().equals(""))
             m.reply("I think that's " + Constants.BOLD
