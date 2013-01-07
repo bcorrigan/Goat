@@ -50,9 +50,9 @@ class Github extends Module {
         case "issues" =>
           m.reply(issuesReport)
         case "commit" =>
-          m.reply(commit(findNum(m)))
+          m.reply(commit(new CommandParser(m).findNumber))
         case "issue" =>
-          m.reply(issue(findNum(m)))
+          m.reply(issue(new CommandParser(m).findNumber))
         case "goatbug" =>
           m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
       }
@@ -60,14 +60,6 @@ class Github extends Module {
       case nfe: NumberFormatException =>
         m.reply("I don't believe that's a number.")
     }
-
-  def findNum(m: Message): Int = {
-    val cp = new CommandParser(m)
-    if (cp.hasVar("num"))
-      removeFormattingAndColors(cp.get("num")).toInt
-    else
-      removeFormattingAndColors(cp.remaining).toInt
-  }
   
   val githubClient = getAuthorizedClient
   

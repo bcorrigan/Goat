@@ -1,10 +1,11 @@
-package goat.util ;
+package goat.util;
 
-import goat.core.Message ;
+import goat.core.Message;
+import static goat.util.StringUtil.removeFormattingAndColors;
 
 import java.util.Collections;
-import java.util.HashMap ;
-import java.util.ArrayList ;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -209,6 +210,31 @@ public class CommandParser {
 			}
 		}
 		return ret ;
+	}
+	
+	/**
+     * Convenience method
+     *
+     * @return int supplied via "number=", "num=" or remaining
+     */
+	public int findNumber() throws NumberFormatException {
+	    int ret;
+	    if (hasVar("num"))
+	        ret = Integer.parseInt(removeFormattingAndColors(get("num")));
+	    else if (hasVar("number"))
+	        ret = Integer.parseInt(removeFormattingAndColors(get("number")));
+	    else
+	        ret = Integer.parseInt(removeFormattingAndColors(remaining));
+	    return ret;
+	}
+	
+    /**
+     * Convenience method go with findNumber()
+     * 
+     * @return true if we found "number=" or "num=" or remaining
+     */	
+	public boolean hasNumber() {
+	    return hasVar("num") || hasVar("number") || hasRemaining();
 	}
 	
 	/*

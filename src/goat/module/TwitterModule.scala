@@ -4,19 +4,24 @@ import goat.core.Constants._
 import goat.util.StringUtil
 import goat.core.Module
 import goat.core.Message
-import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
-import scala.actors.Actor._
-import scala.collection.immutable.HashSet
 import goat.util.Profile._
 import goat.util.CommandParser
 import goat.util.Passwords._
 import goat.Goat
+import goat.util.TranslateWrapper;
+
+import scala.actors.Actor._
+import scala.collection.immutable.HashSet
+import scala.collection.mutable.Map
+import scala.collection.JavaConversions._
+
 import java.lang.System
+
 import twitter4j.auth.{Authorization, AccessToken}
 import twitter4j.conf._
 import twitter4j._
-import scala.collection.JavaConversions._
 
+import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
 
 /*
  * Lets have the vapid outpourings of the digerati in goat.
@@ -40,14 +45,17 @@ class TwitterModule extends Module {
   private val consumerSecret = pwds.getProperty("twitter.consumerSecret")
   private val accessToken = pwds.getProperty("twitter.accessToken")
   private val accessTokenSecret = pwds.getProperty("twitter.accessTokenSecret")
+  
   pwds = null // lame, yes. but it's Good Housekeeping; the object contains many
               // other passwords, and shouldn't be kept in memory.
 
   private var searchSize = 50 //how many tweets should a request retrieve at once
 
-  private var lastTweet: Long = 0
+  private var lastOutgoingTweetTime: Long = 0
   private var lastPurge: Long = System.currentTimeMillis
   private val purgePeriod: Int = 10 //interval in minutes when we garbage collect
+  
+  private val translator = new TranslateWrapper()
 
   //OAuth connection bullshit
   private val token = new AccessToken(accessToken,accessTokenSecret)
@@ -72,6 +80,7 @@ class TwitterModule extends Module {
   private val FOLLOW = "FOLLOW"
   private val UNFOLLOW = "UNFOLLOW"
   private val SEARCH = "SEARCH"
+  private val TRANSLATE = "TRANSLATE"
   private val TRENDS = "TRENDS"
   private val TRENDSNOTIFY = "TRENDSNOTIFY"
 
@@ -143,6 +152,8 @@ class TwitterModule extends Module {
           queryTwitter(msg, msg.getModTrailing.trim().toLowerCase())
         case (msg: Message, TRENDS) =>
           showTrends(msg)
+        case (msg: Message, TRANSLATE) =>
+          twanslate(msg)
       }
     }
   }
@@ -382,7 +393,7 @@ class TwitterModule extends Module {
   private def tweetMessage(m: Message, message: String): Boolean = {
     try {
       if(message.length()<=140) {
-        lastTweet=System.currentTimeMillis()
+        lastOutgoingTweetTime=System.currentTimeMillis()
     	twitter.updateStatus(message)
     	return true
       } else {
@@ -405,6 +416,63 @@ class TwitterModule extends Module {
     }
   }
 
+  private val maxLastTweets: Int = 32
+  private var lastTweets: Map[String, List[Status]] = Map[String, List[Status]]()
+  
+  private def addToLastTweets(m: Message, tweet: Status): Unit = {    
+     lastTweets.get(m.getChanname()) match {
+       case Some(l) => 
+         lastTweets.put(m.getChanname(), (tweet :: l).take(maxLastTweets))
+       case None =>
+         lastTweets.put(m.getChanname(), List[Status](tweet))
+     }
+  }
+  
+  private def twanslate(m: Message): Unit = {
+    val cp = new CommandParser(m)
+    try {
+      val num = cp.findNumber()
+      m.reply(twansLastTweet(m, num))
+    } catch {
+      case nfe: NumberFormatException =>
+        if(cp.hasNumber)
+          m.reply("I don't believe that's a number")
+        else
+          m.reply(twansLastTweet(m, 1))
+      case e: Exception =>
+        m.reply("Something went wrong with my translator")
+    }
+  }
+
+  private def twansLastTweet(m: Message, num: Int): String = 
+      lastTweets.get(m.getChanname()) match {
+        case Some(l) =>
+          twansTweetNum(l, num)
+        case None =>
+          "I don't remember finding any tweets for " + m.getChanname()
+      }
+  
+  private def twansTweetNum(l: List[Status], num: Int): String =
+    if (num < 1)
+      "You are a bad person."
+    else if (l.isEmpty)
+      "But there haven't been any tweets yet!"
+    else if (l.length < num)
+      "I only remember " + l.length + " tweets" +
+      {if (l.length < maxLastTweets) " right now" else ""} + "."
+    else
+      twansTweet(l(num - 1))
+  
+  private def twansTweet(tweet: Status): String = {
+    val tweeText = unescapeHtml(tweet.getText())
+    val lang = translator.detect(tweeText)
+    if (lang.equals(translator.defaultLanguage))
+      "As far as I can tell, that tweet was already in " + translator.defaultLanguage().name() + "."
+    else
+      formatTweet(tweet, "(from " + BOLD + lang.name + ")  " +
+          NORMAL + translator.translate(tweeText, translator.defaultLanguage()))
+  }
+
   //return true if we found one
   private def popTweetToChannel(m: Message, query: String): Boolean = {
     //find a matching tweet in cache
@@ -416,11 +484,20 @@ class TwitterModule extends Module {
         searchResults = searchResults - result
         if (result._2.length > 1 && result._2.tail.length > 0)
           searchResults = searchResults + Tuple2(result._1, result._2.tail)
-        m.reply(ageOfTweet(tweet) + " ago, " + BOLD + tweet.getUser().getName() + " [@" + tweet.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(tweet.getText).replaceAll("\n", ""))
+        m.reply(formatTweet(tweet))
+        addToLastTweets(m, tweet)
         true
     }
   }
 
+  private def formatTweet(tweet: Status): String =
+    formatTweet(tweet, unescapeHtml(tweet.getText))
+  
+  private def formatTweet(tweet: Status, body: String): String =
+    ageOfTweet(tweet) + " ago, " + 
+    BOLD + tweet.getUser().getName() + 
+    " [@" + tweet.getUser().getScreenName() + "]" + 
+    NORMAL + ": " + body.replaceAll("\\s+", " ")
 
   private def ageOfTweet(tweet: Status): String = {
     return StringUtil.shortDurationString(System.currentTimeMillis - tweet.getCreatedAt.getTime)
@@ -478,6 +555,8 @@ class TwitterModule extends Module {
                 + " Avg. Filter Time:" + filterTimeAvg + "ms")
       case "trends" | "localtrends" =>
         twitterActor ! (m, TRENDS)
+      case "twanslate" | "twans" =>
+        twitterActor ! (m, TRANSLATE)
       case "tweetpurge" =>
         tweetpurge(m)
       case "tweetsearchsize" =>
@@ -539,26 +618,28 @@ class TwitterModule extends Module {
 
   override def processOtherMessage(m: Message) {
     val now = System.currentTimeMillis
-    if (m.getCommand == TOPIC && (now - lastTweet) > 10 * MINUTE) {
+    if (m.getCommand == TOPIC && (now - lastOutgoingTweetTime) > 10 * MINUTE) {
       //twitter.updateStatus(m.getTrailing)
       twitterActor ! (m, TWEET_TOPIC)
-      lastTweet = now
+      lastOutgoingTweetTime = now
     }
   }
 
   private def tweet(m: Message) {
     val now = System.currentTimeMillis
-    if ((now - lastTweet) > MINUTE ) {
+    if ((now - lastOutgoingTweetTime) > MINUTE ) {
       twitterActor ! (m, TWEET)
     } else {
-      m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastTweet) + " ago.")
+      m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
     }
   }
 
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "tweetsearchsize", "trendsnotify", "t")
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", 
+        "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", 
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans")
   }
 
   private def filterIDs(ids: Array[Int]): Array[Int] = {
