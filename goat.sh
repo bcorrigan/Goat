@@ -13,4 +13,5 @@ $JAVA \
     -XX:+UseParallelGC \
     -XX:+UseCompressedOops \
     -Xbootclasspath/a:`echo lib/*.jar | tr " " :`:$SCALA_LIB:goat.jar \
+    -Dlog4j.configuration=log4j.goat.properties \
     goat.Goat
