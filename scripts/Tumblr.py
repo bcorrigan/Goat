@@ -135,7 +135,7 @@ class Tumblr(Module):
         return array([""], String)
 
     def messageType(self):
-        return self.WANT_UNCLAIMED_MESSAGES
+        return self.WANT_ALL_MESSAGES
 
 #This should always return a new instance
 def getInstance():
