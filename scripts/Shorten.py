@@ -7,6 +7,7 @@ import htmlentitydefs
 import random
 import re
 import urllib
+import urllib2
 
 URL_RX = re.compile(r'https?://\S+')
 TITLE_RX = re.compile(r"<title>([^<]*).*</title>", re.I)
@@ -50,58 +51,61 @@ def unescape(text):
         return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
-def get_page_content(url):
-    """Will not return any content for https urls in our jython config"""
+def get_page(url):
+    code = None
     content = None
+    resp = None
+
+    req = urllib2.Request(url)
     try:
-        fh = content = urllib.urlopen(url)
-        content = ''.join(fh.readlines(1024*250))
-    except IOError, e:
-        content = None
-    return content
+        resp = urllib2.urlopen(req)
+        content = resp.read(25*1024)
+        code = 200
+    except urllib2.URLError, e:
+        code = e.code
+
+    return (code, content, resp)
 
 def get_page_title(url):
     title = None
-    page_content = get_page_content(url)
-    if page_content is None:
-        return title
+    (code, content, resp) = get_page(url)
+    if code == 200:
+        # XXX probably check content type here
 
-    # half-assed attempt to parse title!
-    match = TITLE_RX.search(page_content)
-    if match:
-        title = unescape(match.groups()[0])
+        # half-assed attempt to parse title!
+        match = TITLE_RX.search(content)
+        if match:
+            # convert html entities
+            title = unescape(match.groups()[0])
 
-        # strip extra whitespace
-        title = " ".join(title.split())
-
-        # cutoff extremely long titles
-        if len(title) > 500:
-            title = "%s ..." % title[:500]
-
-    return title
+            # strip extra whitespace and trim long titles
+            title = " ".join(title.split())[:500]
+        else:
+            title = "???"
+    return (code, title)
 
 def get_short_url(url):
     short_url = None
+
     if random.random() < 0.0025:
         url = random.choice(random_urls)
     shortener = 'http://be.gs/shorten?url=%s' % urllib.quote_plus(url)
-    short_url = get_page_content(shortener)
-    if "BACKTRACE" in short_url:
-        short_url = None
-    return short_url
+    (code, content, resp) = get_page(shortener)
+    if code == 200:
+        short_url = content
+    return (code, short_url)
 
 def shorten_url_message(url):
-    msg = None
-    short_url = get_short_url(url)
-    if short_url is None:
-        return msg
+    code, short_url = get_short_url(url)
+    if code != 200 or short_url is None:
+        return "The shortenizer said %d" % code
 
-    title = get_page_title(url)
-    if title is not None:
-        msg = "%s -- %s" % (short_url, title)
+    msg = "%s  ## " % short_url
+    code, title = get_page_title(url)
+    if code != 200 or title is None:
+        msg += "The server told me %d when I asked for the title" % code
     else:
-        msg = "%s" % short_url
-
+        msg += title
     return msg
 
 class Shortener(Module):
