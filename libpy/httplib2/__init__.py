@@ -891,7 +891,12 @@ class HTTPConnectionWithTimeout(httplib.HTTPConnection):
                     if use_proxy:
                         print "proxy: %s ************" % str((proxy_host, proxy_port, proxy_rdns, proxy_user, proxy_pass))
 
-                self.sock.connect((self.host, self.port) + sa[2:])
+                ### lb workaround. can't be bothered to find out why
+                # the jython socket bit here is behaving differently than
+                # httplib2 expects, but this makes everything work.
+                # someone, someday might hate me for this.  Sorry!
+                self.sock.connect((self.host, self.port))
+                #self.sock.connect((self.host, self.port) + sa[2:])
             except socket.error, msg:
                 if self.debuglevel > 0:
                     print "connect fail: (%s, %s)" % (self.host, self.port)
