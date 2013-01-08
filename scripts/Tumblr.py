@@ -26,6 +26,9 @@ VIDEO_RX = re.compile(r'https?://[^/]*youtube\S+')
 
 GENERATOR = "goatbot"
 
+# globals, mwa-ha-ha
+errored = False
+
 def post_to_tumblr(url, caption=None, post_type="photo"):
     # oauth stuff -- I should probably cache this.
     pwds = Passwords()
@@ -57,8 +60,19 @@ def post_to_tumblr(url, caption=None, post_type="photo"):
 
     # gogo!
     response, content = oauth_client.request(request_url, method, body)
-    # TODO I should probably inspect the response here!  though I'm not sure
-    # we'd do anything with the errors.
+    if response.status == 200:
+        errored = False
+    else:
+        global errored
+        results = json.loads(content)
+        try:
+            message = "Tumblr said: %s" % results["response"]["errors"][0]
+        except:
+            message = "Tumblr didn't like that."
+
+        if not errored:
+            errored = True
+            return message
 
 def get_page(url):
     # TODO This needs to be put into a python goat utility library.
@@ -94,8 +108,8 @@ def gis_search(search):
     except:
         images = None
 
-    if images is not None:
-        post_to_tumblr(random.choice(images), search)
+    if images is not None and len(images) > 0:
+        return post_to_tumblr(random.choice(images), search)
 
 class Tumblr(Module):
     def __init__(self):
@@ -109,10 +123,11 @@ class Tumblr(Module):
         video_match = VIDEO_RX.search(msg)
         if img_match:
             url = img_match.group()
-            post_to_tumblr(url)
+            # XXX temporarily disable this.  we are bumping up against image posting
+            # limits.
+            #post_to_tumblr(url)
         elif video_match:
             url = video_match.group()
-            print "video", url
             post_to_tumblr(url, post_type='video')
         else:
             commands = {
@@ -121,7 +136,7 @@ class Tumblr(Module):
                 "yis": gis_search,  # TODO
             }
 
-            msg = str(StringUtil.removeFormattingAndColors(m.getTrailing()))
+            msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             tokens = msg.split()
             if tokens[0] in commands and len(tokens) > 1:
                 provider = m.modCommand
@@ -131,7 +146,9 @@ class Tumblr(Module):
                     if provider == "my mommy":
                         provider = "gis"
 
-                commands[provider](" ".join(tokens[1:]))
+                response = commands[provider](" ".join(tokens[1:]))
+                if response:
+                    m.reply(response)
 
     def processPrivateMessage(self, m):
         pass
