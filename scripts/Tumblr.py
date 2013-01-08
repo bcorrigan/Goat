@@ -89,8 +89,13 @@ def gis_search(search):
         print "got code", code, "from google"
     results = json.loads(content)
 
-    images = [i['unescapedUrl'] for i in results['responseData']['results']]
-    post_to_tumblr(random.choice(images), search)
+    try:
+        images = [i['unescapedUrl'] for i in results['responseData']['results']]
+    except:
+        images = None
+
+    if images is not None:
+        post_to_tumblr(random.choice(images), search)
 
 class Tumblr(Module):
     def __init__(self):
