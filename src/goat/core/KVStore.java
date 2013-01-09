@@ -135,6 +135,9 @@ public class KVStore<T> implements Map<String, T> {
 	public static <T> KVStore<T> getAllUsersStore() {
 		return new KVStore<T>("user.");
 	}
+    public static <T> KVStore<T> getCustomStore(String custom) {
+        return new KVStore<T>("custom."+custom+".");
+    }
 	
 	//should return a list of all known user names
 	public static Set<String> getAllUsers() {
