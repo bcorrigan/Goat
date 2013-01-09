@@ -26,7 +26,6 @@ lib/cachedir/
 .cache
 *py.class
 env.sh
-build.xml
 
 # no idea why ensime poops this out
 .ensime_lucene/

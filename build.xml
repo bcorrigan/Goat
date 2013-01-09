@@ -17,7 +17,7 @@
         <fileset dir="lib">
             <include name="**/*.jar"/>
         </fileset>
-        <pathelement path="${env.SCALA_HOME}/lib/scala-library.jar"/>
+        <pathelement path="${env.SCALA_LIBRARY}"/>
     </path>
 
     <property name='build.class.path' refid='build.class.path' />
@@ -35,10 +35,10 @@
         <mkdir dir="${build}"/>
         <mkdir dir="${docs}"/>
 
-        <property name="scala-library.jar" value="${env.SCALA_HOME}/lib/scala-library.jar" />
+        <property name="scala-library.jar" value="${env.SCALA_LIBRARY}" />
 	<taskdef resource="scala/tools/ant/antlib.xml">
             <classpath>
-                <pathelement location="${env.SCALA_HOME}/lib/scala-compiler.jar"   />
+                <pathelement location="${env.SCALA_COMPILER}"   />
                 <pathelement location="${scala-library.jar}"   />
             </classpath>
         </taskdef>
