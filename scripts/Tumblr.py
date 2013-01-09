@@ -39,11 +39,11 @@ class Tumblr(Module):
         tags = [m.sender]
         if img_match:
             url = img_match.group()
-            tags.append(goatpy.tumblr.get_random_tag())
+            tags.append("video")
             response = goatpy.tumblr.post_to_tumblr(url, tags=tags)
         elif video_match:
             url = video_match.group()
-            tags.append(goatpy.tumblr.get_random_tag())
+            tags.append("picture")
             response = goatpy.tumblr.post_to_tumblr(url, post_type='video',
                 tags=tags)
         elif m.modCommand in commands:
