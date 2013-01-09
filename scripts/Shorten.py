@@ -75,8 +75,10 @@ def get_page_title(url):
         # half-assed attempt to parse title!
         match = TITLE_RX.search(content)
         if match:
+            title = match.groups()[0].decode("utf-8")
+
             # convert html entities
-            title = unescape(match.groups()[0])
+            title = unescape(title)
 
             # strip extra whitespace and trim long titles
             title = " ".join(title.split())[:500]
