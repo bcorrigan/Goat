@@ -45,45 +45,60 @@ def post_to_tumblr(url, caption=None, post_type="photo"):
     # set up request
     request_url = 'http://api.tumblr.com/v2/blog/goatbot.tumblr.com/post'
     method = 'POST'
-    params = {
-        'type': post_type,
-    }
+    params = { }
     if post_type == "photo":
-        params['source'] = url
+        #params['source'] = url
+        #params['type'] = post_type
+        # we post links to imgur instead of hosting images with tumblr because
+        # of tumblr's stingy usage quotas.
+        # TODO maybe post directly to tumblr until we hit the quota then fall
+        # back to imgur?
+        params['type'] = 'text'
+        if caption is not None:
+            params['title'] = caption
+        params['body'] = '<img src="%s">' % url
     elif post_type == "video":
+        params['type'] = post_type
+        if caption is not None:
+            params['caption'] = caption
         embed_code = '<iframe width="640" height="480" src="%s" frameborder="0" allowfullscreen></iframe>'
         params['embed'] = embed_code % url
 
-    if caption is not None:
-        params['caption'] = caption
     body = urllib.urlencode(params)
 
     # gogo!
+    global errored
     response, content = oauth_client.request(request_url, method, body)
-    if response.status == 200:
+    if response.status >= 200 and response.status < 300:
         errored = False
     else:
-        global errored
         results = json.loads(content)
         try:
             message = "Tumblr said: %s" % results["response"]["errors"][0]
-        except:
+        except Exception, e:
             message = "Tumblr didn't like that."
 
         if not errored:
             errored = True
             return message
 
-def get_page(url):
+def get_page(url, params=None, headers=None, max_size=25*1024):
     # TODO This needs to be put into a python goat utility library.
     code = None
     content = None
     resp = None
 
-    req = urllib2.Request(url)
+    if headers is not None:
+        req = urllib2.Request(url, headers=headers)
+    else:
+        req = urllib2.Request(url)
+
     try:
-        resp = urllib2.urlopen(req)
-        content = resp.read(25*1024)
+        if params is not None:
+            resp = urllib2.urlopen(req, urllib.urlencode(params))
+        else:
+            resp = urllib2.urlopen(req)
+        content = resp.read(max_size)
         code = 200
     except urllib2.URLError, e:
         code = e.code
@@ -98,9 +113,9 @@ def gis_search(search):
     }
     url = "https://ajax.googleapis.com/ajax/services/search/images?%s" % (
         urllib.urlencode(params))
-    (code, content, respo) = get_page(url)
+    (code, content, resp) = get_page(url)
     if code != 200:
-        print "got code", code, "from google"
+        return "got code %d from google" % code
     results = json.loads(content)
 
     try:
@@ -109,7 +124,35 @@ def gis_search(search):
         images = None
 
     if images is not None and len(images) > 0:
-        return post_to_tumblr(random.choice(images), search)
+        imgur_url = post_to_imgur(random.choice(images), search)
+        if imgur_url is not None:
+            return post_to_tumblr(imgur_url, search)
+
+def post_to_imgur(url, title=None):
+    imgur_url = None
+    pwds = Passwords()
+    client_id = pwds.getPassword('imgur.clientId')
+
+    headers = {}
+    headers['Authorization'] = "Client-ID %s" %  client_id
+
+    params = {}
+    params['image'] = url
+    if title is not None:
+        params['title'] = title
+        params['description'] = title
+    code, content, resp = get_page('https://api.imgur.com/3/image', params,
+                          headers)
+    if code == 200:
+        results = json.loads(content)
+        try:
+            imgur_url = results["data"]["link"]
+        except:
+            print "Invalid imgur response", content
+            pass
+    else:
+        print "Got weird return code %d from imgur" % code
+    return imgur_url
 
 class Tumblr(Module):
     def __init__(self):
