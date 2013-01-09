@@ -60,12 +60,17 @@ def post_to_tumblr(url, caption=None, post_type="photo", link=None, tags=None):
     if post_type == "photo":
         #params['source'] = url
         #params['type'] = post_type
+
         # we post links to imgur instead of hosting images with tumblr because
         # of tumblr's stingy usage quotas.
-        imgur_url = post_to_imgur(url, caption)
-        if imgur_url is None:
-            return
+        if url.startswith('http://i.imgur.com/'):
+            imgur_url = url
+        else:
+            imgur_url = post_to_imgur(url, caption)
+            if imgur_url is None:
+                return
         url = imgur_url
+
         # TODO maybe post directly to tumblr until we hit the quota then fall
         # back to imgur?
         params['type'] = 'text'
@@ -158,6 +163,28 @@ def post_to_imgur(url, title=None):
     else:
         print "Got weird return code %d from imgur" % code
     return imgur_url
+
+def get_random_tag():
+    random_tags = [
+        "bored",
+        "restless",
+        "antsy",
+        "fidgety",
+        "tired",
+        "sleepy",
+        "yawn",
+        "tedium",
+        "lol",
+        "funny",
+        "quotes",
+        "love",
+        "cute",
+        "awkward",
+        "what",
+        "wtf",
+        "omg",
+    ]
+    return random.choice(random_tags)
 
 def get_last_post_time():
     store = KVStore.getCustomStore("tumblr")

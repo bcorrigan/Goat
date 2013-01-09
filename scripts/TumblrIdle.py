@@ -41,7 +41,7 @@ class TumblrIdle(Module):
             last_post = goatpy.tumblr.get_last_post_time()
             now = time.time()
             if now - last_post > IDLE_TIME:
-                tags = [m.sender, random.choice(random_tags)]
+                tags = [m.sender, goatpy.tumblr.get_random_tag()]
                 response = goatpy.tumblr.gis_search(msg, show_search=False,
                     tags=tags)
                 if response is not None:

@@ -36,12 +36,16 @@ class Tumblr(Module):
         img_match = URL_RX.search(msg)
         video_match = VIDEO_RX.search(msg)
         response = None
+        tags = [m.sender]
         if img_match:
             url = img_match.group()
-            response = goatpy.tumblr.post_to_tumblr(url)
+            tags.append(goatpy.tumblr.get_random_tag())
+            response = goatpy.tumblr.post_to_tumblr(url, tags=tags)
         elif video_match:
             url = video_match.group()
-            response = goatpy.tumblr.post_to_tumblr(url, post_type='video')
+            tags.append(goatpy.tumblr.get_random_tag())
+            response = goatpy.tumblr.post_to_tumblr(url, post_type='video',
+                tags=tags)
         elif m.modCommand in commands:
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             tokens = msg.split()
