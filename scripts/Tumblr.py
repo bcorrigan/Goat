@@ -12,14 +12,13 @@ import re
 import urllib
 import urllib2
 
-# this module should implement the following behavior
-# any time someone posts an image in the channel, post that image to
-# tumblr.
-# do the same with youtube videos.
-# when someone does a gis/yis/bis search, pull a fixed or random
-# image from the results and post that.
-# if this gets abused too much, we should make it semi-random or
-# make it so there are timers.
+# this module posts images and videos to tumblr.  it picks these up when
+# someone pastes them directly in the channel or when someone makes use of a
+# search module like gis/yis/bis.
+# TODO: implement bis, yis searches
+# TODO: what about youtube search?
+# TODO: prevent double-posting
+# TODO: use tumblr until quota expires then fall back to imgur?
 
 URL_RX = re.compile(r'https?://\S+\.(jpg|gif|png|bmp)')
 VIDEO_RX = re.compile(r'https?://[^/]*youtube\S+')
@@ -43,7 +42,7 @@ def post_to_tumblr(url, caption=None, post_type="photo"):
     oauth_client = oauth.Client(consumer, token)
 
     # set up request
-    request_url = 'http://api.tumblr.com/v2/blog/goatbot.tumblr.com/post'
+    request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/post'
     method = 'POST'
     params = { }
     if post_type == "photo":
