@@ -5,12 +5,29 @@ from java.lang import String
 from jarray import array
 
 import goatpy.tumblr
+import random
 import time
 
 # this module posts to tumblr automatically when no one has forced goat to
 # post in a while
 
 IDLE_TIME = 3600
+
+random_tags = [
+    "bored",
+    "restless",
+    "antsy",
+    "fidgety",
+    "tired",
+    "sleepy",
+    "yawn",
+    "tedium",
+    "lol",
+    "funny",
+    "quotes",
+    "love",
+]
+
 
 class TumblrIdle(Module):
     def __init__(self):
@@ -24,7 +41,9 @@ class TumblrIdle(Module):
             last_post = goatpy.tumblr.get_last_post_time()
             now = time.time()
             if now - last_post > IDLE_TIME:
-                response = goatpy.tumblr.gis_search(msg, show_search=False)
+                tags = [m.sender, random.choice(random_tags)]
+                response = goatpy.tumblr.gis_search(msg, show_search=False,
+                    tags=tags)
                 if response is not None:
                     m.reply(response)
 

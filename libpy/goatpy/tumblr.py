@@ -32,12 +32,12 @@ blog_brag = [
 # globals, mwa-ha-ha
 errored = False
 
-def post_to_tumblr(url, caption=None, post_type="photo", link=None):
+def post_to_tumblr(url, caption=None, post_type="photo", link=None, tags=None):
     url_store = KVStore.getCustomStore("tumblr_urls")
     if url_store.has(url):
         return
     else:
-        url_store.save(url, True)
+        url_store.save(url, time.time())
 
     # oauth stuff -- I should probably cache this.
     pwds = Passwords()
@@ -55,6 +55,8 @@ def post_to_tumblr(url, caption=None, post_type="photo", link=None):
     request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/post'
     method = 'POST'
     params = { }
+    if tags is not None:
+        params['tags'] = ",".join(tags)
     if post_type == "photo":
         #params['source'] = url
         #params['type'] = post_type
@@ -101,7 +103,7 @@ def post_to_tumblr(url, caption=None, post_type="photo", link=None):
             return message
     set_last_post_time()
 
-def gis_search(search, show_search=True):
+def gis_search(search, tags=None, show_search=True):
     params = {
         "v": "1.0",
         "start": "1",   # this can be incremented for more results.
@@ -128,7 +130,8 @@ def gis_search(search, show_search=True):
                 'safe': 'off',
                 'q': search })
 
-        return post_to_tumblr(random.choice(images), caption=search, link=link)
+        return post_to_tumblr(random.choice(images), caption=search,
+            link=link, tags=tags)
 
 def post_to_imgur(url, title=None):
     imgur_url = None

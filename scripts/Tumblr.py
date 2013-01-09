@@ -53,7 +53,9 @@ class Tumblr(Module):
                     if provider == "my mommy":
                         provider = "gis"
 
-                response = commands[provider](" ".join(tokens[1:]))
+                tags = [m.sender]
+                tags.extend(tokens[1:])
+                response = commands[provider](" ".join(tokens[1:]), tags=tags)
 
         if response is not None:
             m.reply(response)
