@@ -50,97 +50,55 @@ public class RandWords extends Module {
 
     public void processChannelMessage(Message m) {
         int num = 1 ;
+        CommandParser parser = new CommandParser(m) ;
         if (m.getModCommand().equalsIgnoreCase("randword")
             || m.getModCommand().equals("randwords")) {
-            String numString = "";
-            CommandParser parser = new CommandParser(m) ;
-            if (parser.hasVar("num"))
-                numString = parser.get("num") ;
-            else if (parser.remaining().matches("^\\d+$"))
-                numString = parser.remaining() ;
-            if (! numString.equals(""))
-                try {
-                    num = Integer.parseInt(numString) ;
-                } catch (NumberFormatException e) {
-                    m.reply("Don't fuck with me, tough guy.") ;
-                    return ;
-                }
-            if (num > 1000) {
-                m.reply("Now you're just being a prick.") ;
-                return ;
-            } else if (num > 100) {
-                m.reply("Don't be ridiculous.") ;
-                return ;
-            } else if (num < 1) {
-                m.reply("er...") ;
-                return ;
-            } else if (num > 30) {
-                num = 30 ;
-            }
-            m.reply(randWordString(num)) ;
+            try {
+                if (parser.hasNumber())
+                    num = getNumber(m);
+                if (num > 30)
+                    num = 30 ;
+                m.reply(randWordString(num)) ;
+            } catch (NumberFormatException nfe) {}
         } else if (m.getModCommand().equalsIgnoreCase("bandname")) {
             String arg = m.getModTrailing().trim() ;
-            String reply;
-            if (arg.equals("") || arg == null ) {
-                reply = randWordString(2) ;
-            } else {
-                if (random.nextBoolean()) {
-                    reply = arg + ' ' + getWord() ;
-                } else {
-                    reply = getWord() + ' ' + arg ;
-                }
-            }
-            m.reply(reply) ;
+            if (arg.equals(""))
+                m.reply(randWordString(2));
+            else if (random.nextBoolean())
+                m.reply(arg + ' ' + getWord());
+            else
+                m.reply(getWord() + ' ' + arg);
         } else if (m.getModCommand().equalsIgnoreCase("headline")) {
-            CommandParser parser = new CommandParser(m) ;
-            String reply = "";
             ArrayList<String> seeds = parser.remainingAsArrayList() ;
-            if (seeds.isEmpty()) {
-                reply = randWordString(4) ;
-            } else if (seeds.size() > 3) {
-                reply = "Too long, kid.  Give me three words or less." ;
+            if (seeds.isEmpty())
+                m.reply(randWordString(4));
+            else if (seeds.size() > 3) {
+                seeds.add(getWord());
+                Collections.shuffle(seeds);
+                m.reply(al2str(seeds));
             } else {
-                while (seeds.size() < 4) {
-                    seeds.add(getWord()) ;
-                }
-                while (seeds.size() != 1) {
-                    reply += ((String) seeds.remove(random.nextInt(seeds.size())) ) + " " ;
-                }
-                reply += seeds.remove(0) ;
+                while (seeds.size() < 4)
+                    seeds.add(getWord());
+                Collections.shuffle(seeds);
+                m.reply(al2str(seeds));
             }
-            m.reply(reply) ;
         } else if (m.getModCommand().equalsIgnoreCase("emoji")) {
-            String numString = "";
-            CommandParser parser = new CommandParser(m) ;
-            if (parser.hasVar("num"))
-                numString = parser.get("num") ;
-            else if (parser.remaining().matches("^\\d+$"))
-                numString = parser.remaining() ;
-            if (! numString.equals(""))
-                try {
-                    num = Integer.parseInt(numString) ;
-                } catch (NumberFormatException e) {
-                    m.reply("Don't fuck with me, tough guy.") ;
-                    return ;
+            try {
+                if(parser.hasNumber())
+                    num = getNumber(m);
+                if (num == 1) {
+                    m.reply(randEmojiWithName());
+                } else {
+                    if (num > emoji.size())
+                        num = emoji.size();
+                    ArrayList<Integer> tmp = new ArrayList<Integer>(emoji);
+                    Collections.shuffle(tmp);
+                    String ret = "";
+                    for (int i = 0; i < num; i++)
+                        ret += new String(Character.toChars(tmp.get(i))) + " ";
+                    m.reply(ret) ;
                 }
-            if (num > 10000) {
-                m.reply("No.") ;
-                return ;
-            } else if (num < 1) {
-                m.reply("er...") ;
-                return ;
-            } else if (num == 1) {
-                m.reply(randEmojiWithName());
-            } else {
-                if (num > emoji.size())
-                    num = emoji.size();
-                ArrayList<Integer> tmp = new ArrayList<Integer>(emoji);
-                Collections.shuffle(tmp);
-                String ret = "";
-                for (int i = 0; i < num; i++)
-                    ret += new String(Character.toChars(tmp.get(i))) + " ";
-                m.reply(ret) ;
-            }
+            } catch (NumberFormatException nfe) {}
         } else if (m.getModCommand().equalsIgnoreCase("goatji")) {
             m.reply(GOATJI);
         } else if (m.getModCommand().equalsIgnoreCase("brofist")) {
@@ -153,52 +111,70 @@ public class RandWords extends Module {
                 m.reply("  " + new String(Character.toChars(128079)));
                 Thread.sleep(2500);
                 m.reply("  " + NORMAL + "  " + new String(Character.toChars(128079)));
-            } catch(InterruptedException tie) {
+            } catch(InterruptedException tie) {}
+         }
+    }
+
+    private int getNumber(Message m) throws NumberFormatException {
+        String scold = "Don't fuck with me, tough guy.";
+        try {
+            CommandParser parser = new CommandParser(m) ;
+            int num = parser.findNumber();
+            if (num > 10000) {
+                scold = "Don't be ridiculous.";
+                throw new NumberFormatException();
+            } else if (num > 1000) {
+                scold = "You're being unreasonable.";
+                throw new NumberFormatException();
+            } else if (num < 1) {
+                scold = "Is that your idea of a joke, nerd?";
+                throw new NumberFormatException();
             }
+            return num;
+        } catch (NumberFormatException nfe) {
+            m.reply(scold);
+            throw nfe;
         }
     }
 
-    public String randWordString(int num) {
-        // spit out num random words as a single string
-        if (0 == num) {
-            //complain
-            return "um..." ;
-        } else if( 1 == num ) {
-            // do it the quick way
-            return getWord() ;
-        } else {
-            // do it the hard way
-            String returnpoop = "" ;
-            ArrayList words = getWords(num) ;
-            Iterator it = words.iterator() ;
-            for (Object word : words) {
-                returnpoop += word + " ";
-            }
-            return returnpoop.trim() ;
+    private String randWordString(int num) {
+        if (0 == num)
+            return "um...";
+        else if( 1 == num )
+            return getWord();
+        else
+            return al2str(getWords(num));
+    }
+
+    private String al2str(ArrayList<String> words) {
+        String ret = "";
+        for (String word : words) {
+            ret += word + " ";
         }
+        return ret.trim() ;
     }
 
-    public String getWord() {
-        // return one random word as a string
-        return dict.getWord(random.nextInt(dict.numWords)) ;
+    private String getWord() {
+        return dict.getWord(random.nextInt(dict.numWords));
     }
 
-    public ArrayList getWords(int num) {
-        // return num random words as an ArrayList
-        ArrayList wordList = new ArrayList(num) ;
+    private ArrayList<String> getWords(int num) {
+        ArrayList<String> wordList = new ArrayList<String>(num);
         for (int i=0; i < num; i++) {
-            wordList.add(dict.getWord(random.nextInt(dict.numWords))) ;
+            wordList.add(dict.getWord(random.nextInt(dict.numWords)));
         }
-        return wordList ;
+        return wordList;
     }
 
-    static ArrayList<Integer> emoji = new ArrayList<Integer>();
+    // this module is a strange place to stash the emoji stuff,
+    //   but it's not really big enough for its own home yet
+    private static ArrayList<Integer> emoji = new ArrayList<Integer>();
 
     private void initEmoji() {
         int ranges[][] = {{127744, 128511}, {128512, 128591}, {128640, 128767}, {9728, 9983}};
         for (int j = 0; j < ranges.length; j++)
             for (int i = ranges[j][0]; i <= ranges[j][1]; i++)
-                if (Character.isDefined(i))
+                if (Character.isDefined(i)) // for some reason, this is hugely expensive
                     emoji.add(i);
     }
 
