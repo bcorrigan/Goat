@@ -24,6 +24,7 @@ resources/scores/
 resources/goatdb.*
 lib/cachedir/
 .cache
+*py.class
 
 # no idea why ensime poops this out
 .ensime_lucene/
