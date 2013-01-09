@@ -18,8 +18,8 @@ def get_page(url, params=None, headers=None, max_size=25*1024):
         else:
             resp = urllib2.urlopen(req)
         content = resp.read(max_size)
-        code = 200
+        code = 200 # TODO this is not strictly true.
     except urllib2.URLError, e:
-        code = e.code
+        code = None
 
     return (code, content, resp)
