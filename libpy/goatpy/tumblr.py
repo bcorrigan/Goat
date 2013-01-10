@@ -49,7 +49,6 @@ def get_stop_words():
         print "error reading stopwords!"
         return None
 
-    print "loadin'"
     s = dict()
     for word in words:
         s[word.rstrip()] = True
