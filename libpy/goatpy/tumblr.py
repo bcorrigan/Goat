@@ -146,7 +146,7 @@ def gis_search(search, tags=None, show_search=True):
                 'q': search })
 
         return post_to_tumblr(random.choice(images), caption=search,
-            link=link, tags=tags)
+            post_type="photo", link=link, tags=tags)
 
 def post_to_imgur(url, title=None):
     imgur_url = None
@@ -188,16 +188,20 @@ def save_word_seeds(word_seeds):
     store = KVStore.getCustomStore("tumblr")
     store.save(TUMBLR_WORDS_KEY, pickle.dumps(word_seeds))
 
-SEED_LENGTH=20
+SEED_LENGTH=12
 TUMBLR_WORDS_KEY="tumblrWords"
 def feed_random_words(msg):
-
     d = Dict()
     word_seeds = get_word_seeds()
     msg = re.sub('[^a-z\s]',  "", msg.lower())
     new_words = msg.split()
 
+    if len(word_seeds) > SEED_LENGTH:
+        word_seeds = word_seeds[:SEED_LENGTH]
+
     for word in new_words:
+        if len(word) < 4:
+            continue
         if d.contains(word):
             if word not in word_seeds:
                 if len(word_seeds) < SEED_LENGTH:
@@ -207,7 +211,7 @@ def feed_random_words(msg):
     save_word_seeds(word_seeds)
     return word_seeds
 
-def get_random_words(count=5):
+def get_random_words(count=3):
     word_seeds = get_word_seeds()
     random.shuffle(word_seeds)
     if len(word_seeds) < count:

@@ -26,7 +26,7 @@ class TumblrIdle(Module):
             tags = [m.sender]
             words = goatpy.tumblr.get_random_words()
             tags.extend(words)
-            response = goatpy.tumblr.gis_search(words, tags=tags)
+            response = goatpy.tumblr.gis_search(" ".join(words), tags=tags)
             if response is not None:
                 m.reply(response)
 
