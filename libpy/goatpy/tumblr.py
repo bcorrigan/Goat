@@ -1,8 +1,10 @@
 from goat.core import KVStore
 from goat.util import Passwords
+from goat.util import Dict
 
 from goatpy.util import get_page
 import oauth2 as oauth # yes this oauth v1 not v2
+import pickle
 import random
 import simplejson as json
 import re
@@ -163,6 +165,47 @@ def post_to_imgur(url, title=None):
     else:
         print "Got weird return code %d from imgur" % code
     return imgur_url
+
+def get_word_seeds():
+    store = KVStore.getCustomStore("tumblr")
+
+    word_seeds = store.getOrElse(TUMBLR_WORDS_KEY, None)
+    if not word_seeds:
+        word_seeds = []
+    else:
+        word_seeds = pickle.loads(word_seeds)
+    return word_seeds
+
+def save_word_seeds(word_seeds):
+    store = KVStore.getCustomStore("tumblr")
+    store.save(TUMBLR_WORDS_KEY, pickle.dumps(word_seeds))
+
+SEED_LENGTH=20
+TUMBLR_WORDS_KEY="tumblrWords"
+def feed_random_words(msg):
+
+    d = Dict()
+    word_seeds = get_word_seeds()
+    msg = re.sub('[^a-z\s]',  "", msg.lower())
+    new_words = msg.split()
+
+    for word in new_words:
+        if d.contains(word):
+            if word not in word_seeds:
+                if len(word_seeds) < SEED_LENGTH:
+                    word_seeds.append(word)
+                else:
+                    word_seeds[random.randint(0, SEED_LENGTH-1)] = word
+    save_word_seeds(word_seeds)
+    return word_seeds
+
+def get_random_words(count=5):
+    word_seeds = get_word_seeds()
+    random.shuffle(word_seeds)
+    if len(word_seeds) < count:
+        return word_seeds
+    else:
+        return word_seeds[:count]
 
 def get_random_tag():
     random_tags = [

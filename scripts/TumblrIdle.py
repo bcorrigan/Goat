@@ -11,7 +11,7 @@ import time
 # this module posts to tumblr automatically when no one has forced goat to
 # post in a while
 
-IDLE_TIME = 3600
+IDLE_TIME = 1800
 
 random_tags = [
     "bored",
@@ -35,17 +35,16 @@ class TumblrIdle(Module):
 
     def processChannelMessage(self, m):
         msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
-        # TODO we want "interesting" phrases to search for, for now just
-        # put a minimum size.  maybe minimum number of words would be better?
-        if len(msg) > 25:
-            last_post = goatpy.tumblr.get_last_post_time()
-            now = time.time()
-            if now - last_post > IDLE_TIME:
-                tags = [m.sender, goatpy.tumblr.get_random_tag()]
-                response = goatpy.tumblr.gis_search(msg, show_search=False,
-                    tags=tags)
-                if response is not None:
-                    m.reply(response)
+        words = goatpy.tumblr.feed_random_words(msg)
+        last_post = goatpy.tumblr.get_last_post_time()
+        now = time.time()
+        if now - last_post > IDLE_TIME:
+            tags = [m.sender]
+            words = goatpy.tumblr.get_random_words()
+            tags.extend(words)
+            response = goatpy.tumblr.gis_search(words, tags=tags)
+            if response is not None:
+                m.reply(response)
 
     def processPrivateMessage(self, m):
         pass
