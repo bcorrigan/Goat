@@ -18,23 +18,28 @@ class TumblrIdle(Module):
         pass
 
     def processChannelMessage(self, m):
-        msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
-        words = goatpy.tumblr.feed_random_words(msg)
-        last_post = goatpy.tumblr.get_last_post_time()
-        now = time.time()
-        if now - last_post > IDLE_TIME:
-            tags = [m.sender]
-            words = goatpy.tumblr.get_random_words()
-            tags.extend(words)
-            response = goatpy.tumblr.gis_search(" ".join(words), tags=tags)
-            if response is not None:
-                m.reply(response)
+        if m.modCommand == "tumblrbrain":
+            words = goatpy.tumblr.get_random_words(goatpy.tumblr.SEED_LENGTH)
+            m.reply("%s: My brain is full of '%s'" % (m.sender,
+                " ".join(words)))
+        else:
+            msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
+            words = goatpy.tumblr.feed_random_words(msg)
+            last_post = goatpy.tumblr.get_last_post_time()
+            now = time.time()
+            if now - last_post > IDLE_TIME:
+                tags = [m.sender]
+                words = goatpy.tumblr.get_random_words()
+                tags.extend(words)
+                response = goatpy.tumblr.gis_search(" ".join(words), tags=tags)
+                if response is not None:
+                    m.reply(response)
 
     def processPrivateMessage(self, m):
         pass
 
     def getCommands(self):
-        return array([""], String)
+        return array(["tumblrbrain"], String)
 
     def messageType(self):
         return self.WANT_UNCLAIMED_MESSAGES

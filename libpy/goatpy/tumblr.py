@@ -1,11 +1,11 @@
 from goat.core import KVStore
 from goat.util import Passwords
-from goat.util import Dict
 
 from goatpy.util import get_page
 import oauth2 as oauth # yes this oauth v1 not v2
 import pickle
 import random
+import sets
 import simplejson as json
 import re
 import time
@@ -30,6 +30,31 @@ blog_brag = [
     "You know, that reminds me of my blog at %s",
     "My blog -- %s -- is filled with just that kind of thing.",
 ]
+
+# load the set of stop words -- probably not safe to do this way but what's
+# the worst that could happen?
+stop_words_file = "resources/stop_words"
+stop_words = None
+
+def get_stop_words():
+    global stop_words
+    if stop_words is not None:
+        return stop_words
+
+    try:
+        f = file(stop_words_file, "r")
+        words = f.readlines()
+        f.close()
+    except IOError, e:
+        print "error reading stopwords!"
+        return None
+
+    print "loadin'"
+    s = dict()
+    for word in words:
+        s[word.rstrip()] = True
+    stop_words = s
+    return stop_words
 
 # globals, mwa-ha-ha
 errored = False
@@ -191,23 +216,28 @@ def save_word_seeds(word_seeds):
 SEED_LENGTH=12
 TUMBLR_WORDS_KEY="tumblrWords"
 def feed_random_words(msg):
-    d = Dict()
     word_seeds = get_word_seeds()
     msg = re.sub('[^a-z\s]',  "", msg.lower())
     new_words = msg.split()
+    random.shuffle(new_words)
 
     if len(word_seeds) > SEED_LENGTH:
         word_seeds = word_seeds[:SEED_LENGTH]
 
+    stop_words = get_stop_words()
+    if stop_words is None:
+        return None
+
     for word in new_words:
         if len(word) < 4:
             continue
-        if d.contains(word):
-            if word not in word_seeds:
-                if len(word_seeds) < SEED_LENGTH:
-                    word_seeds.append(word)
-                else:
-                    word_seeds[random.randint(0, SEED_LENGTH-1)] = word
+        if word in stop_words:
+            continue
+        if word not in word_seeds:
+            if len(word_seeds) < SEED_LENGTH:
+                word_seeds.append(word)
+            else:
+                word_seeds[random.randint(0, SEED_LENGTH-1)] = word
     save_word_seeds(word_seeds)
     return word_seeds
 
