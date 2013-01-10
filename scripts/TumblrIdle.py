@@ -13,22 +13,6 @@ import time
 
 IDLE_TIME = 1800
 
-random_tags = [
-    "bored",
-    "restless",
-    "antsy",
-    "fidgety",
-    "tired",
-    "sleepy",
-    "yawn",
-    "tedium",
-    "lol",
-    "funny",
-    "quotes",
-    "love",
-]
-
-
 class TumblrIdle(Module):
     def __init__(self):
         pass

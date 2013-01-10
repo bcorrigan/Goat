@@ -20,6 +20,6 @@ def get_page(url, params=None, headers=None, max_size=25*1024):
         content = resp.read(max_size)
         code = 200 # TODO this is not strictly true.
     except urllib2.URLError, e:
-        code = None
+        code = str(e)
 
     return (code, content, resp)

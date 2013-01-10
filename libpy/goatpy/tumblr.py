@@ -34,13 +34,26 @@ blog_brag = [
 # globals, mwa-ha-ha
 errored = False
 
-def post_to_tumblr(url, caption=None, post_type="photo", link=None, tags=None):
+def post_to_tumblr(url, *args, **kwargs):
     url_store = KVStore.getCustomStore("tumblr_urls")
     if url_store.has(url):
         return
     else:
         url_store.save(url, time.time())
 
+    msg = post_to_tumblr_direct(url, *args, **kwargs)
+    if msg is not None and kwargs["post_type"] == "photo":
+        try:
+            imgur_url = post_to_imgur(url, kwargs["caption"])
+        except KeyError:
+            imgur_url = post_to_imgur(url)
+        if imgur_url is None:
+            return
+        kwargs["post_type"] = "photo_embed"
+        msg = post_to_tumblr_direct(imgur_url, *args, **kwargs)
+    return msg
+
+def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None, tags=None):
     # oauth stuff -- I should probably cache this.
     pwds = Passwords()
     consumer_key = pwds.getPassword('tumblr.consumerKey')
@@ -56,36 +69,31 @@ def post_to_tumblr(url, caption=None, post_type="photo", link=None, tags=None):
     # set up request
     request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/post'
     method = 'POST'
+
     params = { }
+    params['type'] = post_type
     if tags is not None:
         params['tags'] = ",".join(tags)
+
     if post_type == "photo":
-        #params['source'] = url
-        #params['type'] = post_type
+        params['source'] = url
+        if caption is not None:
+            params['caption'] = caption
+        if link is not None:
+            params['link'] = link
 
-        # we post links to imgur instead of hosting images with tumblr because
-        # of tumblr's stingy usage quotas.
-        if url.startswith('http://i.imgur.com/'):
-            imgur_url = url
-        else:
-            imgur_url = post_to_imgur(url, caption)
-            if imgur_url is None:
-                return
-        url = imgur_url
-
-        # TODO maybe post directly to tumblr until we hit the quota then fall
-        # back to imgur?
-        params['type'] = 'text'
+    elif post_type == "photo_embed":
         if caption is not None:
             params['title'] = caption
+        params['type'] = 'text'
         if link is not None:
             params['body'] = '<a href="%s"><img src="%s"></a>' % (link, url)
         else:
             params['body'] = '<img src="%s">' % url
+
     elif post_type == "video":
-        params['type'] = post_type
         if caption is not None:
-            params['caption'] = caption
+            params['title'] = caption
         embed_code = '<iframe width="640" height="480" src="%s" frameborder="0" allowfullscreen></iframe>'
         params['embed'] = embed_code % url
 
@@ -120,7 +128,7 @@ def gis_search(search, tags=None, show_search=True):
         urllib.urlencode(params))
     (code, content, resp) = get_page(url)
     if code != 200:
-        return "got code %d from google" % code
+        return "google said %s" % str(code)
     results = json.loads(content)
 
     try:
