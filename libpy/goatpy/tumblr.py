@@ -170,7 +170,7 @@ def gis_search(search, tags=None, show_search=True):
                 'q': search })
 
         return post_to_tumblr(random.choice(images), caption=search,
-            post_type="photo", link=link, tags=tags)
+            post_type="photo", tags=tags)
 
 def post_to_imgur(url, title=None):
     imgur_url = None
