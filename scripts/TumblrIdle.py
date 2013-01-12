@@ -33,8 +33,8 @@ class TumblrIdle(Module):
                 m.reply(msg)
             else:
                 m.reply("tumblr commands are: brain, followers")
-        elif m.modcommand == "tumblrbrains":
-            m.reply("It's 'tumblr brains' now.")
+        elif m.modCommand == "tumblrbrain":
+            m.reply("It's 'tumblr brain' now.")
         elif m.sender not in BOTS:
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             words = goatpy.tumblr.feed_random_words(msg)
