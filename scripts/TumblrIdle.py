@@ -23,7 +23,9 @@ class TumblrIdle(Module):
 
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             commands = msg.split()
-            if commands[1] == "brain":
+            if len(commands) == 1:
+                m.reply("tumblr commands are: brain, followers")
+            elif commands[1] == "brain":
                 words = goatpy.tumblr.get_random_words(
                     goatpy.tumblr.SEED_LENGTH)
                 m.reply("%s: My brain is full of '%s'" % (m.sender,
