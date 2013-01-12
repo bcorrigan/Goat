@@ -12,6 +12,7 @@ import time
 # post in a while
 
 IDLE_TIME = 1800
+BOTS = ["zuul", "goatsee" ]
 
 class TumblrIdle(Module):
     def __init__(self):
@@ -22,7 +23,7 @@ class TumblrIdle(Module):
             words = goatpy.tumblr.get_random_words(goatpy.tumblr.SEED_LENGTH)
             m.reply("%s: My brain is full of '%s'" % (m.sender,
                 " ".join(words)))
-        else:
+        elif m.sender not in BOTS:
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             words = goatpy.tumblr.feed_random_words(msg)
             last_post = goatpy.tumblr.get_last_post_time()
