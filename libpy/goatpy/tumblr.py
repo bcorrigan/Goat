@@ -178,7 +178,7 @@ def gis_search(search, tags=None, show_search=True, skip_repeats=True):
         # once.
         (code, content, resp) = get_page(url)
         if code != 200:
-            return "google said %s" % str(code)
+            return "google said %s" % str(resp)
     results = json.loads(content)
 
     try:
@@ -221,7 +221,7 @@ def post_to_imgur(url, title=None):
             print "Invalid imgur response", content
             pass
     else:
-        print "Got weird return code %d from imgur" % code
+        return "imgur said: %s" % str(resp)
     return imgur_url
 
 def get_tumblr_store():
