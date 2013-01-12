@@ -16,87 +16,17 @@ import urllib2
 # someone pastes them directly in the channel or when someone makes use of a
 # search module like gis/yis/bis.
 # TODO: implement bis, yis searches
-# TODO: what about youtube search?
-# TODO: prevent double-posting
-# TODO: use tumblr until quota expires then fall back to imgur?
 
-GENERATOR = "goatbot"
+###
+### Tumblr API
+###
 
-blog_brag = [
-    "Have you guys seen my blog at %s",
-    "Haha good one!  I posted that to my blog at %s",
-    "That belongs on my blog at %s",
-    "I have something related to that on my blog at %s",
-    "You know, that reminds me of my blog at %s",
-    "My blog -- %s -- is filled with just that kind of thing.",
-]
+def make_tumblr_request(request_type, params):
+    """This is the root of the tumblr api.  Can perform any tumblr operation
+by defining request_type and params correctly.
+    returns (success, response, result)
+"""
 
-# load the set of stop words -- probably not safe to do this way but what's
-# the worst that could happen?
-stop_words_file = "resources/stop_words"
-stop_words = None
-
-def get_stop_words():
-    global stop_words
-    if stop_words is not None:
-        return stop_words
-
-    try:
-        f = file(stop_words_file, "r")
-        words = f.readlines()
-        f.close()
-    except IOError, e:
-        print "error reading stopwords!"
-        return None
-
-    s = dict()
-    for word in words:
-        s[word.rstrip()] = True
-    stop_words = s
-    return stop_words
-
-# globals, mwa-ha-ha
-errored = False
-
-def check_old_url(url):
-    url_store = KVStore.getCustomStore("tumblr_urls")
-    if url_store.has(url):
-        return True
-    else:
-        url_store.save(url, time.time())
-    return False
-
-def check_old_search(search):
-    tokens = re.sub("[^a-z\s]", "", search.lower()).split()
-    key = " ".join(sorted(tokens))
-
-    search_store = KVStore.getCustomStore("tumblr_searches")
-    if search_store.has(key):
-        return True
-    else:
-        search_store.save(key, time.time())
-    return False
-
-def post_to_tumblr(url, *args, **kwargs):
-    if check_old_url(url):
-        if "skip_repeats" not in kwargs or kwargs["skip_repeats"]:
-            return
-
-    msg = post_to_tumblr_direct(url, *args, **kwargs)
-    if msg is not None and ("post_type" not in kwargs or 
-        kwargs["post_type"] == "photo"):
-        try:
-            imgur_url = post_to_imgur(url, kwargs["caption"])
-        except KeyError:
-            imgur_url = post_to_imgur(url)
-        if imgur_url is None:
-            return
-        kwargs["post_type"] = "photo_embed"
-        msg = post_to_tumblr_direct(imgur_url, *args, **kwargs)
-    return msg
-
-def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None,
-    tags=None, skip_repeats=True):
     # oauth stuff -- I should probably cache this.
     pwds = Passwords()
     consumer_key = pwds.getPassword('tumblr.consumerKey')
@@ -110,9 +40,50 @@ def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None,
     oauth_client = oauth.Client(consumer, token)
 
     # set up request
-    request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/post'
+    request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/%s' % (
+        request_type)
     method = 'POST'
+    body = urllib.urlencode(params)
 
+    response, content = oauth_client.request(request_url, method, body)
+    if response.status >= 200 and response.status < 300:
+        success = True
+    else:
+        success = False
+
+    try:
+        results = json.loads(content)["response"]
+    except:
+        results = None
+    return success, response, results
+
+def _format_tumblr_error(response, results):
+    """Generate consistent error message from make_tumblr_request response &
+results"""
+    try:
+        message = "Tumblr said: %s" % results["response"]["errors"][0]
+    except Exception, e:
+        message = "Tumblr didn't like that."
+    return message
+
+def followers():
+    """generates a message about the blog's followers"""
+    post_type = "followers"
+    params = {}
+    success, response, results = make_tumblr_request(post_type, params)
+    # this will list the first 20 followers.  recently acquired followers
+    # seem to be first my testing, so that's really what we want.
+    if success:
+        # build message
+        msg = "I have %s followers. Here are some recent ones: " % (
+            results["total_users"])
+        msg += ", ".join([i['name'] for i in results["users"]])
+        return msg
+    else:
+        return _format_tumblr_error(response, results)
+
+def post(url, post_type="photo", caption=None, link=None,
+    tags=None, skip_repeats=True):
     params = { }
     params['type'] = post_type
     if tags is not None:
@@ -140,29 +111,43 @@ def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None,
         embed_code = '<iframe width="640" height="480" src="%s" frameborder="0" allowfullscreen></iframe>'
         params['embed'] = embed_code % url
 
-    body = urllib.urlencode(params)
-
-    # gogo!
-    global errored
-    response, content = oauth_client.request(request_url, method, body)
-    if response.status >= 200 and response.status < 300:
-        errored = False
+    success, response, results = make_tumblr_request("post", params)
+    message = None
+    if success:
+        set_last_post_time()
         if random.random() < 0.05:
-            return random.choice(blog_brag) % 'http://goat-blog.tumblr.com'
+            message = get_blog_brag()
     else:
-        results = json.loads(content)
-        try:
-            message = "Tumblr said: %s" % results["response"]["errors"][0]
-        except Exception, e:
-            message = "Tumblr didn't like that."
+        message = _format_tumblr_error(response, results)
+    return message
 
-        if not errored:
-            errored = True
-            return message
-    set_last_post_time()
+def safe_post(url, *args, **kwargs):
+    """A posting method that falls back to posting images to imgur if  the
+tumblr image quota is exceeded."""
+    if cache_url(url):
+        if "skip_repeats" not in kwargs or kwargs["skip_repeats"]:
+            return
+
+    msg = post(url, *args, **kwargs)
+    if msg is not None and ("post_type" not in kwargs or 
+        kwargs["post_type"] == "photo"):
+        try:
+            imgur_url = post_to_imgur(url, kwargs["caption"])
+        except KeyError:
+            imgur_url = post_to_imgur(url)
+        if imgur_url is None:
+            return
+        kwargs["post_type"] = "photo_embed"
+        msg = post(imgur_url, *args, **kwargs)
+    return msg
+
+
+###
+### Higher level functions that make use of the Tumblr API to do things.
+###
 
 def gis_search(search, tags=None, show_search=True, skip_repeats=True):
-    if check_old_search(search):
+    if cache_search(search):
         if skip_repeats:
             return
     params = {
@@ -195,8 +180,132 @@ def gis_search(search, tags=None, show_search=True, skip_repeats=True):
                 'safe': 'off',
                 'q': search })
 
-        return post_to_tumblr(random.choice(images), caption=search,
+        return safe_post(random.choice(images), caption=search,
             post_type="photo", tags=tags, skip_repeats=skip_repeats)
+
+###
+### Manage a store of recently seen words. (tumblrbrain)
+###
+
+SEED_LENGTH=12
+TUMBLR_WORDS_KEY="tumblrWords"
+
+stop_words = None   # stop words cached here once loaded
+
+def get_stop_words():
+    """provide the dict of stop words"""
+    global stop_words
+    if stop_words is not None:
+        return stop_words
+
+    try:
+        f = file("resources/stop_words", "r")
+        words = f.readlines()
+        f.close()
+    except IOError, e:
+        print "error reading stopwords!"
+        return None
+
+    s = dict()
+    for word in words:
+        s[word.rstrip()] = True
+    stop_words = s
+    return stop_words
+
+def get_tumblr_store():
+    store = KVStore.getCustomStore("tumblr")
+    return store
+
+def get_word_seeds():
+    store = get_tumblr_store()
+
+    word_seeds = store.getOrElse(TUMBLR_WORDS_KEY, None)
+    if not word_seeds:
+        word_seeds = []
+    else:
+        word_seeds = pickle.loads(word_seeds)
+    return word_seeds
+
+def save_word_seeds(word_seeds):
+    store = get_tumblr_store()
+    store.save(TUMBLR_WORDS_KEY, pickle.dumps(word_seeds))
+
+def get_random_words(count=3):
+    word_seeds = get_word_seeds()
+    random.shuffle(word_seeds)
+    if len(word_seeds) < count:
+        return word_seeds
+    else:
+        return word_seeds[:count]
+
+def feed_random_words(msg):
+    word_seeds = get_word_seeds()
+    msg = re.sub('[^a-z\s.]',  "", msg.lower())
+    new_words = msg.split()
+    random.shuffle(new_words)
+
+    if len(word_seeds) > SEED_LENGTH:
+        word_seeds = word_seeds[:SEED_LENGTH]
+
+    stop_words = get_stop_words()
+    if stop_words is None:
+        return None
+
+    for word in new_words:
+        if (len(word) < 4 or word.startswith("http") or "." in word or
+            word in word_seeds or word in stop_words):
+            continue
+
+        if len(word_seeds) < SEED_LENGTH:
+            word_seeds.append(word)
+        else:
+            word_seeds[random.randint(0, SEED_LENGTH-1)] = word
+    save_word_seeds(word_seeds)
+    return word_seeds
+
+
+###
+### Utility, etc.
+###
+
+def cache_search(search):
+    """Adds a saerch to the cache.  Returns True if we've seen it before or
+False if it's new."""
+    tokens = re.sub("[^a-z\s]", "", search.lower()).split()
+    key = " ".join(sorted(tokens))
+
+    search_store = KVStore.getCustomStore("tumblr_searches")
+    if search_store.has(key):
+        return True
+    else:
+        search_store.save(key, time.time())
+    return False
+
+def cache_url(url):
+    """Adds a url to the cache.  Returns True if we've seen it before or False
+if it's new."""
+    url_store = KVStore.getCustomStore("tumblr_urls")
+    if url_store.has(url):
+        return True
+    else:
+        url_store.save(url, time.time())
+    return False
+
+def get_blog_brag():
+    blog_brag = [
+        "Have you guys seen my blog at %s",
+        "Haha good one!  I posted that to my blog at %s",
+        "That belongs on my blog at %s",
+        "I have something related to that on my blog at %s",
+        "You know, that reminds me of my blog at %s",
+        "My blog -- %s -- is filled with just that kind of thing.",
+    ]
+    return random.choice(blog_brag)
+
+def get_last_post_time():
+    store = KVStore.getCustomStore("tumblr")
+    last_post = store.getOrElse("lastPost", 0.0)
+    return last_post
 
 def post_to_imgur(url, title=None):
     imgur_url = None
@@ -223,86 +332,6 @@ def post_to_imgur(url, title=None):
     else:
         return "imgur said: %s" % str(resp)
     return imgur_url
-
-def get_tumblr_store():
-    store = KVStore.getCustomStore("tumblr")
-    return store
-
-def get_word_seeds():
-    store = get_tumblr_store()
-
-    word_seeds = store.getOrElse(TUMBLR_WORDS_KEY, None)
-    if not word_seeds:
-        word_seeds = []
-    else:
-        word_seeds = pickle.loads(word_seeds)
-    return word_seeds
-
-def save_word_seeds(word_seeds):
-    store = get_tumblr_store()
-    store.save(TUMBLR_WORDS_KEY, pickle.dumps(word_seeds))
-
-SEED_LENGTH=12
-TUMBLR_WORDS_KEY="tumblrWords"
-def feed_random_words(msg):
-    word_seeds = get_word_seeds()
-    msg = re.sub('[^a-z\s.]',  "", msg.lower())
-    new_words = msg.split()
-    random.shuffle(new_words)
-
-    if len(word_seeds) > SEED_LENGTH:
-        word_seeds = word_seeds[:SEED_LENGTH]
-
-    stop_words = get_stop_words()
-    if stop_words is None:
-        return None
-
-    for word in new_words:
-        if (len(word) < 4 or word.startswith("http") or "." in word or
-            word in word_seeds or word in stop_words):
-            continue
-
-        if len(word_seeds) < SEED_LENGTH:
-            word_seeds.append(word)
-        else:
-            word_seeds[random.randint(0, SEED_LENGTH-1)] = word
-    save_word_seeds(word_seeds)
-    return word_seeds
-
-def get_random_words(count=3):
-    word_seeds = get_word_seeds()
-    random.shuffle(word_seeds)
-    if len(word_seeds) < count:
-        return word_seeds
-    else:
-        return word_seeds[:count]
-
-def get_random_tag():
-    random_tags = [
-        "bored",
-        "restless",
-        "antsy",
-        "fidgety",
-        "tired",
-        "sleepy",
-        "yawn",
-        "tedium",
-        "lol",
-        "funny",
-        "quotes",
-        "love",
-        "cute",
-        "awkward",
-        "what",
-        "wtf",
-        "omg",
-    ]
-    return random.choice(random_tags)
-
-def get_last_post_time():
-    store = KVStore.getCustomStore("tumblr")
-    last_post = store.getOrElse("lastPost", 0.0)
-    return last_post
 
 def set_last_post_time():
     store = KVStore.getCustomStore("tumblr")

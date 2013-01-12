@@ -19,10 +19,22 @@ class TumblrIdle(Module):
         pass
 
     def processChannelMessage(self, m):
-        if m.modCommand == "tumblrbrain":
-            words = goatpy.tumblr.get_random_words(goatpy.tumblr.SEED_LENGTH)
-            m.reply("%s: My brain is full of '%s'" % (m.sender,
-                " ".join(words)))
+        if m.modCommand == "tumblr":
+
+            msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
+            commands = msg.split()
+            if commands[1] == "brain":
+                words = goatpy.tumblr.get_random_words(
+                    goatpy.tumblr.SEED_LENGTH)
+                m.reply("%s: My brain is full of '%s'" % (m.sender,
+                    " ".join(words)))
+            elif commands[1] == "followers":
+                msg = goatpy.tumblr.followers()
+                m.reply(msg)
+            else:
+                m.reply("tumblr commands are: brain, followers")
+        elif m.modcommand == "tumblrbrains":
+            m.reply("It's 'tumblr brains' now.")
         elif m.sender not in BOTS:
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             words = goatpy.tumblr.feed_random_words(msg)
@@ -41,7 +53,7 @@ class TumblrIdle(Module):
         pass
 
     def getCommands(self):
-        return array(["tumblrbrain"], String)
+        return array(["tumblr"], String)
 
     def messageType(self):
         return self.WANT_UNCLAIMED_MESSAGES

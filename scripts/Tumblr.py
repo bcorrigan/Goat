@@ -18,7 +18,7 @@ import time
 # TODO: what about youtube search?
 # TODO: prevent double-posting
 
-URL_RX = re.compile(r'https?://\S+\.(jpg|gif|png|bmp)')
+URL_RX = re.compile(r'https?://\S+\.(jpe?g|gif|png|bmp)')
 VIDEO_RX = re.compile(r'https?://[^/]*youtube\S+')
 
 refractory_period = 300 # random wait period from 0 .. this_number
@@ -106,17 +106,17 @@ class Tumblr(Module):
         if img_match:
             url = img_match.group()
             if is_obsessed(m) or random.random() < 0.05:
-                goatpy.tumblr.check_old_url(url) # saves as seen
+                goatpy.tumblr.cache_url(url) # saves as seen
             else:
                 tags.append("picture")
-                response = goatpy.tumblr.post_to_tumblr(url, tags=tags)
+                response = goatpy.tumblr.safe_post(url, tags=tags)
         elif video_match:
             url = video_match.group()
             if is_obsessed(m) or random.random() < 0.05:
-                goatpy.tumblr.check_old_url(url) # saves as seen
+                goatpy.tumblr.cache_url(url) # saves as seen
             else:
                 tags.append("video")
-                response = goatpy.tumblr.post_to_tumblr(url, post_type='video',
+                response = goatpy.tumblr.safe_post(url, post_type='video',
                     tags=tags)
         elif m.modCommand in commands:
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
@@ -124,7 +124,7 @@ class Tumblr(Module):
             if len(tokens) > 1:
                 search = " ".join(tokens[1:])
                 if is_obsessed(m):
-                    goatpy.tumblr.check_old_search(search) # saves as seen
+                    goatpy.tumblr.cache_search(search) # saves as seen
                 else:
                     provider = m.modCommand
                     parser = CommandParser(m)
