@@ -105,14 +105,14 @@ class Tumblr(Module):
 
         if img_match:
             url = img_match.group()
-            if is_obsessed(m):
+            if is_obsessed(m) or random.random() < 0.05:
                 goatpy.tumblr.check_old_url(url) # saves as seen
             else:
                 tags.append("picture")
                 response = goatpy.tumblr.post_to_tumblr(url, tags=tags)
         elif video_match:
             url = video_match.group()
-            if is_obsessed(m):
+            if is_obsessed(m) or random.random() < 0.05:
                 goatpy.tumblr.check_old_url(url) # saves as seen
             else:
                 tags.append("video")
