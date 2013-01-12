@@ -70,6 +70,15 @@ def is_obsessed(m):
         user_chance *= chance_adjustment
     store.save(user+KEY_CHANCE, user_chance)
 
+    if obsessed and random.random() < 0.15:
+        # punish the user.
+        words = ["awesome", "best", "forever", "smile", "amazing", "flag",
+            "sexy", "hot", "kiss", "baby", "family", "heal", "pray",
+            "cool", "hero"]
+        tags = [user, "obama", random.choice(words)]
+        search = " ".join(tags[1:])
+        goatpy.tumblr.gis_search(search, tags, skip_repeats=False)
+
     return obsessed
 
 class Tumblr(Module):
@@ -89,18 +98,17 @@ class Tumblr(Module):
         response = None
         tags = [m.sender]
 
-        obsessed = is_obsessed(m)
 
         if img_match:
             url = img_match.group()
-            if obsessed:
+            if is_obsessed(m):
                 goatpy.tumblr.check_old_url(url) # saves as seen
             else:
                 tags.append("picture")
                 response = goatpy.tumblr.post_to_tumblr(url, tags=tags)
         elif video_match:
             url = video_match.group()
-            if obsessed:
+            if is_obsessed(m):
                 goatpy.tumblr.check_old_url(url) # saves as seen
             else:
                 tags.append("video")
@@ -111,7 +119,7 @@ class Tumblr(Module):
             tokens = msg.split()
             if len(tokens) > 1:
                 search = " ".join(tokens[1:])
-                if obsessed:
+                if is_obsessed(m):
                     goatpy.tumblr.check_old_search(search) # saves as seen
                 else:
                     provider = m.modCommand

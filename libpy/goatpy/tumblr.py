@@ -79,7 +79,8 @@ def check_old_search(search):
 
 def post_to_tumblr(url, *args, **kwargs):
     if check_old_url(url):
-        return
+        if "skip_repeats" not in kwargs or kwargs["skip_repeats"]:
+            return
 
     msg = post_to_tumblr_direct(url, *args, **kwargs)
     if msg is not None and kwargs["post_type"] == "photo":
@@ -93,7 +94,8 @@ def post_to_tumblr(url, *args, **kwargs):
         msg = post_to_tumblr_direct(imgur_url, *args, **kwargs)
     return msg
 
-def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None, tags=None):
+def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None,
+    tags=None, skip_repeats=True):
     # oauth stuff -- I should probably cache this.
     pwds = Passwords()
     consumer_key = pwds.getPassword('tumblr.consumerKey')
@@ -144,7 +146,7 @@ def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None, tags=
     response, content = oauth_client.request(request_url, method, body)
     if response.status >= 200 and response.status < 300:
         errored = False
-        if random.random() < 0.02:
+        if random.random() < 0.05:
             return random.choice(blog_brag) % 'http://goat-blog.tumblr.com'
     else:
         results = json.loads(content)
@@ -158,9 +160,10 @@ def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None, tags=
             return message
     set_last_post_time()
 
-def gis_search(search, tags=None, show_search=True):
+def gis_search(search, tags=None, show_search=True, skip_repeats=True):
     if check_old_search(search):
-        return
+        if skip_repeats:
+            return
     params = {
         "v": "1.0",
         "start": "1",   # this can be incremented for more results.
@@ -188,7 +191,7 @@ def gis_search(search, tags=None, show_search=True):
                 'q': search })
 
         return post_to_tumblr(random.choice(images), caption=search,
-            post_type="photo", tags=tags)
+            post_type="photo", tags=tags, skip_repeats=skip_repeats)
 
 def post_to_imgur(url, title=None):
     imgur_url = None
