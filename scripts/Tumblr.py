@@ -52,14 +52,14 @@ def is_obsessed(m):
     now = time.time()
     cooldown_reset = False
 
-    user_cooldown = store.getOrElse(user+KEY_COOLDOWN, now)
+    user_cooldown = store.getOrElse(KEY_COOLDOWN+user, now)
     if user_cooldown <= now:
         cooldown_reset = True
         user_cooldown = now
     new_cooldown = user_cooldown + random.randint(0, refractory_period)
-    store.save(user+KEY_COOLDOWN, new_cooldown)
+    store.save(KEY_COOLDOWN+user, new_cooldown)
 
-    user_chance = store.getOrElse(user+KEY_CHANCE, 0.0)
+    user_chance = store.getOrElse(KEY_CHANCE+user, 0.0)
     if cooldown_reset or user_chance == 0.0:
         user_chance = base_chance + random.random() * random_bonus
 
@@ -68,7 +68,11 @@ def is_obsessed(m):
 
     if obsessed or cooldown_reset:
         user_chance *= chance_adjustment
-    store.save(user+KEY_CHANCE, user_chance)
+    store.save(KEY_CHANCE+user, user_chance)
+
+    if obsessed:
+        print "%s is obsessed.  new chance %.1f%%. expires %d seconds." % (
+            user, user_chance*100, int(new_cooldown - now))
 
     if obsessed and random.random() < 0.15:
         # punish the user.

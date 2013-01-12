@@ -241,7 +241,7 @@ SEED_LENGTH=12
 TUMBLR_WORDS_KEY="tumblrWords"
 def feed_random_words(msg):
     word_seeds = get_word_seeds()
-    msg = re.sub('[^a-z\s]',  "", msg.lower())
+    msg = re.sub('[^a-z\s.]',  "", msg.lower())
     new_words = msg.split()
     random.shuffle(new_words)
 
@@ -253,15 +253,14 @@ def feed_random_words(msg):
         return None
 
     for word in new_words:
-        if len(word) < 4:
+        if (len(word) < 4 or word.startswith("http") or "." in word or
+            word in word_seeds or word in stop_words):
             continue
-        if word in stop_words:
-            continue
-        if word not in word_seeds:
-            if len(word_seeds) < SEED_LENGTH:
-                word_seeds.append(word)
-            else:
-                word_seeds[random.randint(0, SEED_LENGTH-1)] = word
+
+        if len(word_seeds) < SEED_LENGTH:
+            word_seeds.append(word)
+        else:
+            word_seeds[random.randint(0, SEED_LENGTH-1)] = word
     save_word_seeds(word_seeds)
     return word_seeds
 
