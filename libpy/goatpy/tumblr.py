@@ -58,12 +58,28 @@ def get_stop_words():
 # globals, mwa-ha-ha
 errored = False
 
-def post_to_tumblr(url, *args, **kwargs):
+def check_old_url(url):
     url_store = KVStore.getCustomStore("tumblr_urls")
     if url_store.has(url):
-        return
+        return True
     else:
         url_store.save(url, time.time())
+    return False
+
+def check_old_search(search):
+    tokens = re.sub("[^a-z\s]", "", search.lower()).split()
+    key = " ".join(sorted(tokens))
+
+    search_store = KVStore.getCustomStore("tumblr_searches")
+    if search_store.has(key):
+        return True
+    else:
+        search_store.save(key, time.time())
+    return False
+
+def post_to_tumblr(url, *args, **kwargs):
+    if check_old_url(url):
+        return
 
     msg = post_to_tumblr_direct(url, *args, **kwargs)
     if msg is not None and kwargs["post_type"] == "photo":
@@ -143,6 +159,8 @@ def post_to_tumblr_direct(url, post_type="photo", caption=None, link=None, tags=
     set_last_post_time()
 
 def gis_search(search, tags=None, show_search=True):
+    if check_old_search(search):
+        return
     params = {
         "v": "1.0",
         "start": "1",   # this can be incremented for more results.
@@ -198,8 +216,12 @@ def post_to_imgur(url, title=None):
         print "Got weird return code %d from imgur" % code
     return imgur_url
 
-def get_word_seeds():
+def get_tumblr_store():
     store = KVStore.getCustomStore("tumblr")
+    return store
+
+def get_word_seeds():
+    store = get_tumblr_store()
 
     word_seeds = store.getOrElse(TUMBLR_WORDS_KEY, None)
     if not word_seeds:
@@ -209,7 +231,7 @@ def get_word_seeds():
     return word_seeds
 
 def save_word_seeds(word_seeds):
-    store = KVStore.getCustomStore("tumblr")
+    store = get_tumblr_store()
     store.save(TUMBLR_WORDS_KEY, pickle.dumps(word_seeds))
 
 SEED_LENGTH=12
