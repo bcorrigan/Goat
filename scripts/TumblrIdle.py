@@ -29,6 +29,7 @@ class TumblrIdle(Module):
             now = time.time()
             if now - last_post > IDLE_TIME:
                 tags = [m.sender]
+                count = random.randint(2, 3)
                 words = goatpy.tumblr.get_random_words()
                 tags.extend(words)
                 response = goatpy.tumblr.gis_search(" ".join(words), tags=tags)
