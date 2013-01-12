@@ -83,7 +83,8 @@ def post_to_tumblr(url, *args, **kwargs):
             return
 
     msg = post_to_tumblr_direct(url, *args, **kwargs)
-    if msg is not None and kwargs["post_type"] == "photo":
+    if msg is not None and ("post_type" not in kwargs or 
+        kwargs["post_type"] == "photo"):
         try:
             imgur_url = post_to_imgur(url, kwargs["caption"])
         except KeyError:
@@ -173,7 +174,11 @@ def gis_search(search, tags=None, show_search=True, skip_repeats=True):
         urllib.urlencode(params))
     (code, content, resp) = get_page(url)
     if code != 200:
-        return "google said %s" % str(code)
+        # google just fails randomly sometimes.  let's just blindly retry
+        # once.
+        (code, content, resp) = get_page(url)
+        if code != 200:
+            return "google said %s" % str(code)
     results = json.loads(content)
 
     try:
