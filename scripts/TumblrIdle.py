@@ -11,7 +11,7 @@ import time
 # this module posts to tumblr automatically when no one has forced goat to
 # post in a while
 
-IDLE_TIME = 1800
+IDLE_TIME = 900
 BOTS = ["zuul", "goatsee" ]
 
 class TumblrIdle(Module):
