@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class BotStats {
 	/**
 	 * The channels we are in.
 	 */
-	private ArrayList<String> channels = new ArrayList<String>();
+	private List<String> channels = new CopyOnWriteArrayList<String>();
 	/**
 	 * The authenticated owner of the bot.
 	 */
@@ -65,7 +66,13 @@ public class BotStats {
 
 	private Set<String> commands = new HashSet<String>();
 	
-	private List<Module> modules = new ArrayList<Module>();
+	
+	/**
+	 * Made this a CopyOnWriteArrayList to hopefully avoid the concurrent modification exceptions.
+	 * In theory, it should avoid the problems we have had, but will be much, much slower for write operations
+	 * But who cares! we only really write to the list at startup. Big whoop.
+	 */
+	private List<Module> modules = new CopyOnWriteArrayList<Module>();
 	
     /**
      * Set to true in unit test context
