@@ -20,11 +20,12 @@ class TumblrIdle(Module):
 
     def processChannelMessage(self, m):
         if m.modCommand == "tumblr":
+            helptext = "tumblr commands are: brain, followers"
 
             msg = unicode(StringUtil.removeFormattingAndColors(m.getTrailing()))
             commands = msg.split()
             if len(commands) == 1:
-                m.reply("tumblr commands are: brain, followers")
+                m.reply(helptext)
             elif commands[1] == "brain":
                 words = goatpy.tumblr.get_random_words(
                     goatpy.tumblr.SEED_LENGTH)
@@ -34,7 +35,7 @@ class TumblrIdle(Module):
                 msg = goatpy.tumblr.followers()
                 m.reply(msg)
             else:
-                m.reply("tumblr commands are: brain, followers")
+                m.reply(helptext)
         elif m.modCommand == "tumblrbrain":
             m.reply("It's 'tumblr brain' now.")
         elif m.sender not in BOTS:

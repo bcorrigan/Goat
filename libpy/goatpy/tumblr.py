@@ -21,7 +21,7 @@ import urllib2
 ### Tumblr API
 ###
 
-def make_tumblr_request(request_type, params):
+def make_tumblr_request(url, params):
     """This is the root of the tumblr api.  Can perform any tumblr operation
 by defining request_type and params correctly.
     returns (success, response, result)
@@ -40,8 +40,11 @@ by defining request_type and params correctly.
     oauth_client = oauth.Client(consumer, token)
 
     # set up request
-    request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/%s' % (
-        request_type)
+    if url is not None:
+        request_url = url
+    else:
+        request_url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/%s' % (
+            request_type)
     method = 'POST'
     body = urllib.urlencode(params)
 
@@ -68,9 +71,9 @@ results"""
 
 def followers():
     """generates a message about the blog's followers"""
-    post_type = "followers"
     params = {}
-    success, response, results = make_tumblr_request(post_type, params)
+    url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/followers'
+    success, response, results = make_tumblr_request(url, params)
     # this will list the first 20 followers.  recently acquired followers
     # seem to be first my testing, so that's really what we want.
     if success:
@@ -81,6 +84,14 @@ def followers():
         return msg
     else:
         return _format_tumblr_error(response, results)
+
+def dashboard():
+    url = 'http://api.tumblr.com/v2/user/dashboard'
+    params = {}
+    params["reblog_info"] = True
+    params["notes_info"] = True
+    success, response, results = make_tumblr_request(url, params)
+    return results
 
 def post(url, post_type="photo", caption=None, link=None,
     tags=None, skip_repeats=True):
@@ -111,7 +122,8 @@ def post(url, post_type="photo", caption=None, link=None,
         embed_code = '<iframe width="640" height="480" src="%s" frameborder="0" allowfullscreen></iframe>'
         params['embed'] = embed_code % url
 
-    success, response, results = make_tumblr_request("post", params)
+    url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/post'
+    success, response, results = make_tumblr_request(url, params)
     message = None
     if success:
         set_last_post_time()
