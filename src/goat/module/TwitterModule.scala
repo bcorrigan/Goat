@@ -431,7 +431,7 @@ class TwitterModule extends Module {
   private def twanslate(m: Message): Unit = {
     val cp = new CommandParser(m)
     try {
-      val num = cp.findNumber()
+      val num = cp.findNumber().toInt
       m.reply(twansLastTweet(m, num))
     } catch {
       case nfe: NumberFormatException =>

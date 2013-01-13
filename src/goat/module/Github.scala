@@ -33,7 +33,7 @@ class Github extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("git", "commits", "issues", "commit", "issue", "goatbug")
+    Array("commits", "issues", "commit", "issue", "goatbug", "goatbugs")
   }
 
   def processPrivateMessage(m: Message) = {
@@ -43,44 +43,42 @@ class Github extends Module {
   def processChannelMessage(m: Message) =
     try {
       m.getModCommand.toLowerCase match {
-        case "git" =>
-          m.reply("I know \"commits\" and \"issues\"")
         case "commits" =>
           m.reply(commitsReport)
-        case "issues" =>
+        case "issues" | "goatbugs" =>
           m.reply(issuesReport)
         case "commit" =>
-          m.reply(commit(new CommandParser(m).findNumber))
+          m.reply(commit(new CommandParser(m).findNumber.toInt))
         case "issue" =>
-          m.reply(issue(new CommandParser(m).findNumber))
+          showIssue(m)
         case "goatbug" =>
-          m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
+          goatbug(m)
       }
     } catch {
       case nfe: NumberFormatException =>
         m.reply("I don't believe that's a number.")
     }
   
-  val githubClient = getAuthorizedClient
+  private val githubClient = getAuthorizedClient
   
-  val repositoryService = new RepositoryService(githubClient)
-  val commitService = new CommitService(githubClient)
-  val issueService = new IssueService(githubClient)
-  val goatRepo = repositoryService.getRepository("bcorrigan", "goat")
+  private val repositoryService = new RepositoryService(githubClient)
+  private val commitService = new CommitService(githubClient)
+  private val issueService = new IssueService(githubClient)
+  private val goatRepo = repositoryService.getRepository("bcorrigan", "goat")
   
-  val utc = TimeZone.getTimeZone("UTC")
-  val timeFormat = new java.text.SimpleDateFormat("d MMM H:mm")
-  def formatUtcTime(date: Date): String = {
+  private val utc = TimeZone.getTimeZone("UTC")
+  private val timeFormat = new java.text.SimpleDateFormat("d MMM H:mm")
+  private def formatUtcTime(date: Date): String = {
 	 timeFormat.setTimeZone(utc) // there's no SimpleDateFormat constructor that takes a TimeZone, boo
 	 timeFormat.format(date)
   }
   
-  val separator = DARK_BLUE + BOLD + " \u00A7  " + NORMAL
+  private val separator = DARK_BLUE + BOLD + " \u00A7  " + NORMAL
   
-  def commitsReport: String =
+  private def commitsReport: String =
     commits.slice(0, 9).map(shortCommit(_)).reduce(_ + separator + _)
     
-  def commit(num: Int): String =
+  private def commit(num: Int): String =
     if(num > commits.size)
       "I only have " + commits.size + " commits."
     else if(num == 0)
@@ -92,12 +90,12 @@ class Github extends Module {
     else
       longCommit(getCommit(commits.size + num)) // num is negative here
 
-  def shortCommit(rc: RepositoryCommit): String =
+  private def shortCommit(rc: RepositoryCommit): String =
     formatUtcTime(rc.getCommit.getCommitter.getDate) + " " +
     "(" + rc.getCommit.getCommitter.getName + ") " +
     rc.getCommit.getMessage
   
-  def longCommit(rc: RepositoryCommit): String =
+  private def longCommit(rc: RepositoryCommit): String =
     rc.getCommit.getMessage + "  " +
   	"(" + rc.getCommit.getCommitter.getName + ") " +
     {if (rc.getStats.getAdditions > 0) DARK_BLUE + "+" + rc.getStats.getAdditions + " " + NORMAL else ""} +
@@ -107,26 +105,34 @@ class Github extends Module {
     "https://github.com/bcorrigan/Goat/commit/" + rc.getSha() + "  " +
     filesReport(rc)
 
-  def filesReport(rc: RepositoryCommit): String =
+  private def filesReport(rc: RepositoryCommit): String =
     if(rc.getFiles == null || rc.getFiles.isEmpty)
       ""
     else
       "Files:  " + rc.getFiles.map(fileSummary(_)).reduce(_ + ", " + _)
       
-  def fileSummary(cf: CommitFile): String = 
+  private def fileSummary(cf: CommitFile): String = 
     cf.getFilename + " " +
     "(" + DARK_BLUE + "+" + cf.getAdditions + " " +
     RED + "-" + cf.getDeletions + NORMAL + ")"
   
-  def issuesReport: String = {
-    val issuepage = issueService.pageIssues(goatRepo)
-    if(issuepage.hasNext)
-      issuepage.next.map(shortIssue(_)).reduce(_ + separator + _)
-    else
+  private def issuesReport: String = {
+    val issues = issueService.getIssues(goatRepo, null)
+    if(issues.isEmpty())
       "No issues."
+    else
+      issues.map(shortIssue(_)).reduce(_ + separator + _)
   }
 
-  def issue(num: Int): String = { 
+  private def showIssue(m:Message):Unit = {
+    val cp = new CommandParser(m)
+    if (cp.hasNumber)
+      m.reply(issue(cp.findNumber.toInt))
+    else
+      m.reply("I need an issue number.  You can list all issues with \"issues\"")
+  }
+    
+  private def issue(num: Int): String = { 
     val pager = issueService.pageIssues(goatRepo)
     if(pager.hasNext) {
       val page = pager.next
@@ -145,13 +151,13 @@ class Github extends Module {
       "No Issues."
   }
 
-  def shortIssue (issue: Issue): String =
+  private def shortIssue (issue: Issue): String =
     "#" + issue.getNumber + " " +
     formatUtcTime(issue.getCreatedAt) + " " +
     "(" + getComplainer(issue) + assignedString(issue) + ") " +
     titleString(issue)
 
-  def longIssue(ri: Issue): String = 
+  private def longIssue(ri: Issue): String = 
     "Issue #" + ri.getNumber + ":  " +
     titleString(ri) + "  " +
     RED + "Complainer: " + getComplainer(ri) + NORMAL + " " +
@@ -162,19 +168,19 @@ class Github extends Module {
     ri.getHtmlUrl + "  " +
     {if (ri.getBody == null) "" else ri.getBody}
 
-  def titleString(issue: Issue): String = 
+  private def titleString(issue: Issue): String = 
     if(issue.getUser.getLogin.equals("jgoat") && hasIrcUser(issue))
       issue.getTitle.substring(issue.getTitle.indexOf("\u00BB") + 1).trim
     else
       issue.getTitle
     
-  def assignedString(issue: Issue): String =
+  private def assignedString(issue: Issue): String =
     if(issue.getAssignee == null)
       ""
     else
       " -> " + issue.getAssignee.getLogin    
         
-  def getComplainer(issue: Issue): String =
+  private def getComplainer(issue: Issue): String =
     if(issue.getUser.getLogin.equals("jgoat"))
       if(hasIrcUser(issue))
         issue.getTitle.substring(1, issue.getTitle.indexOf("\u00BB"))
@@ -183,21 +189,20 @@ class Github extends Module {
     else
       issue.getUser.getLogin
       
-  def hasIrcUser(issue: Issue): Boolean =
+  private def hasIrcUser(issue: Issue): Boolean =
     issue.getTitle.substring(0,1).equals("\u00AB") && issue.getTitle.substring(1).contains("\u00BB")
       
-  def buildIssue(m: Message): Issue = {
+  private def buildIssue(m: Message): Issue = {
       val issue = new Issue
       val cp = new CommandParser(m)
-      val remaining = removeFormattingAndColors(m.getTrailing).trim
       val (title: String, body: String) = 
         if(cp.hasVar("title") && ! removeFormattingAndColors(cp.get("title")).trim.equals(""))
           (removeFormattingAndColors(cp.get("title")).trim, removeFormattingAndColors(cp.remaining).trim)
-        else if (remaining.length < 80)
-          (remaining, "")
+        else if (cp.remaining.length < 80)
+          (cp.remaining, "")
         else {
-          val splitpoint = remaining.substring(0, 72).lastIndexOf(" ")
-          (remaining.substring(0, splitpoint).trim + "\u20206", "... " + remaining.substring(splitpoint).trim)
+          val splitpoint = cp.remaining.substring(0, 72).lastIndexOf(" ")
+          (cp.remaining.substring(0, splitpoint).trim + "\u20206", "... " + cp.remaining.substring(splitpoint).trim)
         } 
       issue.setTitle("\u00AB" + m.getSender + "\u00BB " + title)
       if (! body.equals(""))
@@ -205,13 +210,30 @@ class Github extends Module {
       issue
    }
    
+  private val goatbugUsage = "You're supposed to say: " +
+                             DARK_BLUE + "goatbug [title=\"my complaint\"] moan whinge bellyache  " + NORMAL +
+                             "Or to view an existing bug: " +
+                             DARK_BLUE + "goatbug [number]  " + NORMAL +
+                             "Or to list all the bugs I know about: " +
+                             DARK_BLUE + "goatbugs  " + NORMAL
+  
+  private def goatbug(m: Message) = {
+     val cp = new CommandParser(m)
+     if (removeFormattingAndColors(cp.remaining).equals(""))
+       m.reply(goatbugUsage)
+     else if (cp.hasOnlyNumber)
+       showIssue(m)
+     else
+       confirmIssue(issueService.createIssue(goatRepo, buildIssue(m)))
+  }
+       
    def confirmIssue(issue: Issue): String = 
      BOLD + "Bug reported!  " + NORMAL +
      shortIssue(issue) + "  " +
      issue.getHtmlUrl
         
   // OAuth gunk
-  def getAuthorizedClient(): GitHubClient = {
+  private def getAuthorizedClient(): GitHubClient = {
     val client = new GitHubClient
     if(Passwords.getPassword("github.token") != null && !Passwords.getPassword("github.token").equals(""))
       client.setOAuth2Token(Passwords.getPassword("github.token"))
@@ -245,25 +267,25 @@ class Github extends Module {
   val cacheTimeout = 1 * 60 * 1000
   val commitsListStore = new KVStore[Buffer[RepositoryCommit]]("github.commitList")
   
-  def getCommit(num: Int): RepositoryCommit = 
+  private def getCommit(num: Int): RepositoryCommit = 
     commitService.getCommit(goatRepo, commits(num).getSha)
   
-  def getSha(num: Int): String = commitsListBuffer(num).getSha
+  private def getSha(num: Int): String = commitsListBuffer(num).getSha
   
-  def commits: Buffer[RepositoryCommit] =
+  private def commits: Buffer[RepositoryCommit] =
     if (commitsListBuffer == null || commitsListBuffer.isEmpty) 
       initCommitsBuffer
     else if((new Date).getTime - lastCommitsBufferUpdate.getTime > cacheTimeout) 
       updateCommitsBuffer
     else commitsListBuffer
     
-  def initCommitsBuffer: Buffer[RepositoryCommit] = {
+  private def initCommitsBuffer: Buffer[RepositoryCommit] = {
     if (commitsListStore.has("commits")) 
       commitsListBuffer = commitsListStore.get("commits")
     updateCommitsBuffer
   }
   
-  def updateCommitsBuffer: Buffer[RepositoryCommit] = {
+  private def updateCommitsBuffer: Buffer[RepositoryCommit] = {
     if (commitsListBuffer == null || commitsListBuffer.isEmpty) {
       commitsListBuffer = commitService.getCommits(goatRepo)
       cacheCommits
@@ -278,14 +300,14 @@ class Github extends Module {
     }
   }
   
-  def getNewCommits: List[RepositoryCommit] = {
+  private def getNewCommits: List[RepositoryCommit] = {
     val oldHeadSha = commitsListBuffer.head.getSha
     val newCommitsPager = commitService.pageCommits(goatRepo, 32)  // 32 is more or less arbitrary
     getCommitsUntilSha(newCommitsPager.next, newCommitsPager, oldHeadSha, List[RepositoryCommit]()).dropRight(1)
   }
   
   // it's mildly offensive that we need to implement this ourselves
-  def getCommitsUntilSha(page: java.util.Collection[RepositoryCommit], 
+  private def getCommitsUntilSha(page: java.util.Collection[RepositoryCommit], 
 		  		         pager: PageIterator[RepositoryCommit], 
 		  		         sha: String, 
 		  		         newCommits: List[RepositoryCommit]): List[RepositoryCommit] = 

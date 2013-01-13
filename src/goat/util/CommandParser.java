@@ -217,14 +217,14 @@ public class CommandParser {
      *
      * @return int supplied via "number=", "num=" or remaining
      */
-	public int findNumber() throws NumberFormatException {
-	    int ret;
+	public Double findNumber() throws NumberFormatException {
+	    Double ret;
 	    if (hasVar("num"))
-	        ret = Integer.parseInt(removeFormattingAndColors(get("num")));
+	        ret = Double.parseDouble(removeFormattingAndColors(get("num")));
 	    else if (hasVar("number"))
-	        ret = Integer.parseInt(removeFormattingAndColors(get("number")));
+	        ret = Double.parseDouble(removeFormattingAndColors(get("number")));
 	    else
-	        ret = Integer.parseInt(removeFormattingAndColors(remaining));
+	        ret = Double.parseDouble(removeFormattingAndColors(remaining));
 	    return ret;
 	}
 	
@@ -234,7 +234,16 @@ public class CommandParser {
      * @return true if we found "number=" or "num=" or remaining
      */	
 	public boolean hasNumber() {
-	    return hasVar("num") || hasVar("number") || hasRemaining();
+	    // NOTE: the hideous regex is for string representations of Double; see: http://www.regular-expressions.info/floatingpoint.html
+	    return hasVar("num") || hasVar("number") || remainingIsNumber();
+	}
+	
+	public boolean hasOnlyNumber() {
+	    return hasNumber() && (remaining.equals("") || remainingIsNumber());
+	}
+	
+	public boolean remainingIsNumber() {
+	    return remaining.matches("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
 	}
 	
 	/*

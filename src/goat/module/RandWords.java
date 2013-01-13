@@ -119,7 +119,7 @@ public class RandWords extends Module {
         String scold = "Don't fuck with me, tough guy.";
         try {
             CommandParser parser = new CommandParser(m) ;
-            int num = parser.findNumber();
+            int num = parser.findNumber().intValue();
             if (num > 10000) {
                 scold = "Don't be ridiculous.";
                 throw new NumberFormatException();

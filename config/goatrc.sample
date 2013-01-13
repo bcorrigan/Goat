@@ -36,6 +36,10 @@ insmod More all
 #insmod Bitcoin all
 #insmod Github all
 #insmod Stats.py all
+#insmod Shorten.py all
+# Don't insert Tumblr in all; we can't have ubu porning up goatblog
+#insmod Tumblr.py #jism #wordgame #goat
+#insmod TumblrIdle.py all
 
 join #goat
 
