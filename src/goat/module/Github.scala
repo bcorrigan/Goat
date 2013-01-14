@@ -26,7 +26,7 @@ import java.util.TimeZone
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Buffer
-import scala.Math.max
+import scala.math.max
 
 class Github extends Module {
   
