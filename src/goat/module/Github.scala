@@ -139,7 +139,18 @@ class Github extends Module {
       if (page.isEmpty)
         "No Issues."
       else {
-        val maxNum = page.head.getNumber()
+        val closedPager = issueService.pageIssues(goatRepo, Map[String, String](("state", "closed")))
+        val maxNum = { 
+          if (closedPager.hasNext) { 
+            val closedPage = closedPager.next
+            if (closedPage.isEmpty)
+              page.head.getNumber;
+            else
+              max(closedPage.head.getNumber, page.head.getNumber)
+          }
+          else
+            page.head.getNumber;
+        }
         if(num < 1)
           "You're such a kidder."
         else if(num > maxNum)
@@ -224,7 +235,7 @@ class Github extends Module {
      else if (cp.hasOnlyNumber)
        showIssue(m)
      else
-       confirmIssue(issueService.createIssue(goatRepo, buildIssue(m)))
+       m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
   }
        
    def confirmIssue(issue: Issue): String = 
