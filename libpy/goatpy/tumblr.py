@@ -67,6 +67,7 @@ results"""
         message = "Tumblr said: %s" % results["response"]["errors"][0]
     except Exception, e:
         message = "Tumblr didn't like that."
+        print results
     return message
 
 def followers():
