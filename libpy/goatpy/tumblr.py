@@ -314,7 +314,7 @@ def get_blog_brag():
         "You know, that reminds me of my blog at %s",
         "My blog -- %s -- is filled with just that kind of thing.",
     ]
-    return random.choice(blog_brag % 'http://goat-blog.tumblr.com/')
+    return random.choice(blog_brag) % 'http://goat-blog.tumblr.com/'
 
 def get_last_post_time():
     store = KVStore.getCustomStore("tumblr")
