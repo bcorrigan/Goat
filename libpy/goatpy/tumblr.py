@@ -141,16 +141,17 @@ tumblr image quota is exceeded."""
             return
 
     msg = post(url, *args, **kwargs)
-    if msg is not None and ("post_type" not in kwargs or 
-        kwargs["post_type"] == "photo"):
-        try:
-            imgur_url = post_to_imgur(url, kwargs["caption"])
-        except KeyError:
-            imgur_url = post_to_imgur(url)
-        if imgur_url is None:
-            return
-        kwargs["post_type"] = "photo_embed"
-        msg = post(imgur_url, *args, **kwargs)
+    if msg is not None:
+        print "tumblr said: %s" % msg
+        if "post_type" not in kwargs or kwargs["post_type"] == "photo":
+            try:
+                imgur_url = post_to_imgur(url, kwargs["caption"])
+            except KeyError:
+                imgur_url = post_to_imgur(url)
+            if imgur_url is None:
+                return
+            kwargs["post_type"] = "photo_embed"
+            msg = post(imgur_url, *args, **kwargs)
     return msg
 
 
