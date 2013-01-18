@@ -12,6 +12,10 @@ def get_page(url, params=None, headers=None, max_size=25*1024):
     else:
         req = urllib2.Request(url)
 
+    agent = ("Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 "
+             "Firefox/2.0.0.11")
+    req.add_header("User-agent", agent)
+
     try:
         if params is not None:
             resp = urllib2.urlopen(req, urllib.urlencode(params))

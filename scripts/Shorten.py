@@ -8,6 +8,7 @@ import random
 import re
 import urllib
 import urllib2
+import goatpy.util as util
 
 URL_RX = re.compile(r'https?://\S+')
 TITLE_RX = re.compile(r"<title>([^<]*).*</title>", re.I)
@@ -51,24 +52,9 @@ def unescape(text):
         return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
-def get_page(url):
-    code = None
-    content = None
-    resp = None
-
-    req = urllib2.Request(url)
-    try:
-        resp = urllib2.urlopen(req)
-        content = resp.read(25*1024)
-        code = 200
-    except urllib2.URLError, e:
-        code = e.code
-
-    return (code, content, resp)
-
 def get_page_title(url):
     title = None
-    (code, content, resp) = get_page(url)
+    (code, content, resp) = util.get_page(url)
     if code == 200:
         # XXX probably check content type here
 
@@ -92,7 +78,7 @@ def get_short_url(url):
     if random.random() < 0.0025:
         url = random.choice(random_urls)
     shortener = 'http://be.gs/shorten?url=%s' % urllib.quote_plus(url)
-    (code, content, resp) = get_page(shortener)
+    (code, content, resp) = util.get_page(shortener)
     if code == 200:
         short_url = content
     return (code, short_url)
