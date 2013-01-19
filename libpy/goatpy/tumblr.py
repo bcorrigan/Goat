@@ -128,8 +128,6 @@ def post(url, post_type="photo", caption=None, link=None,
     message = None
     if success:
         set_last_post_time()
-        if random.random() < 0.05:
-            message = get_blog_brag()
     else:
         message = _format_tumblr_error(response, results)
     return message
@@ -153,6 +151,9 @@ tumblr image quota is exceeded."""
                 return
             kwargs["post_type"] = "photo_embed"
             msg = post(imgur_url, *args, **kwargs)
+    else:
+        if random.random() < 0.05:
+            msg = get_blog_brag()
     return msg
 
 
