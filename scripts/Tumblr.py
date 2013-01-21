@@ -102,17 +102,16 @@ class Tumblr(Module):
         response = None
         tags = [m.sender]
 
-
         if img_match:
             url = img_match.group()
-            if is_obsessed(m) or random.random() < 0.90:
+            if is_obsessed(m) or random.random() < 0.60:
                 goatpy.tumblr.cache_url(url) # saves as seen
             else:
                 tags.append("picture")
                 response = goatpy.tumblr.safe_post(url, tags=tags)
         elif video_match:
             url = video_match.group()
-            if is_obsessed(m) or random.random() < 0.90:
+            if is_obsessed(m) or random.random() < 0.60:
                 goatpy.tumblr.cache_url(url) # saves as seen
             else:
                 tags.append("video")

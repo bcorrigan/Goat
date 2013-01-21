@@ -64,10 +64,9 @@ def _format_tumblr_error(response, results):
     """Generate consistent error message from make_tumblr_request response &
 results"""
     try:
-        message = "Tumblr said: %s" % results["response"]["errors"][0]
-    except Exception, e:
+        message = "Tumblr said: %s" % results["errors"][0]
+    except:
         message = "Tumblr didn't like that."
-        print results
     return message
 
 def followers():
@@ -141,14 +140,14 @@ tumblr image quota is exceeded."""
 
     msg = post(url, *args, **kwargs)
     if msg is not None:
-        print "tumblr said: %s" % msg
+        print msg
         if "post_type" not in kwargs or kwargs["post_type"] == "photo":
             try:
                 imgur_url = post_to_imgur(url, kwargs["caption"])
             except KeyError:
                 imgur_url = post_to_imgur(url)
             if imgur_url is None:
-                return
+                return "couldn't post %s to to imgur or tumblr." % url
             kwargs["post_type"] = "photo_embed"
             msg = post(imgur_url, *args, **kwargs)
     else:
@@ -344,8 +343,10 @@ def post_to_imgur(url, title=None):
         except:
             print "Invalid imgur response", content
             pass
+    elif code is not None:
+        print "imgur said: %s" % code
     else:
-        return "imgur said: %s" % str(resp)
+        print "get_page returned None?"
     return imgur_url
 
 def set_last_post_time():
