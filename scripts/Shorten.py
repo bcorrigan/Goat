@@ -3,6 +3,7 @@ from goat.core import Module
 from goat.util import StringUtil
 from jarray import array
 
+import BeautifulSoup as bs
 import htmlentitydefs
 import random
 import re
@@ -86,15 +87,60 @@ def get_short_url(url):
 def shorten_url_message(url):
     code, short_url = get_short_url(url)
     if code != 200 or short_url is None:
-        return "The shortenizer said %d" % code
+        return "The shortenizer said %s" % str(code)
 
     msg = "%s  ## " % short_url
-    code, title = get_page_title(url)
-    if code != 200 or title is None:
-        msg += "The server told me %d when I asked for the title" % code
-    else:
-        msg += title
+    #code, title = get_page_title(url)
+    #if code != 200 or title is None:
+    #    msg += "The server told me %d when I asked for the title" % code
+    #else:
+    #    msg += title
+    title, text = get_page_content(url)
+    msg += title
+    if text is not None:
+        msg += "   ## %s" % text
     return msg
+
+def visible(element):
+    skiptags = ['style', 'script', '[document]', 'head', 'title']
+    if element.parent.name in skiptags:
+        return False
+    elif re.match('<!--.*-->', str(element)):
+        return False
+    return True
+
+def get_page_content(url):
+    params = {}
+    params['format'] = 'html'
+    params['rl'] = 'false' # don't translate urls
+    params['mld'] = '0.8'  # tunable parameter
+    params['url'] = url
+
+    summary_url = 'http://viewtext.org/api/text'
+    code, content, resp = util.get_page(summary_url, params)
+    # check content type before parsing
+    if code != 200:
+        return ("Summarizer returned %d" % code, None)
+
+    if resp.headers['content-type'].startswith('text/html'):
+        soup = bs.BeautifulSoup(content)
+        try:
+            title = unescape(soup.title.string)
+        except AttributeError, e:
+            title = ''
+
+        text = " ".join(filter(visible, soup.findAll(text=True)))
+        text = unescape(text)
+        # TODO improve the following regex
+        text = re.sub('<!--[^-]*-->', '', text)
+        text = re.sub(r'Original\s*\|\s*Bookmarklet\s*\|\s*PDF\s*', '', text)
+        text = re.sub(title, '', text)
+        return title, text
+    else:
+        return "%s, %s bytes" % (
+            resp.headers['content-type'], resp.headers['content-length']
+        ), None
+
 
 class Shortener(Module):
     def __init__(self):
