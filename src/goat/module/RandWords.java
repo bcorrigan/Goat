@@ -11,6 +11,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import java.io.FileReader;
+import javax.script.Invocable;
+import javax.script.ScriptException;
+
 /**
  * Title:
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
@@ -62,26 +68,32 @@ public class RandWords extends Module {
             } catch (NumberFormatException nfe) {}
         } else if (m.getModCommand().equalsIgnoreCase("bandname")) {
             String arg = m.getModTrailing().trim() ;
-            if (arg.equals(""))
-                m.reply(randWordString(2));
-            else if (random.nextBoolean())
-                m.reply(arg + ' ' + getWord());
+            String words;
+            if (arg.equals("")) {
+                words = randWordString(2);
+            } else if (random.nextBoolean())
+                words = arg + ' ' + getWord();
             else
-                m.reply(getWord() + ' ' + arg);
+                words = getWord() + ' ' + arg;
+            m.reply(words);
+            gisSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("headline")) {
             ArrayList<String> seeds = parser.remainingAsArrayList() ;
+            String words;
             if (seeds.isEmpty())
-                m.reply(randWordString(4));
+                words = randWordString(4);
             else if (seeds.size() > 3) {
                 seeds.add(getWord());
                 Collections.shuffle(seeds);
-                m.reply(al2str(seeds));
+                words = al2str(seeds);
             } else {
                 while (seeds.size() < 4)
                     seeds.add(getWord());
                 Collections.shuffle(seeds);
-                m.reply(al2str(seeds));
+                words = al2str(seeds);
             }
+            m.reply(words);
+            gisSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("emoji")) {
             try {
                 if(parser.hasNumber())
@@ -183,5 +195,39 @@ public class RandWords extends Module {
             initEmoji();
         int ch = emoji.get(random.nextInt(emoji.size()));
         return new String(Character.toChars(ch)) + "  " + Character.getName(ch);
+    }
+
+    // Try to load a python
+    private Invocable inv = null;
+
+    private void initEngine() throws Exception {
+        if (inv == null) {
+            FileReader f = new FileReader("libpy/goatpy/tumblr.py");
+            ScriptEngine engine = new ScriptEngineManager().getEngineByName("python");
+            engine.eval(f);
+            inv = (Invocable) engine;
+        }
+    }
+
+    private void gisSearch(Message m, String result) {
+        try {
+            initEngine();
+        } catch (Exception e) {
+            m.reply("error making a python: " + e.getMessage());
+            return;
+        }
+        Object ret;
+        try {
+            // TODO add tags.
+            ret = inv.invokeFunction("gis_search", result);
+        } catch (Exception e) {
+            m.reply("error gis searching: " + e.getMessage());
+            return;
+        }
+        if (ret instanceof String) {
+            String message = (String) ret;
+            if (message.length() > 0)
+                m.reply(message);
+        }
     }
 }
