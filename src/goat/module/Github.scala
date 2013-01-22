@@ -240,6 +240,8 @@ class Github extends Module {
       m.reply(goatbugUsage)
     else if (cp.hasOnlyNumber)
       showIssue(m)
+    else if (removeFormattingAndColors(cp.remaining).toLowerCase.equals("help"))
+      m.reply(goatbugUsage)
     else if (removeFormattingAndColors(cp.remaining).length < 24) // ttly arbitrary
       m.reply("Try to be a bit more descriptive.")
     else
