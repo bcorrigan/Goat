@@ -102,6 +102,7 @@ def dashboard():
 
 def post(url, post_type="photo", caption=None, link=None,
     tags=None, skip_repeats=True):
+    set_last_post_time()
     params = { }
     params['type'] = post_type
     if tags is not None:
@@ -132,9 +133,7 @@ def post(url, post_type="photo", caption=None, link=None,
     url = 'http://api.tumblr.com/v2/blog/goat-blog.tumblr.com/post'
     success, response, results = make_tumblr_request(url, params)
     message = None
-    if success:
-        set_last_post_time()
-    else:
+    if not success:
         message = _format_tumblr_error(response, results)
     return message
 
@@ -290,7 +289,7 @@ def feed_random_words(msg):
 ###
 
 def cache_search(search):
-    """Adds a saerch to the cache.  Returns True if we've seen it before or
+    """Adds a search to the cache.  Returns True if we've seen it before or
 False if it's new."""
     tokens = re.sub("[^a-z\s]", "", search.lower()).split()
     key = " ".join(sorted(tokens))
