@@ -31,12 +31,16 @@ by defining request_type and params correctly.
     pwds = Passwords()
     consumer_key = pwds.getPassword('tumblr.consumerKey')
     consumer_secret = pwds.getPassword('tumblr.consumerSecret')
-    consumer = oauth.Consumer(consumer_key, consumer_secret)
-
     access_key = pwds.getPassword('tumblr.accessKey')
     access_secret = pwds.getPassword('tumblr.accessSecret')
-    token = oauth.Token(access_key, access_secret)
 
+    if (consumer_key is None or consumer_secret is None or
+            access_key is None or access_secret is None):
+        print "I tried to make a tumblr but I'm not configured."
+        return (None, None, None)
+
+    consumer = oauth.Consumer(consumer_key, consumer_secret)
+    token = oauth.Token(access_key, access_secret)
     oauth_client = oauth.Client(consumer, token)
 
     # set up request
@@ -63,6 +67,9 @@ by defining request_type and params correctly.
 def _format_tumblr_error(response, results):
     """Generate consistent error message from make_tumblr_request response &
 results"""
+    if response is None:
+        return
+
     try:
         message = "Tumblr said: %s" % results["errors"][0]
     except:
@@ -325,6 +332,8 @@ def post_to_imgur(url, title=None):
     imgur_url = None
     pwds = Passwords()
     client_id = pwds.getPassword('imgur.clientId')
+    if client_id is None:
+        return imgur_url
 
     headers = {}
     headers['Authorization'] = "Client-ID %s" %  client_id
