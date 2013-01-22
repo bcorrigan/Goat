@@ -229,13 +229,21 @@ class Github extends Module {
                              DARK_BLUE + "goatbugs  " + NORMAL
   
   private def goatbug(m: Message) = {
-     val cp = new CommandParser(m)
-     if (removeFormattingAndColors(cp.remaining).equals(""))
-       m.reply(goatbugUsage)
-     else if (cp.hasOnlyNumber)
-       showIssue(m)
-     else
-       m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
+    val cp = new CommandParser(m)
+    if (cp.hasVar("title")) {
+      if(removeFormattingAndColors(cp.get("title")).equals(""))
+        m.reply("I'll need a title with a little more substance")
+      else
+        m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
+    }
+    else if (removeFormattingAndColors(cp.remaining).equals(""))
+      m.reply(goatbugUsage)
+    else if (cp.hasOnlyNumber)
+      showIssue(m)
+    else if (removeFormattingAndColors(cp.remaining).length < 24) // ttly arbitrary
+      m.reply("Try to be a bit more descriptive.")
+    else
+      m.reply(confirmIssue(issueService.createIssue(goatRepo, buildIssue(m))))
   }
        
    def confirmIssue(issue: Issue): String = 

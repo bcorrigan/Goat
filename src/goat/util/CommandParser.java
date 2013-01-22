@@ -32,7 +32,6 @@ public class CommandParser {
      * @param m Message to be parsed
      */
     public CommandParser(Message m) {
-        //command = m.getModCommand() ;
         parse(m.getTrailing().trim()) ;
     }
 
@@ -106,7 +105,6 @@ public class CommandParser {
      * @return what remains of the line, after the command and vars have been parsed out
      */
     public String remaining() {
-        // System.out.println("remaining in remaining(): " + this.remaining) ;
         return remaining ;
     }
 	
@@ -118,7 +116,6 @@ public class CommandParser {
      * @return what remains of the line, after the command and vars and a supplied subcommand have been parsed out
      */
     public String remainingAfterWord(String word) {
-        // System.out.println("remaining in remaining(): " + this.remaining) ;
         return remaining.replaceFirst(word, "");
     }
 
@@ -223,6 +220,8 @@ public class CommandParser {
             ret = Double.parseDouble(removeFormattingAndColors(get("num")));
         else if (hasVar("number"))
             ret = Double.parseDouble(removeFormattingAndColors(get("number")));
+        else if (removeFormattingAndColors(remaining).matches("#" + doubleRegex))
+            ret = Double.parseDouble(removeFormattingAndColors(remaining.substring(1)));
         else
             ret = Double.parseDouble(removeFormattingAndColors(remaining));
         return ret;
@@ -234,37 +233,15 @@ public class CommandParser {
      * @return true if we found "number=" or "num=" or remaining
      */	
     public boolean hasNumber() {
-        // NOTE: the hideous regex is for string representations of Double; see: http://www.regular-expressions.info/floatingpoint.html
-        return hasVar("num") || hasVar("number") || remainingIsNumber();
+        return hasVar("num") || hasVar("number") || remaining.matches("#?" + doubleRegex);
     }
-	
+
     public boolean hasOnlyNumber() {
-        return hasNumber() && (remaining.equals("") || remainingIsNumber());
+        return hasNumber() && (remaining.equals("") || remaining.matches("#?" + doubleRegex));
     }
+
+    // this hideous regex is for string representations of Double
+    //  see: http://www.regular-expressions.info/floatingpoint.html
+    private final String doubleRegex = "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
 	
-    public boolean remainingIsNumber() {
-        return remaining.matches("[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?");
-    }
-	
-    /*
-	 
-      /**
-      * Fetch names of all stored vars
-      *
-      public String[] listVars() {
-      String vars[] = {} ;
-      return vars ;
-      }
-	
-      /**
-      * Dump all variable name/value pairs
-      *
-      * @return 2-dimensional array dump, with var name in dump[i][0], and value in dump[i][1] ;
-      *
-      public String[][] dumpVars() {
-      String[][] pairs = {{}} ;
-      return pairs ;
-      }
-	
-    */
 }
