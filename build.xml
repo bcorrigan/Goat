@@ -1,4 +1,3 @@
-
 <project name="Goat" default="jar" basedir=".">
     <description>
         Builds Goat.
@@ -12,14 +11,19 @@
 
     <property environment="env"/>
 
+    <path id="scala.class.path">
+      <fileset dir="${env.SCALA_LIBS}">
+        <include name="**/*.jar" />
+      </fileset>
+    </path>
+    <property name="scala.class.path" refid="scala.class.path" />
+
     <path id="build.class.path">
-        <!--<pathelement path="${classpath}"/>-->
         <fileset dir="lib">
             <include name="**/*.jar"/>
         </fileset>
-        <pathelement path="${env.SCALA_LIBRARY}"/>
+        <path refid="scala.class.path"/>
     </path>
-
     <property name='build.class.path' refid='build.class.path' />
 
     <path id="run.class.path">
@@ -34,13 +38,8 @@
 	<!-- Create the build directory structure used by compile -->
         <mkdir dir="${build}"/>
         <mkdir dir="${docs}"/>
-
-        <property name="scala-library.jar" value="${env.SCALA_LIBRARY}" />
 	<taskdef resource="scala/tools/ant/antlib.xml">
-            <classpath>
-                <pathelement location="${env.SCALA_COMPILER}"   />
-                <pathelement location="${scala-library.jar}"   />
-            </classpath>
+          <classpath refid="scala.class.path" />
         </taskdef>
     </target>
 

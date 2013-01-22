@@ -5,13 +5,13 @@
 source env.sh
 
 # environment variables for goat
-export JYTHONPATH=$GOAT_HOME/libpy
+export JYTHONPATH=./libpy
 
 # runs goat by specifying Goat class (still uses jar file, but only as lib)
-$JAVA \
+java \
     -server \
     -XX:+UseParallelGC \
     -XX:+UseCompressedOops \
-    -Xbootclasspath/a:`echo lib/*.jar | tr " " :`:$SCALA_LIBRARY:goat.jar \
+    -Xbootclasspath/a:`echo $SCALA_LIBS/*.jar lib/*.jar | tr " " :`:goat.jar \
     -Dlog4j.configuration=log4j.goat.properties \
     goat.Goat
