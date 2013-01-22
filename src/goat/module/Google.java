@@ -53,17 +53,13 @@ public class Google extends Module {
 
     public String[] getCommands() {
         return new String[] {
-                "google",
-                "goatle",
-                "googlefight",
-                // "pornometer", "pronometer", "pr0nometer",
-                "sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
-                "gayness", "flickr", "gnews", "googlenews", "newslink",
-                "nlink", "googlebooks",
-                "booksgoogle", "bookgoogle", "booksearch", "booklink",
-                "patentsearch", "patentgoogle", "googlepatents", "patentlink",
-                "plink", "blogsearch", "bloggoogle", "googleblogs", "bloglink",
-                "glink" };
+            "google",
+            "googlefight",
+            // "pornometer",
+            "sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
+            "gayness", "flickr", "spergle",
+            "gnews", "booksearch", "patentsearch", "blogsearch", 
+            "glink" };
     }
 
     public void processPrivateMessage(Message m) {
@@ -76,68 +72,48 @@ public class Google extends Module {
         String command = StringUtil
                 .removeFormattingAndColors(m.getModCommand());
         try {
-            if ("google".equalsIgnoreCase(command)
-                    || "goatle".equalsIgnoreCase(command)) {
+            if ("google".equalsIgnoreCase(command))
                 ircGoogle(m);
-            } else if ("gnews".equalsIgnoreCase(command)
-                    || "googlenews".equalsIgnoreCase(command)) {
+            else if ("gnews".equalsIgnoreCase(command))
                 ircGoogleNews(m);
-            } else if ("nlink".equalsIgnoreCase(command)
-                    || "newslink".equalsIgnoreCase(command)) {
-                ircNewsLink(m);
-            } else if ("googlebooks".equalsIgnoreCase(command)
-                    || "bookgoogle".equalsIgnoreCase(command)
-                    || "booksgoogle".equalsIgnoreCase(command)
-                    || "booksearch".equalsIgnoreCase(command)) {
+            else if ("booksearch".equalsIgnoreCase(command))
                 ircGoogleBooks(m);
-            } else if ("booklink".equalsIgnoreCase(command)) {
-                ircBookLink(m);
-            } else if ("googlepatents".equalsIgnoreCase(command)
-                    || "patentgoogle".equalsIgnoreCase(command)
-                    || "patentsearch".equalsIgnoreCase(command)) {
+            else if ("patentsearch".equalsIgnoreCase(command))
                 ircGooglePatents(m);
-            } else if ("patentlink".equalsIgnoreCase(command)
-                    || "plink".equalsIgnoreCase(command)) {
-                ircPatentLink(m);
-            } else if ("googleblogs".equalsIgnoreCase(command)
-                    || "bloggoogle".equalsIgnoreCase(command)
-                    || "blogsearch".equalsIgnoreCase(command)) {
+            else if ("blogsearch".equalsIgnoreCase(command))
                 ircGoogleBlogs(m);
-            } else if ("bloglink".equalsIgnoreCase(command)) {
-                ircBlogLink(m);
-            } else if ("glink".equalsIgnoreCase(command)) {
+            else if ("glink".equalsIgnoreCase(command))
                 ircCachedLink(m);
-            } else if ("googlefight".equalsIgnoreCase(command)) {
+            else if ("googlefight".equalsIgnoreCase(command))
                 ircGoogleFight(m);
-                // } else if ("pornometer".equalsIgnoreCase(m.modCommand) ||
-                // "pronometer".equalsIgnoreCase(m.modCommand) ||
-                // "pr0nometer".equalsIgnoreCase(m.modCommand)) {
-                // ircPornometer(m) ;
-            } else if ("sexiness".equalsIgnoreCase(command)) {
+            // else if ("pornometer".equalsIgnoreCase(m.modCommand))
+            // ircPornometer(m);
+            else if ("sexiness".equalsIgnoreCase(command))
                 ircSexiness(m);
-            } else if ("gayness".equalsIgnoreCase(command)) {
+            else if ("gayness".equalsIgnoreCase(command))
                 ircGayness(m);
-            } else if ("gis".equalsIgnoreCase(command)) {
+            else if ("gis".equalsIgnoreCase(command)) {
                 CommandParser cp = new CommandParser(m);
                 if (cp.hasVar("provider")
                         && cp.get("provider").equalsIgnoreCase("my mommy"))
                     m.reply(imageGoogleUrl(cp.remaining()));
                 else
                     m.reply(imageBingUrl(cp.remaining()));
-            } else if ("yis".equalsIgnoreCase(command)) {
+            } else if ("yis".equalsIgnoreCase(command))
                 m.reply(imageYahooUrl(m.getModTrailing()));
-            } else if ("wikipedia".equalsIgnoreCase(command)) {
+            else if ("wikipedia".equalsIgnoreCase(command))
                 m.reply(wikipediaUrl(m.getModTrailing()));
-            } else if ("youtube".equalsIgnoreCase(command)) {
+            else if ("youtube".equalsIgnoreCase(command))
                 m.reply(youtubeUrl(m.getModTrailing()));
-            } else if ("imdb".equalsIgnoreCase(command)) {
+            else if ("imdb".equalsIgnoreCase(command))
                 m.reply(imdbUrl(m.getModTrailing()));
-            } else if ("flickr".equalsIgnoreCase(command)) {
+            else if ("flickr".equalsIgnoreCase(command))
                 m.reply(flickrUrl(m.getModTrailing()));
-            } else {
-                m.reply("No one has gotten around to implementing " + command
-                        + ".");
-            }
+            else if ("spergle".equalsIgnoreCase(command))
+                ircSpergle(m);
+            else
+                m.reply("No one has gotten around to implementing " + command + ".");
+
         } catch (MalformedURLException mue) {
             m.reply("I'm retarded, I couldn't figure out how to make a goojax URL");
             mue.printStackTrace();
@@ -161,8 +137,23 @@ public class Google extends Module {
             m.reply("Er, what do you want me to google for you?");
             return;
         }
-        ircGoogleIncludeWikipedia(m, m.getModTrailing()
-                + " -site:wikipedia.org");
+        ircGoogleIncludeWikipedia(m, query + " -site:wikipedia.org");
+    }
+
+    private void ircSpergle(Message m) throws IOException,
+            SocketTimeoutException, MalformedURLException {
+        String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
+        if (query.matches("^\\s*$"))
+            m.reply("NO NO NO NO YOU MUST GIVE ME WORDS TO SEARCH FOR YOU ARE SO STUPID SO STUPID AND WRONG");
+        else if (query.matches("\""))
+            m.reply("I AM THE ONE WHO MAKES QUOTES YOU DO NOT MAKE QUOTES IF YOU WANT TO MAKE QUOTES YOU MUST TALK TO GOOGLE YOURSELF YOU ARE SO STUPID SO STUPID AND WRONG");
+        else {
+            String[] tokes = query.split("\\s+");
+            StringBuilder sb = new StringBuilder("\"");
+            for(int i=0; i<tokes.length; i++)
+                sb.append(tokes[i] + "\" ");
+            ircGoogleIncludeWikipedia(m, sb.toString() + "-site:wikipedia.org");
+        }
     }
 
     private String lastCachedResultType = null;
