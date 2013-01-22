@@ -145,7 +145,7 @@ public class Google extends Module {
         String query = StringUtil.removeFormattingAndColors(m.getModTrailing());
         if (query.matches("^\\s*$"))
             m.reply("NO NO NO NO YOU MUST GIVE ME WORDS TO SEARCH FOR YOU ARE SO STUPID SO STUPID AND WRONG");
-        else if (query.matches("\""))
+        else if (query.indexOf('"') >= 0)
             m.reply("I AM THE ONE WHO MAKES QUOTES YOU DO NOT MAKE QUOTES IF YOU WANT TO MAKE QUOTES YOU MUST TALK TO GOOGLE YOURSELF YOU ARE SO STUPID SO STUPID AND WRONG");
         else {
             String[] tokes = query.split("\\s+");
