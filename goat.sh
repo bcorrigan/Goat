@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # goat's space age initialization script
 
-# load environment config
-source env.sh
-
 # environment variables for goat
 export JYTHONPATH=./libpy
 
