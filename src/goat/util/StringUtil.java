@@ -96,8 +96,8 @@ public class StringUtil {
             MONTH_STR = " month";
             DAY_STR = " day";
             HOUR_STR = " hour";
-            MINUTE_STR = " minute"; 
-            SECOND_STR = " second"; 
+            MINUTE_STR = " minute";
+            SECOND_STR = " second";
         }
 
         String durparts[] = new String[]{
@@ -343,7 +343,14 @@ public class StringUtil {
         s = removeFormatting(s);
         return s;
     }
-    
+
+    /*
+     * Convenience method to spare our sensitive typing fingers
+     */
+    public static String scrub(String s) {
+        return removeFormattingAndColors(s).trim();
+    }
+
     //think this should be more optimised than the apache commons version cos it aborts
     //when the difference grows past the limit.
 	public static int levlim(String s, String t, int limit) {
@@ -407,7 +414,7 @@ public class StringUtil {
 	public static boolean isValidIRCNick (String nick) {
 		return nick.matches("[a-zA-Z0-9^{}\\[\\]`\\\\^_-|]+");
 	}
-	
+
     /**
      * When given a google maps URL, this will pull out the latitude & longitude of the position represented.
      * @param url A google maps url
@@ -415,7 +422,7 @@ public class StringUtil {
      */
     public static double[] getPositionFromMapsLink(String urlString) {
     	double[] pos = new double[2];
-    	URL url;   	
+    	URL url;
     	try {
     		url = new URL(urlString);
     	} catch (MalformedURLException me) {
@@ -435,7 +442,7 @@ public class StringUtil {
     	}
         return pos;
     }
-    
+
     /**
      * Calculate the actual length in bytes of the supplied string, in goat's output encoding.
      * Slashnet limits messages by the byte, not by char length, so in these unicode heavy days
@@ -446,7 +453,7 @@ public class StringUtil {
     public static int byteLength(String str) {
     	return str.getBytes(BotStats.getInstance().getCharset()).length;
     }
-    
+
     /**
      * Given a string, find the largest substring of it that fits the number of bytes supplied
      * Then return that substring
@@ -485,14 +492,14 @@ public class StringUtil {
         }
         return s;
     }
-    
+
     /**
      * Returns the string one after the supplied string
      * @param str
      * @return
      */
 	public static String incString(String str) {
-		return str.substring(0, str.length()-1) 
+		return str.substring(0, str.length()-1)
 						+(char) (str.substring(
 						str.length()-1).charAt(0)+1);
 	}
