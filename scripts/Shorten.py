@@ -126,8 +126,9 @@ def get_page_content(url):
         soup = bs.BeautifulSoup(content)
         try:
             title = unescape(soup.title.string)
-        except AttributeError, e:
+        except (AttributeError, TypeError), e:
             title = ''
+
 
         text = " ".join(filter(visible, soup.findAll(text=True)))
         text = unescape(text)
