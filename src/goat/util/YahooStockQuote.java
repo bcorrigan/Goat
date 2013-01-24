@@ -105,7 +105,7 @@ public class YahooStockQuote {
 	y	 Dividend Yield	
 	 */
 
-	private static final String FIELD_FLAGS = "snl1d1t1c1p2oghvr2j1e1s7n4j4b4jkf6";
+	private static final String FIELD_FLAGS = "snl1d1t1c1p2oghvrj1e1s7n4j4b4jkf6";
 	private static final String YAHOO_URL = "http://quote.yahoo.com/d/quotes.csv?f=" + FIELD_FLAGS + "&e=.csv&s=";
 
 	private static final String ENCODING = "UTF-8";
