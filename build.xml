@@ -45,6 +45,12 @@
 
     <target name="compile" depends="init"
 	    description="compile the source ">
+
+	<!-- Lets go multilanguage!-->
+        <scalac srcdir="${src}" destdir="${build}" deprecation="on" >
+            <classpath refid="build.class.path"/>
+        </scalac>
+
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src}" destdir="${build}" source="1.7" target="1.7"
 	       optimize="yes" debug="on" debuglevel="lines,vars,source"
@@ -54,10 +60,6 @@
             <classpath refid="build.class.path"/>
         </javac>
 
-	<!-- Lets go multilanguage!-->
-        <scalac srcdir="${src}" destdir="${build}" deprecation="on" >
-            <classpath refid="build.class.path"/>
-        </scalac>
 
 	<!-- Create the svn revision file-->
         <exec executable="/bin/sh" output="${build}/goatRevision" osFamily="unix">
@@ -124,5 +126,3 @@
     </target>
 
 </project>
-
-
