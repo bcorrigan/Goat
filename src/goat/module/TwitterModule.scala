@@ -40,12 +40,12 @@ class TwitterModule extends Module {
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0
 
-  private var pwds = getPasswords() 
+  private var pwds = getPasswords()
   private val consumerKey = pwds.getProperty("twitter.consumerKey")
   private val consumerSecret = pwds.getProperty("twitter.consumerSecret")
   private val accessToken = pwds.getProperty("twitter.accessToken")
   private val accessTokenSecret = pwds.getProperty("twitter.accessTokenSecret")
-  
+
   pwds = null // lame, yes. but it's Good Housekeeping; the object contains many
               // other passwords, and shouldn't be kept in memory.
 
@@ -54,7 +54,7 @@ class TwitterModule extends Module {
   private var lastOutgoingTweetTime: Long = 0
   private var lastPurge: Long = System.currentTimeMillis
   private val purgePeriod: Int = 10 //interval in minutes when we garbage collect
-  
+
   private val translator = new TranslateWrapper()
 
   //OAuth connection bullshit
@@ -99,7 +99,7 @@ class TwitterModule extends Module {
 
   //streamTwitter.addListener( new GoatStatusListener() )
   streamTwitter.addListener( new GoatUserListener() )
-  //we relay all @mentions to channel - this sets it up 
+  //we relay all @mentions to channel - this sets it up
   streamTwitter.user();
 
   followIDs(followedIDs)
@@ -126,7 +126,7 @@ class TwitterModule extends Module {
       streamTwitter.filter(query)
     }
   }
-  
+
 
 
   //this actor will send tweets, do searches, etc - we can fire up several of these
@@ -138,7 +138,7 @@ class TwitterModule extends Module {
           if (tweetMessage(msg, msg.getModTrailing))
             if(msg.isAuthorised())
               msg.reply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.")
-            else 
+            else
               msg.reply(msg.getSender + ", I have tweeted your rash words.")
         case (msg: Message, TWEET_TOPIC) =>
           tweetMessage(msg, msg.getTrailing)
@@ -402,9 +402,9 @@ class TwitterModule extends Module {
     	if(remains.length()<10)
     	  remInd=remains.length();
     	else remInd=9;
-    	
+
     	val prefix = message.substring(124, 139) + "_"
-    	
+
     	m.reply(m.getSender() + ": tweet too long, goes over at …" + prefix + remains.substring(0, remInd) + "…" )
     	false
       }
@@ -418,16 +418,16 @@ class TwitterModule extends Module {
 
   private val maxLastTweets: Int = 32
   private var lastTweets: Map[String, List[Status]] = Map[String, List[Status]]()
-  
-  private def addToLastTweets(m: Message, tweet: Status): Unit = {    
+
+  private def addToLastTweets(m: Message, tweet: Status): Unit = {
      lastTweets.get(m.getChanname()) match {
-       case Some(l) => 
+       case Some(l) =>
          lastTweets.put(m.getChanname(), (tweet :: l).take(maxLastTweets))
        case None =>
          lastTweets.put(m.getChanname(), List[Status](tweet))
      }
   }
-  
+
   private def twanslate(m: Message): Unit = {
     val cp = new CommandParser(m)
     try {
@@ -444,15 +444,15 @@ class TwitterModule extends Module {
     }
   }
 
-  private def twansLastTweet(m: Message, num: Int): String = 
+  private def twansLastTweet(m: Message, num: Int): String =
       lastTweets.get(m.getChanname()) match {
         case Some(l) =>
-          twansTweetNum(l, num)
+          twansTweetNum(m, l, num)
         case None =>
           "I don't remember finding any tweets for " + m.getChanname()
       }
-  
-  private def twansTweetNum(l: List[Status], num: Int): String =
+
+  private def twansTweetNum(m: Message, l: List[Status], num: Int): String =
     if (num < 1)
       "You are a bad person."
     else if (l.isEmpty)
@@ -461,16 +461,16 @@ class TwitterModule extends Module {
       "I only remember " + l.length + " tweets" +
       {if (l.length < maxLastTweets) " right now" else ""} + "."
     else
-      twansTweet(l(num - 1))
-  
-  private def twansTweet(tweet: Status): String = {
+      twansTweet(m, l(num - 1))
+
+  private def twansTweet(m: Message, tweet: Status): String = {
     val tweeText = unescapeHtml(tweet.getText())
     val lang = translator.detect(tweeText)
     if (lang.equals(translator.defaultLanguage))
       "As far as I can tell, that tweet was already in " + translator.defaultLanguage().name() + "."
     else
       formatTweet(tweet, "(from " + BOLD + lang.name + ")  " +
-          NORMAL + translator.translate(tweeText, translator.defaultLanguage()))
+          NORMAL + translator.localize(m, translator.translate(tweeText, translator.defaultLanguage())))
   }
 
   //return true if we found one
@@ -492,11 +492,11 @@ class TwitterModule extends Module {
 
   private def formatTweet(tweet: Status): String =
     formatTweet(tweet, unescapeHtml(tweet.getText))
-  
+
   private def formatTweet(tweet: Status, body: String): String =
-    ageOfTweet(tweet) + " ago, " + 
-    BOLD + tweet.getUser().getName() + 
-    " [@" + tweet.getUser().getScreenName() + "]" + 
+    ageOfTweet(tweet) + " ago, " +
+    BOLD + tweet.getUser().getName() +
+    " [@" + tweet.getUser().getScreenName() + "]" +
     NORMAL + ": " + body.replaceAll("\\s+", " ")
 
   private def ageOfTweet(tweet: Status): String = {
@@ -637,8 +637,8 @@ class TwitterModule extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] = {
-    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch", 
-        "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", 
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch",
+        "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
         "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans")
   }
 
@@ -663,9 +663,9 @@ class TwitterModule extends Module {
     }
     false
   }
-  
+
   private def isMention(status:Status):Boolean = {
-    println("sn:"+status.getInReplyToScreenName() + ":USER:" + USER) 
+    println("sn:"+status.getInReplyToScreenName() + ":USER:" + USER)
     println("getText():" + status.getText())
     status.getText().contains("@"+USER)
   }
@@ -693,12 +693,12 @@ class TwitterModule extends Module {
     def onScrubGeo(userId:Long, upToStatusId:Long) {
       //who gives a shit
     }
-    
+
     def onStallWarning(sw:StallWarning) {
       //pass
     }
   }*/
-  
+
   class GoatUserListener extends UserStreamListener {
     def onException(e: Exception) {
       //pass
@@ -722,29 +722,28 @@ class TwitterModule extends Module {
     def onScrubGeo(userId:Long, upToStatusId:Long) {
       //who gives a shit
     }
-    
+
     def onStallWarning(sw:StallWarning) {
       //pass
     }
-    
+
     def onBlock(source:User, blockedUser:User) { }
-    def onDeletionNotice(directMessageId:Long, userId:Long) { }  
+    def onDeletionNotice(directMessageId:Long, userId:Long) { }
     def onDirectMessage(directMessage:DirectMessage) {
       //TODO
-    }  
-    def onFavorite(source:User, target:User, favoritedStatus:Status) { }  
-    def onFollow(source:User, followedUser:User) { }  
-    def onFriendList(friendIds:Array[Long]) { }  
-    def onUnblock(source:User, unblockedUser:User) { }  
-    def onUnfavorite(source:User, target:User, unfavoritedStatus:Status) { }  
-    def onUserListCreation(listOwner:User, list:UserList) { }  
-    def onUserListDeletion(listOwner:User, list:UserList) { }  
-    def onUserListMemberAddition(addedMember:User, listOwner:User, list:UserList) { } 
-    def onUserListMemberDeletion(deletedMember:User, listOwner:User, list:UserList) { } 
-    def onUserListSubscription(subscriber:User, listOwner:User, list:UserList) { }  
-    def onUserListUnsubscription(subscriber:User, listOwner:User, list:UserList) { }  
-    def onUserListUpdate(listOwner:User, list:UserList) { }  
-    def onUserProfileUpdate(updatedUser:User) { } 
+    }
+    def onFavorite(source:User, target:User, favoritedStatus:Status) { }
+    def onFollow(source:User, followedUser:User) { }
+    def onFriendList(friendIds:Array[Long]) { }
+    def onUnblock(source:User, unblockedUser:User) { }
+    def onUnfavorite(source:User, target:User, unfavoritedStatus:Status) { }
+    def onUserListCreation(listOwner:User, list:UserList) { }
+    def onUserListDeletion(listOwner:User, list:UserList) { }
+    def onUserListMemberAddition(addedMember:User, listOwner:User, list:UserList) { }
+    def onUserListMemberDeletion(deletedMember:User, listOwner:User, list:UserList) { }
+    def onUserListSubscription(subscriber:User, listOwner:User, list:UserList) { }
+    def onUserListUnsubscription(subscriber:User, listOwner:User, list:UserList) { }
+    def onUserListUpdate(listOwner:User, list:UserList) { }
+    def onUserProfileUpdate(updatedUser:User) { }
   }
 }
-

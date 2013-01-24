@@ -7,6 +7,8 @@ import goat.core.KVStore
 import goat.util.CommandParser
 import goat.util.Passwords
 import goat.util.StringUtil.scrub
+import goat.util.TextFilters.scotchify
+import goat.util.TranslateWrapper
 
 import org.eclipse.egit.github.core.service.RepositoryService
 import org.eclipse.egit.github.core.service.CommitService
@@ -31,6 +33,8 @@ import scala.collection.mutable.Buffer
 import scala.math.max
 
 class Github extends Module {
+
+  val translator = new TranslateWrapper();
 
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
@@ -251,9 +255,9 @@ class Github extends Module {
         val splitpoint = cp.remaining.substring(0, 72).lastIndexOf(" ")
         (cp.remaining.substring(0, splitpoint).trim + "\u20206", "... " + cp.remaining.substring(splitpoint).trim)
       }
-    issue.setTitle("\u00AB" + m.getSender + "\u00BB " + title)
+    issue.setTitle("\u00AB" + m.getSender + "\u00BB " + translator.localize(m, title))
     if (! body.equals(""))
-      issue.setBody(body)
+      issue.setBody(translator.localize(m, body))
     issue
   }
 

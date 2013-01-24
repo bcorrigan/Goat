@@ -3,7 +3,8 @@ package goat.module;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
-import goat.util.StringUtil;
+import static goat.util.StringUtil.scrub;
+import static goat.util.TextFilters.scotchify;
 import goat.util.Passwords;
 import goat.util.TranslateWrapper;
 import static goat.util.TranslateWrapper.DEFAULT_GOAT_LANGUAGE;
@@ -15,9 +16,9 @@ import com.memetix.mst.language.Language;
 public class Translation extends Module {
 
     public TranslateWrapper translator = new TranslateWrapper();
-    
+
     public String[] getCommands() {
-        return new String[] { "translate", "languages", "detectlang" };
+        return new String[] { "translate", "languages", "detectlang", "scotchify" };
     }
 
     public void processPrivateMessage(Message m) {
@@ -25,28 +26,26 @@ public class Translation extends Module {
     }
 
     public void processChannelMessage(Message m) {
-        String command = StringUtil
-                .removeFormattingAndColors(m.getModCommand());
+        String command = scrub(m.getModCommand()).toLowerCase();
         try {
-            if ("translate".equalsIgnoreCase(command)) {
+            if ("translate".equals(command)) {
                 ircTranslate(m);
-            } else if ("detectlang".equalsIgnoreCase(command)
-                    || "langdetect".equalsIgnoreCase(command)
-                    || "detectlanguage".equalsIgnoreCase(command)
-                    || "languagedetect".equalsIgnoreCase(command)) {
+            } else if ("detectlang".equals(command)) {
                 ircDetectLanguage(m);
-            } else if ("languages".equalsIgnoreCase(command)) {
+            } else if ("languages".equals(command)) {
                 ircLanguages(m);
+            } else if ("scotchify".equals(command)) {
+                m.reply(scotchify(m.getModTrailing()));
             }
         } catch (Exception e) {
             m.reply("Something went wrong:  " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
     private void ircTranslate(Message m) throws Exception {
-        
-        String text = StringUtil.removeFormattingAndColors(m.getModTrailing());
+
+        String text = scrub(m.getModTrailing());
         Language toLanguage = DEFAULT_GOAT_LANGUAGE;
         Language fromLanguage = null;
 
@@ -124,19 +123,18 @@ public class Translation extends Module {
             m.reply("I'm not going to translate that into the language it's already written in!");
         else if (autoDetected)
             m.reply("(from " + fromLanguage.getName(DEFAULT_GOAT_LANGUAGE)
-                    + ")   " + translator.translate(text, toLanguage));
+                    + ")   " + translator.localize(m, translator.translate(text, toLanguage)));
         else
-            m.reply(translator.translate(text, fromLanguage, toLanguage));
+            m.reply(translator.localize(m, translator.translate(text, fromLanguage, toLanguage)));
     }
 
     private void ircDetectLanguage(Message m) throws Exception {
-        if (StringUtil.removeFormattingAndColors(m.getModTrailing()).matches("^\\s*$")) {
+        if (scrub(m.getModTrailing()).matches("^\\s*$")) {
             m.reply("I detect a " + Constants.BOLD + "jerk" + Constants.NORMAL
                     + ", with a confidence of 1.0");
             return;
         }
-        Language detectedLanguage = translator.detect(StringUtil
-                .removeFormattingAndColors(m.getModTrailing()));
+        Language detectedLanguage = translator.detect(scrub(m.getModTrailing()));
         if (detectedLanguage != null && !detectedLanguage.toString().equals(""))
             m.reply("I think that's " + Constants.BOLD
                     + detectedLanguage.getName(DEFAULT_GOAT_LANGUAGE)
@@ -147,7 +145,7 @@ public class Translation extends Module {
 
     private void ircLanguages(Message m) throws Exception {
         String msg = "I am fluent in:  ";
-        
+
         Map<String,Language> localizedMap = Language.values(DEFAULT_GOAT_LANGUAGE);
         for(String langName : localizedMap.keySet()) {
             Language lang = localizedMap.get(langName);
@@ -160,9 +158,9 @@ public class Translation extends Module {
         msg += " and" + tmp + ".";
         m.pagedReply(msg);
     }
-    
+
     private Language languageFromString(String str) throws Exception {
-        str = StringUtil.removeFormattingAndColors(str.toLowerCase());
+        str = scrub(str).toLowerCase();
         Map<String, Language> langs = Language.values(DEFAULT_GOAT_LANGUAGE);
         Language ret = null;
         if (langs.containsKey(str))
