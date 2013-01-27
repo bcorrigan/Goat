@@ -22,7 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * <P>IRC is defined by RFC 1459 (simply search for RFC 1459 to find copies of it), and I will omit a rigourous
  * treatment here (except to say that this class handles converting Java Unicode Strings to the (unspecified but 8-bit)
  * character set for IRC.</P>
- * 
+ *
  * @author bc & much filched from Daniel Pope's bot & bits from pircbot
  * @version 1.0
  */
@@ -79,7 +79,7 @@ public class Message {
 	 * details.
 	 */
 	private String sender = "";
-	
+
 	/**
 	 * The hostmask of the sending prefix.
 	 * <p/>
@@ -132,11 +132,11 @@ public class Message {
 
 	private static ConcurrentHashMap<String, Pager> pagerCache = new ConcurrentHashMap<String, Pager>() ;
 
-	
+
 	public Message() {
 		// so's we can serialize
 	}
-	
+
 	/**
 	 * The most low level way of creating a new message, this requires some knowledge of the IRC RFC. prefix can be left
 	 * empty (but not null) with most outgoing messages.
@@ -152,7 +152,7 @@ public class Message {
 	 * Creates a new outgoing NOTICE.
 	 * <p/>
 	 * <P>This type of message should not automatically be replied to.</P>
-	 * 
+	 *
 	 * @param to      The nick of the person to send to.
 	 * @param message The message to send.
 	 */
@@ -165,7 +165,7 @@ public class Message {
 	 * <p/>
 	 * This message can automatically be replied to. Personally, I'd suggest using this only for socials or to build an IRC
 	 * client.
-	 * 
+	 *
 	 * @param to      The nick of the person to send to.
 	 * @param message The message to send.
 	 */
@@ -185,7 +185,7 @@ public class Message {
 
 	/**
 	 * Creates a new outgoing CTCP message.
-	 * 
+	 *
 	 * @param to          The nick of the person to send to.
 	 * @param command     The IRC command (PRIVMSG or NOTICE)
 	 * @param CTCPcommand The CTCP command to send. The most common is ACTION.
@@ -197,7 +197,7 @@ public class Message {
 			payload = CTCPcommand + ' ' + CTCPparams ;
 		Message m = new Message("", command, to, (char) 0x01 + payload + (char) 0x01);
 		m.setCTCPCommand(CTCPcommand);
-		if (null != CTCPparams) 
+		if (null != CTCPparams)
 			m.setCTCPMessage(CTCPparams);
 		else
 			m.setCTCPMessage("");
@@ -301,7 +301,7 @@ public class Message {
 		}
 		if (getPrefix() != null) {
 			j = getPrefix().indexOf('!');
-			if (j > -1) { 
+			if (j > -1) {
 				setSender(getPrefix().substring(0, j));
 				setHostmask(getPrefix().substring(j + 1));
 			}
@@ -322,7 +322,7 @@ public class Message {
 			if (getParams().equals(BotStats.getInstance().getBotname())) {
 				setPrivate(true);
 				setReplyTo(""); // never reply to a NOTICE
-			} else 
+			} else
 				setChanname(getParams());
 				setReplyTo(""); // never reply to a NOTICE
 		}
@@ -399,7 +399,7 @@ public class Message {
 
 		return bytes;
 	}
-	
+
 	public String toString() {
 		return ( (getPrefix().length() > 0 ? ':' + getPrefix() + ' ' : "") + getCommand() + (getParams().length() > 0 ? " " : "") + getParams() + (getTrailing().length() > 0 ? " :" + getTrailing() : "") );
 	}
@@ -412,7 +412,7 @@ public class Message {
 	 * <P>eg. <CODE>Hello! Aren't you Dave?</CODE> would give the words:</P>
 	 * <p/>
 	 * <OL><LI>Hello<LI>Aren't<LI>you<LI>Dave</OL>
-	 * 
+	 *
 	 * @param index The index of the word to get, starting at 0.
 	 * @return The word at the specified position, if one, or an empty string if none.
 	 */
@@ -427,7 +427,7 @@ public class Message {
 	 * Creates a reply to a PRIVMSG with a NOTICE. <P>Using this is recommended for three reasons - <OL><LI>REplied with a
 	 * NOTICE (recommended) <LI>Makes sure that you can't reply to a NOTICE <LI>Always replies to the correct place - the
 	 * channel if the request came from the channel or the user if it was a private message </OL></P>
-	 * 
+	 *
 	 * @param trailing The message to send to the person.
 	 */
 	public Message createReply(String trailing) {
@@ -438,15 +438,15 @@ public class Message {
 			ret = new Message("", "", "", ""); //hopefully this will be accepted and ignored
 		return ret;
 	}
-	
+
 	/**
 	 * Just reply directly, lets not muck about with this m.createReply("blah").send() business
 	 * @param trailing
 	 */
-	public void reply(String trailing) { 
+	public void reply(String trailing) {
 		createPagedReply(trailing).send();
 	}
-	
+
 	/**
 	 * Just do a paged reply directly, lets not muck about with this m.createPagedReply("blah").send() business
 	 * @param trailing
@@ -455,9 +455,9 @@ public class Message {
 		createPagedReply(trailing).send();
 	}
 
-	/** 
+	/**
 	 * Creates a new paged reply, using createReply(), and initializes the pager cache with the supplied string
-	 * 
+	 *
 	 * @param trailing The text to be paged and sent
 	 *
 	 * @return a message containing the first chunk of paged text, which the caller will most likely want to send()
@@ -466,15 +466,12 @@ public class Message {
 		Message ret;
 		String smushedPayload = Pager.smush(trailing);
 		if(getCommand().equals("PRIVMSG"))
-			if (goat.util.StringUtil.byteLength(smushedPayload) <= Pager.maxBytes) 
-				ret = createReply(smushedPayload) ;
-			else
-				ret = createPagedPrivmsg(getReplyTo(), trailing);
+			ret = createPagedPrivmsg(getReplyTo(), trailing);
 		else
 			ret = new Message("","","",""); //hopefully this will be accepted and ignored
 		return ret;
 	}
-	
+
 	/**
 	 * Is there more text in the pager buffer for the current channel/nick?
 	 *
@@ -489,7 +486,7 @@ public class Message {
 		synchronized (pagerCache) {
 			if (pagerCache.containsKey(key) ) {
 				Pager pager = pagerCache.get(key) ;
-				if (pager.isEmpty()) 
+				if (pager.isEmpty())
 					pagerCache.remove(key);
 				else
 					ret = true;
@@ -497,8 +494,8 @@ public class Message {
 		}
 		return ret ;
 	}
-	
-	/** 
+
+	/**
 	 * returns a reply message via createReply containing the next page of text, if any, from the pager cache for the current channel/nick (ie, "params")
 	 *
 	 * @return aforesaid message, if there is more text in the buffer, else an empty message.
@@ -506,12 +503,12 @@ public class Message {
 	public Message createNextPage() {
 		Message ret = new Message("", "", "", "") ;
 		synchronized (pagerCache) {
-			if (hasNextPage() ) 
+			if (hasNextPage() )
 				ret = createReply(nextPage(getReplyTo())) ;
 		}
 		return ret ;
 	}
-	
+
 	public static String nextPage(String key) {
 		String ret = "";
 		if (hasNextPage(key) )
@@ -528,7 +525,7 @@ public class Message {
 	 * Creates a reply to a PRIVMSG with any message type. <P>Using this is recommended for two reasons - <OL><LI>Makes
 	 * sure that you can't reply to a NOTICE <LI>Always replies to the correct place - the channel if the request came from
 	 * the channel or the user if it was a private message </OL></P>
-	 * 
+	 *
 	 * @param command  The type of message to send (usually PRIVMSG or NOTICE)
 	 * @param trailing The message to send.
 	 */
@@ -540,7 +537,7 @@ public class Message {
 	}
 
 
-	
+
 //	/**
 //	 * Removes all colours from this message (from trailing and modTrailing fields)
 //	 */
@@ -740,7 +737,7 @@ public class Message {
 	public boolean isPrivate() {
 		return isPrivate;
 	}
-	
+
 	public String dataDump() {
 		String ret = toString();
 		if(!"".equals(channame))
@@ -751,15 +748,15 @@ public class Message {
 			ret += "\n   CTCPCommand:        " + CTCPCommand;
 		if(!"".equals(CTCPMessage))
 			ret += "\n   CTCPMessage:        " + CTCPMessage;
-		if(directlyAddressed) 
+		if(directlyAddressed)
 			ret += "\n   directlyAddressed.";
 		if(!"".equals(hostmask))
 			ret += "\n   hostmask            " + hostmask;
-		if(isAuthorised) 
+		if(isAuthorised)
 			ret += "\n   isAuthorised.";
-		if(isCTCP) 
+		if(isCTCP)
 			ret += "\n   isCTCP.";
-		if(isPrivate) 
+		if(isPrivate)
 			ret += "\n   isPrivate.";
 		if(!"".equals(modCommand))
 			ret += "\n   modCommand:          " + modCommand;
@@ -778,7 +775,7 @@ public class Message {
 		if(words != null && !words.isEmpty()) {
 			ret += "\n   words:              ";
 			for(String w: words)
-				ret += " " + w; 
+				ret += " " + w;
 		}
 		return ret;
 	}
