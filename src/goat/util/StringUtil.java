@@ -11,6 +11,10 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.CharBuffer;
+import java.nio.ByteBuffer;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -443,6 +447,7 @@ public class StringUtil {
         return pos;
     }
 
+    private static Charset goatCharset = BotStats.getInstance().getCharset();
     /**
      * Calculate the actual length in bytes of the supplied string, in goat's output encoding.
      * Slashnet limits messages by the byte, not by char length, so in these unicode heavy days
@@ -451,7 +456,7 @@ public class StringUtil {
      * @return
      */
     public static int byteLength(String str) {
-    	return str.getBytes(BotStats.getInstance().getCharset()).length;
+    	return str.getBytes(goatCharset).length;
     }
 
     /**
@@ -461,36 +466,12 @@ public class StringUtil {
      * @param maxBytes
      * @return
      */
-    public static String truncateWhenUTF8(String s, int maxBytes) {
-        int b = 0;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-
-            // ranges from http://en.wikipedia.org/wiki/UTF-8
-            int skip = 0;
-            int more;
-            if (c <= 0x007f) {
-                more = 1;
-            }
-            else if (c <= 0x07FF) {
-                more = 2;
-            } else if (c <= 0xd7ff) {
-                more = 3;
-            } else if (c <= 0xDFFF) {
-                // surrogate area, consume next char as well
-                more = 4;
-                skip = 1;
-            } else {
-                more = 3;
-            }
-
-            if (b + more > maxBytes) {
-                return s.substring(0, i);
-            }
-            b += more;
-            i += skip;
-        }
-        return s;
+    public static String maxEncodeable(String s, int maxBytes)
+    throws CharacterCodingException {
+        CharBuffer sBuf = CharBuffer.wrap(s);
+        goatCharset.newEncoder()
+            .encode(sBuf, ByteBuffer.wrap(new byte[maxBytes]), true);
+        return s.substring(0, sBuf.position());
     }
 
     /**

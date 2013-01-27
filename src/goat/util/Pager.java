@@ -1,8 +1,9 @@
 package goat.util ;
 
 import static goat.util.StringUtil.byteLength;
-import static goat.util.StringUtil.truncateWhenUTF8;
+import static goat.util.StringUtil.maxEncodeable;
 import static goat.core.Constants.*;
+import java.nio.charset.CharacterCodingException;
 
 /**
  * A wee IRC pager
@@ -23,13 +24,21 @@ public class Pager {
     //IRC max message size is 512 bytes including CR/LF and prefix, command etc. Goat messages are preceded by:
     //"goat!goat@cloak-XXXXXXXX.edslocomb.com (r676) PRIVMSG #goat :" = 61 bytes off 512.
     //hardcode this for now - but one day, goat should work it out dynamically.
-    public static final int maxBytes = 445;
-    private String innerPre = "\u2026" ;
-    private String innerPost = " [more]" ;
+    private static int defaultMaxBytes = 445;
+    public int maxBytes = defaultMaxBytes;
+
+    public String innerPre = "\u2026";
+    public String innerPost = " [more]";
     private int maxWalkback = 32;
 
     private String inputExceededMsg = " " + BOLD + "[" + NORMAL + "no more \u2014 buffer protection engaged" + BOLD + "]";
-    private int maxInputLength = maxBytes * 17 - byteLength(inputExceededMsg);  // 17 pages of crap should be enough for anyone, but not enough to swamp goat's heap
+
+    // max input length is specified in characters, not bytes
+    // it's OK if unicodes blow it up to 4x apparent length,
+    // we just need to cap it somewhere to prevent qpt from
+    // crushing our heap.
+    // 17 pages of crap should be enough for anyone...
+    private int maxInputCharacters = maxBytes * 17 - inputExceededMsg.length();
 
     private boolean untapped = true ;
 
@@ -57,9 +66,9 @@ public class Pager {
     /**
      * @param text to put in the buffer, blowing away anything already there
      */
-    private void init(String text) {
-        if(maxInputLength > 0 && byteLength(text) > maxInputLength)
-            text = truncateWhenUTF8(text,maxInputLength) + inputExceededMsg;
+    public void init(String text) {
+        if(maxInputCharacters > 0 && text.length() > maxInputCharacters)
+            text = text.substring(0, maxInputCharacters) + inputExceededMsg;
         buffer = smush(text);
         untapped = true ;
     }
@@ -79,19 +88,27 @@ public class Pager {
      */
     public synchronized String getNext() {
         String ret = "" ;
-        if (untapped) {
-            if (remaining() <= maxBytes)
-                ret = getPoliteChunk(maxBytes);
-            else
-                ret = getPoliteChunk(firstMax);
-            untapped = false ;
-        } else if(remaining() <= lastMax) {
-            ret = innerPre + getPoliteChunk(lastMax);
-        } else {
-            ret = innerPre + getPoliteChunk(midMax);
+        try {
+            if (untapped) {
+                if (remaining() <= maxBytes)
+                    ret = getPoliteChunk(maxBytes);
+                else
+                    ret = getPoliteChunk(firstMax);
+                untapped = false ;
+            } else if(remaining() <= lastMax) {
+                ret = innerPre + getPoliteChunk(lastMax);
+            } else {
+                ret = innerPre + getPoliteChunk(midMax);
+            }
+            if (! buffer.isEmpty())
+                ret += innerPost ;
+        } catch (CharacterCodingException cce) {
+            // This will rarely happen, if ever, but just in case:
+            ret = "I didn't feel like encoding that for you.";
+            cce.printStackTrace();
+            System.err.println("Pager buffer contents: \n" + buffer + "\n\n(buffer purged.)\n\n");
+            buffer = "";
         }
-        if (! buffer.isEmpty())
-            ret += innerPost ;
         return ret ;
     }
 
@@ -117,42 +134,39 @@ public class Pager {
 
     //pop the first numBytes bytes off the buffer, or until the first form-feed
     //character, whichever comes first, and without horking multibyte unicode
-    private String getChunk(int numBytes) {
-        String ret = "" ;
-        if ( remaining() >= numBytes ) {
-            ret = truncateWhenUTF8(buffer, numBytes);
-            int chop = ret.length();
-            if(ret.contains("\f")) {
-                chop = buffer.indexOf('\f') + 1;
-                ret = buffer.substring(0, chop - 1);
-            }
-            buffer = buffer.substring(chop) ;
-        } else if(buffer.contains("\f")) {
-            int chop = buffer.indexOf('\f') + 1;
-            ret = buffer.substring(0, chop - 1);
-            buffer = buffer.substring(chop) ;
+    private String getChunk(int numBytes) throws CharacterCodingException {
+        String ret = buffer ;
+        if ( remaining() > numBytes )
+            ret = maxEncodeable(buffer, numBytes);
+        ret = ret.trim(); // prevents form feed from being last character
+        if(ret.contains("\f")) {
+            int formFeed = ret.indexOf('\f');
+            ret = buffer.substring(0, formFeed);
+            buffer = buffer.substring(formFeed + 1);
         } else {
-            ret = buffer ;
-            buffer = "" ;
+            buffer = buffer.substring(ret.length());
         }
         buffer = buffer.trim();
-        return ret ;
+        return ret;
     }
 
     //pop the first num bytes off the buffer, after first walking num back
     //to the nearest whitespace (but not walking back further than maxWalkback
-    private String getPoliteChunk(int numBytes) {
-        int numCharsBack=0;
-        if ( remaining() > numBytes )
-            for (int i = truncateWhenUTF8(buffer, numBytes).length(); i>=numBytes-maxWalkback; i--)
+    private String getPoliteChunk(int numBytes) throws CharacterCodingException {
+        int politePosition=0;
+        if ( remaining() > numBytes ) {
+            String rudeChunk = maxEncodeable(buffer, numBytes);
+            int i = rudeChunk.length() - 1;
+            while(i >= 0 && i >= rudeChunk.length() - maxWalkback) {
                 if(buffer.substring(i, i+1).matches("\\s")) {
-                    numCharsBack = i;
+                    politePosition = i;
                     break;
                 }
-
-        if(numCharsBack>0)
-            numBytes=byteLength(buffer.substring(0,numCharsBack));
-
+                i--;
+            }
+        }
+        if(politePosition > 0)
+            numBytes=byteLength(buffer.substring(0,politePosition));
         return getChunk(numBytes);
     }
 
@@ -162,46 +176,5 @@ public class Pager {
         // condense all multi-space down to two spaces
         text = text.replaceAll(" {3,}", "  ") ;
         return text ;
-    }
-
-    /**
-     * Main method here for debugging
-     */
-    public static void main(String[] args) {
-        String testString = "As an enlightened, modern parent, I try to be as involved as possible in the lives of my six children.\f  I encourage them to join team sports. I attend their teen parties with them to ensure no drinking or alcohol is on the premises. I keep a fatherly eye on the CDs they listen to and the shows they watch, the company they keep and the books they read.\t You could say I'm a model parent. My children have never failed to make me proud, and I can say without the slightest embellishment that I have the finest family in the USA.\n\n  Two years ago, my wife Carol and I decided that our children\'s education would not be complete without some grounding in modern computers. To this end, we bought our children a brand new Compaq to learn with. The kids had a lot of fun using the handful of application programs we'd bought, such as Adobe's Photoshop and Microsoft's Word, and my wife and I were pleased that our gift was received so well. Our son Peter was most entranced by the device, and became quite a pro at surfing the net. When Peter began to spend whole days on the machine, I became concerned, but Carol advised me to calm down, and that it was only a passing phase. I was content to bow to her experience as a mother, until our youngest daughter, Cindy, charged into the living room one night to blurt out: \f\"Peter is a computer hacker!\"\f" ;
-        System.out.println("Testing!\n\n");
-        Pager pager = new Pager(testString) ;
-        while (! pager.isEmpty()) {
-            System.out.println("<goat> " + pager.getNext() + "\n") ;
-        }
-        System.out.println("\n\nA more synthetic test...\n\n");
-        testString = "B" ;
-        for (int i=2 ; i<Pager.maxBytes ; i++) {
-            testString = testString + String.valueOf(i % 10) ;
-        }
-        testString = testString + "E" ;
-        pager.init(testString) ;
-        while (! pager.isEmpty()) {
-            System.out.println(pager.getNext() + "\n") ;
-        }
-        System.out.println("\n\n...same, doubled...\n\n");
-        testString = testString + testString ;
-        pager.init(testString) ;
-        while (! pager.isEmpty()) {
-            System.out.println(pager.getNext() + "\n") ;
-        }
-        //exceeds max allowed by one char (3 bytes)
-        testString="Top box office:, "+BOLD+"1"+BOLD+":The Hobbit: An Unexpected Journey(★★★)"+BOLD+"2"+BOLD+":Rise of the Guardians(★★★✫)"+BOLD+"3"+BOLD+":Lincoln(★★★★✫)"+BOLD+"4"+BOLD+":Life of Pi(★★★★☆)"+BOLD+"5"+BOLD+":Skyfall(★★★★✫)"+BOLD+"6"+BOLD+":The Twilight Saga: Breaking Dawn Part 2(★★☆)"+BOLD+"7"+BOLD+":Wreck-it Ralph(★★★★☆)"+BOLD+"8"+BOLD+":Red Dawn(✫)"+BOLD+"9"+BOLD+":Playing for Keeps"+BOLD+"10"+BOLD+":Flight(★★★✰)"+BOLD+"11"+BOLD+":Hitchcock(★★★☆)"+BOLD+"12"+BOLD+":Argo(★★★★✫)"+BOLD+"13"+BOLD+":Silver Linings Playbook(★★★★✫)"+BOLD+"14"+BOLD+":Hotel Transylvania(★★)"+BOLD+"15"+BOLD+":Anna Karenina(★★★)"+BOLD+"16"+BOLD+":Here Comes the Boom(★✰)";
-        //testString="★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫"+BOLD+"★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★★✫★★★"; //max unicode case.. still 460 chars
-        //testString="123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_";
-        //testString=" I do so well in school, but I feel so horrible about it. Like in a lot of the \"hard\" classes, where a lot of my friends would fail the test, I would ace it. I feel so bad because I ruin the curve for them. Sometimes I just want to completely bomb a test just so they would get a better grade. But I can't get myself to do that for some odd reason. Everytime that I want to bomb a test, I always convince myself otherwise when it comes to it. I don't know what's so hard about these classes";
-        System.out.println(testString.length() + ", bytes:" + byteLength(testString) );
-        pager.init(testString) ;
-        while (! pager.isEmpty()) {
-            String next = pager.getNext();
-            System.out.println("str length:" + next.length());
-            System.out.println("byte length:" + byteLength(next));
-            System.out.println(next + "\n") ;
-        }
     }
 }
