@@ -22,7 +22,7 @@ URL_RX = re.compile(r'https?://\S+\.(jpe?g|gif|png|bmp)')
 VIDEO_RX = re.compile(r'https?://[^/]*youtube\S+')
 
 refractory_period = 300 # random wait period from 0 .. this_number
-base_chance = 0.90
+base_chance = 0.75
 random_bonus = 0.50 # start_level = base_chance + random(random_bonus)
 chance_adjustment = 2.0/3 # should be < 1.0
 

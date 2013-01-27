@@ -98,7 +98,7 @@ def shorten_url_message(url):
     title, text = get_page_content(url)
     msg += title
     if text is not None:
-        msg += "   ## %s" % text
+        msg += "\f%s" % text
     return msg
 
 def visible(element):
