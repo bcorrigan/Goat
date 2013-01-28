@@ -178,7 +178,7 @@ public class Message {
 		synchronized (pagerCache) {
 			Pager pager = new Pager(message) ;
 			pagerCache.put(to, pager) ;
-			ret = new Message("", "PRIVMSG", to, pager.getNext()) ;
+			ret = new Message("", "PRIVMSG", to, pager.getNext("PRIVMSG", to)) ;
 		}
 		return ret;
 	}
@@ -504,17 +504,17 @@ public class Message {
 		Message ret = new Message("", "", "", "") ;
 		synchronized (pagerCache) {
 			if (hasNextPage() )
-				ret = createReply(nextPage(getReplyTo())) ;
+                            ret = createReply(nextPage(getReplyTo(), getCommand())) ;
 		}
-		return ret ;
+		return ret;
 	}
 
-	public static String nextPage(String key) {
+        public static String nextPage(String key, String messageCommand) {
 		String ret = "";
 		if (hasNextPage(key) )
 			synchronized (pagerCache) {
 				Pager pager = pagerCache.get(key);
-				ret = pager.getNext();
+				ret = pager.getNext(messageCommand, key);
 				if(pager.isEmpty())
 					pagerCache.remove(key);
 			}

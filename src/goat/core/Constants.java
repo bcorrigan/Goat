@@ -153,6 +153,13 @@ public class Constants {
     public static final int ERR_BADCHANMASK = 476;
     public static final int ERR_NOSERVICEHOST = 492;
 
+    // Greeting Responses (RFC 2812)
+
+    public static final int RPL_WELCOME = 001;
+    public static final int RPL_YOURHOST = 002;
+    public static final int RPL_CREATED = 003;
+    public static final int RPL_MYINFO = 004;
+
     // Command Responses.
 
     public static final int RPL_TRACELINK = 200;

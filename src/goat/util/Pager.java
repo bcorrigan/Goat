@@ -3,7 +3,9 @@ package goat.util ;
 import static goat.util.StringUtil.byteLength;
 import static goat.util.StringUtil.maxEncodeable;
 import static goat.core.Constants.*;
+import goat.core.BotStats;
 import java.nio.charset.CharacterCodingException;
+import static java.lang.Math.min;
 
 /**
  * A wee IRC pager
@@ -19,12 +21,8 @@ public class Pager {
     private String buffer = "";
 
     // Config-like stuff
-    //this is really bytes, not chars.
-    //slashdot varies max bytes of message based on content! plain ascii - 460 bytes.
-    //IRC max message size is 512 bytes including CR/LF and prefix, command etc. Goat messages are preceded by:
-    //"goat!goat@cloak-XXXXXXXX.edslocomb.com (r676) PRIVMSG #goat :" = 61 bytes off 512.
-    //hardcode this for now - but one day, goat should work it out dynamically.
-    private static int defaultMaxBytes = 445;
+
+    private static int defaultMaxBytes = 460;
     public int maxBytes = defaultMaxBytes;
 
     public String innerPre = "\u2026";
@@ -42,14 +40,18 @@ public class Pager {
 
     private boolean untapped = true ;
 
-    // various easier-making fiddly numbers
-    private int firstMax = maxBytes - byteLength(innerPost);
+    // various fiddly number conveniences
+    private int firstMax(int numBytes) {
+        return numBytes - byteLength(innerPost);
+    }
 
-    private int lastMax = maxBytes - byteLength(innerPre) ;
+    private int lastMax(int numBytes) {
+        return numBytes - byteLength(innerPre) ;
+    }
 
-
-    private int midMax = maxBytes - byteLength(innerPre) - byteLength(innerPost) ;
-
+    private int midMax(int numBytes){
+        return numBytes - byteLength(innerPre) - byteLength(innerPost) ;
+    }
 
     /**
      * Ye Olde empty constructor
@@ -86,19 +88,19 @@ public class Pager {
     /**
      * @return the next block of text, which is removed from the buffer, and prettied up with prefix and suffix, as appropriate.
      */
-    public synchronized String getNext() {
+    public synchronized String getNext(int numBytes) {
         String ret = "" ;
         try {
             if (untapped) {
-                if (remaining() <= maxBytes)
-                    ret = getPoliteChunk(maxBytes);
+                if (remaining() <= numBytes)
+                    ret = getPoliteChunk(numBytes);
                 else
-                    ret = getPoliteChunk(firstMax);
+                    ret = getPoliteChunk(firstMax(numBytes));
                 untapped = false ;
-            } else if(remaining() <= lastMax) {
-                ret = innerPre + getPoliteChunk(lastMax);
+            } else if(remaining() <= lastMax(numBytes)) {
+                ret = innerPre + getPoliteChunk(lastMax(numBytes));
             } else {
-                ret = innerPre + getPoliteChunk(midMax);
+                ret = innerPre + getPoliteChunk(midMax(numBytes));
             }
             if (! buffer.isEmpty())
                 ret += innerPost ;
@@ -110,6 +112,20 @@ public class Pager {
             buffer = "";
         }
         return ret ;
+    }
+
+    //    public String getNext() {
+    //    return getNext(maxBytes);
+    //}
+
+    private static BotStats botStats = BotStats.getInstance();
+    //":goat!goat@cloak-E4425697.edslocomb.com PRIVMSG #goat :"
+    public String getNext(String command, String chan) {
+        String header = ":" + botStats.getClientName() + "!" + botStats.getHostmask() + " " + command + " " + chan + " :\r\n";
+        int byteCount = 512 - byteLength(header);
+        byteCount -= 2; // for luck
+        byteCount = min(byteCount, maxBytes);
+        return getNext(byteCount);
     }
 
     /**
