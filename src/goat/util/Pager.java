@@ -154,7 +154,7 @@ public class Pager {
         String ret = buffer ;
         if ( remaining() > numBytes )
             ret = maxEncodeable(buffer, numBytes);
-        ret = ret.trim(); // prevents form feed from being last character
+        ret = trimWhitespace(ret); // prevents form feed from being last character
         if(ret.contains("\f")) {
             int formFeed = ret.indexOf('\f');
             ret = buffer.substring(0, formFeed);
@@ -162,7 +162,7 @@ public class Pager {
         } else {
             buffer = buffer.substring(ret.length());
         }
-        buffer = buffer.trim();
+        buffer = trimWhitespace(buffer);
         return ret;
     }
 
@@ -184,6 +184,21 @@ public class Pager {
         if(politePosition > 0)
             numBytes=byteLength(buffer.substring(0,politePosition));
         return getChunk(numBytes);
+    }
+
+    /* Like java.lang.String.trim(), except we only remove
+     * \n, \t, ' ', \f, and \r (i.e. \w) instead of all
+     * characters with  an integer value >= 0x20, thus
+     * preserving formatting.  Thanks, java...
+     *
+     */
+    public static String trimWhitespace(String string) {
+        String ret = string;
+        while (ret.length() > 0 && ret.matches("\\w$"))
+            ret = ret.substring(0, ret.length());
+        while (ret.length() > 0 && ret.matches("^\\w"))
+            ret = ret.substring(1);
+        return ret;
     }
 
     public static String smush(String text) {

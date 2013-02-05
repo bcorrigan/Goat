@@ -45,54 +45,13 @@ public class Colours extends Module {
     public void processChannelMessage(Message m) {
         String c = m.getModCommand() ;
         String msg = "" ;
-        if (c.equals("colours") || c.equals("colourguide")) {
+        if (c.equals("colours")) {
             msg = "" ;
             for (int i=0; i<16; i++) {
                 msg += colourStrings[i] + i + " ";
             }
         } else if(c.equals("colour")) {
-            String t = m.getModTrailing().trim() ;
-            msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark gray, and light gray." ;
-            if (t.equalsIgnoreCase("white"))
-                msg = Constants.WHITE + "white: " + Constants.WHITE.substring(1) ;
-            else if (t.equalsIgnoreCase("black"))
-                msg = Constants.BLACK +"black: " + Constants.BLACK.substring(1) ;
-            else if (t.equalsIgnoreCase("dark blue"))
-                msg = Constants.DARK_BLUE + "dark blue: " + Constants.DARK_BLUE.substring(1) ;
-            else if (t.equalsIgnoreCase("dark green"))
-                msg = Constants.DARK_GREEN + "dark green: " + Constants.DARK_GREEN.substring(1) ;
-            else if (t.equalsIgnoreCase("red"))
-                msg = Constants.RED + "red: " + Constants.RED.substring(1) ;
-            else if (t.equalsIgnoreCase("brown"))
-                msg = Constants.BROWN + "brown: " + Constants.BROWN.substring(1) ;
-            else if (t.equalsIgnoreCase("purple"))
-                msg = Constants.PURPLE + "purple: " + Constants.PURPLE.substring(1) ;
-            else if (t.equalsIgnoreCase("olive"))
-                msg = Constants.OLIVE + "olive: " + Constants.OLIVE.substring(1) ;
-            else if (t.equalsIgnoreCase("yellow"))
-                msg = Constants.YELLOW + "yellow: " + Constants.YELLOW.substring(1) ;
-            else if (t.equalsIgnoreCase("green"))
-                msg = Constants.GREEN + "green: " + Constants.GREEN.substring(1) ;
-            else if (t.equalsIgnoreCase("teal"))
-                msg = Constants.TEAL + "teal: " + Constants.TEAL.substring(1) ;
-            else if (t.equalsIgnoreCase("cyan"))
-                msg = Constants.CYAN + "cyan: " + Constants.CYAN.substring(1) ;
-            else if (t.equalsIgnoreCase("blue"))
-                msg = Constants.BLUE + "blue: " + Constants.BLUE.substring(1) ;
-            else if (t.equalsIgnoreCase("magenta"))
-                msg = Constants.MAGENTA + "magenta: " + Constants.MAGENTA.substring(1) ;
-            else if (t.equalsIgnoreCase("dark gray"))
-                msg = Constants.DARK_GRAY + "dark gray: " + Constants.DARK_GRAY.substring(1) ;
-            else if (t.equalsIgnoreCase("light gray"))
-                msg = Constants.LIGHT_GRAY + "light gray: " + Constants.LIGHT_GRAY.substring(1) ;
-            else if (t.equalsIgnoreCase("communism"))
-                msg = Constants.RED + "COMMUNISM!" ;
-            else if (t.equalsIgnoreCase("adequacy"))
-                msg = Constants.LIGHT_GRAY + "adequacy: " + Constants.LIGHT_GRAY.substring(1) ;
-            else if (t.equalsIgnoreCase("homosexuality"))
-                msg = homosexualise("HOMOSEXUALITY!!!!") ;
-            else if (t.equalsIgnoreCase("camouflage"))
-                msg = camouflage("Camouflage") ;
+            msg = colour(m);
         } else if (c.equals("colourise")) {
             String text = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim() ;
             int numColours = colourStrings.length ;
@@ -113,6 +72,52 @@ public class Colours extends Module {
                 msg = "I think something has gone wrong in my innards" ;
         }
         m.reply(msg) ;
+    }
+
+    private String colour(Message m) {
+        String t = m.getModTrailing().trim() ;
+        String msg = "Colours are: white, black, dark blue, dark green, red, brown, purple, olive, yellow, green, communism, teal, cyan, blue, magenta, dark gray, and light gray." ;
+        if (t.equalsIgnoreCase("white"))
+            msg = Constants.WHITE + "white: " + Constants.WHITE.substring(1) ;
+        else if (t.equalsIgnoreCase("black"))
+            msg = Constants.BLACK +"black: " + Constants.BLACK.substring(1) ;
+        else if (t.equalsIgnoreCase("dark blue"))
+            msg = Constants.DARK_BLUE + "dark blue: " + Constants.DARK_BLUE.substring(1) ;
+        else if (t.equalsIgnoreCase("dark green"))
+            msg = Constants.DARK_GREEN + "dark green: " + Constants.DARK_GREEN.substring(1) ;
+        else if (t.equalsIgnoreCase("red"))
+            msg = Constants.RED + "red: " + Constants.RED.substring(1) ;
+        else if (t.equalsIgnoreCase("brown"))
+            msg = Constants.BROWN + "brown: " + Constants.BROWN.substring(1) ;
+        else if (t.equalsIgnoreCase("purple"))
+            msg = Constants.PURPLE + "purple: " + Constants.PURPLE.substring(1) ;
+        else if (t.equalsIgnoreCase("olive"))
+            msg = Constants.OLIVE + "olive: " + Constants.OLIVE.substring(1) ;
+        else if (t.equalsIgnoreCase("yellow"))
+            msg = Constants.YELLOW + "yellow: " + Constants.YELLOW.substring(1) ;
+        else if (t.equalsIgnoreCase("green"))
+            msg = Constants.GREEN + "green: " + Constants.GREEN.substring(1) ;
+        else if (t.equalsIgnoreCase("teal"))
+            msg = Constants.TEAL + "teal: " + Constants.TEAL.substring(1) ;
+        else if (t.equalsIgnoreCase("cyan"))
+            msg = Constants.CYAN + "cyan: " + Constants.CYAN.substring(1) ;
+        else if (t.equalsIgnoreCase("blue"))
+            msg = Constants.BLUE + "blue: " + Constants.BLUE.substring(1) ;
+        else if (t.equalsIgnoreCase("magenta"))
+            msg = Constants.MAGENTA + "magenta: " + Constants.MAGENTA.substring(1) ;
+        else if (t.equalsIgnoreCase("dark gray"))
+            msg = Constants.DARK_GRAY + "dark gray: " + Constants.DARK_GRAY.substring(1) ;
+        else if (t.equalsIgnoreCase("light gray"))
+            msg = Constants.LIGHT_GRAY + "light gray: " + Constants.LIGHT_GRAY.substring(1) ;
+        else if (t.equalsIgnoreCase("communism"))
+            msg = Constants.RED + "COMMUNISM!" ;
+        else if (t.equalsIgnoreCase("adequacy"))
+            msg = Constants.LIGHT_GRAY + "adequacy: " + Constants.LIGHT_GRAY.substring(1) ;
+        else if (t.equalsIgnoreCase("homosexuality"))
+            msg = homosexualise("HOMOSEXUALITY!!!!") ;
+        else if (t.equalsIgnoreCase("camouflage"))
+            msg = camouflage("Camouflage") ;
+        return msg;
     }
 
     private String homosexualise(String arg) {
