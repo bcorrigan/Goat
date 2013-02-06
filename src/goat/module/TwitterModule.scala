@@ -173,25 +173,23 @@ class TwitterModule extends Module {
 
     while(true) {
       try {
-	    // woeid 1 is "world"
-	    val trends = twitter.getPlaceTrends(1).getTrends.toList.map(_.getName)
-	    val newTrends = trends diff seenTrends
-
-	    if(!newTrends.isEmpty) {
-	      val msgTrends = newTrends map( t => if(t.startsWith("#") && t.length>1) {
-	        								 t.substring(1)
-            								 //hey rs, this is where you can hook in and turn "reasonstobeatgirlfriend" into somethign readable
-	        							 } else t)
-
-		  val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
-		  Message.createPrivmsg(chan, msg).send()
-
-		  seenTrends = (newTrends ++ seenTrends).take(1000)
-	    }
-	    Thread.sleep(60000)
-	  } catch {
+	// woeid 1 is "world"
+	val trends = twitter.getPlaceTrends(1).getTrends.toList.map(_.getName)
+	val newTrends = trends diff seenTrends
+	if(!newTrends.isEmpty) {
+	  val msgTrends = newTrends map(
+            t =>
+              if(t.startsWith("#") && t.length>1)
+	        t.substring(1)
+	      else t)
+	  val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
+	  Message.createPrivmsg(chan, msg).send()
+	  seenTrends = (newTrends ++ seenTrends).take(1000)
+	}
+	Thread.sleep(60000)
+      } catch {
         case ex:Exception =>
-        ex.printStackTrace()
+          ex.printStackTrace()
         Thread.sleep(60000)
       }
     }
@@ -199,61 +197,63 @@ class TwitterModule extends Module {
 
   private def showTrends(m: Message) {
     try {
-	    //val parser = new CommandParser(m);
-	    //val query: Query = new Query(parser.remaining())
-	    val user = Goat.getUsers().getOrCreateUser(m.getSender)
-	    var woeId: Option[Int] = None
-	    var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
-	    if(isNear) {
-	      val searchStr = m.getModTrailing.trim.toLowerCase.replaceFirst("near","").trim();
-	      if(searchStr==null || searchStr=="") {
-	        woeId = Some(user.getWoeId())
-	      } else {
-	        //look at the trends map and see what matches
-	        val matchingTrends = trendsMap.filter(_._1.toLowerCase().contains(searchStr.toLowerCase()))
-	        if(matchingTrends.size==0) {
-	          m.reply(m.getSender+": No matching trends found.")
-	          return
-	        } else if(matchingTrends.size>1) {
-	          //if there's an exact match, display trends for it
-	          if( matchingTrends.exists(_._1.toLowerCase().equals(searchStr)) ) {
-	            woeId = Some (matchingTrends.filter(_._1.toLowerCase().equals(searchStr)).head._2 )
-	          } else {
-	        	var replyStr = (if(searchStr.equals("all") || searchStr.equals("list")) {
-	        	  trendsMap
-	        	} else matchingTrends).foldRight("")((x,y) => x._1 + ", " + y)
-	            replyStr=replyStr.substring(0,replyStr.length()-2)
-	          	m.reply(m.getSender+": choose one of: " + replyStr)
-	          	return
-	          }
-	        } else {
-	          woeId=Some(matchingTrends.head._2);
-	        }
-	      }
-	    }
-
-	    var reply = "Trends of the moment"
-
-	    val trends: List[Trend] = if (woeId.isEmpty) {
-	      reply += ": "
-	      // woeid 1 is "world"
-	      twitter.getPlaceTrends(1).getTrends().toList
+      //val parser = new CommandParser(m);
+      //val query: Query = new Query(parser.remaining())
+      val user = Goat.getUsers().getOrCreateUser(m.getSender)
+      var woeId: Option[Int] = None
+      var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
+      if(isNear) {
+	val searchStr = m.getModTrailing.trim.toLowerCase.replaceFirst("near","").trim();
+	if(searchStr==null || searchStr=="") {
+	  woeId = Some(user.getWoeId())
+	} else {
+	  //look at the trends map and see what matches
+	  val matchingTrends = trendsMap.filter(_._1.toLowerCase().contains(searchStr.toLowerCase()))
+	  if(matchingTrends.size==0) {
+	    m.reply(m.getSender+": No matching trends found.")
+	    return
+	  } else if(matchingTrends.size>1) {
+	    //if there's an exact match, display trends for it
+	    if( matchingTrends.exists(_._1.toLowerCase().equals(searchStr)) ) {
+	      woeId = Some (matchingTrends.filter(_._1.toLowerCase().equals(searchStr)).head._2 )
 	    } else {
-	      val locTrends = twitter.getPlaceTrends(woeId.get)
-	      reply += " for " + locTrends.getLocation().getName() + ": "
-	      locTrends.getTrends.toList
+	      var replyStr = (
+                if(searchStr.equals("all") || searchStr.equals("list"))
+	          trendsMap
+	        else
+                  matchingTrends).foldRight("")((x,y) => x._1 + ", " + y)
+	      replyStr=replyStr.substring(0,replyStr.length()-2)
+	      m.reply(m.getSender+": choose one of: " + replyStr)
+	      return
 	    }
+	  } else {
+	    woeId=Some(matchingTrends.head._2);
+	  }
+	}
+      }
 
-	    var count = 1
-	    for (trend <- trends) {
-	      reply += " " + BOLD + count + ":" + BOLD + trend.getName()
-	      count += 1
-	    }
-	    m.reply(reply)
+      var reply = "Trends of the moment"
+
+      val trends: List[Trend] = if (woeId.isEmpty) {
+	reply += ": "
+	// woeid 1 is "world"
+	twitter.getPlaceTrends(1).getTrends().toList
+      } else {
+	val locTrends = twitter.getPlaceTrends(woeId.get)
+	reply += " for " + locTrends.getLocation().getName() + ": "
+	locTrends.getTrends.toList
+      }
+
+      var count = 1
+      for (trend <- trends) {
+	reply += " " + BOLD + count + ":" + BOLD + trend.getName()
+	count += 1
+      }
+      m.reply(reply)
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace
-        m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage)
+      m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage)
     }
   }
 
