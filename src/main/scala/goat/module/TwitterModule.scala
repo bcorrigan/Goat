@@ -10,7 +10,9 @@ import goat.util.Passwords._
 import goat.Goat
 import goat.util.TranslateWrapper;
 
-import scala.actors.Actor._
+import akka.actor.Actor
+import akka.actor.Props
+import akka.actor.ActorSystem
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
@@ -127,45 +129,52 @@ class TwitterModule extends Module {
     }
   }
 
-
-
-  //this actor will send tweets, do searches, etc - we can fire up several of these
-  private val twitterActor = actor {
-    //val twitter: Twitter = new Twitter("goatbot", "slashnet")
-    while (true) {
-      receive {
-        case (msg: Message, TWEET) =>
-          if (tweetMessage(msg, msg.getModTrailing))
-            if(msg.isAuthorised())
-              msg.reply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.")
-            else
-              msg.reply(msg.getSender + ", I have tweeted your rash words.")
-        case (msg: Message, TWEET_TOPIC) =>
-          tweetMessage(msg, msg.getTrailing)
-        case (msg: Message, FOLLOW) =>
-          enableNotification(msg, msg.getModTrailing.trim())
-          refreshTwitterStream()
-        case (msg: Message, UNFOLLOW) =>
-          disableNotification(msg, msg.getModTrailing.trim())
-          refreshTwitterStream()
-        case (msg: Message, SEARCH) =>
-          queryTwitter(msg, msg.getModTrailing.trim().toLowerCase())
-        case (msg: Message, TRENDS) =>
-          showTrends(msg)
-        case (msg: Message, TRANSLATE) =>
-          twanslate(msg)
-      }
+  class TwitterActor extends Actor {
+    def receive = {
+      case (msg: Message, TWEET) =>
+        if (tweetMessage(msg, msg.getModTrailing))
+          if(msg.isAuthorised())
+            msg.reply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.")
+          else
+            msg.reply(msg.getSender + ", I have tweeted your rash words.")
+      case (msg: Message, TWEET_TOPIC) =>
+        tweetMessage(msg, msg.getTrailing)
+      case (msg: Message, FOLLOW) =>
+        enableNotification(msg, msg.getModTrailing.trim())
+      refreshTwitterStream()
+      case (msg: Message, UNFOLLOW) =>
+        disableNotification(msg, msg.getModTrailing.trim())
+      refreshTwitterStream()
+      case (msg: Message, SEARCH) =>
+        queryTwitter(msg, msg.getModTrailing.trim().toLowerCase())
+      case (msg: Message, TRENDS) =>
+        showTrends(msg)
+      case (msg: Message, TRANSLATE) =>
+        twanslate(msg)
+      case (msg: Message, _) =>
+        msg.reply("My tweeter machine got an unknown message")
+      case(_, _) =>
+        println("TwitterModule: unknown message tuple sent to TwitterActor")
+      case _ =>
+        println("TwitterModule: TwitterActor recieved message of unknown type")
     }
   }
 
-  private val trendsNotifyActor = actor {
-    while (true) {
-      receive {
-        case (chan: String, TRENDSNOTIFY) =>
-          trendsNotify(chan)
-      }
+  class TrendsNotifyActor extends Actor {
+    def receive = {
+      case (chan: String, TRENDSNOTIFY) =>
+        trendsNotify(chan)
+      case _ =>
+        println("TwitterModule: TrendsNotifyActor received message of unknown type")
     }
   }
+
+  // FIXME: make 'system' a project global
+  val system = ActorSystem("MySystem")
+  val twitterActor = system.actorOf(Props(new TwitterActor),
+                                    name = "twitterActor")
+  val trendsNotifyActor = system.actorOf(Props (new TrendsNotifyActor),
+                                         name = "trendsNotifyActor")
 
   //TODO use receiveWithin and TIMEOUT
   private def trendsNotify(chan:String) {
@@ -186,11 +195,11 @@ class TwitterModule extends Module {
 	  Message.createPrivmsg(chan, msg).send()
 	  seenTrends = (newTrends ++ seenTrends).take(1000)
 	}
-	Thread.sleep(60000)
       } catch {
-        case ex:Exception =>
-          ex.printStackTrace()
-        Thread.sleep(60000)
+        case re: RuntimeException =>
+          re.printStackTrace()
+      } finally {
+	Thread.sleep(60000)
       }
     }
   }
@@ -439,8 +448,9 @@ class TwitterModule extends Module {
           m.reply("I don't believe that's a number")
         else
           m.reply(twansLastTweet(m, 1))
-      case e: Exception =>
-        m.reply("Something went wrong with my translator")
+      case re: RuntimeException =>
+        m.reply("Lost in twanslation:  " + re.getMessage)
+        re.printStackTrace
     }
   }
 
@@ -669,35 +679,6 @@ class TwitterModule extends Module {
     println("getText():" + status.getText())
     status.getText().contains("@"+USER)
   }
-
-  /*class GoatStatusListener extends StatusListener {
-    def onException(e: Exception) {
-      //pass
-      e.printStackTrace()
-    }
-
-    def onStatus(status: Status) {
-      if (isFollowed(status.getUser.getId))
-        sendStatusToChan(status, chan);
-      println(status.getText)
-    }
-
-    def onDeletionNotice(statusDeletionNotice:StatusDeletionNotice) {
-      //TODO ignore for now ; should really remove the deleted account
-    }
-
-    def onTrackLimitationNotice(numberOfLimitedStatuses:Int) {
-      //ignore, now and forever
-    }
-
-    def onScrubGeo(userId:Long, upToStatusId:Long) {
-      //who gives a shit
-    }
-
-    def onStallWarning(sw:StallWarning) {
-      //pass
-    }
-  }*/
 
   class GoatUserListener extends UserStreamListener {
     def onException(e: Exception) {
