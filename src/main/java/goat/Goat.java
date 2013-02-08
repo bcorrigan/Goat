@@ -17,6 +17,7 @@ public class Goat {
     public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};
     public static ServerConnection sc;
+
     private static Users users = new Users() ;
 
     public static void main(String[] args) {
