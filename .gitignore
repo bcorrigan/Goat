@@ -3,6 +3,9 @@
 \#*#
 *.sw*
 
+# sbt
+target/
+
 # actual project stuff
 classes/
 bin/
