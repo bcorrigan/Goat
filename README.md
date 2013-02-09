@@ -14,9 +14,9 @@ Probably more useful to steal code from for your own bot, than to run your own i
 
     goatrc has a long list of modules you can enable, but that list tends to get out of date.  Modules are presently located in three places in the source; you can find them in:
 
-    * src/main/java/goat/module
-    * src/main/scala/goat/module
-    * scripts/
+* [src/main/java/goat/module/](https://github.com/bcorrigan/Goat/tree/master/src/main/java/goat/module)
+* [src/main/scala/goat/module/](https://github.com/bcorrigan/Goat/tree/master/src/main/scala/goat/module)
+* [scripts/](https://github.com/bcorrigan/Goat/tree/master/scripts)
 
 1.  Make sure you've got sbt installed.  The recommended way to get sbt these days is by [installing the typesafe stack](http://typesafe.com/resources/typesafe-stack/downloading-installing.html)
 
@@ -212,7 +212,7 @@ Probably more useful to steal code from for your own bot, than to run your own i
 ## ....and many more commands.
 
 See:
-    * [config/goatrc](https://github.com/bcorrigan/Goat/blob/master/config/goatrc.sample)
-    * [src/main/java/goat/module/](https://github.com/bcorrigan/Goat/tree/master/src/main/java/goat/module)
-    * [src/main/scala/goat/module/](https://github.com/bcorrigan/Goat/tree/master/src/main/scala/goat/module)
-    * [scripts/](https://github.com/bcorrigan/Goat/tree/master/scripts)
+* [config/goatrc](https://github.com/bcorrigan/Goat/blob/master/config/goatrc.sample)
+* [src/main/java/goat/module/](https://github.com/bcorrigan/Goat/tree/master/src/main/java/goat/module)
+* [src/main/scala/goat/module/](https://github.com/bcorrigan/Goat/tree/master/src/main/scala/goat/module)
+* [scripts/](https://github.com/bcorrigan/Goat/tree/master/scripts)
