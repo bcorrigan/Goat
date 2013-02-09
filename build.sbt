@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   "org.reflections" % "reflections" % "latest.integration",
   "org.twitter4j" % "twitter4j-core" % "latest.integration",
   "org.twitter4j" % "twitter4j-stream" % "latest.integration",
-  "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration"
+  "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
+  "org.json" % "json" % "latest.integration"
 )
