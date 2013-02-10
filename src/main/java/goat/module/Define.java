@@ -6,7 +6,6 @@ import goat.core.Module;
 import goat.core.Message;
 import goat.util.DICTClient;
 import goat.util.Definition;
-import goat.util.WhatTheTrend;
 import goat.util.CommandParser;
 import goat.module.WordGame;
 
@@ -22,23 +21,22 @@ import org.json.JSONObject;
 
 /**
  * Module to provide access to a dict-protocol dictionary server.
- * 
+ *
  * Copyright (c) 2004 Robot Slave Enterprise Solutions
  * <p/>
  * This fucker needs some serious reorganizing before anything more is added to it (2005-05-23)
  * <p/>
- * 
+ *
  *	@author encontrado
- * 
+ *
  * @version 1.0
  */
 public class Define extends Module {
-	
-	private static WhatTheTrend whatTheTrend = new WhatTheTrend();
+
 	private static String host = "dict.org" ;
 	private static String urbandictionaryDescription = "The somewhat spotty slang dictionary at urbandictionary.com" ;
 	public boolean debug = false ;
-   
+
 	public int messageType() {
 		return WANT_COMMAND_MESSAGES;
 	}
@@ -46,11 +44,11 @@ public class Define extends Module {
    public String[] getCommands() {
 		return new String[] { "define", "randef", "dictionaries", "dictionary", "oed", "thesaurus"};
    }
-	
+
 	public Define() {
 	}
 
-	
+
 	public void processPrivateMessage(Message m) {
 		processChannelMessage(m) ;
 	}
@@ -62,9 +60,9 @@ public class Define extends Module {
 			System.out.println("processing command: " + m.getModCommand()) ;
 		if (m.getModCommand().equalsIgnoreCase("define") || m.getModCommand().equalsIgnoreCase("thesaurus")) {
 			define(m) ;
-		} else if (m.getModCommand().equalsIgnoreCase("randef")) { 
+		} else if (m.getModCommand().equalsIgnoreCase("randef")) {
 			randef(m) ;
-		} else if (m.getModCommand().equalsIgnoreCase("dictionaries")) { 
+		} else if (m.getModCommand().equalsIgnoreCase("dictionaries")) {
 			dictionaries(m) ;
 		} else if (m.getModCommand().equalsIgnoreCase("dictionary")) {
 			dictionary(m) ;
@@ -76,16 +74,16 @@ public class Define extends Module {
 	private void define(Message m) {
 		CommandParser parser = new CommandParser(m) ;
 		String dictionary = "*" ;
-		if (parser.hasVar("dictionary")) 
+		if (parser.hasVar("dictionary"))
 			dictionary = parser.get("dictionary") ;
-		else if (parser.hasVar("dict") ) 
+		else if (parser.hasVar("dict") )
 			dictionary = parser.get("dict");
 		if (m.getModCommand().equalsIgnoreCase("thesaurus"))
 			dictionary = "moby-thes";
 		int num = 1 ;
 		if (parser.hasVar("number"))
 			num = parser.getInt("number") ;
-		else if (parser.hasVar("num")) 
+		else if (parser.hasVar("num"))
 			num = parser.getInt("num") ;
 		// check for num not negative, not zero (will be zero if specified, or if parsing input threw an Num Exception)
 		if (num <= 0 ) {
@@ -113,7 +111,7 @@ public class Define extends Module {
 
       Vector<Definition> definitionList = null ;
       String[][] matchList = null ;
-         
+
       // This next block is thuggish.  If we keep tacking dictionaries onto the project,
       // we might want to rearrange stuff here and elsewhere to do things consistently
       if (dictionary.equalsIgnoreCase("urban")) {
@@ -125,37 +123,19 @@ public class Define extends Module {
             matchList = new String[1][1] ;
             matchList[0][0] = word ;
          }
-      } 
-      else if (dictionary.equalsIgnoreCase("trend")
-    		  || dictionary.equalsIgnoreCase("trends")
-    		  || dictionary.equalsIgnoreCase("wtt")
-    		  || dictionary.equalsIgnoreCase("whatthetrend")) {
-    	  try {
-    		  definitionList = getTrendDefinitions(word) ;
-    	  } catch (Exception e) {
-    		  m.reply("I had a problem with whatthetrend.com: " + e.getMessage());
-    	  }
-          // TODO whatthetrend does have a search function, so we should probably
-    	  // use that here.
-          if ((null == definitionList) || definitionList.isEmpty())
-             matchList =  new String[0][0];
-          else {
-             matchList = new String[1][1] ;
-             matchList[0][0] = word ;
-          }
       }
       else if (dictionary.equalsIgnoreCase("oed")) {
-         // If we were clever monkeys, we could get goat to ask bugmenot for 
-         //   a login/password for oed.com, and then use that to get the page, 
+         // If we were clever monkeys, we could get goat to ask bugmenot for
+         //   a login/password for oed.com, and then use that to get the page,
          //   and then parse the page for definitionList and matchList.
          //   instead, we'll just burp up a URL, and let the user do the legwork.
 			m.reply(oedUrl(word)) ;
 			return ;  //naughty!
-		} 
+		}
       else {
    		String[][] dbList = null ;
    		DICTClient dc = getDICTClient(m) ;
-   		if(null == dc) 
+   		if(null == dc)
    			return ;
    		try {
    			dbList = dc.getDatabases() ;
@@ -190,9 +170,9 @@ public class Define extends Module {
 		}
 		// check for empty definition list
 		if (definitionList.isEmpty()) {
-			// check match list not empty 
+			// check match list not empty
 			String reply = "No definitions found for \"" + word + "\"" ;
-			if (! dictionary.equals("*")) 
+			if (! dictionary.equals("*"))
 				reply += " in dictionary " + dictionary + "." ;
 			else
 				reply += "." ;
@@ -210,14 +190,14 @@ public class Define extends Module {
 		// check num not greater than number of elements in list
 		if (num > definitionList.size() ) {
 			String line = "I don't have " + num + " definitions for \"" + word ;
-			if (! dictionary.equals("*") ) 
+			if (! dictionary.equals("*") )
 				line = line + "\" in dictionary \"" + dictionary + "\"." ;
 			else
 				line = line + "\"." ;
 			m.reply(line) ;
 			return ;
 		}
-      
+
 		Definition d = (Definition) definitionList.get(num - 1) ;
 		text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
 		m.pagedReply(text) ;
@@ -241,19 +221,19 @@ public class Define extends Module {
 			m.reply(msg) ;
 		}
 	}
-	
+
 	private void randef(Message m) {
-		m.reply("Not implmemented, please stand by") ; 
+		m.reply("Not implmemented, please stand by") ;
 	}
 
 	private String oedUrl(String word) {
 		return "http://dictionary.oed.com/cgi/findword?query_type=word&queryword=" + word.replaceAll(" ", "%20") ;
 	}
-	
+
 	private String urbanUrl(String word) {
 		return "http://www.urbandictionary.com/define.php?term=" + word.replaceAll(" ", "%20") ;
 	}
-        
+
 	public Vector<Definition> getUrbanDefinitions(String word) throws SocketTimeoutException {
       Vector<Definition> definitionList = null;
       HttpURLConnection connection = null;
@@ -286,8 +266,8 @@ public class Define extends Module {
           if(connection!=null) connection.disconnect();
       }
       return definitionList ;
-   }   
-   
+   }
+
 	public Vector<Definition> getUrbanDefinitions(String word, Message m) {
 		try {
 			return getUrbanDefinitions(word) ;
@@ -296,7 +276,7 @@ public class Define extends Module {
 		}
 		return null;
 	}
-	
+
    private Vector<Definition> parseUrbanPage(BufferedReader br) throws IOException {
 		// In which we use java regexps, the painful way
 		Vector<Definition> definitionList = new Vector<Definition>();
@@ -322,7 +302,7 @@ public class Define extends Module {
 
 		Pattern exampleStartPattern = Pattern.compile("<div class=\"example\">\\s*(.*)\\s*$");
 		Pattern exampleEndPattern = Pattern.compile("^\\s*(.*?)\\s*</div>\\s*$") ;
-		
+
 		Pattern startPattern = numberStartPattern;
 		//Pattern endPattern = Pattern.compile("^\\s*</div>\\s*$");
 
@@ -385,7 +365,7 @@ public class Define extends Module {
             example = matcher.group(1);
 
 /* old site design made this hideous, rewriting from scratch
- 
+
 				// parse out definition
 				String tempLine = br.readLine() ;
 				matcher = def_pStartPattern.matcher(tempLine);
@@ -412,12 +392,12 @@ public class Define extends Module {
 					definition += matcher.group(1);
 				if(debug)
 					System.out.println("  raw definition: " + definition);
-				
-				// and example. 
+
+				// and example.
 				// this is ugly, as we don't want to run through to the next
 				// definition's examples, or EOF, if there are no examples for this def.
-				// 
-				
+				//
+
 				matcher = exampleStartPattern.matcher(tempLine) ;
 				Matcher endMatcher = endPattern.matcher(tempLine) ;
 				boolean definitionDone = false ;
@@ -433,9 +413,9 @@ public class Define extends Module {
 					matcher = exampleStartPattern.matcher(tempLine) ;
 					endMatcher = endPattern.matcher(tempLine) ;
 				}
-				
-				if (!definitionDone) {					
-					example = matcher.group(1);				
+
+				if (!definitionDone) {
+					example = matcher.group(1);
 					matcher = exampleEndPattern.matcher(tempLine) ;
 					multiline = false ;
 					while(!matcher.find()) {
@@ -470,81 +450,7 @@ public class Define extends Module {
 		}
 		return definitionList;
 	}
-	
-   	private static final String wttShortDict = "trends";
-   	private static final String wttLongDict = "whatthetrend.com";
-   	
-    public Vector<Definition> getTrendDefinitions(String word) throws Exception {
-    	JSONObject result = whatTheTrend.getByName(word, -1);
-    	Vector<Definition> ret = new Vector<Definition>();
-    	
-    	if(result == null || ! result.has("api"))
-    		return ret;
-    	JSONObject jo = result.getJSONObject("api");
-    	if(! jo.has("trend"))
-    		return ret;
-    	JSONObject trend = jo.getJSONObject("trend");
-    	jo = trend.getJSONObject("blurb");
-    	String definition = jo.getString("text");
-    	
-    	Boolean locked = false;
-    	if (jo.has("locked"))
-    		locked = jo.getBoolean("locked");
-    	if (locked) {
-    		// presumeably this applies to the trend, not the definition, but
-    		// this is as good a place to stick it as any
-    		definition += " (locked)";
-    	}
-    	definition += " " + jo.getString("timestamp");
-    	definition += " " + WhatTheTrend.ATTRIBUTION;
-    	Definition firstDef = new Definition(wttShortDict, wttLongDict, word, definition);
-    	JSONArray versions = null;
-    	if (trend.has("versions"))
-    		jo = trend.getJSONObject("versions");
-    	if(jo.has("version")) {
-    		JSONObject obj = jo.optJSONObject("version");
-    		if(obj != null) {
-    			versions = new JSONArray();
-    			versions.put(obj);
-    		}
-    		else {
-    			versions = jo.getJSONArray("version");
-    		}
-    	}
-    	if (versions == null || versions.length() == 0) {
-    		ret.add(firstDef);
-    	} else {
-    		// look for verified versions, put them first
-    		Vector<Definition> verified = new Vector<Definition>();
-    		Vector<Definition> unverified = new Vector<Definition>();
-    		for (int i=0; i < versions.length(); i++) {
-    			jo = versions.getJSONObject(i);
-    			definition = jo.getString("text");
-    			int verif = jo.getInt("verified");
-    			if (verif > 0)
-    				definition += " (" + Constants.BOLD + "verified" + Constants.BOLD + ")";
-    			else
-    				definition += " (" + Constants.BOLD + "score: " + jo.getString("score") + Constants.BOLD + ")";
-    			definition += " " + jo.getString("timestamp");
-    			definition += " " + WhatTheTrend.ATTRIBUTION;
-    			Definition def = new Definition(wttShortDict, wttLongDict, word, definition);
-    			if (verif > 0)
-    				verified.add(def);
-    			else
-    				unverified.add(def);
-    		}
-    		
-    		ret.addAll(verified);
-    		ret.add(firstDef);
-    		
-    		// results are received newest first; let's do oldest first.  We could also sort them by 
-    		// score, I suppose, but the scores don't seem to indicate quality.
-    		Collections.reverse(unverified);
-    		ret.addAll(unverified);			
-    	}
-    	return ret;
-    }
-   
+
     private String dictionaries() {
     	String ret = "" ;
     	try {
@@ -569,7 +475,7 @@ public class Define extends Module {
     private void dictionaries(Message m) {
     	m.pagedReply(dictionaries()) ;
     }
-	
+
 	private void dictionary(Message m) {
 		DICTClient dc = getDICTClient(m) ;
 		String code = m.getModTrailing().trim() ;
@@ -585,18 +491,6 @@ public class Define extends Module {
          line = "urban:  " + urbandictionaryDescription ;
          found = true ;
       }
-      else if (code.equalsIgnoreCase("wtt")) {
-    	  line = "wtt:  tweeter trends explained by whatthetrend.com";
-    	  found = true;
-      }
-      else if (code.equalsIgnoreCase("trend")) {
-    	  line = "trend:  twittar trends explained by whatthetrend.com";
-    	  found = true;
-      }
-      else if (code.equalsIgnoreCase("trends")) {
-    	  line = "trends:  twitter trends as explained by whatthetrend.com";
-    	  found = true;
-      }
       else {
           for (String[] aDbList : dbList) {
               if (aDbList[0].equals(code)) {
@@ -611,7 +505,7 @@ public class Define extends Module {
               line = line.trim();
           }
       }
-		if (! found) 
+		if (! found)
 			line = "Dictionary \"" + code + "\" not found; available dictionaries: " + dictionaries() ;
 		m.pagedReply(line) ;
 	}
@@ -630,7 +524,7 @@ public class Define extends Module {
 		}
 		return dc ;
 	}
-		
+
 	public static void main(String[] arg) {
 		Define define = new Define() ;
 		DICTClient dc = define.getDICTClient(new Message("","","","")) ;
