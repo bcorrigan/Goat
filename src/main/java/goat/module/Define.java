@@ -468,7 +468,7 @@ public class Define extends Module {
     	} catch (Exception e) {
     		ret = "Couldn't talk to dict server.  Other dictionaries:  ";
     	}
-		ret += "urban, oed, trends" ;
+		ret += "urban, oed" ;
 		return ret;
     }
 
