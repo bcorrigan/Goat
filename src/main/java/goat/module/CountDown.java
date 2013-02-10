@@ -10,18 +10,18 @@ import goat.Goat;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
-import goat.countdown.Solver;
+import goat.util.CountdownSolver;
 import goat.jcalc.Calculator;
 import goat.jcalc.CalculatorException;
 /**
  * Created on 25-Feb-2006
- * A little puzzle game. Generates puzzles in the style of popular 
+ * A little puzzle game. Generates puzzles in the style of popular
  * Channel 4 nerd show, CountDown, and includes a solver that
  * generates best possible solution, swiped from somewhere on the web.
  * @author bc
  */
 public class CountDown extends Module implements Runnable {
-    
+
     //is a game of countdown in progress?
     private boolean gameOn = false;
     //the available big numbers to draw from
@@ -41,13 +41,13 @@ public class CountDown extends Module implements Runnable {
     private Answer bestAnswer;
     //the best possible answer
     private int bestPossibleAnswer;
-    
+
     private ExecutorService pool = Goat.modController.getPool();
-    
+
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
-    
+
     /**
      * If we are playing a game, we evaluate every message as a possible answer.
      * It is accepted if it contains only the following operators: +-/*() and
@@ -79,11 +79,11 @@ public class CountDown extends Module implements Runnable {
                             finaliseGame();
                             return;
                         }
-                        m.reply( Constants.BOLD + m.getSender() + Constants.BOLD 
-                                        + " has the best answer so far: " 
-                                        + possibleAnswer.getAnswer() + ". " + "Just " 
-                                        + possibleAnswer.getDistance( targetNumber ) 
-                                        + " off the target of " 
+                        m.reply( Constants.BOLD + m.getSender() + Constants.BOLD
+                                        + " has the best answer so far: "
+                                        + possibleAnswer.getAnswer() + ". " + "Just "
+                                        + possibleAnswer.getDistance( targetNumber )
+                                        + " off the target of "
                                         + targetNumber + "!" );
                     }
                 } catch(CalculatorException ce) {
@@ -102,22 +102,22 @@ public class CountDown extends Module implements Runnable {
             runner = new GameRunner(this);
             pool.execute(runner);
             //timerThread.start();
-            bestPossibleAnswer = Solver.getBestVal( sourceNumbers, targetNumber);
+            bestPossibleAnswer = CountdownSolver.getBestVal( sourceNumbers, targetNumber);
             m.reply(Constants.REVERSE + "***" + Constants.REVERSE
                     + " New Numbers: " + Constants.BOLD
-                    + formatNumbers( sourceNumbers ) 
+                    + formatNumbers( sourceNumbers )
                     + Constants.BOLD + " Target: " + Constants.BOLD + targetNumber);
         }
     }
-    
+
     /**
-     * Finalises the game. So, reinitialises things for the next game and 
+     * Finalises the game. So, reinitialises things for the next game and
      * displays the correct solution if the user has not worked it out already.
      */
     private void finaliseGame() {
         gameOn = false;
         if(bestAnswer==null) {
-            target.reply("Nobody got an answer. The best answer was: " + Solver.Solve( sourceNumbers, targetNumber ));
+            target.reply("Nobody got an answer. The best answer was: " + CountdownSolver.Solve( sourceNumbers, targetNumber ));
             return;
         }
         if( bestAnswer.getAnswer() == bestPossibleAnswer ) {
@@ -128,12 +128,12 @@ public class CountDown extends Module implements Runnable {
             target.reply(reply);
         } else {
             target.reply( "The best answer was " + bestAnswer.getAnswer() + " by " + bestAnswer.getUsername() + "."
-                                + " But the best possible answer was: " + Solver.Solve( sourceNumbers, targetNumber )); 
+                                + " But the best possible answer was: " + CountdownSolver.Solve( sourceNumbers, targetNumber ));
         }
         bestAnswer=null;
         runner.stop();
     }
-    
+
     /**
      * Checks that the string param is valid as per the rules of the game.
      * So, checks that it contains only the allowed numbers, and operators.
@@ -145,7 +145,7 @@ public class CountDown extends Module implements Runnable {
         StringTokenizer st = new StringTokenizer(tokenString);
         int[] userNums = new int[st.countTokens()];
         int i=0;
-        while(st.hasMoreTokens()) { 
+        while(st.hasMoreTokens()) {
             int num = Integer.parseInt( st.nextToken());
             userNums[i] = num;
             i++;
@@ -168,7 +168,7 @@ public class CountDown extends Module implements Runnable {
 
         return attempt.length() <= 0;
         }
-    
+
     /**
      * Fill each ArrayList with Integers representing the pools of big and small numbers
      */
@@ -181,7 +181,7 @@ public class CountDown extends Module implements Runnable {
         Collections.shuffle( bigPool );
         Collections.shuffle( smallPool );
     }
-    
+
     /**
      * Fills the source numbers array from the pools.
      * For the moment has an 80% chance of filling it with
@@ -206,31 +206,31 @@ public class CountDown extends Module implements Runnable {
                 sourceNumbers[i] = (Integer) smallPool.remove(0);
             }
         }
-        
+
         //for target all numbers from 101 to 999 are equally likely
         targetNumber = 101 + (int) (899 * Math.random());
     }
-    
+
     public int messageType() {
         if (!gameOn)
             return WANT_COMMAND_MESSAGES;
         else
             return WANT_UNCLAIMED_MESSAGES;
     }
-    
+
     public String[] getCommands() {
         return new String[]{"countdown"};
     }
-    
+
     private class GameRunner implements Runnable {
     	private CountDown thisGame;
     	private boolean running = false;
     	private Thread myThread = null;
-    	
+
     	GameRunner(CountDown game) {
     		thisGame = game;
     	}
-    	
+
     	public void run() {
     		running = true;
     		myThread = Thread.currentThread();
@@ -255,14 +255,14 @@ public class CountDown extends Module implements Runnable {
     		myThread = null;
     		thisGame.finaliseGame();
     	}
-    	
+
     	public void stop() {
     		running = false;
     		if(myThread != null)
     			myThread.interrupt();
     	}
     }
-    
+
     //TODO move to some sort of goat-wide util class?
     private String formatNumbers(int[] numbers) {
         String formattedResponse = "";
@@ -271,7 +271,7 @@ public class CountDown extends Module implements Runnable {
         }
         return formattedResponse;
     }
-    
+
     private boolean numbersCorrect( int[] num ) {
         //first, create an ArrayList from sourceNumbers
         ArrayList<Integer> sourceNumList = new ArrayList<Integer>();
@@ -285,17 +285,17 @@ public class CountDown extends Module implements Runnable {
         }
         return true;
     }
-    
+
     //bean for answers, makes it easy to serialise later and keep track of things generally
     private class Answer {
         private int answer;
         private String username;
-        
+
         public Answer( int answer, String username) {
             this.answer = answer;
             this.username = username;
         }
-        
+
         public void setAnswer(int answer) {
             this.answer = answer;
         }
@@ -308,7 +308,7 @@ public class CountDown extends Module implements Runnable {
         public String getUsername() {
             return username;
         }
-        
+
         public int getDistance( int target ) {
             if(target>answer)
                 return target - answer;

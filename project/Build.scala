@@ -6,7 +6,7 @@ object GoatBuild extends Build {
   // project root
 
   lazy val root = Project(id = "goat",
-                          base = file(".")) dependsOn(dice, goojax, uno, eliza)
+                          base = file(".")) dependsOn(dice, goojax, uno, eliza, jcalc)
 
 
   // Our own subprojects; things we've (mostly) written ourselves
@@ -21,10 +21,12 @@ object GoatBuild extends Build {
                             base = file("subprojects/uno"))
 
 
-  // External subprojects; things that have no maven repo and no jar,
-  //   or that we've made minor alterations to
+  // External subprojects; libraries which have neither maven repo nor jar,
+  //   or to which we've made minor source alterations
 
   lazy val eliza = Project(id = "eliza",
                            base = file("vendor/eliza"))
 
+  lazy val jcalc = Project(id = "jcalc",
+                           base = file("vendor/jcalc"))
 }

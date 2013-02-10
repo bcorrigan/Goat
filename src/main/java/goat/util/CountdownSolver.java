@@ -1,14 +1,14 @@
 /*
  * Created on 25-Feb-2006
  */
-package goat.countdown;
+package goat.util;
 
 /** Solve the CountDown problem */
-public class Solver {
+public class CountdownSolver {
     private static final int N = 6;
     private static final int expN = 1 << N;
     private static final int HSIZE = 20000;
-    
+
     private static int          // Operator symbols
         CONST = 0, PLUS = 1, MINUS = 2, TIMES = 3, DIVIDE = 4;
 
@@ -52,14 +52,14 @@ public class Solver {
             if (xp < p) buf.append(')');
         }
     }
-    
+
     /** Convert an expression to a string for display */
     private static String Grind(Blob e) {
         StringBuffer buf = new StringBuffer();
         Walk(e, 1, buf);
         return buf.toString();
     }
-    
+
     /* Sets of input numbers are represented by bitmaps, i.e. integers in
     the range [0..2^N) in which the one bits indicate which
     numbers are present.  The array entry |pool[s]| shows all the expressions
@@ -71,7 +71,7 @@ public class Solver {
     with value |val| that have been created: they are kept in a linked
     list starting at |htable[val % HSIZE]|, together (of course) with
     others that hash to the same bucket.  We've chosen |HSIZE| large
-    enough that such collisions will rarely happen. 
+    enough that such collisions will rarely happen.
     The purpose of this hash table is to make it easy to avoid creating
     a `useless' expression if another with the same value already
     exists and uses no inputs that the new one would not use.  This
@@ -80,11 +80,11 @@ public class Solver {
     private static Blob htable[] = new Blob[HSIZE];
 
     /* As we generate expressions, we keep track of the best answer seen
-    so far: an expression that comes closest to the target, and of the 
-    expressions that are that close, the one that is the shortest when 
-    printed. We don't guarantee to produce the shortest of all, because 
+    so far: an expression that comes closest to the target, and of the
+    expressions that are that close, the one that is the shortest when
+    printed. We don't guarantee to produce the shortest of all, because
     some expressions are discarded as useless. */
-    
+
     private static int target;
     private static String best;
     private static int bestval, bestdist;
@@ -96,13 +96,13 @@ public class Solver {
             if (r.val == val && (r.used & ~used) == 0)
                 return;
         }
-        
+
         /* Create the expression and add it to |pool| and |htable| */
         Blob t = new Blob();
         t.op = op; t.left = p; t.right = q; t.val = val; t.used = used;
         t.next = pool[used]; pool[used] = t;
         t.hlink = htable[val % HSIZE]; htable[val % HSIZE] = t;
-        
+
         /* See if the new expression comes near the target */
         int dist = Math.abs(val - target);
         if (dist <= bestdist) {
@@ -111,8 +111,8 @@ public class Solver {
                 bestval = val; bestdist = dist; best = temp;
             }
         }
-    }                                           
-        
+    }
+
     /* The |Combine| procedure combines the contents of |pool[r]| with the
     contents of |pool[s]| using every possible operator.  The results are
     entered into the pool for the set union of |r| and |s|.
@@ -143,10 +143,10 @@ public class Solver {
     divided into pools according to the set of inputs they use, at the |i|'th
     stage we must combine each pool |r| with each pool |s| such that
     |ones[r]+ones[s]=i| and |r| and |s| are disjoint. */
-    
+
     /* Set up a table of bitcounts in |ones| */
     private static int ones[] = new int[expN];
-    
+
     static {
         // This uses the recurrence ones[i+2^n] = ones[i] + 1
         ones[0] = 0;
@@ -157,17 +157,17 @@ public class Solver {
     }
 
     private static void solve(int draw[], int target) {
-        Solver.target = target;
+        CountdownSolver.target = target;
         bestdist = 1000000;
 
         /* Empty the hash table and pools */
         for (int i = 0; i < HSIZE; i++) htable[i] = null;
         for (int r = 0; r < expN; r++) pool[r] = null;
-        
+
         /* Plant the draw numbers as seeds */
         for (int i = 0; i < N; i++)
             Add(CONST, null, null, draw[i], 1 << i);
-        
+
         /* Combine using up to N-1 operations */
         for (int i = 2; i <= N; i++) {
             /* Combine disjoint pools that together use |i| inputs */
@@ -179,7 +179,7 @@ public class Solver {
             }
         }
     }
-    
+
     public static String Solve(int draw[], int target) {
         solve( draw, target);
 
@@ -188,7 +188,7 @@ public class Solver {
         else
             return bestval + " = " + best + " (off by " + bestdist + ")";
     }
-    
+
     /**
      * Simply gets the best possible answer for the arguments.
      * @param draw
