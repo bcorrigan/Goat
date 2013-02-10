@@ -194,9 +194,9 @@ public class Pager {
      */
     public static String trimWhitespace(String string) {
         String ret = string;
-        while (ret.length() > 0 && ret.matches("\\w$"))
-            ret = ret.substring(0, ret.length());
-        while (ret.length() > 0 && ret.matches("^\\w"))
+        while (ret.length() > 0 && ret.matches(".*\\s$"))
+            ret = ret.substring(0, ret.length() - 1);
+        while (ret.length() > 0 && ret.matches("^\\s.*"))
             ret = ret.substring(1);
         return ret;
     }
