@@ -6,24 +6,34 @@ mainClass in (Compile, run) := Some("goat.Goat")
 
 scalaVersion in ThisBuild := "2.10.0"
 
+
+// Dependency madness begins here
+
+// things that need to be locked to a specific version.  Avoid this if possible.
+// for help with ivy version specifiers, see:
+// http://ant.apache.org/ivy/history/2.2.0/ivyfile/dependency.html#revision
 libraryDependencies ++= Seq(
-  // things that need to be locked to a specific version.  Avoid this if possible.
-  "commons-lang" % "commons-lang" % "2.6",
-  "org.python" % "jython" % "2.5.3",
-  // normal libs, use version latest.integration
-  "com.typesafe.akka" %% "akka-actor" % "latest.integration",
-  "net.sourceforge.javacsv" % "javacsv" % "latest.integration",
-  "org.reflections" % "reflections" % "latest.integration",
-  "org.twitter4j" % "twitter4j-core" % "latest.integration",
-  "org.twitter4j" % "twitter4j-stream" % "latest.integration",
-  "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
-  "com.sleepycat" % "je" % "latest.integration",
-  "de.u-mass" % "lastfm-java" % "latest.integration",
-  // and of course, every json lib in the world:
-  "org.json" % "json" % "latest.integration",
-  "com.fasterxml.jackson.core" % "jackson-databind" % "latest.integration"
+  "commons-lang" % "commons-lang" % "2.+",
+  "org.apache.lucene" % "lucene-core" % "2.+",
+  "org.python" % "jython" % "2.5.+" // picks up 2.5 betas, but not 2.7
 )
 
-// Add sbt support for jQuery tests
+// normal libs, use version latest.integration
+// NOTE: to see which versions sbt has chosen, do 'show update' at the sbt prompt
+libraryDependencies ++= Seq(
+  "de.u-mass" % "lastfm-java" % "latest.integration",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "latest.integration",
+  "com.sleepycat" % "je" % "latest.integration",
+  "com.typesafe.akka" %% "akka-actor" % "latest.integration",
+  "log4j" % "log4j" % "latest.integration",
+  "net.sourceforge.javacsv" % "javacsv" % "latest.integration",
+  "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
+  "org.json" % "json" % "latest.integration",
+  "org.reflections" % "reflections" % "latest.integration",
+  "org.twitter4j" % "twitter4j-core" % "latest.integration",
+  "org.twitter4j" % "twitter4j-stream" % "latest.integration"
+)
+
+// sbt support for jQuery tests
 libraryDependencies +=
   "com.novocode" % "junit-interface" % "latest.integration" % "test->default"

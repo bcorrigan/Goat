@@ -19,7 +19,7 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.search.BooleanQuery.TooManyClauses;
 
 
-public class Confessions2 extends Module {
+public class Confessions extends Module {
 
 	public boolean isThreadSafe() {
 		return true;
@@ -65,7 +65,7 @@ public class Confessions2 extends Module {
 		}
 
 		public void add(String query, ArrayList<Integer> results) {
-			// we could add a check here to make sure we don't already have 
+			// we could add a check here to make sure we don't already have
 			//   some results for the given query, but that would be a little
 			//   expensive (an ArrayList.contains() call, as currently implemented)
 			//   as this class is only used internally, we'll trust ourselves to
@@ -96,7 +96,7 @@ public class Confessions2 extends Module {
 
 	private ArrayList<Integer> randomCache = new ArrayList<Integer>();
 
-	public Confessions2() {
+	public Confessions() {
 		super();
 		final String confessionsFile = "resources/confessions.gz";
 		try {
@@ -167,7 +167,7 @@ public class Confessions2 extends Module {
 
 	}
 
-	private void confessionCount(Message m) 
+	private void confessionCount(Message m)
 	throws ParseException, CorruptIndexException, IOException {
 		String query = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		int count = searchCount(query);
@@ -177,7 +177,7 @@ public class Confessions2 extends Module {
 			m.reply("I have only one regret about " + query + ".");
 		else
 			m.reply("I have " + count + " regrets about " + query + ".");
-	} 
+	}
 
 	private void defaultConfession(Message m) {
 		try {
@@ -223,7 +223,7 @@ public class Confessions2 extends Module {
 		m.pagedReply(reply);
 	}
 
-	private void searchConfession(Message m, String queryString) 
+	private void searchConfession(Message m, String queryString)
 	throws ParseException, DatabaseException, CorruptIndexException, IOException {
 		queryString = StringUtil.removeFormattingAndColors(queryString).trim();
 		if (resultsQueue.hasNext(queryString))
@@ -244,14 +244,14 @@ public class Confessions2 extends Module {
 		}
 	}
 
-	private void guiltfight(Message m) 
+	private void guiltfight(Message m)
 	throws ParseException, CorruptIndexException, IOException {
 		String [] contestants = StringUtil.removeFormattingAndColors(m.getModTrailing()).split("\\s+[vV][sS]\\.?\\s+") ;
 		if (contestants.length < 2) {
 			m.reply("Usage:  \"guiltfight \"dirty dogs\" vs. \"fat cats\" [vs. ...]\"") ;
 			return ;
 		}
-		for (int i = 0 ; i < contestants.length ; i++) 
+		for (int i = 0 ; i < contestants.length ; i++)
 			contestants[i] = contestants[i].trim() ;
 		int [] scores = getResultCounts(contestants) ;
 		int [] winners = getWinners(scores) ;
@@ -286,7 +286,7 @@ public class Confessions2 extends Module {
 
 	public int [] getWinners(int [] scores) {
 		int[] indices = new int[scores.length] ;
-		if (indices.length == 0) 
+		if (indices.length == 0)
 			return indices ;
 		indices[0] = 0 ;
 		int lastIndex = -1 ;
@@ -313,4 +313,3 @@ public class Confessions2 extends Module {
 		return confession;
 	}
 }
-
