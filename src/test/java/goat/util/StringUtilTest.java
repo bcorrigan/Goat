@@ -11,7 +11,7 @@ import static goat.core.Constants.*;
 import java.util.Date;
 import java.util.Calendar;
 
-public class TestStringUtil {
+public class StringUtilTest {
 
 	@Before
 	public void setUp() throws Exception {

@@ -4,9 +4,9 @@ import org.junit.*;
 
 import static org.junit.Assert.*;
 
-public class TestCommandParser {	
-	CommandParser commandParser; 
-	
+public class CommandParserTest {
+	CommandParser commandParser;
+
 	@Test
 	public void testParser() {
 		//test the basics of the parser
@@ -19,7 +19,7 @@ public class TestCommandParser {
 		assertEquals("remaining should be set correctly", "remaining crap", commandParser.remaining());
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
 	}
-	
+
 	@Test
 	public void testRemainingAsList() {
 		commandParser = new CommandParser("headline one two three four five six");
@@ -30,7 +30,7 @@ public class TestCommandParser {
 		assertEquals("command should be headline","headline",commandParser.command());
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
 	}
-	
+
 	@Test
 	public void testVariedRemaining() {
 		commandParser = new CommandParser("  testCommand ass dick=\"huge monster\" balls brain=small jism  ");
@@ -44,7 +44,7 @@ public class TestCommandParser {
 		assertEquals("dick value should be set correctly","huge monster",commandParser.get("dick"));
 		assertEquals("brain value should be set correctly","small",commandParser.get("brain"));
 	}
-	
+
 	@Test
 	public void testNoRemaining() {
 		commandParser = new CommandParser("  testCommand  dick=\"huge monster\" brain=small   ");
@@ -55,7 +55,7 @@ public class TestCommandParser {
 		assertEquals("dick value should be set correctly","huge monster",commandParser.get("dick"));
 		assertEquals("brain value should be set correctly","small",commandParser.get("brain"));
 	}
-	
+
 	@Test
 	public void testNoCommand() {
 		commandParser = new CommandParser("  dick=\"huge monster\" brain=small  ass ");
@@ -67,7 +67,7 @@ public class TestCommandParser {
 		assertEquals("dick value should be set correctly","huge monster",commandParser.get("dick"));
 		assertEquals("brain value should be set correctly","small",commandParser.get("brain"));
 	}
-	
+
 	@Test
 	public void testNullString() {
 		commandParser = new CommandParser("");
@@ -76,7 +76,7 @@ public class TestCommandParser {
 		assertFalse("hasRemaining should be false",commandParser.hasRemaining());
 		assertEquals("No command should be set","",commandParser.command());
 	}
-	
+
 	@Test
 	public void testEmptyString() {
 		commandParser = new CommandParser("      ");
@@ -85,7 +85,7 @@ public class TestCommandParser {
 		assertFalse("hasRemaining should be false",commandParser.hasRemaining());
 		assertEquals("No command should be set","",commandParser.command());
 	}
-	
+
 	@Test
 	public void testNonenseString() {
 		commandParser = new CommandParser("&£:hjs *(\"ggg fock and=\"buttock  ");
@@ -94,7 +94,7 @@ public class TestCommandParser {
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
 		assertEquals("Command should be set","&£:hjs",commandParser.command());
 	}
-	
+
 	@Test
 	public void testDoubleQuotes() {
 		//test the basics of the parser
@@ -107,7 +107,7 @@ public class TestCommandParser {
 		assertEquals("remaining should be set correctly", "remaining crap", commandParser.remaining());
 		assertTrue("hasRemaining should be true",commandParser.hasRemaining());
 	}
-	
+
 	@Test
 	public void testComplexUrl() {
 		//this tests passing in something with =s signs in it

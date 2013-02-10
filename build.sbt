@@ -15,3 +15,7 @@ libraryDependencies ++= Seq(
   "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
   "org.json" % "json" % "latest.integration"
 )
+
+// Add sbt support for jQuery tests
+libraryDependencies +=
+  "com.novocode" % "junit-interface" % "latest.integration" % "test->default"

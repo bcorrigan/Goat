@@ -7,24 +7,24 @@ import static org.junit.Assert.*;
 import static goat.core.Constants.*;
 import static goat.util.StringUtil.*;
 
-public class TestPager {
+public class PagerTest {
 
 
     @Test
     public void testSimpleSynthetic() {
         Pager pager = new Pager("B" + pageMeat + "E");
-        String page = pager.getNext();
+        String page = pager.getNext(460);
         assertTrue("page begins with B", page.startsWith("B"));
         assertTrue("page ends with E", page.endsWith("E"));
         assertTrue("pager is empty", pager.isEmpty());
         assertEquals(page.length(), pager.maxBytes);
 
         pager = new Pager ("B" + pageMeat + "E!");
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertEquals(page.length(), pager.maxBytes);
         assertFalse(pager.isEmpty());
         assertTrue(page.endsWith(pager.innerPost));
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertTrue(pager.isEmpty());
         assertTrue(page.endsWith("!"));
     }
@@ -34,21 +34,21 @@ public class TestPager {
         assertEquals(byteLength(PILE_OF_POO),4);
         String testPage = pageMeat + PILE_OF_POO;
         Pager pager = new Pager(testPage);
-        String page = pager.getNext();
+        String page = pager.getNext(460);
         assertEquals(page.length(), pager.maxBytes);
         assertEquals(byteLength(page), pager.maxBytes);
         assertFalse(pager.isEmpty());
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertTrue(page.endsWith(PILE_OF_POO));
         assertTrue(pager.isEmpty());
 
         pager = new Pager(PILE_OF_POO + pageMeat);
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertFalse(page.length() == byteLength(page));
         assertEquals(byteLength(page), pager.maxBytes);
         assertTrue(page.startsWith(PILE_OF_POO));
         assertFalse(pager.isEmpty());
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertTrue(pager.isEmpty());
     }
 
@@ -56,18 +56,18 @@ public class TestPager {
     public void testStars() {
         String testString = starMeat();
         Pager pager = new Pager(testString);
-        String page = pager.getNext();
+        String page = pager.getNext(460);
         assertTrue(pager.isEmpty());
         assertEquals(page.length(), pager.maxBytes / byteLength(star));
 
         testString = starMeat() + PILE_OF_POO;
         pager = new Pager(testString);
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertFalse(pager.isEmpty());
         assertTrue(page.endsWith(pager.innerPost));
         int pil = pager.innerPost.length();
         assertEquals(page.length(), pil + (pager.maxBytes - pil) / byteLength(star));
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertTrue(pager.isEmpty());
         assertTrue(page.startsWith(pager.innerPre));
         assertEquals(page.substring(1,2), star);
@@ -77,11 +77,11 @@ public class TestPager {
     @Test
     public void testFormFeed() {
         Pager pager = new Pager(testString) ;
-        String page = pager.getNext();
+        String page = pager.getNext(460);
 
         assertTrue("first page starts correctly", page.startsWith("As an enlightened"));
         assertTrue("first page ends at form feed", page.endsWith("my six children." + pager.innerPost));
-        page = pager.getNext();
+        page = pager.getNext(460);
         assertTrue("second page starts correctly", page.startsWith(pager.innerPre + "I encourage them"));
     }
 
