@@ -36,7 +36,7 @@ Probably more useful to steal code from for your own bot, than to run your own i
 
 # Sample usage
 
-&lt;**bc**&gt; lsmod<br>
+&lt;<b>bc</b>&gt; lsmod<br>
 &lt;<b>goat</b>&gt; Loaded modules: CTCP, ModuleCommands, NickServ, Help, Auth, Core, Users, ServerCommands, GoatSay, More, Confessions2, WordGame, Say, Weather, ZipCodes, RandWords, Psychiatrist, Colours, Define, Threat, Calc, TODO, Adventure, Horoscope, Remind, CurrencyConverter, StockQuote, Quiz, Google, Bible, BookTitle, ShutUp, UnitConverter, Googlism, DiceRoll, Lastfm, Etymology, TwitterModule, Guru, CountDown, Uno.
 
 ### weather
@@ -99,7 +99,7 @@ Probably more useful to steal code from for your own bot, than to run your own i
 >Note: the US terror alert system has been discontinued
 
 &lt;<b>bc</b>&gt; threat<br>
-&lt;<b>goat**&gt; The current Department of Homeland Security terror threat level is GREEN (**low danger</b>)
+&lt;<b>goat</b>&gt; The current Department of Homeland Security terror threat level is GREEN (<b>low danger</b>)
 
 ### nerdy dice rolling
 
