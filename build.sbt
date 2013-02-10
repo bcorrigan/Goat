@@ -23,8 +23,10 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
   "de.u-mass" % "lastfm-java" % "latest.integration",
   "com.fasterxml.jackson.core" % "jackson-databind" % "latest.integration",
+  "com.omertron" % "rottentomatoesapi" % "latest.integration",
   "com.sleepycat" % "je" % "latest.integration",
   "com.typesafe.akka" %% "akka-actor" % "latest.integration",
+  "jivesoftware" % "smackx" % "latest.integration",
   "log4j" % "log4j" % "latest.integration",
   "net.sourceforge.javacsv" % "javacsv" % "latest.integration",
   "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
