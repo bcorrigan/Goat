@@ -3,6 +3,7 @@ from java.lang import String
 from goat.core import Message
 from goat.core import Module
 from goat.util import CommandParser
+from goat.core import Constants
 from jarray import array
 
 class HelloWorld(Module):
@@ -14,19 +15,19 @@ class HelloWorld(Module):
       m.reply("Hello from a python module!!!!")
     elif(m.modCommand=="poop"):
       parser = CommandParser(m)
-      if(parser.hasVar("num")):
-	numPoops=parser.getInt("num")
+      if(parser.hasNumber()):
+	numPoops=int(parser.findNumber())
 	if(numPoops>30):
 	  m.reply("Too much poop")
 	else:
-	  m.reply("p00p "*numPoops)
+	  m.reply((Constants.PILE_OF_POO+" ")*numPoops)
       else:
 	m.reply("You must tell me how much to poop")
-	
-    
+
+
   def processPrivateMessage(self, m):
     self.processChannelMessage(m)
-    
+
   def getCommands(self):
     return array(["pyhello","poop"], String)
 

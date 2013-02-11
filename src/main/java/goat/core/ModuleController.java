@@ -23,7 +23,11 @@ import javax.script.Invocable;
 
 import org.reflections.Reflections;
 
+import org.python.core.Py;
+import org.python.core.PySystemState;
+
 import goat.module.JSR223Module;
+
 
 /**
  * Loads and unloads Modules. Provides methods allowing you
@@ -75,7 +79,7 @@ public class ModuleController  {
         if(moduleName.contains(".")) {
             //if the name has a dot, assume a script
             System.out.print("Loading Module " + moduleName + " ... ");
-            File file = new File("scripts" + File.separatorChar + moduleName);
+            File file = new File(scriptDir(moduleName) + File.separatorChar + moduleName);
             BufferedReader bis = new BufferedReader(  new FileReader(file));
             String line;
             String script="";
@@ -219,11 +223,15 @@ public class ModuleController  {
         System.out.println() ;
     }
 
+    public final String pyModDir = "src" + File.separatorChar + "main" + File.separatorChar + "python";
+
     /**
-     * Looks in script/ dir and assumes any files in there are modules.
+     * Looks in script dir(s) and assumes any files in there are modules.
      */
     private void buildScriptModulesList() {
-        String path = "scripts";
+        // FIXME: only python mods dir atm, should include anything that
+        //   scriptDir() might return
+        String path = pyModDir;
         File folder = new File(path);
         File[] listOfFiles = folder.listFiles();
         System.out.println("Available script modules:");
@@ -235,5 +243,12 @@ public class ModuleController  {
 
     public List<Class<? extends Module>> getAllModules() {
         return allModules;
+    }
+
+    public String scriptDir(String name) {
+        String ret = "scripts";
+        if (name.endsWith(".py"))
+            ret = pyModDir;
+        return ret;
     }
 }

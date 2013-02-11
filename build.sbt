@@ -6,6 +6,7 @@ mainClass in (Compile, run) := Some("goat.Goat")
 
 scalaVersion in ThisBuild := "2.10.0"
 
+javaOptions += "-Dpython.path=libpy"
 
 // Dependency madness begins here
 
@@ -15,7 +16,7 @@ scalaVersion in ThisBuild := "2.10.0"
 libraryDependencies ++= Seq(
   "commons-lang" % "commons-lang" % "2.+",
   "org.apache.lucene" % "lucene-core" % "2.+",
-  "org.python" % "jython" % "2.5.+" // picks up 2.5 betas, but not 2.7
+  "org.python" % "jython-standalone" % "2.5.+" // picks up 2.5 betas, but not 2.7
 )
 
 // normal libs, use version latest.integration
