@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>goat</name>
+  <name>jcalc</name>
   <buildSpec>
     <buildCommand>
       <name>org.scala-ide.sdt.core.scalabuilder</name>
