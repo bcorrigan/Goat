@@ -1,12 +1,13 @@
 name := "goat"
 
-version := "7.0"
+version := "4.0"
 
 mainClass in (Compile, run) := Some("goat.Goat")
 
 scalaVersion in ThisBuild := "2.10.0"
 
 javaOptions += "-Dpython.path=libpy"
+
 
 // Dependency madness begins here
 
@@ -40,3 +41,26 @@ libraryDependencies ++= Seq(
 // sbt support for jQuery tests
 libraryDependencies +=
   "com.novocode" % "junit-interface" % "latest.integration" % "test->default"
+
+// make version and name available at runtime via sbt-buildinfo plugin;
+// they will be available via class goat.Buildinfo (as .name, .version, etc)
+buildInfoSettings
+
+sourceGenerators in Compile <+= buildInfo
+
+buildInfoKeys := Seq[BuildInfoKey](
+  name,
+  version,
+  scalaVersion,
+  sbtVersion,
+  buildInfoBuildNumber,
+  "buildTime" -> System.currentTimeMillis,
+  "gitRevision" -> {
+    try {
+      ("git log --no-merges --oneline" lines_!).length.toString
+    } catch {
+      case ioe: java.io.IOException => "???"
+    }}
+)
+
+buildInfoPackage := "goat"

@@ -127,31 +127,16 @@ public class Goat {
     }
 
     private void setDefaultStats() {
-	ClassLoader goatClassLoader = ClassLoader.getSystemClassLoader();
-	URL goatRevisionResource = goatClassLoader.getResource("goatRevision");
-	if (goatRevisionResource != null) {
-	    BufferedReader br = new BufferedReader(new InputStreamReader(goatClassLoader.getResourceAsStream("goatRevision")));
-	    String line;
-	    try {
-		line = br.readLine();
-		line = line.replaceAll("(?i)[a-z:]", "").trim();
-		BotStats.getInstance().setVersion( "r" + line );
-		br.close();
-	    } catch (IOException e) {
-		e.printStackTrace();
-	    } finally {
-		if(BotStats.getInstance().getVersion()==null)
-		    BotStats.getInstance().setVersion("unknown");
-	    }
-	} else {
-	    BotStats.getInstance().setVersion("unknown") ;
-	}
+        // syntax is ugly here because we're accessing a scala companion object
+        BuildInfo$ buildInfo = goat.BuildInfo$.MODULE$;
 
+        BotStats bs = BotStats.getInstance();
+        bs.setVersion(buildInfo.version() + "-r" + buildInfo.gitRevision());
 	String nick = getPassword("irc.nick");
-	BotStats.getInstance().setBotname(nick);
-	BotStats.getInstance().setClientName(nick);
-	BotStats.getInstance().setOwner(nick);
-	BotStats.getInstance().setServername(getPassword("irc.server"));
+	bs.setBotname(nick);
+	bs.setClientName(nick);
+	bs.setOwner(nick);
+	bs.setServername(getPassword("irc.server"));
     }
 
     public static Properties getProps() {

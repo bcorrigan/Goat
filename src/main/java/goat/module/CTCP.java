@@ -7,6 +7,7 @@ import goat.core.BotStats;
 import goat.Goat;
 
 import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
@@ -103,15 +104,25 @@ public class CTCP extends Module {
 	}
 */
 	private String getVersionString() {
-		return Constants.BOLD + BotStats.getInstance().getVersion() + Constants.BOLD
-		+ " (" + "OS: " + System.getProperty("os.name") + " v" + System.getProperty("os.version") + ';'
-		+ System.getProperty("os.arch") + " Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version") 
-		+ ')';
+            goat.BuildInfo$ buildInfo = goat.BuildInfo$.MODULE$;
+            SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhhmmss");
+
+            return Constants.BOLD + BotStats.getInstance().getVersion() +
+                Constants.NORMAL + " (" +
+                "OS: " + System.getProperty("os.name") +
+                " v" + System.getProperty("os.version") + ';'
+		+ System.getProperty("os.arch") +
+                "  Java: " + System.getProperty("java.vendor") + " " +
+                System.getProperty("java.version") +
+                "  Scala: " + buildInfo.scalaVersion() + " " +
+                "  sbt: " + buildInfo.sbtVersion() +
+                "  build: " +  df.format(new Date(buildInfo.buildinfoBuildnumber())) +
+		")";
 	}
 
 	public int messageType() {
 		return WANT_ALL_MESSAGES;
 	}
-	
+
 	public String[] getCommands() { return new String[] {"version"}; }
 }
