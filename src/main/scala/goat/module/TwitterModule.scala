@@ -10,9 +10,6 @@ import goat.util.Passwords._
 import goat.Goat
 import goat.util.TranslateWrapper;
 
-import akka.actor.Actor
-import akka.actor.Props
-import akka.actor.ActorSystem
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
@@ -75,16 +72,6 @@ class TwitterModule extends Module {
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
   private var chan = "#jism" //BotStats.getInstance().getChannels()(0)
-  //for messaging actor
-  private val TWEET = "TWEET"
-  private val TWEET_TOPIC = "TWEET_TOPIC"
-  private val MAINCHANNEL = "MAINCHANNEL"
-  private val FOLLOW = "FOLLOW"
-  private val UNFOLLOW = "UNFOLLOW"
-  private val SEARCH = "SEARCH"
-  private val TRANSLATE = "TRANSLATE"
-  private val TRENDS = "TRENDS"
-  private val TRENDSNOTIFY = "TRENDSNOTIFY"
 
   //HashSet of tuples (queries and tweets), we will use this as a local cache
   //should make a facility for this generic
@@ -117,7 +104,6 @@ class TwitterModule extends Module {
   }
 
   private def refreshTwitterStream() {
-    println("refreshing the tweetstream...")
     refreshIdsToFollow()
     followIDs(followedIDs)
   }
@@ -129,54 +115,7 @@ class TwitterModule extends Module {
     }
   }
 
-  class TwitterActor extends Actor {
-    def receive = {
-      case (msg: Message, TWEET) =>
-        if (tweetMessage(msg, msg.getModTrailing))
-          if(msg.isAuthorised())
-            msg.reply("Most beneficant Master " + msg.getSender + ", I have tweeted your wise words.")
-          else
-            msg.reply(msg.getSender + ", I have tweeted your rash words.")
-      case (msg: Message, TWEET_TOPIC) =>
-        tweetMessage(msg, msg.getTrailing)
-      case (msg: Message, FOLLOW) =>
-        enableNotification(msg, msg.getModTrailing.trim())
-      refreshTwitterStream()
-      case (msg: Message, UNFOLLOW) =>
-        disableNotification(msg, msg.getModTrailing.trim())
-      refreshTwitterStream()
-      case (msg: Message, SEARCH) =>
-        queryTwitter(msg, msg.getModTrailing.trim().toLowerCase())
-      case (msg: Message, TRENDS) =>
-        showTrends(msg)
-      case (msg: Message, TRANSLATE) =>
-        twanslate(msg)
-      case (msg: Message, _) =>
-        msg.reply("My tweeter machine got an unknown message")
-      case(_, _) =>
-        println("TwitterModule: unknown message tuple sent to TwitterActor")
-      case _ =>
-        println("TwitterModule: TwitterActor recieved message of unknown type")
-    }
-  }
-
-  class TrendsNotifyActor extends Actor {
-    def receive = {
-      case (chan: String, TRENDSNOTIFY) =>
-        trendsNotify(chan)
-      case _ =>
-        println("TwitterModule: TrendsNotifyActor received message of unknown type")
-    }
-  }
-
-  // FIXME: make 'system' a project global
-  val system = ActorSystem("MySystem")
-  val twitterActor = system.actorOf(Props(new TwitterActor),
-                                    name = "twitterActor")
-  val trendsNotifyActor = system.actorOf(Props (new TrendsNotifyActor),
-                                         name = "trendsNotifyActor")
-
-  //TODO use receiveWithin and TIMEOUT
+  // can't use this without concurrency of some sort
   private def trendsNotify(chan:String) {
     var seenTrends:List[String] = Nil
 
@@ -370,10 +309,8 @@ class TwitterModule extends Module {
     return dist < distLimit
   }
 
-  private def firstSimilarTweet(l: List[Status], t: Status): Option[Status] = {
+  private def firstSimilarTweet(l: List[Status], t: Status): Option[Status] =
     l.find(similar(t, _))
-    //l.filter(similar(t,_))
-  }
 
   private def enableNotification(m: Message, user: String) {
     try {
@@ -513,101 +450,27 @@ class TwitterModule extends Module {
     return StringUtil.shortDurationString(System.currentTimeMillis - tweet.getCreatedAt.getTime)
   }
 
-  //there has to be a better way to do this array munging ffs
-  private def fetchFriendStatuses(twitter: Twitter): List[String] = {
-    val statuses = twitter.getHomeTimeline().toArray(new Array[Status](0))
-    var strStatuses: List[String] = Nil
-    for (status <- statuses)
-      strStatuses = (BOLD + status.getUser.getName + NORMAL + ": " + status.getText) :: strStatuses
-    strStatuses.reverse
-  }
+  private def fetchFriendStatuses(twitter: Twitter): List[String] =
+    twitter.getHomeTimeline().toList.map((s) => BOLD + s.getUser.getName + NORMAL + ": " + s.getText).reverse
 
-  private def refreshIdsToFollow() {
+  private def refreshIdsToFollow() = {
     followedIDs = twitter.getFriendsIDs(1l).getIDs
   }
 
-  private def sendStatusToChan(status: Status, chan: String) {
-    println("got here, chan:" + chan);
+  private def sendStatusToChan(status: Status, chan: String) =
     Message.createPrivmsg(chan, BOLD + status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
-  }
 
-  def processPrivateMessage(m: Message) {
-    processChannelMessage(m)
-  }
-
-  def processChannelMessage(m: Message) {
-    manageCache()
-    m.getModCommand.toLowerCase() match {
-      case "tweet" =>
-        tweet(m)
-      case "tweetchannel" =>
-        chan = m.getChanname
-        Message.createPrivmsg(chan, "This channel is now the main channel for twitter following.").send()
-      case "follow" =>
-        if (m.isAuthorised())
-          twitterActor ! (m, FOLLOW)
-        else
-          m.reply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..")
-      case "unfollow" =>
-        if (m.isAuthorised())
-          twitterActor ! (m, UNFOLLOW)
-        else
-          m.reply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.")
-      case "tweetsearch" | "twitsearch" | "twittersearch" | "inanity" | "t" =>
-        if (sanitiseAndScold(m))
-          if (!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
-            searchesMade += 1
-            twitterActor ! (m, SEARCH)
-          } else cacheHits += 1
-      case "tweetstats" =>
-        m.reply(m.getSender + ": Searches made:" + (searchesMade+cacheHits) + " Network hits:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize
-                + " Last filter time:" + lastFilterTime + "ms"
-                + " Avg. Filter Time:" + filterTimeAvg + "ms")
-      case "trends" | "localtrends" =>
-        twitterActor ! (m, TRENDS)
-      case "twanslate" | "twans" =>
-        twitterActor ! (m, TRANSLATE)
-      case "tweetpurge" =>
-        tweetpurge(m)
-      case "tweetsearchsize" =>
-        if (m.isAuthorised()) {
-          //we expect one argument, a number
-          val numString = m.getModTrailing.trim()
-          try {
-            searchSize = Integer.parseInt(numString)
-            m.reply(m.getSender + ": I set search size to " + searchSize + ", as you commanded, my liege.")
-          } catch {
-            case ex: NumberFormatException =>
-              m.reply(m.getSender + ": That's rubbish, try specifying a simple integer.")
-          }
-        } else m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
-      case "trendsnotify" =>
-        if( m.isAuthorised()) {
-          if(m.getModTrailing.split(' ').size!=1)
-            m.reply("Master, your humble servant can only follow one channel at once. Forgive me.")
-          else {
-            val chan = m.getModTrailing().split(' ')(0)
-            trendsNotifyActor ! (chan, TRENDSNOTIFY)
-          }
-        }
-    }
-  }
-
-  private def sanitiseAndScold(m: Message): Boolean = {
+  private def sanitiseAndScold(m: Message): Boolean =
     if (m.getModTrailing.trim.length == 0) {
       m.reply(m.getSender + ": Twitter might be inane, but you still need to tell me to search for *something*.")
-      return false
-    }
-    true
-  }
+      false
+    } else true
 
-  private def tweetpurge(m: Message) {
+  private def tweetpurge(m: Message) =
     m.reply(m.getSender + ": Purged " + purge(0) + " tweets from cache.")
-  }
 
-  private def cacheSize(): Int = {
+  private def cacheSize(): Int =
     searchResults.foldLeft(0)((sum, x) => sum + x._2.length)
-  }
 
   //purge all the tweets older than age (age is in minutes), return the number purged
   private def purge(age: Int): Int = {
@@ -620,65 +483,118 @@ class TwitterModule extends Module {
 
   private def manageCache() {
     val now = System.currentTimeMillis
-    if ((now - lastPurge) > purgePeriod * MINUTE) {
+    if ((now - lastPurge) > purgePeriod * MINUTE)
       purge(purgePeriod)
-    }
     lastPurge = now
+  }
+
+  private def tweet(m: Message) {
+    val now = System.currentTimeMillis
+    if ((now - lastOutgoingTweetTime) > MINUTE )
+      tweetMessage(m, m.getModTrailing)
+    else
+      m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
+  }
+
+  private def filterIDs(ids: Array[Int]): Array[Int] =
+    ids.filter((id) => followedIDs.contains(id))
+
+  private def isFollowed(id: Long): Boolean =
+    followedIDs.contains(id)
+
+  private def isMention(status:Status):Boolean =
+    status.getText().contains("@"+USER)
+
+
+
+  // Goat.module.Module methods
+
+  override def messageType = Module.WANT_COMMAND_MESSAGES
+
+  override def getCommands(): Array[String] = {
+    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch",
+        "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans")
+  }
+
+  override def processPrivateMessage(m: Message) {
+    processChannelMessage(m)
+  }
+
+  override def processChannelMessage(m: Message) {
+    manageCache()
+    (m.getModCommand.toLowerCase, m.isAuthorised) match {
+      case ("tweet", true) =>
+        tweetMessage(m, m.getModTrailing)
+        m.reply("Most beneficant Master " + m.getSender + ", I have tweeted your wise words.")
+      case ("tweet", false) =>
+        tweet(m)
+      case ("tweetchannel", true) =>
+        chan = m.getChanname
+        Message.createPrivmsg(m.getChanname, "This channel is now the main channel for twitter following.").send()
+      case ("tweetchannel", false) =>
+        m.reply("You can't tell me where to send my tweeters")
+      case ("follow", true) =>
+        enableNotification(m, m.getModTrailing.trim())
+        refreshTwitterStream()
+      case ("follow", false) =>
+        m.reply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..")
+      case ("unfollow", true) =>
+        disableNotification(m, m.getModTrailing.trim())
+        refreshTwitterStream()
+      case ("unfollow", false) =>
+        m.reply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.")
+      case ("tweetsearch" | "twitsearch" | "twittersearch" | "inanity" | "t", _) =>
+        if (sanitiseAndScold(m))
+          if (!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
+            searchesMade += 1
+            queryTwitter(m, m.getModTrailing.trim().toLowerCase())
+          } else cacheHits += 1
+      case ("tweetstats", _) =>
+        m.reply(m.getSender + ": Searches made:" + (searchesMade+cacheHits) + " Network hits:" + searchesMade + " Cache hits:" + cacheHits + " Cache size:" + cacheSize
+                + " Last filter time:" + lastFilterTime + "ms"
+                + " Avg. Filter Time:" + filterTimeAvg + "ms")
+      case ("trends" | "localtrends", _) =>
+        showTrends(m)
+      case ("twanslate" | "twans", _) =>
+        twanslate(m)
+      case ("tweetpurge", _) =>
+        tweetpurge(m)
+      case ("tweetsearchsize", true) =>
+        try {
+          m.reply(m.getSender + ": I set search size to " + (new CommandParser(m)).findNumber + ", as you commanded, my liege.")
+        } catch {
+          case ex: NumberFormatException =>
+            m.reply(m.getSender + ": That's rubbish, try specifying a simple integer.")
+        }
+      case ("tweetsearchsize", false) =>
+        m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
+      case ("trendsnotify", false) =>
+        m.reply("You can't make me do that.")
+      case ("trendsnotify", true) =>
+        m.reply("That doesn't work right now.")
+        System.out.println("Someone should implement a not-broken trendsNotify.")
+        // if(m.getModTrailing.split(' ').size!=1)
+        //   m.reply("Master, your humble servant can only notify one channel at once. Forgive me.")
+        // else {
+        //   val chan = m.getModTrailing().split(' ')(0)
+        //   trendsNotifyActor ! (chan)
+        // }
+      case (_, _) =>
+        m.reply("Looks like some dullard forgot to implement that command.")
+    }
   }
 
   override def processOtherMessage(m: Message) {
     val now = System.currentTimeMillis
     if (m.getCommand == TOPIC && (now - lastOutgoingTweetTime) > 10 * MINUTE) {
       //twitter.updateStatus(m.getTrailing)
-      twitterActor ! (m, TWEET_TOPIC)
+      tweetMessage(m, m.getModTrailing)
       lastOutgoingTweetTime = now
     }
   }
 
-  private def tweet(m: Message) {
-    val now = System.currentTimeMillis
-    if ((now - lastOutgoingTweetTime) > MINUTE ) {
-      twitterActor ! (m, TWEET)
-    } else {
-      m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
-    }
-  }
 
-  override def messageType = Module.WANT_COMMAND_MESSAGES
-
-  def getCommands(): Array[String] = {
-    Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch",
-        "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans")
-  }
-
-  private def filterIDs(ids: Array[Int]): Array[Int] = {
-    var filteredIDs: List[Int] = Nil
-
-    val idsList = followedIDs.toList
-
-    for (id <- ids) {
-      if (idsList.contains(id)) {
-        filteredIDs = id :: filteredIDs
-      }
-    }
-
-    filteredIDs.toArray: Array[Int] //ugly shit
-  }
-
-  private def isFollowed(id: Long): Boolean = {
-    val idsList = followedIDs.toList
-    if (idsList.contains(id)) {
-      return true
-    }
-    false
-  }
-
-  private def isMention(status:Status):Boolean = {
-    println("sn:"+status.getInReplyToScreenName() + ":USER:" + USER)
-    println("getText():" + status.getText())
-    status.getText().contains("@"+USER)
-  }
 
   class GoatUserListener extends UserStreamListener {
     def onException(e: Exception) {
