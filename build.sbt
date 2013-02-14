@@ -6,8 +6,9 @@ mainClass in (Compile, run) := Some("goat.Goat")
 
 scalaVersion in ThisBuild := "2.10.0"
 
-javaOptions += "-Dpython.path=libpy"
+javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / "libpy") }).toString
 
+unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / "libpy") }
 
 // Dependency madness begins here
 
