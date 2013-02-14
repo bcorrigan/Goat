@@ -43,7 +43,7 @@ libraryDependencies +=
   "com.novocode" % "junit-interface" % "latest.integration" % "test->default"
 
 // make version and name available at runtime via sbt-buildinfo plugin;
-// they will be available via class goat.Buildinfo (as .name, .version, etc)
+// they will be available in class goat.Buildinfo (via .name(), .version(), etc)
 buildInfoSettings
 
 sourceGenerators in Compile <+= buildInfo
@@ -54,7 +54,6 @@ buildInfoKeys := Seq[BuildInfoKey](
   scalaVersion,
   sbtVersion,
   buildInfoBuildNumber,
-  "buildTime" -> System.currentTimeMillis,
   "gitRevision" -> {
     try {
       ("git log --no-merges --oneline" lines_!).length.toString
