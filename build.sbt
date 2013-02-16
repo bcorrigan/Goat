@@ -54,13 +54,11 @@ buildInfoKeys := Seq[BuildInfoKey](
   version,
   scalaVersion,
   sbtVersion,
-  buildInfoBuildNumber,
   BuildInfoKey.action("gitRevision") {
     try {
       ("git log --no-merges --oneline" lines_!).length.toString
     } catch {
       case ioe: java.io.IOException => "???"
-    }}
-)
+    }})
 
 buildInfoPackage := "goat"

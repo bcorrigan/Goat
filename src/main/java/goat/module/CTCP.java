@@ -7,7 +7,6 @@ import goat.core.BotStats;
 import goat.Goat;
 
 import java.util.Date;
-import java.text.SimpleDateFormat;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
@@ -105,8 +104,6 @@ public class CTCP extends Module {
 */
 	private String getVersionString() {
             goat.BuildInfo$ buildInfo = goat.BuildInfo$.MODULE$;
-            SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhhmmss");
-
             return Constants.BOLD + BotStats.getInstance().getVersion() +
                 Constants.NORMAL + " (" +
                 "OS: " + System.getProperty("os.name") +
@@ -116,7 +113,6 @@ public class CTCP extends Module {
                 System.getProperty("java.version") +
                 "  Scala: " + buildInfo.scalaVersion() + " " +
                 "  sbt: " + buildInfo.sbtVersion() +
-                "  build: " +  df.format(new Date(buildInfo.buildinfoBuildnumber())) +
 		")";
 	}
 
