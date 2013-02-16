@@ -55,7 +55,7 @@ buildInfoKeys := Seq[BuildInfoKey](
   scalaVersion,
   sbtVersion,
   buildInfoBuildNumber,
-  "gitRevision" -> {
+  BuildInfoKey.action("gitRevision") {
     try {
       ("git log --no-merges --oneline" lines_!).length.toString
     } catch {
