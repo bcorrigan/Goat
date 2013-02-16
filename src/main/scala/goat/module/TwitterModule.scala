@@ -13,6 +13,7 @@ import goat.util.TranslateWrapper;
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
+import scala.util.Random
 
 import java.lang.System
 
@@ -490,11 +491,23 @@ class TwitterModule extends Module {
 
   private def tweet(m: Message) {
     val now = System.currentTimeMillis
-    if ((now - lastOutgoingTweetTime) > MINUTE )
+    if ((now - lastOutgoingTweetTime) > MINUTE ) {
       tweetMessage(m, m.getModTrailing)
+      m.reply(tweetConfirmation)
+    }
     else
       m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
   }
+
+  private def tweetConfirmation: String =
+    confirmationGripes(Random.nextInt(confirmationGripes.length))
+
+  private val confirmationGripes = Array[String](
+    "Your lonliness is now being used to deplete the world's energy supply.",
+    "I will take that and shove it into my tweethole.",
+    "Well, OK, but don't be surprised if nothing comes of it.",
+    "Done; now we all get to see exactly how little the world cares for what you have to say.",
+    "I have polluted the internet for you.")
 
   private def filterIDs(ids: Array[Int]): Array[Int] =
     ids.filter((id) => followedIDs.contains(id))
@@ -507,7 +520,7 @@ class TwitterModule extends Module {
 
 
 
-  // Goat.module.Module methods
+  // Goat.module.Module overrides
 
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
