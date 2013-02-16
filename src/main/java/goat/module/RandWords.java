@@ -120,9 +120,9 @@ public class RandWords extends Module {
                 Thread.sleep(1500);
                 m.reply(new String(Character.toChars(128079)));
                 Thread.sleep(2000);
-                m.reply("  " + new String(Character.toChars(128079)));
+                m.reply(".. " + new String(Character.toChars(128079)));
                 Thread.sleep(2500);
-                m.reply("  " + NORMAL + "  " + new String(Character.toChars(128079)));
+                m.reply("....  " + new String(Character.toChars(128079)));
             } catch(InterruptedException tie) {}
          }
     }

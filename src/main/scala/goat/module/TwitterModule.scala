@@ -618,7 +618,7 @@ class TwitterModule extends Module {
     def onStatus(status: Status) {
       if (isMention(status) || isFollowed(status.getUser.getId))
         sendStatusToChan(status, chan);
-      println(status.getText)
+      println("TwitterModule status:  " + status.getText)
     }
 
     def onDeletionNotice(statusDeletionNotice:StatusDeletionNotice) {
