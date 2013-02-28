@@ -120,7 +120,7 @@ def get_page_content(url):
     code, content, resp = util.get_page(summary_url, params)
     # check content type before parsing
     if code != 200:
-        return ("Summarizer returned %d" % code, None)
+        return ("Summarizer returned %s" % str(code), None)
 
     if resp.headers['content-type'].startswith('text/html'):
         soup = bs.BeautifulSoup(content)
