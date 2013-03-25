@@ -110,6 +110,10 @@ public class Bitcoin extends Module {
 		} else {
 			//System.out.println("Getting new quote");
 			quote = btchartQuote();
+			if (quote == null) {
+				m.reply("Problem getting bitcoincharts.com API");
+				return;
+			}
 			lastQuote = quote;
 			lastCall = System.currentTimeMillis();
 		}
