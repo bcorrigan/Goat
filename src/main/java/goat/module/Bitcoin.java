@@ -7,6 +7,7 @@ import goat.core.Message;
 import goat.core.User;
 import goat.core.Users;
 import goat.util.CommandParser;
+import goat.util.MtGox;
 
 import java.io.*;
 import java.net.* ;
@@ -43,7 +44,27 @@ public class Bitcoin extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-        ircQuote(m);
+	    if(m.getModTrailing().startsWith("help"))
+	        m.reply("usage: goxlag|bitcoin [column=COLUMN] [currency=CURRENCY] [symbol=SYMBOL] {available columns: volume, bid, high, currency_volume, ask, close, avg, low; available currencies: AUD, CAD, CHF, EUR, GBP, JPY, NZD, PLN, SEK, SLL, USD; if both currency and symbol are specified, symbol overrides currency; results cached for 15 minutes}");
+	    else if("goxlag".equalsIgnoreCase(m.getModCommand()))
+	        m.reply(goxLag());
+	    else
+	        ircQuote(m);	    
+	}
+
+	public String goxLag() {
+	    String ret = "My programmers are awful.";
+	    MtGox gox = new MtGox();
+	    try {
+	        JSONObject lag = gox.apiCall("generic/order/lag");
+	        if (lag.has("result") && lag.getString("result").equals("success"))
+	            ret = lag.getJSONObject("return").getString("lag_text");
+	        else
+	            ret = "MtGox error: " + lag.getString("error");
+	    } catch (JSONException e) {
+	        ret = "I had a JSON problem: " + e.getCause();
+	    }
+	    return ret;
 	}
 
 	public void ircQuote(Message m) {
@@ -58,10 +79,6 @@ public class Bitcoin extends Module {
 		if (userCurrency.equals(""))
 			userCurrency = "USD";
 		CommandParser parser = new CommandParser(m.getModTrailing());
-		if ("help".equalsIgnoreCase(parser.command())){
-			m.reply("usage: bitcoin [column=COLUMN] [currency=CURRENCY] [symbol=SYMBOL] {available columns: volume, bid, high, currency_volume, ask, close, avg, low; available currencies: AUD, CAD, CHF, EUR, GBP, JPY, NZD, PLN, SEK, SLL, USD; if both currency and symbol are specified, symbol overrides currency; results cached for 15 minutes}");
-			return;
-		}
 		// defaults
 		String symbol = "mtgoxUSD";
 		String column = "close";
@@ -133,7 +150,16 @@ public class Bitcoin extends Module {
 				date.setTime(trade_t*1000);
 				double price_fmt = Double.parseDouble(new DecimalFormat("#.##").format(price));
 				String time_fmt = compactDate(date,tz);
-				m.reply(time_fmt+" "+symbol+" "+price_fmt);
+				String lag = "";
+				if(symbol.startsWith("mtgox")) {
+				   MtGox gox = new MtGox();
+			       JSONObject lago = gox.apiCall("generic/order/lag");
+			       if(lago.has("result")
+			               && lago.getString("result").equals("success")
+			               && lago.getJSONObject("return").getDouble("lag_secs") > 2.0)
+			           lag = "  (lag: " + lago.getJSONObject("return").getString("lag_text") + ")";
+				}
+				m.reply(time_fmt + " " + symbol + " " + price_fmt + lag);
 			} else {
 				m.reply("Unable to locate that symbol");
 			}
@@ -149,7 +175,7 @@ public class Bitcoin extends Module {
     }
 
     public String[] getCommands() {
-		return new String[]{"bitcoin", "buttcoin"};
+		return new String[]{"bitcoin", "buttcoin", "goxlag"};
 	}
 
     private boolean tooSoon() {
@@ -237,6 +263,5 @@ public class Bitcoin extends Module {
     	nf.setMaximumFractionDigits(2);
     	return nf.format(number / divisor) + suffix;
     }
-    public static void main(String[] args) {
-    }
+
 }
