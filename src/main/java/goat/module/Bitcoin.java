@@ -41,11 +41,11 @@ public class Bitcoin extends Module {
 	public boolean isThreadSafe() {
 		return false;
 	}
-	
+
 	public void processChannelMessage(Message m) {
         ircQuote(m);
 	}
-	
+
 	public void ircQuote(Message m) {
 		//System.out.println("Entering bitcoin ircQuote");
                 TimeZone tz = null;
@@ -137,7 +137,7 @@ public class Bitcoin extends Module {
 			} else {
 				m.reply("Unable to locate that symbol");
 			}
-			
+
 		} catch (JSONException e) {
 			m.reply("JSON Error!");
 		}
@@ -149,11 +149,11 @@ public class Bitcoin extends Module {
     }
 
     public String[] getCommands() {
-		return new String[]{"bitcoin"};
+		return new String[]{"bitcoin", "buttcoin"};
 	}
 
     private boolean tooSoon() {
-	if ((System.currentTimeMillis() - lastCall) < 900000)
+	if ((System.currentTimeMillis() - lastCall) < 30000)
 		return true;
 	else
 		return false;
@@ -196,7 +196,7 @@ public class Bitcoin extends Module {
 	return ret;
     }
 
-    
+
     private String compactDate(Date date, TimeZone tz) {
     	if (null == tz)
     		tz = TimeZone.getDefault();
@@ -212,11 +212,11 @@ public class Bitcoin extends Module {
     	sdf.setTimeZone(tz);
     	return sdf.format(date).replace("AM ", "am ").replace("PM ", "pm ");
     }
-    
+
     private String abbreviateNumber(Long number) {
     	return abbreviateNumber((double) number);
     }
-  
+
     private String abbreviateNumber(Double number) {
        	String suffix = "";
     	Double divisor = 1D;
