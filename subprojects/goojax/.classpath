@@ -1,11 +1,13 @@
 <classpath>
   <classpathentry output="target/scala-2.10/classes" path="src/main/scala" kind="src"></classpathentry>
   <classpathentry output="target/scala-2.10/classes" path="src/main/java" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.10/classes" path="target/scala-2.10/src_managed/main" kind="src"></classpathentry>
   <classpathentry output="target/scala-2.10/test-classes" path="src/test/scala" kind="src"></classpathentry>
   <classpathentry output="target/scala-2.10/test-classes" path="src/test/java" kind="src"></classpathentry>
+  <classpathentry output="target/scala-2.10/test-classes" path="target/scala-2.10/src_managed/test" kind="src"></classpathentry>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"></classpathentry>
-  <classpathentry path="/home/ed/.ivy2/cache/com.google.code.gson/gson/jars/gson-2.2.2.jar" kind="lib"></classpathentry>
-  <classpathentry path="/home/ed/.ivy2/cache/com.novocode/junit-interface/jars/junit-interface-0.10-M2.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/ed/.ivy2/cache/com.google.code.gson/gson/jars/gson-2.2.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/ed/.ivy2/cache/com.novocode/junit-interface/jars/junit-interface-0.10-M3.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/ed/.ivy2/cache/junit/junit-dep/jars/junit-dep-4.10.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/ed/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/ed/.ivy2/cache/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar" kind="lib"></classpathentry>
