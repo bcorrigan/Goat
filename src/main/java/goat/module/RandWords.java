@@ -213,7 +213,7 @@ public class RandWords extends Module {
         try {
             initEngine();
         } catch (Exception e) {
-            m.reply("error making a python: " + e.getMessage());
+            System.err.println("RandWords:  error making a python: " + e.getMessage());
             return;
         }
         Object ret;
