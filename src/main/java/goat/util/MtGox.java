@@ -10,13 +10,25 @@ import org.json.JSONObject;
 import org.json.JSONException;
 
 public class MtGox {
-       
+
     public JSONObject apiCall(String method) throws JSONException {
+        return apiCall(method, true);
+    }
+    
+    public JSONObject insecureApiCall(String method) throws JSONException {
+        return apiCall(method, false);
+    }
+     
+    private JSONObject apiCall(String method, boolean secure) throws JSONException {
         HttpURLConnection connection = null;
         BufferedReader in = null;
         String response = "";
+        String protocol = "https";
+        if (!secure)
+            protocol = "http";
+            
         try {
-            URL url = new URL("https://data.mtgox.com/api/1/" + method);
+            URL url = new URL(protocol + "://data.mtgox.com/api/1/" + method);
             connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(7000);  // 7 seconds, mtgox can be... slow.
             connection.setReadTimeout(7000);  // 7 seconds, mtgox can be... slow.
