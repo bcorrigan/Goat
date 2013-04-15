@@ -336,7 +336,7 @@ public class PlotMaker extends Module {
 		"case of the mondays",
 		"fat acceptance activism",
 		"silly feminine interests that turn out to be quite useful in the end",
-		"surprising the male protagonist by impaling herself on his sexual organ for no apparent reason"
+		"surprising the male protagonist by impaling herself on his sexual organ for no apparent reason",
 	};
 	String p8[] = {
 		"a fistfight atop a tower",
