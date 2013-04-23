@@ -503,10 +503,13 @@ class TwitterModule extends Module {
     confirmationGripes(Random.nextInt(confirmationGripes.length))
 
   private val confirmationGripes = Array[String](
-    "Your lonliness is now being used to deplete the world's energy supply.",
+    "Your loneliness is now being used to deplete the world's energy supply.",
     "I will take that and shove it into my tweethole.",
     "Well, OK, but don't be surprised if nothing comes of it.",
+    "I have increased the entropy of the universe a little for you. I think that's about all we can expect.",
     "Done; now we all get to see exactly how little the world cares for what you have to say.",
+    "I have shat electrical impulses into the meaningless maw of tweeter.",
+    "Oh, you're trying to troll? You know, none of you are as good at that as you used to be, but lets cross our fingers this time, eh?",
     "I have polluted the internet for you.")
 
   private def filterIDs(ids: Array[Int]): Array[Int] =
