@@ -192,12 +192,15 @@ class TwitterModule extends Module {
 	reply += " for " + locTrends.getLocation().getName() + ": "
 	locTrends.getTrends.toList
       }
-
+      val prefix = reply
+      var trendsStr=""
       var count = 1
       for (trend <- trends) {
-	reply += " " + BOLD + count + ":" + BOLD + trend.getName()
-	count += 1
+        trendsStr += " " + BOLD + count + ":" + BOLD + trend.getName()
+        count += 1
       }
+      reply+=trendsStr
+      addToLastTweets(m, new Trends(prefix,trendsStr))
       m.reply(reply)
     } catch {
       case ex: TwitterException =>
@@ -364,15 +367,23 @@ class TwitterModule extends Module {
   }
 
   private val maxLastTweets: Int = 32
-  private var lastTweets: Map[String, List[Status]] = Map[String, List[Status]]()
+  private var lastTweets: Map[String, List[Either[Status,Trends]]] = Map[String, List[Either[Status,Trends]]]()
 
-  private def addToLastTweets(m: Message, tweet: Status): Unit = {
+  private def addToLastTweets(m: Message, tweet: Either[Status,Trends]): Unit = {
      lastTweets.get(m.getChanname()) match {
        case Some(l) =>
          lastTweets.put(m.getChanname(), (tweet :: l).take(maxLastTweets))
        case None =>
-         lastTweets.put(m.getChanname(), List[Status](tweet))
+         lastTweets.put(m.getChanname(), List[Either[Status,Trends]](tweet))
      }
+  }
+  
+  private def addToLastTweets(m:Message, tweet:Status): Unit = {
+    addToLastTweets(m,Left(tweet))
+  }
+  
+  private def addToLastTweets(m:Message, trends:Trends):Unit = {
+    addToLastTweets(m, Right(trends))
   }
 
   private def twanslate(m: Message): Unit = {
@@ -400,7 +411,7 @@ class TwitterModule extends Module {
           "I don't remember finding any tweets for " + m.getChanname()
       }
 
-  private def twansTweetNum(m: Message, l: List[Status], num: Int): String =
+  private def twansTweetNum(m: Message, l: List[Either[Status,Trends]], num: Int): String =
     if (num < 1)
       "You are a bad person."
     else if (l.isEmpty)
@@ -411,14 +422,19 @@ class TwitterModule extends Module {
     else
       twansTweet(m, l(num - 1))
 
-  private def twansTweet(m: Message, tweet: Status): String = {
-    val tweeText = unescapeHtml(tweet.getText())
+  private def twansTweet(m: Message, tweet: Either[Status,Trends]): String = {
+    val tweeText = unescapeHtml(tweet match { case Left(t) => t.getText() ; case Right(s) => s.trends ;})
     val lang = translator.detect(tweeText)
     if (lang.equals(translator.defaultLanguage))
       "As far as I can tell, that tweet was already in " + translator.defaultLanguage().name() + "."
-    else
-      formatTweet(tweet, "(from " + BOLD + lang.name + ")  " +
-          NORMAL + translator.localize(m, translator.translate(tweeText, translator.defaultLanguage())))
+    else {
+      val langStr = "(from " + BOLD + lang.name + ")  ";
+      tweet match {
+      case Left(t) => formatTweet(t, langStr +
+          NORMAL + translator.localize(m, translator.translate(tweeText, translator.defaultLanguage())));
+      case Right(s) => s.prefix + " " + langStr + translator.localize(m, translator.translate(s.trends, translator.defaultLanguage()))
+      }
+    }
   }
 
   //return true if we found one
@@ -609,8 +625,8 @@ class TwitterModule extends Module {
       lastOutgoingTweetTime = now
     }
   }
-
-
+  
+  case class Trends(prefix:String, trends:String);
 
   class GoatUserListener extends UserStreamListener {
     def onException(e: Exception) {
