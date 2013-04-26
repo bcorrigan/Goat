@@ -70,6 +70,12 @@ def praise_words():
         "You've set an example for us all.",
         "Excellent work!",
         "Bravo, bravo!",
+        "Splendid work. Just splendid.",
+        "Remarkable!",
+        "I'm proud of you. If only everyone could be as nice.",
+        "Terrific stuff!",
+        "Your conduct is impeccable.",
+        "Great. You're teaching us all good manners.",
     ])
 
 def chastise_words():
@@ -82,6 +88,10 @@ def chastise_words():
         "How could you do it?",
         "My goodness, I've never heard such nastiness.",
         "I wish I could say I was surprised.",
+        "To soar so high, then fall so low - you're a foul-mouthed Icarus.",
+        "Why treat us to such a despicable display of poor manners? And you were doing so well, too.",
+        "How boorish. And just when I thought you had improved yourself and learned some manners.",
+        "I was just starting to believe in you, and then you do this. Back to square one.",
     ])
 
 class Stats(Module):
