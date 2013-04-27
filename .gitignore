@@ -38,3 +38,8 @@ buildinfo.properties
 
 # thanks a lot, slashnet...
 config/passwords.properties-before-slashnet-fuckup
+
+# generated eclipse files are useless for checking in to source
+# control, it turns out.
+.classpath
+.project
