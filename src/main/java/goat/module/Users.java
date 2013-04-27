@@ -5,6 +5,7 @@ import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
 import goat.util.StringUtil;
+import goat.util.Location;
 import static goat.util.CurrencyConverter.*;
 import static goat.util.StringUtil.*;
 
@@ -85,11 +86,16 @@ public class Users extends Module {
 			Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
 		} else {
 			try {
-				double[] location = StringUtil.getPositionFromMapsLink(url);
-				User u = users.getOrCreateUser(m.getSender());
-				u.setLatitude(location[0]);
-				u.setLongitude(location[1]);
-				m.reply(u.getName() + "'s location set to lat:" + u.getLatitude() + " long:" + u.getLongitude());
+			    Location location = new Location(url);
+			    if(location.isValid()) {
+    				double[] loc = location.getPosPair();
+    				User u = users.getOrCreateUser(m.getSender());
+    				u.setLatitude(loc[0]);
+    				u.setLongitude(loc[1]);
+    				m.reply(u.getName() + "'s location set to lat:" + u.getLatitude() + " long:" + u.getLongitude());
+			    } else {
+			        m.reply(m.getSender() + ": " + location.error());
+			    }
 			} catch (NumberFormatException nfe) {
 				m.reply(m.getSender() + ": Don't be an arse, eh? Just give me a google maps link. See instructions in /msg");
 				Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();

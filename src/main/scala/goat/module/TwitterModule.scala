@@ -41,6 +41,7 @@ class TwitterModule extends Module {
   private var filterCount: Int = 0
 
   private var pwds = getPasswords()
+
   private val consumerKey = pwds.getProperty("twitter.consumerKey")
   private val consumerSecret = pwds.getProperty("twitter.consumerSecret")
   private val accessToken = pwds.getProperty("twitter.accessToken")
@@ -205,7 +206,7 @@ class TwitterModule extends Module {
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace
-      m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage)
+      m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage) 
     }
   }
 
@@ -231,9 +232,14 @@ class TwitterModule extends Module {
         if (parser.hasVar("location")) {
           val url = parser.get("location")
           try {
-            val location: Array[Double] = StringUtil.getPositionFromMapsLink(url)
-            latitude = location(0)
-            longitude = location(1)
+            val locat = new goat.util.Location(url)
+            if(locat.isValid) {
+              latitude=locat.getLatitude()
+              longitude = locat.getLongitude()
+            } else {
+              m.reply(m.getSender + ": " + locat.error)
+              return;
+            }
           } catch {
             case nfe: NumberFormatException =>
               m.reply(m.getSender + ": you need to supply a valid google maps link.")

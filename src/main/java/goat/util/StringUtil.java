@@ -1,6 +1,8 @@
 package goat.util;
 
 import goat.core.BotStats;
+import goat.core.Users;
+import goat.core.User;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -418,34 +420,6 @@ public class StringUtil {
 	public static boolean isValidIRCNick (String nick) {
 		return nick.matches("[a-zA-Z0-9^{}\\[\\]`\\\\^_-|]+");
 	}
-
-    /**
-     * When given a google maps URL, this will pull out the latitude & longitude of the position represented.
-     * @param url A google maps url
-     * @return Latitude, Longitude
-     */
-    public static double[] getPositionFromMapsLink(String urlString) {
-    	double[] pos = new double[2];
-    	URL url;
-    	try {
-    		url = new URL(urlString);
-    	} catch (MalformedURLException me) {
-    		System.err.println("bad URL passed to getPositionFromMapsLink():\n\t'" + urlString + "'");
-    		return pos;
-    	}
-    	String query = url.getQuery();
-    	String[] args = query.split("&");
-    	for (int i=0; i < args.length; i++) {
-    		String[] pair = args[i].split("=");
-    		if (pair[0].equals("ll")) {
-    			String[] coords = pair[1].split(",");
-    			pos[0] = Double.parseDouble(coords[0]);
-    			pos[1] = Double.parseDouble(coords[1]);
-    			break;
-    		}
-    	}
-        return pos;
-    }
 
     private static Charset goatCharset = BotStats.getInstance().getCharset();
     /**
