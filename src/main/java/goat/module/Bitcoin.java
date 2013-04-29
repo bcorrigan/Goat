@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 import java.text.DecimalFormat;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Bitcoin extends Module {
 
@@ -31,7 +33,7 @@ public class Bitcoin extends Module {
 
     // set up some constants
     private static ArrayList<String> columns = new ArrayList<String>();
-    private static HashMap<String,String> symbols = new HashMap<String,String>();
+    private static LinkedHashMap<String,String> symbols = new LinkedHashMap<String,String>();
     {
         columns.add("volume");
         columns.add("bid");
@@ -42,18 +44,26 @@ public class Bitcoin extends Module {
         columns.add("avg");
         columns.add("low");
 
-        // This list is based on popular exchanges as of 2012-12-17, will most likely need periodic updates.
-        symbols.put("USD", new String("mtgoxUSD"));
-        symbols.put("CAD", new String("virtexCAD"));
-        symbols.put("AUD", new String("cryptoxAUD"));
-        symbols.put("CHF", new String("ruxumCHF"));
-        symbols.put("EUR", new String("mtgoxEUR"));
-        symbols.put("GBP", new String("mtgoxGBP"));
-        symbols.put("JPY", new String("mtgoxJPY"));
-        symbols.put("NZD", new String("mtgoxNZD"));
-        symbols.put("PLN", new String("mtgoxPLN"));
-        symbols.put("SEK", new String("kptnSEK"));
-        symbols.put("SLL", new String("virwoxSLL"));
+        // This list last updated 2013-04-28
+        symbols.put("AUD", "mtgoxAUD");
+        symbols.put("CAD", "virtexCAD");
+        symbols.put("CHF", "mtgoxCHF");
+        symbols.put("CNY", "btcnCNY");
+        symbols.put("DKK", "mtgoxDKK");
+        symbols.put("EUR", "mtgoxEUR");
+        symbols.put("GBP", "mtgoxGBP");
+        symbols.put("HKD", "mtgoxHKD");
+        symbols.put("ILS", "bit2cILS");
+        symbols.put("JPY", "mtgoxJPY");
+        symbols.put("NZD", "mtgoxNZD");
+        symbols.put("PLN", "bitcurexPLN");
+        symbols.put("RUB", "btceRUR");
+        symbols.put("SEK", "kptnSEK");
+        symbols.put("SGD", "mtgoxSGD");
+        symbols.put("SLL", "virwoxSLL");
+        symbols.put("THB", "mtgoxTHB");
+        symbols.put("USD", "mtgoxUSD");
+        symbols.put("XRP", "rippleXRP");
     }
 
 
@@ -66,15 +76,24 @@ public class Bitcoin extends Module {
 
     public void processChannelMessage(Message m) {
         if(m.getModTrailing().startsWith("help"))
-            m.reply("usage: goxlag|bitcoin [column=COLUMN] [currency=CURRENCY] [symbol=SYMBOL] " +
-                    "{available columns: volume, bid, high, currency_volume, ask, close, avg, low; " +
-                    "available currencies: AUD, CAD, CHF, EUR, GBP, JPY, NZD, PLN, SEK, SLL, USD; " +
-                    "if both currency and symbol are specified, symbol overrides currency; " +
-                    "non-mtgox results cached for 30 seconds}");
+            m.reply("usage: goxlag|bitcoin [help]  " +
+                    "[column={volume, bid, high, currency_volume, ask, close, avg, low}]  " +
+                    "[currency={"+ keysToOrderedString(symbols.keySet()) +"}] " +
+                    "[symbol={see http://bitcoincharts.com/markets for list}]  " +
+                    "  If both currency and symbol are specified, symbol overrides currency. " +
+                    "Non-mtgox results cached for 30 seconds");
         else if("goxlag".equalsIgnoreCase(m.getModCommand()))
             m.reply(goxLag());
         else
             ircQuote(m);
+    }
+
+    private String keysToOrderedString(Set<String> symbols) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<String> iter = symbols.iterator();
+        while (iter.hasNext())
+            sb.append(iter.next() + " ");
+        return sb.toString();
     }
 
     private String goxLag() {
