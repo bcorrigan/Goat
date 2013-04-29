@@ -9,16 +9,18 @@ import java.net.URL;
 import org.json.JSONObject;
 import org.json.JSONException;
 
+import goat.core.BotStats;
+
 public class MtGox {
 
     public JSONObject apiCall(String method) throws JSONException {
         return apiCall(method, true);
     }
-    
+
     public JSONObject insecureApiCall(String method) throws JSONException {
         return apiCall(method, false);
     }
-     
+
     private JSONObject apiCall(String method, boolean secure) throws JSONException {
         HttpURLConnection connection = null;
         BufferedReader in = null;
@@ -26,10 +28,15 @@ public class MtGox {
         String protocol = "https";
         if (!secure)
             protocol = "http";
-            
+
         try {
             URL url = new URL(protocol + "://data.mtgox.com/api/1/" + method);
             connection = (HttpURLConnection) url.openConnection();
+	    connection.setRequestProperty("User-Agent", "Goat IRC Bot v" +
+					  BotStats.getInstance().getVersion() +
+					  " (" + System.getProperty("os.name") +
+					  " v" + System.getProperty("os.version") + ';'
+					  + System.getProperty("os.arch") + ")");
             connection.setConnectTimeout(7000);  // 7 seconds, mtgox can be... slow.
             connection.setReadTimeout(7000);  // 7 seconds, mtgox can be... slow.
             connection.connect();
@@ -37,10 +44,10 @@ public class MtGox {
                 return new JSONObject("{\"error\":\"MtGox gave me a " + connection.getResponseCode() + " :(\"}");
             }
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String inputLine = "" ; 
+            String inputLine = "" ;
             while ((inputLine = in.readLine()) != null)
                 response += inputLine;
-            
+
         } catch  (SocketTimeoutException e) {
             response = "{\"error\":\"I got bored waiting for MtGox.\"}" ;
         } catch (IOException e) {
