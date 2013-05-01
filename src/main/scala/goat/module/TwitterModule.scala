@@ -625,9 +625,9 @@ class TwitterModule extends Module {
 
   override def processOtherMessage(m: Message) {
     val now = System.currentTimeMillis
-    if (m.getCommand == TOPIC && (now - lastOutgoingTweetTime) > 10 * MINUTE) {
+    if (m.getCommand == TOPIC && (now - lastOutgoingTweetTime) > 1 * MINUTE) {
       //twitter.updateStatus(m.getTrailing)
-      tweetMessage(m, m.getModTrailing)
+      tweetMessage(m, m.getTrailing)
       lastOutgoingTweetTime = now
     }
   }
