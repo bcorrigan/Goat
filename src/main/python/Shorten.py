@@ -1,10 +1,12 @@
 from java.lang import String
 from goat.core import Module
+from goat.util import Passwords
 from goat.util import StringUtil
 from jarray import array
 
 import BeautifulSoup as bs
 import htmlentitydefs
+import simplejson as json
 import random
 import re
 import urllib
@@ -12,7 +14,6 @@ import urllib2
 import goatpy.util as util
 
 URL_RX = re.compile(r'https?://\S+')
-TITLE_RX = re.compile(r"<title>([^<]*).*</title>", re.I)
 
 random_urls = [
     "http://www.youtube.com/watch?v=dQw4w9WgXcQ", # rickroll
@@ -26,124 +27,89 @@ random_urls = [
     "http://www.youtube.com/watch?v=yzC4hFK5P3g", # ponponpon
 ]
 
-##
-# Removes HTML or XML character references and entities from a text string.
-#
-# @param text The HTML (or XML) source text.
-# @return The plain text, as a Unicode string, if necessary.
-# stolen from http://effbot.org/zone/re-sub.htm#unescape-html
-def unescape(text):
-    def fixup(m):
-        text = m.group(0)
-        if text[:2] == "&#":
-            # character reference
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # named entity
-            try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
 
-def get_page_title(url):
-    title = None
-    (code, content, resp) = util.get_page(url)
-    if code == 200:
-        # XXX probably check content type here
+def build_message(url):
+    short_url = shorten_url(url)
+    description = describe_url(url)
 
-        # half-assed attempt to parse title!
-        match = TITLE_RX.search(content)
-        if match:
-            title = match.groups()[0].decode("utf-8")
+    if short_url is None and description is None:
+        return None
 
-            # convert html entities
-            title = unescape(title)
+    msg = ""
+    if short_url is not None:
+        msg = "%s  ## " % short_url
 
-            # strip extra whitespace and trim long titles
-            title = " ".join(title.split())[:500]
-        else:
-            title = "???"
-    return (code, title)
-
-def get_short_url(url):
-    short_url = None
-
-    if random.random() < 0.0025:
-        url = random.choice(random_urls)
-    shortener = 'http://be.gs/shorten?url=%s' % urllib.quote_plus(url)
-    (code, content, resp) = util.get_page(shortener)
-    if code == 200:
-        short_url = content
-    return (code, short_url)
-
-def shorten_url_message(url):
-    code, short_url = get_short_url(url)
-    if code != 200 or short_url is None:
-        return "The shortenizer said %s" % str(code)
-
-    msg = "%s  ## " % short_url
-    #code, title = get_page_title(url)
-    #if code != 200 or title is None:
-    #    msg += "The server told me %d when I asked for the title" % code
-    #else:
-    #    msg += title
-    title, text = get_page_content(url)
-    msg += title
-    if text is not None:
-        msg += "\f%s" % text
+    if description is not None:
+        msg += description
     return msg
 
-def visible(element):
-    skiptags = ['style', 'script', '[document]', 'head', 'title']
-    if element.parent.name in skiptags:
-        return False
-    elif re.match('<!--.*-->', str(element)):
-        return False
-    return True
 
-def get_page_content(url):
-    params = {}
-    params['format'] = 'html'
-    params['rl'] = 'false' # don't translate urls
-    params['mld'] = '0.8'  # tunable parameter
-    params['url'] = url
-
-    summary_url = 'http://viewtext.org/api/text'
-    code, content, resp = util.get_page(summary_url, params)
-    # check content type before parsing
+def describe_url(url):
+    """Gives a textual description of the content of url."""
+    code, content, resp = util.get_page(url)
     if code != 200:
-        return ("Summarizer returned %s" % str(code), None)
+        return "I tried to look at the page but it told me %s." % str(code)
 
-    if resp.headers['content-type'].startswith('text/html'):
-        soup = bs.BeautifulSoup(content)
-        try:
-            title = unescape(soup.title.string)
-        except (AttributeError, TypeError), e:
-            title = ''
-
-
-        text = " ".join(filter(visible, soup.findAll(text=True)))
-        text = unescape(text)
-        # TODO improve the following regex
-        text = re.sub('<!--[^-]*-->', '', text)
-        text = re.sub(r'Original\s*\|\s*Bookmarklet\s*\|\s*PDF\s*', '', text)
-        text = re.sub(title, '', text)
-        return title, text
+    if resp.headers["content-type"].startswith("text/html"):
+        return extract_article_text(url)
     else:
-        return "%s, %s bytes" % (
-            resp.headers['content-type'], resp.headers['content-length']
-        ), None
+        msg = None
+        try:
+            msg = "%s, %s bytes" % (resp.headers["content-type"],
+                resp.headers["content-length"])
+        except KeyError:
+            print "Missing headers for %s" % url
+        return msg
+
+
+def extract_article_text(url):
+    """Uses a web service to extract the text of an article."""
+    pwds = Passwords()
+    token = pwds.getPassword('apibot.token')
+
+    params = {}
+    params['token'] = token
+    params['url'] = url
+    params['timeout'] = 20000  # timeout in ms
+
+    summary_url = 'http://www.diffbot.com/api/article?%s' % urllib.urlencode(
+        params)
+    code, content, resp = util.get_page(summary_url)
+    if code != 200:
+        print "Got %s requesting %s" % (str(code), summary_url)
+        return None
+
+    try:
+        results = json.loads(content)
+    except:
+        return "The summarizer doesn't like this."
+    if "title" in results:
+        if "text" in results:
+            return "%s\f%s" % (results["title"], results["text"])
+        else:
+            return results["title"]
+    elif "text" in results:
+        return results["text"]
+    else:
+        print results
+        return None
+
+
+def shorten_url(url):
+    """Uses a web service to shorten a long url."""
+    short_url = None
+
+    if random.random() < 0.01:
+        url = random.choice(random_urls)
+    shortener = 'http://jmb.tw/api/create/?newurl=%s' % urllib.quote_plus(url)
+    (code, content, resp) = util.get_page(shortener)
+    if code == 200:
+        return content
+    return None
 
 
 class Shortener(Module):
+
     def __init__(self):
         pass
 
@@ -156,7 +122,7 @@ class Shortener(Module):
             url = match.group()
             # arbitrary treshold for long urls
             if len(url) > 24 and "git.io" not in url:
-                msg = shorten_url_message(match.group())
+                msg = build_message(url)
                 if msg is not None:
                     m.reply(msg)
 
@@ -169,6 +135,6 @@ class Shortener(Module):
     def messageType(self):
         return self.WANT_ALL_MESSAGES
 
-#This should always return a new instance
+# This should always return a new instance
 def getInstance():
     return Shortener()
