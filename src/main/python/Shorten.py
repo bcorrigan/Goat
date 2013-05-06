@@ -74,7 +74,7 @@ def extract_article_text(url):
 
     summary_url = 'http://www.diffbot.com/api/article?%s' % urllib.urlencode(
         params)
-    code, content, resp = util.get_page(summary_url)
+    code, content, resp = util.get_page(summary_url, max_size=512*1024)
     if code != 200:
         print "Got %s requesting %s" % (str(code), summary_url)
         return None
@@ -82,6 +82,7 @@ def extract_article_text(url):
     try:
         results = json.loads(content)
     except:
+        print code, content, resp
         return "The summarizer doesn't like this."
     if "title" in results:
         if "text" in results:
@@ -99,13 +100,37 @@ def shorten_url(url):
     """Uses a web service to shorten a long url."""
     short_url = None
 
+    pwds = Passwords()
+    token = pwds.getPassword('bitly.token')
+
     if random.random() < 0.01:
         url = random.choice(random_urls)
-    shortener = 'http://jmb.tw/api/create/?newurl=%s' % urllib.quote_plus(url)
+
+    params = {
+        "access_token": token,
+        "longUrl": url,
+        "domain": "j.mp",   # bit.ly and bitly.com are also options.
+    }
+
+    shortener = 'https://api-ssl.bitly.com/v3/shorten?%s' % urllib.urlencode(
+        params)
     (code, content, resp) = util.get_page(shortener)
+    url = None
     if code == 200:
-        return content
-    return None
+      try:
+        results = json.loads(content)
+      except:
+        print "error loading json from", shortener, content
+
+      try:
+        url = results["data"]["url"]
+      except:
+        print "unexpected json response from", shortener, results
+    else:
+      print shortener, "returned", code, content
+    return url
+
+
 
 
 class Shortener(Module):
