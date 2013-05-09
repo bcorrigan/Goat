@@ -6,9 +6,19 @@ mainClass in (Compile, run) := Some("goat.Goat")
 
 scalaVersion in ThisBuild := "2.10.0"
 
+
+// make pythons work plz
 javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / "libpy") }).toString
 
 unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / "libpy") }
+
+
+// the trustStore javaOption is not picked up unless we fork
+fork := true
+
+// and we use a local trustStore because the one that ships with freebsd java is poop
+javaOptions += "-Djavax.net.ssl.trustStore=config/cacerts"
+
 
 // Dependency madness begins here
 
@@ -39,9 +49,11 @@ libraryDependencies ++= Seq(
   "org.twitter4j" % "twitter4j-stream" % "latest.integration"
 )
 
+
 // sbt support for jQuery tests
 libraryDependencies +=
   "com.novocode" % "junit-interface" % "latest.integration" % "test->default"
+
 
 // make version and name available at runtime via sbt-buildinfo plugin;
 // they will be available in class goat.Buildinfo (via .name(), .version(), etc)

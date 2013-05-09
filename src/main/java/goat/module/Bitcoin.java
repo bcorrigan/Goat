@@ -100,7 +100,7 @@ public class Bitcoin extends Module {
         String ret = "My programmers are awful.";
         MtGox gox = new MtGox();
         try {
-            JSONObject lag = gox.insecureApiCall("generic/order/lag");
+            JSONObject lag = gox.apiCall("generic/order/lag");
             if (lag.has("result") && lag.getString("result").equals("success"))
                 ret = lag.getJSONObject("return").getString("lag_text");
             else
@@ -142,7 +142,7 @@ public class Bitcoin extends Module {
         try {
             if (symbol.startsWith("mtgox")) {
                 String currency = symbol.substring(5);
-                JSONObject quote = new MtGox().insecureApiCall("BTC" + currency + "/ticker");
+                JSONObject quote = new MtGox().apiCall("BTC" + currency + "/ticker");
                 if (quote.has("result") && quote.getString("result").equals("success"))
                     m.reply(formatGoxQuote(quote.getJSONObject("return"), column, tz));
                 else
@@ -239,7 +239,7 @@ public class Bitcoin extends Module {
         String symbol = quote.getJSONObject("last_local").getString("currency");
 
         String lag = " (MtGox)";
-        JSONObject lago = gox.insecureApiCall("generic/order/lag");
+        JSONObject lago = gox.apiCall("generic/order/lag");
         if(lago.has("result")
            && lago.getString("result").equals("success")
            && lago.getJSONObject("return").getDouble("lag_secs") > 1.0)
