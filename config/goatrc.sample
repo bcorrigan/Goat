@@ -40,6 +40,7 @@ insmod More all
 # Don't insert Tumblr in all; we can't have ubu porning up goatblog
 #insmod Tumblr.py #jism #wordgame #goat
 #insmod TumblrIdle.py all
+#insmod DbUtils all
 
 join #goat
 
