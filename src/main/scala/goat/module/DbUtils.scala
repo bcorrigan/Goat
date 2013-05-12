@@ -38,6 +38,7 @@ class DbUtils extends Module {
           case("find") => find(m,parser)
           case("dump") => dump(m,parser)
           case("load") => load(m,parser)
+          case("compact") => compact(m)
           case(_) => m.reply("Not familiar with that one.")
         }
       }
@@ -83,7 +84,7 @@ class DbUtils extends Module {
               } else return true
           }
         }
-      case "dump" | "load" =>
+      case "dump" | "load" | "compact"=>
         return true;
       case _ => 
         m.reply("wat:" + subcmd + ":")
@@ -165,5 +166,10 @@ class DbUtils extends Module {
       case e:IOException =>
         m.reply("Oh dear, there was an unrecoverable IO error. I rolled back DB though, whew! Error was:" + e.getMessage)
     }
+  }
+  
+  def compact(m:Message):Unit = {
+    store.compact();
+    m.reply(m.getSender() + ": Compacted store.")
   }
 }

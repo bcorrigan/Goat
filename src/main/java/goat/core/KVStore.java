@@ -64,6 +64,10 @@ public class KVStore<T> implements Map<String, T> {
 		}
 	}
 	
+	public void compact() {
+	    db.compact();
+	}
+	
 	//dump the entire global map: keys, types, and values.
 	public void dump(String backupFile) throws IOException {
         File file = new File(backupFile);
