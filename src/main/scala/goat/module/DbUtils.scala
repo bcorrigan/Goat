@@ -39,6 +39,7 @@ class DbUtils extends Module {
           case("dump") => dump(m,parser)
           case("load") => load(m,parser)
           case("compact") => compact(m)
+          case("help") => m.reply("db load <file=optional>| dump <file=optional> | compact | read key=required | set key=required value=required | del key=required | find key=required")
           case(_) => m.reply("Not familiar with that one.")
         }
       }
@@ -84,7 +85,7 @@ class DbUtils extends Module {
               } else return true
           }
         }
-      case "dump" | "load" | "compact"=>
+      case "dump" | "load" | "compact" | "help"=>
         return true;
       case _ => 
         m.reply("wat:" + subcmd + ":")
