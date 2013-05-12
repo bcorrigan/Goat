@@ -28,23 +28,22 @@ class DbUtils extends Module {
    * db find key=keyName | value=val
    */
   override def processChannelMessage(m:Message):Unit = {
-    if(m.isAuthorised()) {
-      val parser = new CommandParser(m)
-      if(validReq(parser,m)) {
-        parser.remaining match {
-          case("read") =>  read(m,parser)
-          case("set") =>  set(m,parser)
-          case("del") => del(m,parser)
-          case("find") => find(m,parser)
-          case("dump") => dump(m,parser)
-          case("load") => load(m,parser)
-          case("compact") => compact(m)
-          case("help") => m.reply("db load <file=optional>| dump <file=optional> | compact | read key=required | set key=required value=required | del key=required | find key=required")
-          case(_) => m.reply("Not familiar with that one.")
-        }
+    val parser = new CommandParser(m)
+ 
+    if(validReq(parser,m)) {
+      (parser.remaining,m.isAuthorised()) match {
+        case ("read",true) =>  read(m,parser)
+        case ("set",true) =>  set(m,parser)
+        case ("del",true) => del(m,parser)
+        case ("find",true) => find(m,parser)
+        case ("dump",true) => dump(m,parser)
+        case ("load",true) => load(m,parser)
+        case ("compact",true) => compact(m)
+        case ("stats",_) => stats(m)
+        case ("help",_) => m.reply("db load <file=optional>| dump <file=optional> | compact | read key=required | set key=required value=required | del key=required | find key=required")
+        case (_,true) => m.reply("Not familiar with that one.")
+        case (_,false) => m.reply("You're not allowed to mind meld with me, pillock.")
       }
-    } else {
-      m.reply("You're not allowed to mind meld with me, pillock.")
     }
   }
   
@@ -85,12 +84,16 @@ class DbUtils extends Module {
               } else return true
           }
         }
-      case "dump" | "load" | "compact" | "help"=>
+      case "dump" | "load" | "compact" | "help" | "stats" =>
         return true;
       case _ => 
         m.reply("wat:" + subcmd + ":")
         return false
     }
+  }
+  
+  def stats(m:Message):Unit = {
+    m.reply("My brain has " + store.size() + " keys in it." )
   }
   
   /*
