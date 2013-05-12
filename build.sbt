@@ -46,7 +46,9 @@ libraryDependencies ++= Seq(
   "org.json" % "json" % "latest.integration",
   "org.reflections" % "reflections" % "latest.integration",
   "org.twitter4j" % "twitter4j-core" % "latest.integration",
-  "org.twitter4j" % "twitter4j-stream" % "latest.integration"
+  "org.twitter4j" % "twitter4j-stream" % "latest.integration",
+  "biz.source_code" % "base64coder" % "latest.integration",
+  "org.mapdb" % "mapdb" % "latest.integration"
 )
 
 

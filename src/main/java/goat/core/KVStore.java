@@ -3,12 +3,15 @@ package goat.core;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Map;
-//will become org.apache.jdbm soon
-import net.kotek.jdbm.*;
+
+import org.mapdb.*;
+
+import biz.source_code.base64Coder.Base64Coder;
+
+import java.io.*;
 
 import static goat.util.StringUtil.incString;
 
@@ -36,6 +39,7 @@ import static goat.util.StringUtil.incString;
  * 
  * @author bcorrigan
  */
+//TODO should really be <T extends Serializable> I guess :-(
 public class KVStore<T> implements Map<String, T> {
 	private static DB db;
 	private static SortedMap<String,Object>  globalMap;
@@ -44,14 +48,89 @@ public class KVStore<T> implements Map<String, T> {
 	
 	static {
 		if(db==null) {
-			db = DBMaker.openFile("resources/goatdb")  
-			    .deleteFilesAfterClose()
+		    File file = new File("resources/goatdb").getAbsoluteFile();
+		    System.out.println("DBFILE:" + file.getAbsolutePath());
+			db = DBMaker.newFileDB(file)  
+			    //.deleteFilesAfterClose()
+			    .closeOnJvmShutdown()
 			    //.enableEncryption("password",false)
 			    .make();
+			//db.clearCache();
+			//db.defrag(true);
+			
 			globalMap=db.getTreeMap("globalMap");
-			if(globalMap==null)
-				globalMap = db.createTreeMap("globalMap");
 		}
+	}
+	
+	public void dump() {
+	    dump("goatdb_dump.txt");
+	}
+	
+	//dump the entire global map: keys, types, and values.
+	public void dump(String backupFile) {
+        try {
+            File file = new File(backupFile);
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            
+            for(String key : globalMap.keySet()) {
+                //if(key!=null&&key!=""&key.startsWith("user"))
+                System.out.print("key:" + key);
+                String value = toBase64String((Serializable) globalMap.get(key));
+                String type=value.getClass().getName();
+                System.out.println(":type:" + value.getClass().getName());
+                //TODO escape this 
+                bw.write(key+"13DELIM37"+type+"13DELIM37"+value+'\n');
+            }
+            bw.flush();
+            bw.close();
+        } catch (java.lang.Error err) {
+            System.out.println("ERROR");
+            err.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Oops. couldn't serialize that.");
+        } 
+	}
+	
+	//load a new global map that replaces existing global map.
+	public void load(String backupFile) {
+	    try {
+	        File file = new File(backupFile);
+	        FileReader fr = new FileReader(file.getAbsoluteFile());
+	        BufferedReader br = new BufferedReader(fr);
+	        String line;
+	        globalMap.clear();
+	        while((line=br.readLine())!=null) {
+	            //TODO escaping!!!!
+	            String[] vals = line.split("13DELIM37");
+	            String key = vals[0];
+	            String type = vals[1];
+	            Object o;
+	            try {
+	                o = fromBase64String(vals[2]);
+	            } catch (ClassNotFoundException e) {
+	                System.out.println("Couldn't instantiate " + key + " --SKIPPING");
+	                continue;
+	            } 
+	            globalMap.put(key, o);
+	            System.out.println("Loaded " + key);
+	        }
+	        db.commit();
+	    } catch(IOException ioe) {
+	        System.out.println("Error loading the store.");
+	        ioe.printStackTrace();
+	        db.rollback();
+	    } 
+	}
+	
+	public void load() {
+	    load("goatdb_dump.txt");
+	}
+	
+	//caution - this returns a global store! handy for Dbutils but not otherwise
+	public KVStore() {
+	    ns="";
+	    mapSlice=(SortedMap<String,T>) globalMap;
 	}
 	
 	public KVStore(String nameSpace) {
@@ -175,6 +254,7 @@ public class KVStore<T> implements Map<String, T> {
 
 	public static void main(String[] args) {
 		KVStore<String> store = new KVStore<String>("user.user1.");
+
 		store.save("blaha", "value1");
 		System.out.println("OK, saved v1");
 		store.save("blahb", "value2");
@@ -279,4 +359,24 @@ public class KVStore<T> implements Map<String, T> {
 	}
 
 
+	//serialise and deserialise the store
+    /** Read the object from Base64 string. */
+    private static Object fromBase64String( String s ) throws IOException ,
+                                                        ClassNotFoundException {
+        byte [] data = Base64Coder.decode( s );
+        ObjectInputStream ois = new ObjectInputStream( 
+                                        new ByteArrayInputStream(  data ) );
+        Object o  = ois.readObject();
+        ois.close();
+        return o;
+    }
+
+    /** Write the object to a Base64 string. */
+    private static String toBase64String( Serializable o ) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream( baos );
+        oos.writeObject( o );
+        oos.close();
+        return new String( Base64Coder.encode( baos.toByteArray() ) );
+    }
 }
