@@ -6,8 +6,12 @@ import goat.core.Users;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import java.util.Map;
+
 import goat.core.Users;
 import goat.core.User;
+
+import static goat.util.StringUtil.parseUrlQueryString;;
 
 public class Location {
   private double longitude;
@@ -16,18 +20,33 @@ public class Location {
   private String errorString;
   
   public Location(String locStr) {
-      if(locStr.contains("&ll")) {
-          String[] args = locStr.split("&");
-          for (int i=0; i < args.length; i++) {
-              String[] pair = args[i].split("=");
-              if (pair[0].equals("ll")) {
-                  String[] coords = pair[1].split(",");
+      //lets nail this finally
+      if(locStr.contains("http")) {
+          try {
+              URL url = new URL(locStr);
+              Map<String,String[]> reqMap = parseUrlQueryString(url.getQuery());
+              String posStr=null;
+              if(reqMap.containsKey("ll"))
+                  posStr=reqMap.get("ll")[0];
+              else if(reqMap.containsKey("sll"))
+                  posStr=reqMap.get("sll")[0];
+              else {
+                  valid=false;
+                  errorString="That url has no ll or sll";
+              }
+              
+              if(posStr!=null) {
+                  String[] coords = posStr.split(",");
                   latitude = Double.parseDouble(coords[0]);
                   longitude = Double.parseDouble(coords[1]);
                   valid=true;
               }
+          } catch(MalformedURLException mfe) {
+              valid=false;
+              errorString="That's not a proper url.";
+              return;
           }
-      } else {
+      }  else {
           Users users = new Users();
           if(users.hasUser(locStr)) {
               User user = users.getUser(locStr);
