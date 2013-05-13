@@ -192,7 +192,7 @@ public class Define extends Module {
 
         Definition d = (Definition) definitionList.get(num - 1) ;
         text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
-        m.pagedReply(text) ;
+        m.reply(text) ;
         // show available definitions, if more than one.
         if (definitionList.size() > 1) {
             int perDict = 0 ;

@@ -176,9 +176,13 @@ public class Message {
 	public static synchronized Message createPagedPrivmsg(String to, String message) {
 		Message ret;
 		synchronized (pagerCache) {
+                    if(Pager.wouldPaginate(message)) {
 			Pager pager = new Pager(message) ;
 			pagerCache.put(to, pager) ;
 			ret = new Message("", "PRIVMSG", to, pager.getNext("PRIVMSG", to)) ;
+                    } else {
+                        ret = createPrivmsg(to, message);
+                    }
 		}
 		return ret;
 	}
@@ -448,6 +452,7 @@ public class Message {
 	}
 
 	/**
+         * obsolete, use reply()
 	 * Just do a paged reply directly, lets not muck about with this m.createPagedReply("blah").send() business
 	 * @param trailing
 	 */
@@ -464,7 +469,6 @@ public class Message {
 	 */
 	public Message createPagedReply(String trailing) {
 		Message ret;
-		String smushedPayload = Pager.smush(trailing);
 		if(getCommand().equals("PRIVMSG"))
 			ret = createPagedPrivmsg(getReplyTo(), trailing);
 		else

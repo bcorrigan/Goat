@@ -208,4 +208,8 @@ public class Pager {
         text = text.replaceAll(" {3,}", "  ") ;
         return text ;
     }
+
+    public static Boolean wouldPaginate(String text) {
+        return (byteLength(text) > defaultMaxBytes) || text.contains("\f");
+    }
 }
