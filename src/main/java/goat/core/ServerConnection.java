@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Maintains the connection with the server. A seperate thread, this.
  *
- * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
+ * @author <p><b>Barry Corrigan</b>
  * @version <p>Date: 14.12.2003</p>
  */
 
