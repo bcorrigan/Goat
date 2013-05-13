@@ -24,7 +24,7 @@ resources/confessions/
 resources/reminders
 resources/adventureData/saves
 resources/scores/
-resources/goatdb.*
+resources/goatdb*
 lib/cachedir/
 .cache
 *py.class
