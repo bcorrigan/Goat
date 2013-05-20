@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharacterCodingException;
 import java.nio.CharBuffer;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -171,6 +173,12 @@ public class StringUtil {
             }
         }
         return durString;
+    }
+    
+    public static String toDateStr(String format, long time) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        Date date = new Date(time);
+        return sdf.format(date);
     }
 
     /**

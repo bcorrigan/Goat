@@ -6,14 +6,19 @@
  */
 package goat.module;
 
-import goat.core.Constants;
+import static goat.core.Constants.*;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
 import goat.core.Users;
+import goat.core.KVStore;
 import goat.util.PhaseOfMoon;
+import goat.util.WeatherStore;
 
 import java.util.Calendar;
+import java.util.ArrayList;
+import static java.util.Collections.sort;
+import static java.util.Collections.min;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
@@ -27,6 +32,7 @@ import java.util.TimeZone ;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * @author bc
@@ -37,9 +43,10 @@ public class Weather extends Module {
 
 	private static Users users;	//all the users of this weather module
 	private String codes_url = "http://aviationweather.gov/adds/metars/stations.txt" ;
-
+	private WeatherStore wStore = new WeatherStore();
+	
 	public Weather() {
-		users = goat.Goat.getUsers() ;
+		users = goat.Goat.getUsers();
 	}
 
 	
@@ -76,7 +83,7 @@ public class Weather extends Module {
 				m.reply("I'm sorry, qpt, but I can't help you until you start to help yourself.");
 			} else {
 				m.reply("I don't know where you are, " + m.getSender() + ", perhaps you should tell me " +
-					"by looking at" + Constants.BLUE + " " + codes_url + " " + Constants.NORMAL +
+					"by looking at" + BLUE + " " + codes_url + " " + NORMAL +
 					"and telling me where you are.");
 			}
 		} else if (m.getModTrailing().matches("\\s*[a-zA-Z0-9]{4}\\s*")) { //if 4 letter code is supplied
@@ -216,8 +223,8 @@ public class Weather extends Module {
 					continue;
 				inputLine = inputLine.replaceAll(":0", "");
 				if (inputLine.matches(": ") && inputLine.substring(0, 1).matches("[A-Z]")) {
-					inputLine = inputLine.replaceAll(": ", ':' + Constants.BOLD + ' ');
-					inputLine = Constants.BOLD + inputLine;
+					inputLine = inputLine.replaceAll(": ", ':' + BOLD + ' ');
+					inputLine = BOLD + inputLine;
 				}
 				response += inputLine;
 				
@@ -373,7 +380,25 @@ public class Weather extends Module {
 				short_response += ".  Reported " + minutes_since_report + " minutes ago at " + station ;
 			}
 			response += ".  Score " + scoreRounded + ".";
-            short_response += ".  Score " + scoreRounded + ".";               
+            short_response += ".  Score " + scoreRounded + ".";
+            
+            String record="";
+            
+            if(wStore.checkSavedScores(score,username,station,short_response)) {
+                record +=  BOLD + " New high score!";
+            }
+            
+            
+            
+            record += " " + checkRecordAttr("temp", temp_c, username, station, short_response, false);
+            checkRecordAttr("tempf", temp_f, username, station, short_response, false);
+            if(!wind_mph.equals(""))
+                record += " " + checkRecordAttr("wind", wind_mph, username, station, short_response, true);
+            if(!wind_gust.equals(""))
+                record += " " + checkRecordAttr("gust", wind_mph, username, station, short_response, true);
+            
+            response += record; short_response += record;
+            
             if (command.matches("(?i)fullw(a|e){2}th(a|e)r")) {
 				return response;
 			} else {
@@ -393,6 +418,22 @@ public class Weather extends Module {
             }
       }
 		return null;
+	}
+	
+	private String checkRecordAttr(String attr, String value, String username, String station, String report, boolean maxOnly) {
+	    int valInt = Integer.parseInt(value);
+	    switch(wStore.checkRecordAttribute(attr, valInt, username, station, report)) {
+	        case -1:
+	            if(!maxOnly)
+	                return BOLD + "Record minimum " + attr + "!!!";
+	            else return "";
+	        case 1:
+	            return BOLD + "Record maximum " + attr + "!!!";
+	        case 0:
+	            return "";
+	    }
+	    
+	    return "";
 	}
 
     private double getScore(String wind_mph, String wind_gust,String temp_c,String sky_conditions, String weather_type,String humidity,Time sunrise_UTC,Time sunset_UTC) {
@@ -566,6 +607,8 @@ public class Weather extends Module {
 		return new String[]{"weather", 
 			"weathar", "waether", "fullweather", "fullweathar", "fullwaether", "raweather", "weatheraw", "metar", "rawmetar"};
 	}
+	
+
 	
 	public static void main(String[] args) {
 	}

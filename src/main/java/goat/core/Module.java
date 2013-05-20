@@ -83,6 +83,10 @@ public abstract class Module implements Runnable {
 	public final void removeChannel(String channelname) {
 		channels.remove(channelname);
 	}
+	
+	protected <T> KVStore<T> getModuleStore() {
+	    return KVStore.getModuleStore(moduleName);
+	}
 
 	/**
 	 * <p>Sets the channels the module receives messages from.</p>
