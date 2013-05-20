@@ -421,7 +421,8 @@ public class Weather extends Module {
 	}
 	
 	private String checkRecordAttr(String attr, String value, String username, String station, String report, boolean maxOnly) {
-	    int valInt = Integer.parseInt(value);
+	    //TODO quick bugfix, make it use doubles
+	    int valInt = Integer.parseInt(value.replaceFirst("\\..*",""));
 	    switch(wStore.checkRecordAttribute(attr, valInt, username, station, report)) {
 	        case -1:
 	            if(!maxOnly)
