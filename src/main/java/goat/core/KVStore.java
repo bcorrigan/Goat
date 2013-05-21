@@ -55,7 +55,7 @@ public class KVStore<T> implements Map<String, T> {
 			db = DBMaker.newFileDB(file)  
 			    //.deleteFilesAfterClose()
 			    .closeOnJvmShutdown()
-			    .asyncWriteDisable()
+			    //.asyncWriteDisable()
 			    //.enableEncryption("password",false)
 			    .make();
 			//db.clearCache();
