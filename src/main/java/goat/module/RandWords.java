@@ -76,6 +76,7 @@ public class RandWords extends Module {
             else
                 words = getWord() + ' ' + arg;
             m.reply(words);
+            gisSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("headline")) {
             ArrayList<String> seeds = parser.remainingAsArrayList() ;
             String words;
@@ -92,6 +93,7 @@ public class RandWords extends Module {
                 words = al2str(seeds);
             }
             m.reply(words);
+            gisSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("emoji")) {
             try {
                 if(parser.hasNumber())
@@ -204,6 +206,28 @@ public class RandWords extends Module {
             ScriptEngine engine = new ScriptEngineManager().getEngineByName("python");
             engine.eval(f);
             inv = (Invocable) engine;
+        }
+    }
+
+    private void gisSearch(Message m, String result) {
+        try {
+            initEngine();
+        } catch (Exception e) {
+            System.err.println("RandWords:  error making a python: " + e.getMessage());
+            return;
+        }
+        Object ret;
+        try {
+            // TODO add tags.
+            ret = inv.invokeFunction("gis_search", result);
+        } catch (Exception e) {
+            m.reply("error gis searching: " + e.getMessage());
+            return;
+        }
+        if (ret instanceof String) {
+            String message = (String) ret;
+            if (message.length() > 0)
+                m.reply(message);
         }
     }
 }
