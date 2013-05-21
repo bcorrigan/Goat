@@ -28,7 +28,8 @@ javaOptions += "-Djavax.net.ssl.trustStore=config/cacerts"
 libraryDependencies ++= Seq(
   "commons-lang" % "commons-lang" % "2.+",
   "org.apache.lucene" % "lucene-core" % "2.+",
-  "org.python" % "jython-standalone" % "2.5.+" // picks up 2.5 betas, but not 2.7
+  "org.python" % "jython-standalone" % "2.5.+", // picks up 2.5 betas, but not 2.7
+  "org.mapdb" % "mapdb" % "0.9.1"
 )
 
 // normal libs, use version latest.integration
@@ -47,8 +48,7 @@ libraryDependencies ++= Seq(
   "org.reflections" % "reflections" % "latest.integration",
   "org.twitter4j" % "twitter4j-core" % "latest.integration",
   "org.twitter4j" % "twitter4j-stream" % "latest.integration",
-  "biz.source_code" % "base64coder" % "latest.integration",
-  "org.mapdb" % "mapdb" % "latest.integration"
+  "biz.source_code" % "base64coder" % "latest.integration"
 )
 
 
