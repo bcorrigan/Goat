@@ -395,7 +395,7 @@ public class Weather extends Module {
             if(!wind_mph.equals(""))
                 record += " " + checkRecordAttr("wind", wind_mph, username, station, short_response, true);
             if(!wind_gust.equals(""))
-                record += " " + checkRecordAttr("gust", wind_mph, username, station, short_response, true);
+                record += " " + checkRecordAttr("gust", wind_gust, username, station, short_response, true);
             
             response += record; short_response += record;
             
