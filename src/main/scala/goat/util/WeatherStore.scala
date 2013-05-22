@@ -30,7 +30,7 @@ class WeatherStore {
       val reports = store.get(userName+"."+station)
       //TODO localise based on user info
       return reports.zipWithIndex.foldLeft("")((report,record) =>
-            BOLD + (record._2+1) + BOLD + ": " + "%2f".format(record._1.score) + " on " + toDateStr("dd/MM/yyyy",record._1.timestamp) + " "
+            report + BOLD + (record._2+1) + BOLD + ": " + "%2f".format(record._1.score) + " on " + toDateStr("dd/MM/yyyy",record._1.timestamp) + " "
         )
     }
     
