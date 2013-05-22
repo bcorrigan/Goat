@@ -25,23 +25,25 @@ public class GoatSay extends Module {
 	}
 
 	public void processChannelMessage(Message m) {
-		if (m.getTrailing().toLowerCase().matches("^\\s*goat\\W*")) {
-			m.reply("Goat!");
+		String msg = m.getTrailing().toLowerCase();
+
+		// Goat sure gets excited when people talk about him.
+		if (msg.startsWith("goat") ||
+				msg.matches(".*goat\\W*$")) {
+			// Goat doesn't like talking to other goats.
+			if (!m.getSender().toLowerCase().matches("goat")) {
+				m.reply("Goat!");
+			}
 		}
 
-		if (m.getTrailing().toLowerCase().matches("^\\s*moo*\\W*")) {
+		if (msg.matches("^\\s*moo*\\W*")) {
 			moo(m);
 		}
 
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+moo*\\W*")) {
+		if (msg.matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+moo+\\W*")) {
 			moo(m);
 		}
 
-		/* 
-		if (m.isPrivate)
-			System.out.print("PRIVATE: ");
-		System.out.println(m.sender + ": " + m.trailing);
-		*/	
 		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+mem\\W*")) {
 			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
 			m.reply(mem + "kb");
