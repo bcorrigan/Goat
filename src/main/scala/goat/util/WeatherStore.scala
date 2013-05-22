@@ -24,7 +24,7 @@ class WeatherStore {
     }
     
     private def getMaxKey(userName:String, station:String, attr:String):String = userName+"."+station+"."+attr+".max";
-    private def getMinKey(userName:String, station:String, attr:String):String = userName+"."+station+"."+attr+".max";
+    private def getMinKey(userName:String, station:String, attr:String):String = userName+"."+station+"."+attr+".min";
     
     def getTopScores(userName:String, station:String):String = {
       val reports = store.get(userName+"."+station)
