@@ -390,12 +390,20 @@ public class Weather extends Module {
             
             
             
-            record += " " + checkRecordAttr("temp", temp_c, username, station, short_response, false);
-            checkRecordAttr("tempf", temp_f, username, station, short_response, false);
+            String crecord = " " + checkRecordAttr("temp", temp_c, username, station, short_response, false);
+            String frecord = " " + checkRecordAttr("tempf", temp_f, username, station, short_response, false);
+            if(station.startsWith("K")) { //assume american
+                record += frecord;
+            } else {
+                record += crecord;
+            }
             if(!wind_mph.equals(""))
                 record += " " + checkRecordAttr("wind", wind_mph, username, station, short_response, true);
             if(!wind_gust.equals(""))
                 record += " " + checkRecordAttr("gust", wind_gust, username, station, short_response, true);
+            
+            if(!record.equals(""))
+                record = BOLD + record;
             
             response += record; short_response += record;
             
@@ -422,14 +430,14 @@ public class Weather extends Module {
 	
 	private String checkRecordAttr(String attr, String value, String username, String station, String report, boolean maxOnly) {
 	    //TODO quick bugfix, make it use doubles
-	    int valInt = Integer.parseInt(value.replaceFirst("\\..*",""));
+	    int valInt = (int) Math.round(Double.parseDouble(value));
 	    switch(wStore.checkRecordAttribute(attr, valInt, username, station, report)) {
 	        case -1:
 	            if(!maxOnly)
-	                return BOLD + "Record minimum " + attr + "!!!";
+	                return "Record minimum " + attr + "!!!";
 	            else return "";
 	        case 1:
-	            return BOLD + "Record maximum " + attr + "!!!";
+	            return "Record maximum " + attr + "!!!";
 	        case 0:
 	            return "";
 	    }

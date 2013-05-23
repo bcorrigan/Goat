@@ -15,8 +15,8 @@ class WeatherStore {
       val getMaxKey_ = getMaxKey(userName,station,_:String)
       val getMinKey_ = getMinKey(userName,station,_:String)
       val report:String = 
-        (if(records.has(getMaxKey_("temp"))) "Max temp: " + records.get(getMaxKey_("temp")) + " " else "") +
-        (if(records.has(getMinKey_("temp"))) "Min temp: " + records.get(getMinKey_("temp")) + " " else "") +
+        (if(records.has(getMaxKey_("temp"))) "Max temp: " + records.get(getMaxKey_("temp")) + "C/" + records.get(getMaxKey_("tempf")) + "F " else "") +
+        (if(records.has(getMinKey_("temp"))) "Min temp: " + records.get(getMinKey_("temp")) + "C/" + records.get(getMinKey_("tempf")) + "F " else "") +
         (if(records.has(getMaxKey_("wind"))) "Max wind: " + records.get(getMaxKey_("wind")) + " " else "") + 
         (if(records.has(getMaxKey_("gust"))) "Max gust: " + records.get(getMaxKey_("gust")) + " " else "") +
         getTopScores(userName, station)
