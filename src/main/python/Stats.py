@@ -45,7 +45,7 @@ BOT_NAMES = ["goatsee", "zuul"]
 
 WORD_TYPES_RX = {
     CURSE_COUNT: (True, re.compile(
-        r'(fuck|\bcunt\b|shit|piss|jizz|\bcock\b|\btits?\b|pussy|pendejo|mierd|bitch|god\s*dam|bloody)'
+        r'(fuck|\bcunt\b|shit|piss|jizz|\bcock\b|\btits?\b|pussy|pendejo|mierd|bitch|god\s*dam|bloody|wtf|ffs|omfg|\bunass\b|\bttf\b)'
     )),
 
     RACISM_COUNT: (True, re.compile(
