@@ -250,6 +250,8 @@ class Stats(Module):
         else:
             reply += "has a previous best of %d and is impure %.1f%% of the time." % (best, 100 * impure_count / float(line_count))
 
+            mttf = (line_count - impure_count) / float(impure_count)
+            reply += "  The mean time to failure is %.1f." % mttf
 
         best_msg = store.getOrElse(PURITY_BEST_FAILED_MSG, "")
         best_sender = store.getOrElse(PURITY_BEST_FAILED_SENDER, "")
