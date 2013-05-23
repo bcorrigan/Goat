@@ -53,7 +53,7 @@ WORD_TYPES_RX = {
     )),
 
     HOMOPHOBIA_COUNT: (True, re.compile(
-        r'(fag|gaylord|(that\'?s|so|how)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo|gaa+y|gayy+|bugger)'
+        r'(fag|gaylord|(that\'?s|so|how)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo(\s+|$)|gaa+y|gayy+|bugger)'
     )),
     SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
@@ -250,10 +250,11 @@ class Stats(Module):
         else:
             reply += "has a previous best of %d and is impure %.1f%% of the time." % (best, 100 * impure_count / float(line_count))
 
+
         best_msg = store.getOrElse(PURITY_BEST_FAILED_MSG, "")
         best_sender = store.getOrElse(PURITY_BEST_FAILED_SENDER, "")
         if best_msg != "":
-            reply += "  The previous best run failed when %s said: \"%s%s\"." % (
+            reply += "  The best run failed when %s said: \"%s%s\"." % (
                 best_sender, best_msg, Constants.NORMAL)
 
         recent_msg = store.getOrElse(PURITY_RECENT_FAILED_MSG, "")
