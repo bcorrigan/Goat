@@ -13,11 +13,11 @@ import goat.util.StringUtil;
 public class GoatSay extends Module {
 
 	private long mem;
-	
+
 	private long init = System.currentTimeMillis();
 
 	public int messageType() {
-		return WANT_ALL_MESSAGES;
+		return WANT_UNCLAIMED_MESSAGES;
 	}
 
 	public void processPrivateMessage(Message m) {
@@ -26,59 +26,22 @@ public class GoatSay extends Module {
 
 	public void processChannelMessage(Message m) {
 		String msg = m.getTrailing().toLowerCase();
+    String botname  = BotStats.getInstance().getBotname().toLowerCase();
 
-		// Goat sure gets excited when people talk about him.
-		if (msg.startsWith("goat") ||
-				msg.matches(".*goat\\W*$")) {
+		if (msg.matches("^\\s*" + botname + "\\W+mem\\W*")) {
+			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
+			m.reply(mem + "kb");
+		} else if (msg.matches("^\\s*" + botname + "\\W+uptime\\W*")) {
+			long uptime = System.currentTimeMillis() - init;
+			m.reply(StringUtil.vshortDurationString(uptime));
+		} else if (msg.matches(".*goat\\W*$")) {
 			// Goat doesn't like talking to other goats.
 			if (!m.getSender().toLowerCase().matches("goat")) {
 				m.reply("Goat!");
 			}
 		}
-
-		if (msg.matches("^\\s*moo*\\W*")) {
-			moo(m);
-		}
-
-		if (msg.matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+moo+\\W*")) {
-			moo(m);
-		}
-
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+mem\\W*")) {
-			mem = Runtime.getRuntime().totalMemory() / 1024; //mem = kb
-			m.reply(mem + "kb");
-		}
-
-		if (m.getTrailing().toLowerCase().matches("^\\s*" + BotStats.getInstance().getBotname() + "\\W+uptime\\W*")) {
-			long uptime = System.currentTimeMillis() - init;
-			m.reply(StringUtil.vshortDurationString(uptime));
-		}
 	}
 
-	private void moo(Message m) {
-		int i = (int) (Math.random() * 6);
-
-		switch (i) {
-			case 0:
-				m.reply("Moooooo!");
-				break;
-			case 1:
-				m.reply("moooo");
-				break;
-			case 2:
-				m.reply("MOOO");
-				break;
-			case 3:
-				m.reply("mooOOOoOo");
-				break;
-			case 4:
-				m.reply("moo");
-				break;
-			case 5:
-				m.reply("moo :)");
-		}
-	}
-	
 	public String[] getCommands() { return new String[0]; }
 }
 
