@@ -37,10 +37,10 @@ def build_message(url):
 
     msg = ""
     if short_url is not None:
-        msg = "%s  ## " % short_url
+        msg = short_url
 
     if description is not None:
-        msg += description
+        msg = "%s  ## %s" % (msg, description)
     return msg
 
 
@@ -48,7 +48,8 @@ def describe_url(url):
     """Gives a textual description of the content of url."""
     code, content, resp = util.get_page(url)
     if code != 200:
-        return "I tried to look at the page but it told me %s." % str(code)
+        print "I tried to look at %s but it told me %s." % (url, str(code))
+        return
 
     if resp.headers["content-type"].startswith("text/html"):
         return extract_article_text(url)
