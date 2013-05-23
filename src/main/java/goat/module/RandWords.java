@@ -76,7 +76,7 @@ public class RandWords extends Module {
             else
                 words = getWord() + ' ' + arg;
             m.reply(words);
-            gisSearch(m, words);
+            new ThreadedGisSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("headline")) {
             ArrayList<String> seeds = parser.remainingAsArrayList() ;
             String words;
@@ -93,7 +93,7 @@ public class RandWords extends Module {
                 words = al2str(seeds);
             }
             m.reply(words);
-            gisSearch(m, words);
+            new ThreadedGisSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("emoji")) {
             try {
                 if(parser.hasNumber())
@@ -197,9 +197,26 @@ public class RandWords extends Module {
         return new String(Character.toChars(ch)) + "  " + Character.getName(ch);
     }
 
-    // Try to load a python
+}
+
+class ThreadedGisSearch extends Thread {
+    private Message m;
+    private String result;
     private Invocable inv = null;
 
+    ThreadedGisSearch(Message m, String result) {
+        this.m = m;
+        this.result = result;
+        start();
+    }
+
+    public void run() {
+        gisSearch(this.m, this.result);
+    }
+
+    // Try to load a Python
+    // TODO: Investigate if it's safe to keep an engine around and execute on it
+    // concurrently instead of making a new one each time.
     private void initEngine() throws Exception {
         if (inv == null) {
             FileReader f = new FileReader("libpy/goatpy/tumblr.py");
@@ -208,6 +225,7 @@ public class RandWords extends Module {
             inv = (Invocable) engine;
         }
     }
+
 
     private void gisSearch(Message m, String result) {
         try {
@@ -231,3 +249,5 @@ public class RandWords extends Module {
         }
     }
 }
+
+
