@@ -27,7 +27,7 @@ class WeatherStore {
     private def getMinKey(userName:String, station:String, attr:String):String = userName+"."+station+"."+attr+".min";
     
     def getTopScores(userName:String, station:String):String = {
-      val reports = store.get(userName+"."+station)
+      val reports = store.get(userName+"."+station).sortBy(_.score).reverse
       //TODO localise based on user info
       return reports.zipWithIndex.foldLeft("")((report,record) =>
             report + BOLD + (record._2+1) + BOLD + ": " + "%2f".format(record._1.score) + " on " + toDateStr("dd/MM/yyyy",record._1.timestamp) + " "
