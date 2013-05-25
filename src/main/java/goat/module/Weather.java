@@ -434,10 +434,10 @@ public class Weather extends Module {
 	    switch(wStore.checkRecordAttribute(attr, valInt, username, station, report)) {
 	        case -1:
 	            if(!maxOnly)
-	                return "Record minimum " + attr + "!!!";
+	                return "Record minimum " + attrName + "!!!";
 	            else return "";
 	        case 1:
-	            return "Record maximum " + attr + "!!!";
+	            return "Record maximum " + attrName + "!!!";
 	        case 0:
 	            return "";
 	    }
