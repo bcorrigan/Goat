@@ -147,7 +147,6 @@ public class Dice  {
 			result.append( diceGroup + " ");
 		}
 		result.append(BOLD + " Total:" + NORMAL + getTotalScore());
-		System.out.println("RESULT:" + result);
 		return result.toString();
 	}	
 }

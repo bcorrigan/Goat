@@ -76,10 +76,10 @@ public class KVStore<T> implements Map<String, T> {
         BufferedWriter bw = new BufferedWriter(fw);
         
         for(String key : globalMap.keySet()) {
-            System.out.print("key:" + key);
+            //System.out.print("key:" + key);
             String value = toBase64String((Serializable) globalMap.get(key));
             String type=value.getClass().getName();
-            System.out.println(":type:" + value.getClass().getName());
+            //System.out.println(":type:" + value.getClass().getName());
             //TODO escape this 
             bw.write(key+"13DELIM37"+type+"13DELIM37"+value+'\n');
         }
