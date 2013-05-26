@@ -385,7 +385,7 @@ public class Weather extends Module {
             String record="";
             
             if(wStore.checkSavedScores(score,username,station,short_response)) {
-                record +=  BOLD + " New high score!";
+                record +=  BOLD + " New high score!" + BOLD;
             }
             
             

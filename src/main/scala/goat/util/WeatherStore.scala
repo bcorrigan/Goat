@@ -3,11 +3,14 @@ package goat.util
 import goat.core.KVStore
 import goat.core.Constants._
 import scala.collection.immutable.List
+import scala.math.Numeric
 import goat.util.StringUtil.toDateStr
 
 class WeatherStore {
+    //hmnnn, this is piss poor
     val store:KVStore[List[WeatherReport]] = new KVStore[List[WeatherReport]]("weatherstore.");
     val records:KVStore[Int] = new KVStore[Int]("weatherstore.record.");
+    val timeRecs:KVStore[Long] = new KVStore[Long]("weatherstore.record.");
     val reports:KVStore[String] = new KVStore[String]("weatherstore.record.")
     
     def getStatReport(userName:String, station:String):String = {
@@ -25,6 +28,36 @@ class WeatherStore {
     
     private def getMaxKey(userName:String, station:String, attr:String):String = userName+"."+station+"."+attr+".max";
     private def getMinKey(userName:String, station:String, attr:String):String = userName+"."+station+"."+attr+".min";
+    
+    //maxwind, minwind etc - but not scores
+    def getReport(userName:String, station:String, attr:String, typeStr:String, attrName:String):String = {
+      val key = userName+"."+station+"."+attr+"."+typeStr
+      if(records.has(key)) {
+        if(reports.has(key+".report"))
+          if(timeRecs.has(key+".timestamp")) 
+            return "On " + toDateStr("dd/MM/yyyy", timeRecs.get(key+".timestamp")) + " " + userName + " had this " + typeStr + " " + attrName + " report: " + reports.get(key+".report")
+          else 
+            return "At an unknown date " + userName + " had this " + typeStr + " " + attrName + " report: " + reports.get(key+".report")
+      }
+      
+      "No record found for " + userName + " at station " + station
+    }
+    
+    def getScoreReport(userName:String, station:String, num:Int):String = {
+      val key = userName+"."+station
+      if(store.has(key)) {
+        val recs = store.get(key).sortBy(_.score).reverse
+        
+        if(recs.size<num)
+          return "User has no maxscore record at position " + num
+        else {
+          val rec = recs(num-1)
+          return "On " + toDateStr("dd/MM/yyyy", rec.timestamp) + " " + userName + " had report: " + rec.report
+        }
+      } else 
+        return "User has no weather records"
+    }
+    
     
     def getTopScores(userName:String, station:String):String = {
       val reports = store.get(userName+"."+station).sortBy(_.score).reverse
@@ -45,11 +78,13 @@ class WeatherStore {
         if(value>record) {
           records.save(maxKey,value)
           reports.save(maxKey+".report", report)
+          timeRecs.save(maxKey+".timestamp", System.currentTimeMillis())
           return 1
         }
       } else {
         records.save(maxKey, value)
         reports.save(maxKey+".report", report)
+        timeRecs.save(maxKey+".timestamp", System.currentTimeMillis())
       }
       
       if(records.has(minKey)) {
@@ -57,11 +92,13 @@ class WeatherStore {
         if(value<record) {
           records.save(minKey,value)
           reports.save(minKey+".report", report)
+          timeRecs.save(minKey+".timestamp", System.currentTimeMillis())
           return -1
         }
       } else {
         records.save(minKey,value)
         reports.save(minKey+".report", report)
+        timeRecs.save(minKey+".timestamp", System.currentTimeMillis())
       }
       
       0
