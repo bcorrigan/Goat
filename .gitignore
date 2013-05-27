@@ -29,6 +29,8 @@ lib/cachedir/
 .cache
 *py.class
 env.sh
+.idea*
+goatdb*
 
 # no idea why ensime poops this out
 .ensime_lucene/
