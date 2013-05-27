@@ -134,7 +134,7 @@ class TwitterModule extends Module {
 
       def run() {
         timesAround+=1
-        if(timesAround>60) {
+        if(timesAround>12) {
           trendsTimer.get.cancel()
           trendsTimer=None
           Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been an hour.").send()
