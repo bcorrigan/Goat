@@ -4,7 +4,6 @@ import goat.core.Constants._
 import goat.util.StringUtil
 import goat.core.Module
 import goat.core.Message
-import goat.util.Profile._
 import goat.util.CommandParser
 import goat.util.Passwords._
 import goat.Goat
@@ -15,6 +14,8 @@ import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
 import scala.util.Random
 
+import java.util.Timer
+import java.util.TimerTask
 import java.lang.System
 
 import twitter4j.auth.{Authorization, AccessToken}
@@ -105,6 +106,10 @@ class TwitterModule extends Module {
     tLocsMap
   }
 
+  private val trendsReverseMap:Map[Int,String] = {
+    trendsMap.map(_.swap)
+  }
+
   private def refreshTwitterStream() {
     refreshIdsToFollow()
     followIDs(followedIDs)
@@ -117,31 +122,61 @@ class TwitterModule extends Module {
     }
   }
 
+  var trendsTimer:Option[Timer] = None
   // can't use this without concurrency of some sort
-  private def trendsNotify(chan:String) {
-    var seenTrends:List[String] = Nil
+  private def trendsNotify(chan:String, woeId:Int) {
+    if(trendsTimer.isDefined)
+      trendsTimer.get.cancel()
 
-    while(true) {
-      try {
-	// woeid 1 is "world"
-	val trends = twitter.getPlaceTrends(1).getTrends.toList.map(_.getName)
-	val newTrends = trends diff seenTrends
-	if(!newTrends.isEmpty) {
-	  val msgTrends = newTrends map(
-            t =>
-              if(t.startsWith("#") && t.length>1)
-	        t.substring(1)
-	      else t)
-	  val msg = msgTrends reduce ((t1,t2) => t1 + ", " + t2)
-	  Message.createPrivmsg(chan, msg).send()
-	  seenTrends = (newTrends ++ seenTrends).take(1000)
-	}
-      } catch {
-        case re: RuntimeException =>
-          re.printStackTrace()
-      } finally {
-	Thread.sleep(60000)
+    val trendsTask = new TimerTask {
+      var seenTrends:List[String] = Nil
+      var timesAround=0
+
+      def run() {
+        timesAround+=1
+        if(timesAround>60) {
+          trendsTimer.get.cancel()
+          trendsTimer=None
+          Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been an hour.").send()
+        } else {
+          val trends = twitter.getPlaceTrends(woeId).getTrends.toList.map(_.getName)
+          val newTrends = trends diff seenTrends
+          if(!newTrends.isEmpty) {
+            val msg = newTrends reduce ((t1,t2) => t1 + ", " + t2)
+            Message.createPrivmsg(chan, msg).send()
+            seenTrends = (newTrends ++ seenTrends).take(1000)
+          }
+        }
       }
+    }
+
+    trendsTimer = Some( new Timer("trendsTimer") )
+    trendsTimer.get.schedule(trendsTask, 0, 60000)
+  }
+
+
+  private def findWoeId(m:Message, search:String): Option[Int] = {
+    val matchingTrends = trendsMap.filter(_._1.toLowerCase().contains(search.toLowerCase()))
+    matchingTrends.size match {
+      case 0 =>
+        m.reply(m.getSender+": No matching trends found.")
+        return None
+      case 1 =>
+        return Some(matchingTrends.head._2);
+      case _ =>
+        //if there's an exact match,return woeid for it
+        if( matchingTrends.exists(_._1.toLowerCase().equals(search)) ) {
+          return Some (matchingTrends.filter(_._1.toLowerCase().equals(search)).head._2 )
+        } else {
+          var replyStr = (
+            if(search.equals("all") || search.equals("list"))
+              trendsMap
+            else
+              matchingTrends).foldRight("")((x,y) => x._1 + ", " + y)
+          replyStr=replyStr.substring(0,replyStr.length()-2)
+          m.reply(m.getSender+": choose one of: " + replyStr)
+          return None
+        }
     }
   }
 
@@ -153,46 +188,29 @@ class TwitterModule extends Module {
       var woeId: Option[Int] = None
       var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
       if(isNear) {
-	val searchStr = m.getModTrailing.trim.toLowerCase.replaceFirst("near","").trim();
-	if(searchStr==null || searchStr=="") {
-	  woeId = Some(user.getWoeId())
-	} else {
-	  //look at the trends map and see what matches
-	  val matchingTrends = trendsMap.filter(_._1.toLowerCase().contains(searchStr.toLowerCase()))
-	  if(matchingTrends.size==0) {
-	    m.reply(m.getSender+": No matching trends found.")
-	    return
-	  } else if(matchingTrends.size>1) {
-	    //if there's an exact match, display trends for it
-	    if( matchingTrends.exists(_._1.toLowerCase().equals(searchStr)) ) {
-	      woeId = Some (matchingTrends.filter(_._1.toLowerCase().equals(searchStr)).head._2 )
-	    } else {
-	      var replyStr = (
-                if(searchStr.equals("all") || searchStr.equals("list"))
-	          trendsMap
-	        else
-                  matchingTrends).foldRight("")((x,y) => x._1 + ", " + y)
-	      replyStr=replyStr.substring(0,replyStr.length()-2)
-	      m.reply(m.getSender+": choose one of: " + replyStr)
-	      return
-	    }
-	  } else {
-	    woeId=Some(matchingTrends.head._2);
-	  }
-	}
+        val searchStr = m.getModTrailing.trim.toLowerCase.replaceFirst("near","").trim();
+        if(searchStr==null || searchStr=="") {
+          woeId = Some(user.getWoeId())
+        } else {
+          //look at the trends map and see what matches
+          woeId = findWoeId(m,searchStr)
+          if(woeId.isEmpty)
+            return
+        }
       }
 
       var reply = "Trends of the moment"
 
       val trends: List[Trend] = if (woeId.isEmpty) {
-	reply += ": "
-	// woeid 1 is "world"
-	twitter.getPlaceTrends(1).getTrends().toList
+        reply += ": "
+        // woeid 1 is "world"
+        twitter.getPlaceTrends(1).getTrends().toList
       } else {
-	val locTrends = twitter.getPlaceTrends(woeId.get)
-	reply += " for " + locTrends.getLocation().getName() + ": "
-	locTrends.getTrends.toList
+        val locTrends = twitter.getPlaceTrends(woeId.get)
+        reply += " for " + locTrends.getLocation().getName() + ": "
+        locTrends.getTrends.toList
       }
+
       val prefix = reply
       var trendsStr=""
       var count = 1
@@ -607,17 +625,28 @@ class TwitterModule extends Module {
         }
       case ("tweetsearchsize", false) =>
         m.reply(m.getSender + ": You are not as handsome, nor as intelligent, as I expect my master to be, so I will not do that.")
-      case ("trendsnotify", false) =>
-        m.reply("You can't make me do that.")
-      case ("trendsnotify", true) =>
-        m.reply("That doesn't work right now.")
-        System.out.println("Someone should implement a not-broken trendsNotify.")
-        // if(m.getModTrailing.split(' ').size!=1)
-        //   m.reply("Master, your humble servant can only notify one channel at once. Forgive me.")
-        // else {
-        //   val chan = m.getModTrailing().split(' ')(0)
-        //   trendsNotifyActor ! (chan)
-        // }
+      case ("trendsnotify", _) =>
+        if(m.getModTrailing.trim.toLowerCase.equals("stop")) {
+          trendsTimer match {
+            case Some(t) =>
+              t.cancel()
+              m.reply(m.getSender + ": stopped trends notifying!")
+              trendsTimer=None
+            case None =>
+              m.reply(m.getSender + ": But I am not trends notifying?")
+          }
+        } else {
+          val woeId = if(m.getModTrailing.trim.length==0) {
+            Some(1)
+          } else {
+            findWoeId(m,m.getModTrailing.trim.toLowerCase)
+          }
+
+          if(woeId.isDefined) {
+            m.reply(m.getSender + ": Notifying for the next hour for "+trendsReverseMap(woeId.get)+" trends.")
+            trendsNotify(m.getChanname,woeId.get)
+          }
+        }
       case (_, _) =>
         m.reply("Looks like some dullard forgot to implement that command.")
     }
