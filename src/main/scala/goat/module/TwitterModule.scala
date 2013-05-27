@@ -151,7 +151,7 @@ class TwitterModule extends Module {
     }
 
     trendsTimer = Some( new Timer("trendsTimer") )
-    trendsTimer.get.schedule(trendsTask, 0, 60000)
+    trendsTimer.get.schedule(trendsTask, 0, 300000)
   }
 
 
