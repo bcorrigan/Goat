@@ -134,18 +134,18 @@ class TwitterModule extends Module {
 
       def run() {
         timesAround+=1
-        if(timesAround>12) {
+        val trends = twitter.getPlaceTrends(woeId).getTrends.toList.map(_.getName)
+        val newTrends = trends diff seenTrends
+        if(!newTrends.isEmpty) {
+          val msg = newTrends reduce ((t1,t2) => t1 + ", " + t2)
+          Message.createPrivmsg(chan, msg).send()
+          seenTrends = (newTrends ++ seenTrends).take(1000)
+        }
+
+        if(timesAround>24) {
           trendsTimer.get.cancel()
           trendsTimer=None
-          Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been an hour.").send()
-        } else {
-          val trends = twitter.getPlaceTrends(woeId).getTrends.toList.map(_.getName)
-          val newTrends = trends diff seenTrends
-          if(!newTrends.isEmpty) {
-            val msg = newTrends reduce ((t1,t2) => t1 + ", " + t2)
-            Message.createPrivmsg(chan, msg).send()
-            seenTrends = (newTrends ++ seenTrends).take(1000)
-          }
+          Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been two hours.").send()
         }
       }
     }
