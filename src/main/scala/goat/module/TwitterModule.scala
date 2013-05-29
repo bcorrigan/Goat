@@ -123,7 +123,7 @@ class TwitterModule extends Module {
 
   var trendsTimer:Option[Timer] = None
   // can't use this without concurrency of some sort
-  private def trendsNotify(chan:String, woeId:Int) {
+  private def trendsNotify(m:Message, chan:String, woeId:Int) {
     if(trendsTimer.isDefined)
       trendsTimer.get.cancel()
 
@@ -133,20 +133,27 @@ class TwitterModule extends Module {
       var timesAround=0
 
       def run() {
-        timesAround+=1
-        val trends = twitter.getPlaceTrends(woeId).getTrends.toList.map(_.getName)
-        val newTrends = trends diff seenTrends
-        if(!newTrends.isEmpty) {
-          val msg = newTrends reduce ((t1,t2) => t1 + ", " + t2)
-          Message.createPrivmsg(chan, msg).send()
-          seenTrends = (newTrends ++ seenTrends).take(1000)
-          store.save("trends", seenTrends)
-        }
+        try {
+          timesAround+=1
+          val trends = twitter.getPlaceTrends(woeId).getTrends.toList.map(_.getName)
+          val newTrends = trends diff seenTrends
+          if(!newTrends.isEmpty) {
+            val msg = newTrends reduce ((t1,t2) => t1 + ", " + t2)
+            m.reply(msg)
+            seenTrends = (newTrends ++ seenTrends).take(1000)
+            store.save("trends", seenTrends)
+          }
 
-        if(timesAround>36) {
-          trendsTimer.get.cancel()
-          trendsTimer=None
-          Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been three hours.").send()
+          if(timesAround>36) {
+            trendsTimer.get.cancel()
+            trendsTimer=None
+            m.reply(m.getSender + ": I'm stopping trends notification cos it has been three hours.")
+          }
+        } catch {
+          case e:Exception =>
+            val msg = if(e.getMessage!=null) {" with message " + e.getMessage} else ""
+            m.reply(m.getSender + ": Stopping trends notifying - got " + e.getClass.getName + msg )
+          throw e;
         }
       }
     }
@@ -645,7 +652,7 @@ class TwitterModule extends Module {
 
           if(woeId.isDefined) {
             m.reply(m.getSender + ": Notifying for the next hour for "+trendsReverseMap(woeId.get)+" trends.")
-            trendsNotify(m.getChanname,woeId.get)
+            trendsNotify(m,m.getChanname,woeId.get)
           }
         }
       case (_, _) =>
