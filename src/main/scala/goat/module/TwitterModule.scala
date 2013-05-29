@@ -2,8 +2,7 @@ package goat.module
 
 import goat.core.Constants._
 import goat.util.StringUtil
-import goat.core.Module
-import goat.core.Message
+import goat.core.{KVStore, Module, Message}
 import goat.util.CommandParser
 import goat.util.Passwords._
 import goat.Goat
@@ -129,7 +128,8 @@ class TwitterModule extends Module {
       trendsTimer.get.cancel()
 
     val trendsTask = new TimerTask {
-      var seenTrends:List[String] = Nil
+      val store = new KVStore[List[String]]("twitter.")
+      var seenTrends:List[String] = if(store.has("trends")) store.get("trends") else Nil
       var timesAround=0
 
       def run() {
@@ -140,12 +140,13 @@ class TwitterModule extends Module {
           val msg = newTrends reduce ((t1,t2) => t1 + ", " + t2)
           Message.createPrivmsg(chan, msg).send()
           seenTrends = (newTrends ++ seenTrends).take(1000)
+          store.save("trends", seenTrends)
         }
 
-        if(timesAround>24) {
+        if(timesAround>36) {
           trendsTimer.get.cancel()
           trendsTimer=None
-          Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been two hours.").send()
+          Message.createPrivmsg(chan, "Folks, I'm stopping trends notification cos it has been three hours.").send()
         }
       }
     }
