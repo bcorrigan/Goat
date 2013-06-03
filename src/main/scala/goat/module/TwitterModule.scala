@@ -376,19 +376,19 @@ class TwitterModule extends Module {
     try {
       if(message.length()<=140) {
         lastOutgoingTweetTime=System.currentTimeMillis()
-    	twitter.updateStatus(message)
-    	return true
+        twitter.updateStatus(message)
+        return true
       } else {
-    	val remains=message.substring(139);
-    	var remInd=0;
-    	if(remains.length()<10)
-    	  remInd=remains.length();
-    	else remInd=9;
+        val remains=message.substring(139);
+        var remInd=0;
+        if(remains.length()<10)
+          remInd=remains.length();
+        else remInd=9;
 
-    	val prefix = message.substring(124, 139) + "_"
+        val prefix = message.substring(124, 139) + "_"
 
-    	m.reply(m.getSender() + ": tweet too long, goes over at …" + prefix + remains.substring(0, remInd) + "…" )
-    	false
+        m.reply(m.getSender() + ": tweet too long, goes over at …" + prefix + BOLD + remains.substring(0, remInd) + "…" )
+        false
       }
     } catch {
       case ex: TwitterException =>
@@ -540,8 +540,8 @@ class TwitterModule extends Module {
   private def tweet(m: Message) {
     val now = System.currentTimeMillis
     if ((now - lastOutgoingTweetTime) > MINUTE ) {
-      tweetMessage(m, m.getModTrailing)
-      m.reply(tweetConfirmation)
+      if(tweetMessage(m, m.getModTrailing))
+        m.reply(tweetConfirmation)
     }
     else
       m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
