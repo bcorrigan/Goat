@@ -126,7 +126,7 @@ class WeatherStore {
             store.save(key, replaceRecentScore(storedReports,report,now))
           } else {
             //replace smallest scoring report
-            store.save(key, storedReports diff List(storedReports.minBy(_.score)))
+            store.save(key, report :: storedReports diff List(storedReports.minBy(_.score)))
           }
           return true
         }
