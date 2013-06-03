@@ -348,6 +348,60 @@ class TwitterModule extends Module {
   private def firstSimilarTweet(l: List[Status], t: Status): Option[Status] =
     l.find(similar(t, _))
 
+
+  //wrapper for UserResources.showUsers
+  private def stalk(m: Message, userStr: String) {
+    val userArg = if(userStr.startsWith("@")) {
+      userStr.substring(1)
+    } else userStr
+    try {
+      Option( twitter.showUser(userArg) ) match {
+        case Some(user) =>
+          var reply=m.getSender+": " + userArg + " "
+
+          reply+= "has " + user.getFollowersCount + " followers and " + user.getFriendsCount + " friends. "
+
+          reply+= "Has made " + user.getStatusesCount + " tweets. "
+
+          reply += "Member since " + StringUtil.toDateStr("dd/MM/yyyy",user.getCreatedAt.getTime) + " "
+
+          if(user.getName()!=null) {
+            reply+="Name: " + user.getName + ". "
+          }
+
+          if(user.getLocation!=null) {
+            reply+="Location: " + user.getLocation +". "
+          }
+
+          if(user.getLang!=null) {
+            if(user.getLang!="en")
+              reply+="Language: " + user.getLang + " "
+          }
+
+          if(user.getTimeZone!=null) {
+            reply+="Timezone: " + user.getTimeZone + ". "
+          }
+
+          if(user.getOriginalProfileImageURL!=null) {
+            reply+="stalk pic: " + user.getOriginalProfileImageURL + " "
+          }
+
+          if(user.getDescription!=null) {
+            reply+="Description: " + user.getDescription
+          }
+
+          m.reply(reply)
+
+        case None =>
+          m.reply(m.getSender + ": no user found I'm afraid.")
+      }
+    } catch {
+      case ex: TwitterException =>
+        ex.printStackTrace()
+        m.reply(m.getSender + ": can't stalk that user - got a TwitterException saying: " + ex.getMessage)
+    }
+  }
+
   private def enableNotification(m: Message, user: String) {
     try {
       if (twitter.updateFriendship(user, true,false) == null)
@@ -578,7 +632,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "unfollow", "tweetsearch", "twitsearch",
         "twittersearch", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -593,6 +647,8 @@ class TwitterModule extends Module {
         m.reply("Most beneficant Master " + m.getSender + ", I have tweeted your wise words.")
       case ("tweet", false) =>
         tweet(m)
+      case ("stalk", _) =>
+        stalk(m, m.getModTrailing.trim)
       case ("tweetchannel", true) =>
         chan = m.getChanname
         Message.createPrivmsg(m.getChanname, "This channel is now the main channel for twitter following.").send()
