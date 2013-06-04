@@ -142,7 +142,7 @@ class WeatherStore {
     def replaceRecentScore(reports:List[WeatherReport], replaceReport:WeatherReport, now:Long):List[WeatherReport] = {
       if( reports.filter(now-_.timestamp<DAY)
           .exists(rec => round2(rec.score)<round2(replaceReport.score)) )
-        replaceReport :: reports.filter(now-_.timestamp>DAY)
+        replaceReport :: reports.filter(now-_.timestamp>=DAY)
         else reports
     }
     
