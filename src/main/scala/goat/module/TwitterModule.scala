@@ -54,6 +54,7 @@ class TwitterModule extends Module {
 
   private var lastOutgoingTweetTime: Long = 0
   private var lastPurge: Long = System.currentTimeMillis
+
   private val purgePeriod: Int = 10 //interval in minutes when we garbage collect
 
   private val translator = new TranslateWrapper()
@@ -349,8 +350,46 @@ class TwitterModule extends Module {
     l.find(similar(t, _))
 
 
+  //this is all copied and pasted from elsewhere, frankly I can't be arsed generifying it just now
+  private def stalk(m: Message) {
+    val cp = new CommandParser(m)
+    try {
+      if(!cp.hasRemaining) {
+        val num = if(cp.hasNumber) { cp.findNumber().toInt } else 1
+        if (num < 1) {
+          m.reply("You are a bad person.")
+          return
+        }
+        lastTweets.get(m.getChanname()) match {
+          case Some(l) =>
+            if (l.isEmpty)
+              m.reply("But there haven't been any tweets yet!")
+            else if (l.length < num)
+              m.reply("I only remember " + l.length + " tweets" +
+                {if (l.length < maxLastTweets) " right now" else ""} + ".")
+            else {
+              l(num-1) match {
+                case Right => m.reply("Can't stalk trends, silly.")
+                case Left(s) =>stalkUser(m, s.getUser.getScreenName)
+              }
+            }
+          case None =>
+            m.reply("I don't remember finding any tweets for " + m.getChanname())
+        }
+      } else {
+        stalkUser(m,cp.remaining())
+      }
+    } catch {
+      case nfe: NumberFormatException =>
+        m.reply("I don't believe that's a number")
+      case re: RuntimeException =>
+        m.reply("Cannae stalk:  " + re.getMessage)
+        re.printStackTrace
+    }
+  }
+
   //wrapper for UserResources.showUsers
-  private def stalk(m: Message, userStr: String) {
+  private def stalkUser(m: Message, userStr: String) {
     val userArg = if(userStr.startsWith("@")) {
       userStr.substring(1)
     } else userStr
@@ -359,11 +398,13 @@ class TwitterModule extends Module {
         case Some(user) =>
           var reply=m.getSender+": " + userArg + " "
 
-          reply+= "has " + user.getFollowersCount + " followers and " + user.getFriendsCount + " friends. "
+          reply+= "has " + user.getFollowersCount + " followers & " + user.getFriendsCount + " friends. "
 
-          reply+= "Has made " + user.getStatusesCount + " tweets. "
+          reply+= " " + user.getStatusesCount + " tweets. "
 
-          reply += "Member since " + StringUtil.toDateStr("dd/MM/yyyy",user.getCreatedAt.getTime) + " "
+          reply += "ArseFactor:" + "%.2f".format((user.getFriendsCount+0.0)/user.getFollowersCount) + " "
+
+          reply += "Joined " + StringUtil.toDateStr("dd/MM/yyyy",user.getCreatedAt.getTime) + " "
 
           if(user.getName()!=null) {
             reply+="Name: " + user.getName + ". "
@@ -375,16 +416,21 @@ class TwitterModule extends Module {
 
           if(user.getLang!=null) {
             if(user.getLang!="en")
-              reply+="Language: " + user.getLang + " "
+              reply+="Lang: " + user.getLang + " "
           }
 
           if(user.getTimeZone!=null) {
-            reply+="Timezone: " + user.getTimeZone + ". "
+            reply+="Tz: " + user.getTimeZone + ". "
           }
 
           if(user.getOriginalProfileImageURL!=null) {
-            reply+="stalk pic: " + user.getOriginalProfileImageURL + " "
+            reply+="Stalk pic: " + user.getOriginalProfileImageURL + " "
           }
+
+          if(user.getURL!=null)
+            reply += "URL: " + user.getURL + " "
+
+          reply += "Stalk gallery: http://twitter.com/" + user.getScreenName + "/media/grid "
 
           if(user.getDescription!=null) {
             reply+="Description: " + user.getDescription
@@ -648,7 +694,7 @@ class TwitterModule extends Module {
       case ("tweet", false) =>
         tweet(m)
       case ("stalk", _) =>
-        stalk(m, m.getModTrailing.trim)
+        stalk(m)
       case ("tweetchannel", true) =>
         chan = m.getChanname
         Message.createPrivmsg(m.getChanname, "This channel is now the main channel for twitter following.").send()
@@ -707,7 +753,7 @@ class TwitterModule extends Module {
           }
 
           if(woeId.isDefined) {
-            m.reply(m.getSender + ": Notifying for the next hour for "+trendsReverseMap(woeId.get)+" trends.")
+            m.reply(m.getSender + ": Notifying for the next 3 hours for "+trendsReverseMap(woeId.get)+" trends.")
             trendsNotify(m,m.getChanname,woeId.get)
           }
         }
