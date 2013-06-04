@@ -369,7 +369,7 @@ class TwitterModule extends Module {
                 {if (l.length < maxLastTweets) " right now" else ""} + ".")
             else {
               l(num-1) match {
-                case Right => m.reply("Can't stalk trends, silly.")
+                case Right(_) => m.reply("Can't stalk trends, silly.")
                 case Left(s) =>stalkUser(m, s.getUser.getScreenName)
               }
             }
