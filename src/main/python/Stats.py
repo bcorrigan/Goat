@@ -29,6 +29,7 @@ LAST_SEEN = "lastSeen"
 CURSE_COUNT = "curseCount"
 RACISM_COUNT = "racistCount"
 HOMOPHOBIA_COUNT = "homoPhobiaCount"
+IMPURITY_COUNT = "impurityCount"
 SEX_COUNT = "sexCount"
 
 # purity keys
@@ -45,7 +46,7 @@ BOT_NAMES = ["goatsee", "zuul"]
 
 WORD_TYPES_RX = {
     CURSE_COUNT: (True, re.compile(
-        r'(fuck|\bcunt\b|shit|piss|jizz|\bcock\b|\btits?\b|pussy|pendejo|mierd|bitch|god\s*dam|bloody|wtf|ffs|omfg|\bunass\b|\bttf\b)'
+        r'(fuck|\bcunt\b|shit|piss|jizz|\bcock\b|\btits?\b|pussy|pendejo|mierd|bitch|god\s*dam|bloody|wtf|\bffs\b|omfg|\bunass\b|\bhtf\b)'
     )),
 
     RACISM_COUNT: (True, re.compile(
@@ -54,6 +55,10 @@ WORD_TYPES_RX = {
 
     HOMOPHOBIA_COUNT: (True, re.compile(
         r'(fag|gaylord|(that\'?s|so|how)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo(\s+|$)|gaa+y|gayy+|bugger)'
+    )),
+    # generic impurity.  Goat's turning into a tyrant!
+    IMPURITY_COUNT: (True, re.compile(
+      r'(troll)'
     )),
     SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
@@ -103,6 +108,7 @@ class Stats(Module):
         word_count = len(msg.split())
         seen_types = dict()
         pure = True
+
         for word_type, (impure, rx) in WORD_TYPES_RX.items():
             if re.search(rx, msg):
                 if impure:
@@ -265,7 +271,6 @@ class Stats(Module):
             reply += "  Most recently, %s was heard to say: \"%s%s\"." % (
                 recent_sender, recent_msg, Constants.NORMAL)
 
-        # let's test out some of these new kv store interfaces!
         if target.startswith('#'):
             reply += self.gen_purity_highscore()
 
