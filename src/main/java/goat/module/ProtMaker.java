@@ -35,11 +35,10 @@ public class ProtMaker extends Module {
 	Random generator = new Random();
 	// Bank of phrases to use in the plot.
 	String p1[] = {
-		"a colonized",
-    "an ancient",
+		"colonial",
+    "ancient",
     "a timeless",
 		"an alternate-history",
-		"an ancient",
 		"a post-apocalyptic",
 		"a metaphorical",
 		"an anachronistic",
@@ -48,24 +47,64 @@ public class ProtMaker extends Module {
 		"a laughably innacurate",
 		"an oppressed",
     "a capitalistic",
-    "a modern day",
+    "modern day",
+    "a feudalistic",
+    "an agrarian",
 	};
+
 	String p2[] = {
     "Japan",
     "China",
     "Thailand",
     "Hong Kong",
 	};
+
+  String styles[] = {
+    "kung fu",
+    "muay thai",
+    "karate",
+    "wushu",
+    "judo",
+    "jiu jitsu",
+    "bushido",
+    "grecco roman wrestling",
+    "sumo wrestling",
+    "tai chi",
+    "zen flower arranging",
+  };
+
+  String adjective[] = {
+    "a simple",
+    "an old",
+    "an ancient",
+    "a young",
+    "a middle-aged",
+    "a bumbling",
+    "a fat",
+    "a scrawny",
+    "a prophesied",
+    "a magic-using",
+    "a disgraced",
+    "a widowed",
+    "a wizened",
+    "a blind",
+    "a crippled",
+  };
+
 	String p3[] = {
-    "a farmer",
-    "a fisher",
-    "an old man",
-    "a monk",
-    "a local party official",
-    "a samurai",
-    "a ronin",
-    "a blind man",
-    "a disgraced mercenary",
+    "farmer",
+    "fisherman",
+    "monk",
+    "local party official",
+    "samurai",
+    "ronin",
+    "mercenary",
+    "thief",
+    "student",
+    "cowboy",
+    "laborer",
+    "soldier",
+    "assassin",
 	};
 	String p4[] = {
     "government corruption",
@@ -76,22 +115,34 @@ public class ProtMaker extends Module {
 		"a partially overheard conversation",
 		"a beautiful but forbidden slave girl",
 		"a murder",
+    "evidence of a plot against the emperor",
+    "angry spirits",
+    "an illegal martial arts contest",
 	};
 	String p5[] = {
     "a gang of toughs",
-    "an interntional criminal organization",
+    "an interantional criminal organization",
     "a local warlord",
-    "his own brother",
+    "his older brother",
     "white imperialists",
 		"supernatural monsters",
     "evil monks",
     "an ancient wizard-ninja",
 		"an army led by a sadist",
+    "treaure hunters",
 	};
 	String p6[] = {
     "a cute, but shy girl",
     "a cute and surprisingly dangerous girl",
     "a fearless, but ultimately useless girl",
+    "his childhood best friend",
+    "his childhood rival",
+    "an out-of-place white man",
+    "a cranky, decrepit old man",
+    "a domineering, screeching old woman",
+    "a kind teacher",
+    "his father's sword",
+    "a friendly innkeep",
 	};
 	String p8[] = {
     "an allegory about how only a united government can serve its people",
@@ -105,6 +156,7 @@ public class ProtMaker extends Module {
 		"a romance that ends tragically due only to wounded pride",
 		"an intense but pointless denouement that answers no questions",
     "a bumbling fool finally redeeming himself",
+    "a formal fight to the death",
 	};
 
 	// Bank of word fragments to use for generation of the title
@@ -112,12 +164,12 @@ public class ProtMaker extends Module {
     "Iron",
     "Dark",
     "Last",
+    "First",
+    "Middle",
     "Final",
     "Steel",
     "Crouching",
     "Hidden",
-    "Kung fu",
-    "First",
     "Surprising",
     "Unknown",
 		"Black",
@@ -125,6 +177,9 @@ public class ProtMaker extends Module {
     "Lost",
     "Sharp",
     "Blind",
+    "Flying",
+    "Sudden",
+    "Dying",
 	};
 	String t2[] = {
     "Fist",
@@ -135,6 +190,13 @@ public class ProtMaker extends Module {
     "Blade",
     "Sword",
 		"War",
+    "Panda",
+    "Foot",
+    "Dagger",
+    "Path",
+    "Way",
+    "Death",
+    "Eye",
 	};
 
 	public int messageType() {
@@ -159,8 +221,12 @@ public class ProtMaker extends Module {
 		reply += " ";
 		reply += p2[generator.nextInt(p2.length)];
 		reply += ", ";
+    reply += adjective[generator.nextInt(adjective.length)];
+    reply += " ";
 		reply += p3[generator.nextInt(p3.length)];
-		reply += " who studies martial arts stumbles across ";
+		reply += " who studies ";
+    reply += styles[generator.nextInt(styles.length)];
+    reply += " stumbles across ";
 		reply += p4[generator.nextInt(p4.length)];
 		reply += " which spurs him into conflict with ";
 		reply += p5[generator.nextInt(p5.length)];
@@ -181,9 +247,16 @@ public class ProtMaker extends Module {
 		}
 		reply += "\"";
 
-    reply = reply.replace("l", "r");
-    reply = reply.replace("L", "R");
+    StringBuilder msg = new StringBuilder(reply);
+    for (int i = 0; i < msg.length(); i++) {
+      char c = msg.charAt(i);
+      if (c == 'l' && generator.nextFloat() < 0.25) {
+        msg.setCharAt(i, 'r');
+      } else if (c == 'r' && generator.nextFloat() < 0.25) {
+        msg.setCharAt(i, 'l');
+      }
+    }
 
-		m.reply(reply);
+		m.reply(msg.toString());
 	}
 }
