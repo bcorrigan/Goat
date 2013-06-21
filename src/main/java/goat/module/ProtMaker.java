@@ -252,7 +252,7 @@ public class ProtMaker extends Module {
       char c = msg.charAt(i);
       if (c == 'l' && generator.nextFloat() < 1.0) {
         msg.setCharAt(i, 'r');
-      } else if (c == 'r' && generator.nextFloat() < 1.0) {
+      } else if (c == 'r' && generator.nextFloat() < 0.0) {
         msg.setCharAt(i, 'l');
       }
     }
