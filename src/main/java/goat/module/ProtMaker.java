@@ -250,9 +250,9 @@ public class ProtMaker extends Module {
     StringBuilder msg = new StringBuilder(reply);
     for (int i = 0; i < msg.length(); i++) {
       char c = msg.charAt(i);
-      if (c == 'l' && generator.nextFloat() < 0.25) {
+      if (c == 'l' && generator.nextFloat() < 1.0) {
         msg.setCharAt(i, 'r');
-      } else if (c == 'r' && generator.nextFloat() < 0.25) {
+      } else if (c == 'r' && generator.nextFloat() < 1.0) {
         msg.setCharAt(i, 'l');
       }
     }
