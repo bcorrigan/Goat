@@ -121,7 +121,7 @@ public class ProtMaker extends Module {
 	};
 	String p5[] = {
     "a gang of toughs",
-    "an interantional criminal organization",
+    "an international criminal organization",
     "a local warlord",
     "his older brother",
     "white imperialists",
@@ -230,7 +230,7 @@ public class ProtMaker extends Module {
 		reply += p4[generator.nextInt(p4.length)];
 		reply += " which spurs him into conflict with ";
 		reply += p5[generator.nextInt(p5.length)];
-		reply += " with the help of ";
+		reply += ", aided by ";
 		reply += p6[generator.nextInt(p6.length)];
 		reply += ", culminating in ";
 		reply += p8[generator.nextInt(p8.length)];
@@ -247,16 +247,7 @@ public class ProtMaker extends Module {
 		}
 		reply += "\"";
 
-    StringBuilder msg = new StringBuilder(reply);
-    for (int i = 0; i < msg.length(); i++) {
-      char c = msg.charAt(i);
-      if (c == 'l' && generator.nextFloat() < 1.0) {
-        msg.setCharAt(i, 'r');
-      } else if (c == 'r' && generator.nextFloat() < 0.0) {
-        msg.setCharAt(i, 'l');
-      }
-    }
-
-		m.reply(msg.toString());
+    reply = reply.replaceAll("l+", "r");
+		m.reply(reply);
 	}
 }
