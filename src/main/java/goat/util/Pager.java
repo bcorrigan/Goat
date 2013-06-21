@@ -1,11 +1,13 @@
 package goat.util ;
 
+import static goat.core.Constants.BOLD;
+import static goat.core.Constants.NORMAL;
 import static goat.util.StringUtil.byteLength;
 import static goat.util.StringUtil.maxEncodeable;
-import static goat.core.Constants.*;
-import goat.core.BotStats;
-import java.nio.charset.CharacterCodingException;
 import static java.lang.Math.min;
+import goat.core.BotStats;
+
+import java.nio.charset.CharacterCodingException;
 
 /**
  * A wee IRC pager
@@ -27,16 +29,16 @@ public class Pager {
 
     public String innerPre = "\u2026";
     public String innerPost = " [more]";
-    private int maxWalkback = 32;
+    private final int maxWalkback = 32;
 
-    private String inputExceededMsg = " " + BOLD + "[" + NORMAL + "no more \u2014 buffer protection engaged" + BOLD + "]";
+    private final String inputExceededMsg = " " + BOLD + "[" + NORMAL + "no more \u2014 buffer protection engaged" + BOLD + "]";
 
     // max input length is specified in characters, not bytes
     // it's OK if unicodes blow it up to 4x apparent length,
     // we just need to cap it somewhere to prevent qpt from
     // crushing our heap.
     // 17 pages of crap should be enough for anyone...
-    private int maxInputCharacters = maxBytes * 17 - inputExceededMsg.length();
+    private final int maxInputCharacters = maxBytes * 17 - inputExceededMsg.length();
 
     private boolean untapped = true ;
 
@@ -69,9 +71,10 @@ public class Pager {
      * @param text to put in the buffer, blowing away anything already there
      */
     public void init(String text) {
+        text = StringUtil.smush(text);
         if(maxInputCharacters > 0 && text.length() > maxInputCharacters)
             text = text.substring(0, maxInputCharacters) + inputExceededMsg;
-        buffer = smush(text);
+        buffer = text;
         untapped = true ;
     }
 
@@ -80,9 +83,9 @@ public class Pager {
      */
     public synchronized void add(String text) {
         if(buffer.equals(""))
-            buffer = smush(text);
+            buffer = StringUtil.smush(text);
         else
-            buffer += " " + smush(text) ;
+            buffer += " " + StringUtil.smush(text) ;
     }
 
     /**
@@ -146,6 +149,10 @@ public class Pager {
         return byteLength(buffer);
     }
 
+    public static Boolean shouldPaginate(String text) {
+      return ((byteLength(text) > defaultMaxBytes) || text.matches("(?s).*[\\r\\n\\f].*"));
+    }
+
     /* private things */
 
     //pop the first numBytes bytes off the buffer, or until the first form-feed
@@ -154,7 +161,7 @@ public class Pager {
         String ret = buffer ;
         if ( remaining() > numBytes )
             ret = maxEncodeable(buffer, numBytes);
-        ret = trimWhitespace(ret); // prevents form feed from being last character
+        ret = StringUtil.trimWhitespace(ret); // prevents form feed from being last character
         if(ret.contains("\f")) {
             int formFeed = ret.indexOf('\f');
             ret = buffer.substring(0, formFeed);
@@ -162,7 +169,7 @@ public class Pager {
         } else {
             buffer = buffer.substring(ret.length());
         }
-        buffer = trimWhitespace(buffer);
+        buffer = StringUtil.trimWhitespace(buffer);
         return ret;
     }
 
@@ -186,30 +193,4 @@ public class Pager {
         return getChunk(numBytes);
     }
 
-    /* Like java.lang.String.trim(), except we only remove
-     * \n, \t, ' ', \f, and \r (i.e. \w) instead of all
-     * characters with  an integer value >= 0x20, thus
-     * preserving formatting.  Thanks, java...
-     *
-     */
-    public static String trimWhitespace(String string) {
-        String ret = string;
-        while (ret.length() > 0 && ret.matches(".*\\s$"))
-            ret = ret.substring(0, ret.length() - 1);
-        while (ret.length() > 0 && ret.matches("^\\s.*"))
-            ret = ret.substring(1);
-        return ret;
-    }
-
-    public static String smush(String text) {
-        // convert all whitespace (except form feeds) to spaces
-        text = text.replaceAll("[\\t\\n\\x0B\\r]", " ") ;
-        // condense all multi-space down to two spaces
-        text = text.replaceAll(" {3,}", "  ") ;
-        return text ;
-    }
-
-    public static Boolean wouldPaginate(String text) {
-        return (byteLength(text) > defaultMaxBytes) || text.contains("\f");
-    }
 }

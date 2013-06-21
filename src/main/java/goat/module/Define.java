@@ -177,40 +177,39 @@ public class Define extends Module {
                 suggestions = suggestions.trim() ;
                 m.pagedReply(reply + "  Suggestions: " + suggestions) ;
             }
-            return ;
         }
         // check num not greater than number of elements in list
-        if (num > definitionList.size() ) {
+        else if (num > definitionList.size() ) {
             String line = "I don't have " + num + " definitions for \"" + word ;
             if (! dictionary.equals("*") )
                 line = line + "\" in dictionary \"" + dictionary + "\"." ;
             else
                 line = line + "\"." ;
             m.reply(line) ;
-            return ;
-        }
-
-        Definition d = (Definition) definitionList.get(num - 1) ;
-        text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
-        m.reply(text) ;
-        // show available definitions, if more than one.
-        if (definitionList.size() > 1) {
-            int perDict = 0 ;
-            Definition thisDef = (Definition) definitionList.get(0) ;
-            String thisDict = thisDef.getDatabaseShort() ;
-            String msg = "Definitions available: " + thisDict + "(" ;
-            for (Object aDefinitionList : definitionList) {
-                thisDef = (Definition) aDefinitionList;
-                if (!thisDict.equals(thisDef.getDatabaseShort())) {
-                    thisDict = thisDef.getDatabaseShort();
-                    msg += perDict + ") " + thisDict + "(";
-                    perDict = 1;
-                } else {
-                    perDict++;
+        } else {
+            Definition d = (Definition) definitionList.get(num - 1) ;
+            text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
+            // System.out.println("Definition for '" + d.getWord() + "'\n\t" + d.getDefinition());
+            m.reply(text) ;
+            // show available definitions, if more than one.
+            if (definitionList.size() > 1) {
+                int perDict = 0 ;
+                Definition thisDef = (Definition) definitionList.get(0) ;
+                String thisDict = thisDef.getDatabaseShort() ;
+                String msg = "Definitions available: " + thisDict + "(" ;
+                for (Object aDefinitionList : definitionList) {
+                    thisDef = (Definition) aDefinitionList;
+                    if (!thisDict.equals(thisDef.getDatabaseShort())) {
+                        thisDict = thisDef.getDatabaseShort();
+                        msg += perDict + ") " + thisDict + "(";
+                        perDict = 1;
+                    } else {
+                        perDict++;
+                    }
                 }
+                msg += perDict + ")" ;
+                m.reply(msg) ;
             }
-            msg += perDict + ")" ;
-            m.reply(msg) ;
         }
     }
 

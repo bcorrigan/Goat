@@ -174,17 +174,17 @@ public class Message {
 	}
 
 	public static synchronized Message createPagedPrivmsg(String to, String message) {
-		Message ret;
-		synchronized (pagerCache) {
-                    if(Pager.wouldPaginate(message)) {
-			Pager pager = new Pager(message) ;
-			pagerCache.put(to, pager) ;
-			ret = new Message("", "PRIVMSG", to, pager.getNext("PRIVMSG", to)) ;
-                    } else {
-                        ret = createPrivmsg(to, message);
-                    }
-		}
-		return ret;
+	    Message ret;
+	    synchronized (pagerCache) {
+	        if(Pager.shouldPaginate(message)) {
+	            Pager pager = new Pager(message) ;
+	            pagerCache.put(to, pager) ;
+	            ret = new Message("", "PRIVMSG", to, pager.getNext("PRIVMSG", to)) ;
+	        } else {
+	            ret = createPrivmsg(to, message);
+	        }
+	    }
+	    return ret;
 	}
 
 	/**

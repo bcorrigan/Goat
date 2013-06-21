@@ -550,4 +550,27 @@ public class StringUtil {
         }
     }
 
+    public static String smush(String text) {
+        // convert all whitespace (except form feeds) to spaces
+        text = text.replaceAll("[\\t\\n\\x0B\\r]", " ") ;
+        // condense all multi-space down to two spaces
+        text = text.replaceAll(" {3,}", "  ") ;
+        return text ;
+    }
+
+    /* Like java.lang.String.trim(), except we only remove
+     * \n, \t, ' ', \f, and \r (i.e. \s) instead of all
+     * characters with  an integer value >= 0x20, thus
+     * preserving formatting.  Thanks, java...
+     *
+     */
+    public static String trimWhitespace(String string) {
+        String ret = string;
+        while (ret.length() > 0 && ret.matches(".*\\s$"))
+            ret = ret.substring(0, ret.length() - 1);
+        while (ret.length() > 0 && ret.matches("^\\s.*"))
+            ret = ret.substring(1);
+        return ret;
+    }
+
 }
