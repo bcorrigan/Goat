@@ -27,227 +27,249 @@ package goat.module;
  * along with DoorBot.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.*;
-import java.io.*;
-import goat.core.*;
+import goat.core.Message;
+import goat.core.Module;
+
+import java.util.Random;
 
 public class ProtMaker extends Module {
-	Random generator = new Random();
-	// Bank of phrases to use in the plot.
-	String p1[] = {
-		"colonial",
-    "ancient",
-    "a timeless",
-		"an alternate-history",
-		"a post-apocalyptic",
-		"a metaphorical",
-		"an anachronistic",
-		"an agricultural",
-		"a utopian",
-		"a laughably innacurate",
-		"an oppressed",
-    "a capitalistic",
-    "modern day",
-    "a feudalistic",
-    "an agrarian",
-	};
+    Random generator = new Random();
+    // Bank of phrases to use in the plot.
+    String kungfuSettingTypes[] = {
+        "colonial",
+        "ancient",
+        "timeless",
+        "alternate-history",
+        "anachronistic",
+        "agricultural",
+        "utopian",
+        "oppressed",
+        "capitalistic",
+        "modern day",
+        "feudal",
+        "agrarian",
+    };
 
-	String p2[] = {
-    "Japan",
-    "China",
-    "Thailand",
-    "Hong Kong",
-	};
+    String kungfuSettings[] = {
+        "Japan",
+        "China",
+        "Thailand",
+        "Hong Kong",
+        "Shanghai",
+        "Tokyo",
+        "Cambodia",
+        "Vietnam",
+        "Taipei",
+        "Taiwan"
+    };
 
-  String styles[] = {
-    "kung fu",
-    "muay thai",
-    "karate",
-    "wushu",
-    "judo",
-    "jiu jitsu",
-    "bushido",
-    "grecco roman wrestling",
-    "sumo wrestling",
-    "tai chi",
-    "zen flower arranging",
-  };
+    String kungfuStyles[] = {
+        "kung fu",
+        "muay thai",
+        "karate",
+        "wushu",
+        "judo",
+        "jiu jitsu",
+        "bushido",
+        "grecco roman wrestling",
+        "sumo wrestling",
+        "tai chi",
+        "ikibana",
+    };
 
-  String adjective[] = {
-    "a simple",
-    "an old",
-    "an ancient",
-    "a young",
-    "a middle-aged",
-    "a bumbling",
-    "a fat",
-    "a scrawny",
-    "a prophesied",
-    "a magic-using",
-    "a disgraced",
-    "a widowed",
-    "a wizened",
-    "a blind",
-    "a crippled",
-  };
+    String kungfuHeroTypes[] = {
+        "simple",
+        "old",
+        "ancient",
+        "young",
+        "middle-aged",
+        "bumbling",
+        "fat",
+        "scrawny",
+        "prophesied",
+        "magical",
+        "disgraced",
+        "widowed",
+        "wizened",
+        "blind",
+        "crippled",
+        "drunken"
+    };
 
-	String p3[] = {
-    "farmer",
-    "fisherman",
-    "monk",
-    "local party official",
-    "samurai",
-    "ronin",
-    "mercenary",
-    "thief",
-    "student",
-    "cowboy",
-    "laborer",
-    "soldier",
-    "assassin",
-	};
-	String p4[] = {
-    "government corruption",
-    "a secret shipment of contraband",
-    "the theft of an ancient heirloom",
-		"a crazy old man",
-		"an underground resistance movement",
-		"a partially overheard conversation",
-		"a beautiful but forbidden slave girl",
-		"a murder",
-    "evidence of a plot against the emperor",
-    "angry spirits",
-    "an illegal martial arts contest",
-	};
-	String p5[] = {
-    "a gang of toughs",
-    "an international criminal organization",
-    "a local warlord",
-    "his older brother",
-    "white imperialists",
-		"supernatural monsters",
-    "evil monks",
-    "an ancient wizard-ninja",
-		"an army led by a sadist",
-    "treaure hunters",
-	};
-	String p6[] = {
-    "a cute, but shy girl",
-    "a cute and surprisingly dangerous girl",
-    "a fearless, but ultimately useless girl",
-    "his childhood best friend",
-    "his childhood rival",
-    "an out-of-place white man",
-    "a cranky, decrepit old man",
-    "a domineering, screeching old woman",
-    "a kind teacher",
-    "his father's sword",
-    "a friendly innkeep",
-	};
-	String p8[] = {
-    "an allegory about how only a united government can serve its people",
-    "a heroic sacrifice for the greater good",
-		"a fistfight atop a tower",
-		"a daring rescue attempt",
-		"the land restored to health",
-		"entirely avoidable tragedy",
-		"the death of every single character",
-    "the death of dozens of nameless foes",
-		"a romance that ends tragically due only to wounded pride",
-		"an intense but pointless denouement that answers no questions",
-    "a bumbling fool finally redeeming himself",
-    "a formal fight to the death",
-	};
 
-	// Bank of word fragments to use for generation of the title
-	String t1[] = {
-    "Iron",
-    "Dark",
-    "Last",
-    "First",
-    "Middle",
-    "Final",
-    "Steel",
-    "Crouching",
-    "Hidden",
-    "Surprising",
-    "Unknown",
-		"Black",
-		"White",
-    "Lost",
-    "Sharp",
-    "Blind",
-    "Flying",
-    "Sudden",
-    "Dying",
-	};
-	String t2[] = {
-    "Fist",
-    "Dragon",
-    "Monkey",
-    "Tiger",
-    "Idol",
-    "Blade",
-    "Sword",
-		"War",
-    "Panda",
-    "Foot",
-    "Dagger",
-    "Path",
-    "Way",
-    "Death",
-    "Eye",
-	};
+    String kungfuHeros[] = {
+        "farmer",
+        "fisherman",
+        "monk",
+        "local party official",
+        "samurai",
+        "ronin",
+        "mercenary",
+        "thief",
+        "student",
+        "cowboy",
+        "laborer",
+        "soldier",
+        "assassin",
+    };
 
-	public int messageType() {
-		return WANT_COMMAND_MESSAGES;
-	}
+    String kungfuMaguffins[] = {
+        "government corruption",
+        "secret shipment of contraband",
+        "theft of ancient heirloom",
+        "crazy old man",
+        "underground resistance movement",
+        "partially overheard conversation",
+        "beautiful but forbidden slave girl",
+        "murder",
+        "evidence of prot against emperor",
+        "angry spirits",
+        "illegal martial arts contest",
+    };
 
-	@Override
-	public String[] getCommands() {
-		return new String[]{"prot"};
-	}
-	@Override
-	public void processPrivateMessage(Message m) {
-		processChannelMessage(m);
-	}
-	@Override
-	public void processChannelMessage(Message m) {
+    String kungfuVillains[] = {
+        "gang of toughs",
+        "interantional criminal organization",
+        "local warlord",
+        "his older brother",
+        "white imperialists",
+        "supernatural monsters",
+        "evil monks",
+        "ancient wizard-ninja",
+        "army led by sadist",
+        "treaure hunters",
+    };
 
-		String arg = m.getModTrailing().trim();
+    String kungfuCompanions[] = {
+        "cute shy girl",
+        "cute dangerous girl",
+        "fearless, useless girl",
+        "best friend",
+        "childhood rival",
+        "white man",
+        "Chris Rock",
+        "cranky, decrepit old man",
+        "domineering, screeching old woman",
+        "kindly teacher",
+        "his father's sword",
+        "fat, friendly innkeeper",
+    };
 
-		String reply = m.getSender() + ": In ";
-		reply += p1[generator.nextInt(p1.length)];
-		reply += " ";
-		reply += p2[generator.nextInt(p2.length)];
-		reply += ", ";
-    reply += adjective[generator.nextInt(adjective.length)];
-    reply += " ";
-		reply += p3[generator.nextInt(p3.length)];
-		reply += " who studies ";
-    reply += styles[generator.nextInt(styles.length)];
-    reply += " stumbles across ";
-		reply += p4[generator.nextInt(p4.length)];
-		reply += " which spurs him into conflict with ";
-		reply += p5[generator.nextInt(p5.length)];
-		reply += ", aided by ";
-		reply += p6[generator.nextInt(p6.length)];
-		reply += ", culminating in ";
-		reply += p8[generator.nextInt(p8.length)];
-		reply += ".";
+    String kungfuClimaxes[] = {
+        "allegory of government unity",
+        "heroic sacrifice",
+        "fight atop tower",
+        "daring rescue",
+        "restore land to peasant",
+        "tragedy",
+        "death of hero",
+        "death of all enemy",
+        "romance tragedy",
+        "big fight",
+        "luck for fool",
+        "death fight",
+        "fight on mountain",
+        "fight on boat",
+        "fight in tower",
+        "fight with monster",
+        "fight with sword",
+        "fight in forest",
+        "blow up fort",
+        "explosion"
+    };
 
-		reply += " Your title is: \"";
-		if (arg.equals("") || arg == null ) {
-			reply += "The ";
-			reply += t1[generator.nextInt(t1.length)];
-      reply += " ";
-			reply += t2[generator.nextInt(t2.length)];
-		} else {
-			reply += arg;
-		}
-		reply += "\"";
+    // Bank of word fragments to use for generation of the title
+    String kungfuTitleAdjectives[] = {
+        "Iron",
+        "Dark",
+        "Last",
+        "First",
+        "Middle",
+        "Final",
+        "Steel",
+        "Crouching",
+        "Hidden",
+        "Surprising",
+        "Unknown",
+        "Black",
+        "White",
+        "Lost",
+        "Sharp",
+        "Blind",
+        "Flying",
+        "Sudden",
+        "Dying",
+    };
 
-    reply = reply.replaceAll("l+", "r");
-		m.reply(reply);
-	}
+    String kungfuTitleNouns[] = {
+        "Fist",
+        "Dragon",
+        "Monkey",
+        "Tiger",
+        "Mantis",
+        "Idol",
+        "Blade",
+        "Sword",
+        "War",
+        "Panda",
+        "Foot",
+        "Dagger",
+        "Path",
+        "Way",
+        "Death",
+        "Eye",
+    };
+
+    @Override
+    public int messageType() {
+        return WANT_COMMAND_MESSAGES;
+    }
+
+    @Override
+    public String[] getCommands() {
+        return new String[]{"prot"};
+    }
+    @Override
+    public void processPrivateMessage(Message m) {
+        processChannelMessage(m);
+    }
+    @Override
+    public void processChannelMessage(Message m) {
+
+        String arg = m.getModTrailing().trim();
+
+        String reply = m.getSender() + ": In ";
+        reply += kungfuSettingTypes[generator.nextInt(kungfuSettingTypes.length)];
+        reply += " ";
+        reply += kungfuSettings[generator.nextInt(kungfuSettings.length)];
+        reply += ", ";
+        reply += kungfuHeroTypes[generator.nextInt(kungfuHeroTypes.length)];
+        reply += " ";
+        reply += kungfuHeros[generator.nextInt(kungfuHeros.length)];
+        reply += " who study ";
+        reply += kungfuStyles[generator.nextInt(kungfuStyles.length)];
+        reply += " stumble across ";
+        reply += kungfuMaguffins[generator.nextInt(kungfuMaguffins.length)];
+        reply += " which spur him to conflict with ";
+        reply += kungfuVillains[generator.nextInt(kungfuVillains.length)];
+        reply += " with help of ";
+        reply += kungfuCompanions[generator.nextInt(kungfuCompanions.length)];
+        reply += ", culminate in ";
+        reply += kungfuClimaxes[generator.nextInt(kungfuClimaxes.length)];
+        reply += ".";
+
+        reply += " Your title: \"";
+        if (arg.equals("") || arg == null ) {
+            reply += "The ";
+            reply += kungfuTitleAdjectives[generator.nextInt(kungfuTitleAdjectives.length)];
+            reply += " ";
+            reply += kungfuTitleNouns[generator.nextInt(kungfuTitleNouns.length)];
+        } else {
+            reply += arg;
+        }
+        reply += "\"";
+
+
+        m.reply(reply);
+    }
 }
