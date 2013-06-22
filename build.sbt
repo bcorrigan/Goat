@@ -76,3 +76,5 @@ buildInfoKeys := Seq[BuildInfoKey](
     }})
 
 buildInfoPackage := "goat"
+
+EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
