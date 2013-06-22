@@ -45,3 +45,6 @@ config/passwords.properties-before-slashnet-fuckup
 # control, it turns out.
 .classpath
 .project
+
+# scala-eclipse worksheets
+*.sc
