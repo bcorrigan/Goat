@@ -44,7 +44,7 @@ public class PlotMaker extends Module {
 
         String reply = plotmaker.plot(genre);
 
-        if("prot".equalsIgnoreCase(m.getModCommand()) || genre.equals("anime"))
+        if("prot".equalsIgnoreCase(m.getModCommand()) || cp.get("genre").equals("anime"))
             try {
                 reply = translator.transloop(reply, "japanese");
             } catch (Exception e) {

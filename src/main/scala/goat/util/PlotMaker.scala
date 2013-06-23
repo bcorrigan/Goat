@@ -668,5 +668,67 @@ class PlotMaker {
         "fall",
         "path",
         "freeze",
-        "crash")))
+        "crash")),
+
+    "linuxZealot" -> Map(
+
+      "templates" -> List(
+         "Linux Zealot is [nerdActivity].  Suddenly, a new comment appears on [nerdSite], claiming " +
+         "\"[controversy]\"!  Linux Zealot leaps into action, writing [commentType], but it is " +
+         "too late :(.  Linux Zealot still [nerdCondition]."),
+
+      "nerdActivity" -> List(
+        "seeking validation in IRC",
+        "watching pornographic Asian cartoons",
+        "reading some Lego blogging",
+        "reading copyright-infringing space fiction",
+        "daydreaming about The Singularity",
+        "listening to a They Might Be Giants bootleg"),
+      "nerdSite" -> List(
+        "Slashdot",
+        "Kotaku",
+        "Engadet",
+        "Diaspora",
+        "Hacker News",
+        "Friendster",
+        "GitHub",
+        "Tom's Hardware"),
+      "commentType" -> List(
+        "a seven-page manifesto",
+        "a painstaking point-by-point rebuttal",
+        "a scathing grammar correction",
+        "a typo-laden tangential diatribe",
+        "\"NO U\""),
+      "controversy" -> List(
+        "iOS is superior to Android",
+        "women do not like men who don't bathe",
+        "insecure, territorial nerds scare women away from technical subjects",
+        "computer hacking is a crime",
+        "Lunix is not ready for the desktop",
+        "foreign programmers are just as good as local ones, or better",
+        "LISP is not a particularly useful programming language"),
+      "nerdCondition" -> List(
+        "has no friends",
+        "has no money",
+        "has no taste",
+        "smells like a soiled hobo",
+        "wears cargo shorts",
+        "hasn't touched a woman",
+        "can't write comprehensible, let alone useful software",
+        "lives in a basement")),
+
+    "linuxZealotTitle" -> Map(
+
+      "templates" -> List(
+        "Linux Zealot [adventure]",
+        "Linux Zealot in: Linux Zealot [adventure]"),
+
+      "adventure" -> List(
+        "Stays at Home",
+        "Takes a Study Break",
+        "Drinks Store-Brand Soda",
+        "Remains Seated",
+        "Forgets to Excercise",
+        "Wonders What Day It Is",
+        "Leans Forward On His Desk")))
 }
