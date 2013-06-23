@@ -1,13 +1,11 @@
 package goat.module;
 
+import static goat.util.StringUtil.scrub;
+import static goat.util.TranslateWrapper.DEFAULT_GOAT_LANGUAGE;
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
-import static goat.util.StringUtil.scrub;
-import static goat.util.TextFilters.scotchify;
-import goat.util.Passwords;
 import goat.util.TranslateWrapper;
-import static goat.util.TranslateWrapper.DEFAULT_GOAT_LANGUAGE;
 
 import java.util.Map;
 
@@ -17,14 +15,17 @@ public class Translation extends Module {
 
     public TranslateWrapper translator = new TranslateWrapper();
 
+    @Override
     public String[] getCommands() {
         return new String[] { "translate", "languages", "detectlang", "scotchify" };
     }
 
+    @Override
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
 
+    @Override
     public void processChannelMessage(Message m) {
         String command = scrub(m.getModCommand()).toLowerCase();
         try {
@@ -35,7 +36,7 @@ public class Translation extends Module {
             } else if ("languages".equals(command)) {
                 ircLanguages(m);
             } else if ("scotchify".equals(command)) {
-                m.reply(scotchify(m.getModTrailing()));
+                m.reply(goat.util.TextFilters.scotchify(m.getModTrailing()));
             }
         } catch (Exception e) {
             m.reply("Something went wrong:  " + e.getMessage());
@@ -66,7 +67,7 @@ public class Translation extends Module {
                 }
                 String langString = text.substring(0, spacepos).trim();
                 text = text.substring(spacepos).trim();
-                Language tempLang = languageFromString(langString);
+                Language tempLang = langFromString(langString);
                 if (null == tempLang) {
                     m.reply("Sorry, I don't speak \""
                             + langString
@@ -92,7 +93,7 @@ public class Translation extends Module {
                 }
                 String langString = text.substring(0, spacepos).trim();
                 text = text.substring(spacepos).trim();
-                Language tempLang = languageFromString(langString);
+                Language tempLang = langFromString(langString);
                 if (null == tempLang) {
                     m.reply("Sorry, I don't speak \""
                             + langString
@@ -159,31 +160,9 @@ public class Translation extends Module {
         m.pagedReply(msg);
     }
 
-    private Language languageFromString(String str) throws Exception {
+    public Language langFromString(String str) throws Exception {
         str = scrub(str).toLowerCase();
-        Map<String, Language> langs = Language.values(DEFAULT_GOAT_LANGUAGE);
-        Language ret = null;
-        if (langs.containsKey(str))
-            ret = langs.get(str);
-        if (ret == null)
-            for(Language l: langs.values())
-                if (l.toString().equals(str)) {
-                    ret = l;
-                    break;
-                }
-        if (ret == null)
-            for(Language l: langs.values())
-                if (l.name().toLowerCase().equals(str.replaceAll("\\s", "_"))) {
-                    ret = l;
-                    break;
-                }
-        if (ret == null && str.length() > 3)
-            for(Language l: langs.values())
-                if (l.name().toLowerCase().startsWith(str)) {
-                    ret = l;
-                    break;
-                }
-        return ret;
+        return translator.languageFromString(str);
     }
 
 }

@@ -11,11 +11,22 @@ class PlotMaker {
 
   val random = new Random()
 
+
+  /* functions */
+
+  def rawGenres = tropes.keys.toList.filter(!_.endsWith("Title"))
+
+  def genres = rawGenres.sorted
+
+  def genresAsString = listAsString(genres)
+
+  def hasGenre(genre: String) = rawGenres.contains(genre)
+
+  def randomGenre = sample(rawGenres)
+
   def picker(genre: String): (String) => String =
-    (trope: String) => {
-      val list = tropes(genre)(keyName(trope))
-      list(random.nextInt(list.length))
-    }
+    (trope: String) =>
+      sample(tropes(genre)(keyName(trope)))
 
   def keyName(str: String) =
     str.replaceFirst("[0-9]$", "")
@@ -24,9 +35,26 @@ class PlotMaker {
     (for(k <- tropes(genre).keys; i <- "" +: (0 to 9).map(_.toString)) yield k + i)
         .fold(picker(genre)("templates"))((s, r) => s.replaceAll("\\[" + r + "\\]", picker(genre)(r)))
 
-  def plot(genre: String) = generate(genre)
+  def plot(genre: String): String = generate(genre)
 
   def title(genre: String): String = generate(genre + "Title")
+
+
+  /* utility functions; these ought to go live in a library somewhere */
+
+  def listAsString(list: List[String]): String = {
+    val rlist = list.reverse
+    rlist match {
+      case Nil => ""
+      case _ => rlist.tail.reverse.reduceRight(_.toString + ", " + _.toString) + " and " + rlist.head
+    }
+  }
+
+  def sample[A](list: List[A]):A =
+    list(random.nextInt(list.length))
+
+
+  /* data */
 
   val tropes = Map[String, Map[String, List[String]]](
 
