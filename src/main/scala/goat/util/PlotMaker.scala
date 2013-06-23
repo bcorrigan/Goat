@@ -714,11 +714,11 @@ class PlotMaker {
         "Visual Studio is better than emacs",
         "Gnome removes configuration options",
         "apt-get is not an intuitive way for your grandmother to install software",
-        "Many computer games are flagrantly sexist"
+        "Many computer games are flagrantly sexist",
         "Lunix is not ready for the desktop",
         "software patents promote innovation",
         "Lunix is based on code stolen from SCO",
-        "Richard Stallman is not a charismatic ambassador for Free Software"
+        "Richard Stallman is not a charismatic ambassador for Free Software",
         "foreign programmers are just as good as local ones, or better",
         "LISP is not a particularly useful programming language"),
       "nerdCondition" -> List(
