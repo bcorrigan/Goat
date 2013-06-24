@@ -24,20 +24,32 @@ class PlotMaker {
 
   def randomGenre = sample(rawGenres)
 
-  def picker(genre: String): (String) => String =
-    (trope: String) =>
-      sample(tropes(genre)(keyName(trope)))
+  def pick(ref: AnyRef): String =
+    ref match {
+      case m: Map[String, AnyRef] => generate(m)
+      case list: List[AnyRef] =>
+        sample(list) match {
+          case s: String => s
+          case m: Map[String, AnyRef] => generate(m)
+        }
+      }
+
+  def pickTemplate(node: Map[String, AnyRef]): String =
+    node("templates") match { case l: List[String] => sample(l) }
 
   def keyName(str: String) =
     str.replaceFirst("[0-9]$", "")
 
-  def generate(genre: String): String =
-    (for(k <- tropes(genre).keys; i <- "" +: (0 to 9).map(_.toString)) yield k + i)
-        .fold(picker(genre)("templates"))((s, r) => s.replaceAll("\\[" + r + "\\]", picker(genre)(r)))
+  def generate(node: Map[String, AnyRef]): String =
+    (for(k <- node.keys; i <- "" +: (0 to 9).map(_.toString)) yield k + i)
+        .fold(pickTemplate(node))((s, r) => s.replaceAll("\\[" + r + "\\]", pick(node(keyName(r)))))
 
-  def plot(genre: String): String = generate(genre)
+  def plot(genre: String): String = generate(tropes(genre))
 
-  def title(genre: String): String = generate(genre + "Title")
+  def title(genre: String): String =
+    tropes(genre) match {
+      case m: Map[String, AnyRef] => m("title") match {
+        case t: Map[String, AnyRef] => generate(t)} }
 
 
   /* utility functions; these ought to go live in a library somewhere */
@@ -56,7 +68,7 @@ class PlotMaker {
 
   /* data */
 
-  val tropes = Map[String, Map[String, List[String]]](
+  val tropes = Map(
 
     "kungfu" -> Map(
 
@@ -232,57 +244,56 @@ class PlotMaker {
         "enormous fight",
         "fight",
         "fight",
-        "fight")),
+        "fight"),
+      "title" -> Map(
 
-    "kungfuTitle" -> Map(
+        "templates" -> List(
+          "The [adjective] [noun]",
+          "[adjective] [noun]",
+          "[noun1] [noun2]",
+          "[noun1] of the [adjective] [noun2]",
+          "Enter The [noun]"),
 
-      "templates" -> List(
-        "The [adjective] [noun]",
-        "[adjective] [noun]",
-        "[noun1] [noun2]",
-        "[noun1] of the [adjective] [noun2]",
-        "Enter The [noun]"),
-
-      "adjective" -> List(
-        "Iron",
-        "Dark",
-        "Last",
-        "First",
-        "Middle",
-        "Final",
-        "Steel",
-        "Crouching",
-        "Hidden",
-        "Surprising",
-        "Unknown",
-        "Black",
-        "White",
-        "Lost",
-        "Sharp",
-        "Blind",
-        "Flying",
-        "Sudden",
-        "Dying"),
-      "noun" -> List(
-        "Fist",
-        "Dragon",
-        "Tiger",
-        "Leopard",
-        "Crane",
-        "Snake",
-        "Monkey",
-        "Mantis",
-        "Panda",
-        "Idol",
-        "Blade",
-        "Sword",
-        "War",
-        "Foot",
-        "Dagger",
-        "Path",
-        "Way",
-        "Death",
-        "Eye")),
+        "adjective" -> List(
+          "Iron",
+          "Dark",
+          "Last",
+          "First",
+          "Middle",
+          "Final",
+          "Steel",
+          "Crouching",
+          "Hidden",
+          "Surprising",
+          "Unknown",
+          "Black",
+          "White",
+          "Lost",
+          "Sharp",
+          "Blind",
+          "Flying",
+          "Sudden",
+          "Dying"),
+        "noun" -> List(
+          "Fist",
+          "Dragon",
+          "Tiger",
+          "Leopard",
+          "Crane",
+          "Snake",
+          "Monkey",
+          "Mantis",
+          "Panda",
+          "Idol",
+          "Blade",
+          "Sword",
+          "War",
+          "Foot",
+          "Dagger",
+          "Path",
+          "Way",
+          "Death",
+          "Eye"))),
 
     "wondermark" -> Map(
 
@@ -612,63 +623,61 @@ class PlotMaker {
         "an enlightened understanding of different cultures",
         "a romance that ends tragically due only to wounded pride",
         "an intense but pointless denouement that answers no questions",
-        "the protaganist accepting his differences as strengths")),
+        "the protaganist accepting his differences as strengths"),
+      "title" -> Map(
+        "templates" -> List(
+          "[prefix][root]",
+          "[prefix][root] II",
+          "[prefix][root] Reloaded",
+          "[prefix][root] IV",
+          "Return of the [prefix][root]",
+          "The [prefix][root]",
+          "Rise of the [prefix][root]",
+          "[prefix][root] vs. [prefix2][root]"),
 
-    "wondermarkTitle" -> Map(
-
-      "templates" -> List(
-        "[prefix][root]",
-        "[prefix][root] II",
-        "[prefix][root] Reloaded",
-        "[prefix][root] IV",
-        "Return of the [prefix][root]",
-        "The [prefix][root]",
-        "Rise of the [prefix][root]",
-        "[prefix][root] vs. [prefix2][root]"),
-
-      "prefix" -> List(
-        "Chrono",
-        "Neuro",
-        "Aero",
-        "Cosmo",
-        "Reve",
-        "Necro",
-        "Cyber",
-        "Astro",
-        "Psycho",
-        "Steam",
-        "Meta",
-        "Black",
-        "White",
-        "Power",
-        "Vibro",
-        "Dark",
-        "Death",
-        "Inner",
-        "Jingo",
-        "Mega",
-        "Anti",
-        "Aqua"),
-      "root" -> List(
-        "punk",
-        "mech",
-        "noiac",
-        "poli",
-        "naut",
-        "phage",
-        "droid",
-        "bot",
-        "blade",
-        "tron",
-        "mancer",
-        "War",
-        "man",
-        "mage",
-        "run",
-        "fall",
-        "path",
-        "freeze",
-        "crash")),
+        "prefix" -> List(
+          "Chrono",
+          "Neuro",
+          "Aero",
+          "Cosmo",
+          "Reve",
+          "Necro",
+          "Cyber",
+          "Astro",
+          "Psycho",
+          "Steam",
+          "Meta",
+          "Black",
+          "White",
+          "Power",
+          "Vibro",
+          "Dark",
+          "Death",
+          "Inner",
+          "Jingo",
+          "Mega",
+          "Anti",
+          "Aqua"),
+        "root" -> List(
+          "punk",
+          "mech",
+          "noiac",
+          "poli",
+          "naut",
+          "phage",
+          "droid",
+          "bot",
+          "blade",
+          "tron",
+          "mancer",
+          "War",
+          "man",
+          "mage",
+          "run",
+          "fall",
+          "path",
+          "freeze",
+          "crash"))),
 
     "linuxZealot" -> Map(
 
@@ -714,55 +723,80 @@ class PlotMaker {
         "an angry blog post recounting Free Software principles",
         "an exhaustively researched dissertation",
         "a pedantic correction regarding the naming of GNU/Linux",
+        "a furious screed fixating on an innocuous detail",
+        "the first of months of comment-stalking replies",
         "\"NO U\""),
       "controversy" -> List(
         "iOS is superior to Android",
         "women do not like men who don't bathe",
         "insecure, territorial nerds scare women away from technical subjects",
-        "computer hacking is a crime",
+        "Computer hacking is a crime",
         "Visual Studio is better than emacs",
         "Gnome removes configuration options",
         "apt-get is not an intuitive way for your grandmother to install software",
         "Many computer games are flagrantly sexist",
         "Lunix is not ready for the desktop",
-        "software patents promote innovation",
-        "pirating games hurts publishers",
-        "steam on linux doesn't have many games",
+        "Software patents promote innovation",
+        "Pirating games hurts publishers",
+        "Steam on linux doesn't have many games",
         "Libre Office is often incompatible with Microsoft Office",
         "Lunix is based on code stolen from SCO",
+        "Stealing music does economic harm to musicians",
         "Richard Stallman is not a charismatic ambassador for Free Software",
-        "foreign programmers are just as good as local ones, or better",
         "The BSD license is more free than the GPL",
         "Lunix has poor sound support",
         "Eric S. Raymond is wrong about Gun Control",
+        "Foreign programmers are just as good as local ones, or better",
+        "Electronica is not very good",
+        "Cartoons and comic books are for children",
+        "Your son may be a computer hacker",
+        "The Gnu Public License is a harmful computer virus",
         "LISP is not a particularly useful programming language"),
-      "nerdCondition" -> List(
-        "has no friends",
-        "has no money",
-        "has no taste",
-        "has bad breath",
-        "smells like a soiled hobo",
-        "wears cargo shorts",
-        "has acne",
-        "has no sense of humour",
-        "hasn't touched a woman",
-        "lives with his mother",
-        "can't write comprehensible, let alone useful software",
-        "lives in a basement")),
+      "nerdCondition" -> Map(
+          "templates" -> List(
+            "has no [asset]",
+            "has [problem]",
+            "wears [fashion]",
+            "lives [housing]",
+            "[other]"),
 
-    "linuxZealotTitle" -> Map(
+          "asset" -> List(
+            "friends",
+            "money",
+            "girlfriend",
+            "social life",
+            "self-awareness"),
+          "problem" -> List(
+            "bad breath",
+            "horrible acne",
+            "borderline personality disorder",
+            "bedwetting episodes"),
+          "fashion" -> List(
+            "underwear with his name written in them",
+            "his hair in dredlocks",
+            "boots with cargo shorts",
+            "a fucking purple cape"),
+          "housing" -> List(
+            "with his mother",
+            "in a cloud of cat urine",
+            "in a basement",
+            "in a fetid dorm room"),
+          "other" -> List(
+            "smells like a soiled hobo",
+            "hasn't touched a woman")),
+      "title" -> Map(
+        "templates" -> List(
+          "Linux Zealot [adventure]",
+          "Linux Zealot in: Linux Zealot [adventure]"),
 
-      "templates" -> List(
-        "Linux Zealot [adventure]",
-        "Linux Zealot in: Linux Zealot [adventure]"),
+        "adventure" -> List(
+          "Stays at Home",
+          "Takes a Study Break",
+          "Drinks Store-Brand Soda",
+          "Remains Seated",
+          "Doesn't Brush his Teeth",
+          "Forgets to Excercise",
+          "Wonders What Day It Is",
+          "Leans Forward On His Desk"))))
 
-      "adventure" -> List(
-        "Stays at Home",
-        "Takes a Study Break",
-        "Drinks Store-Brand Soda",
-        "Remains Seated",
-        "Doesn't Brush his Teeth",
-        "Forgets to Excercise",
-        "Wonders What Day It Is",
-        "Leans Forward On His Desk")))
 }
