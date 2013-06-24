@@ -681,9 +681,10 @@ class PlotMaker {
 
     "linuxZealot" -> Map(
       "templates" -> List(
-         "Linux Zealot is [nerdActivity]. Suddenly, [nerdOpera]" +
+         "Linux Zealot is [nerdActivity]. Suddenly, [phonePlot]" +
+          " Linux Zealot still [nerdCondition].",
+         "Linux Zealot is [nerdActivity]. Suddenly, [forumPlot]" +
           " Linux Zealot still [nerdCondition]."),
-
       "nerdActivity" -> Map(
         "templates" -> List(
 
@@ -723,46 +724,42 @@ class PlotMaker {
           "get his webcam to work",
           "watch Youtube videos",
           "copy and paste between applications")),
-      "nerdOpera" -> Map(
+      "nerdCondition" -> Map(
+          "templates" -> List(
+            "has no [asset]",
+            "has [problem]",
+            "wears [fashion]",
+            "lives [housing]",
+            "[other]"),
+          "asset" -> List(
+            "friends",
+            "money",
+            "girlfriend",
+            "social life",
+            "self-awareness"),
+          "problem" -> List(
+            "bad breath",
+            "horrible acne",
+            "borderline personality disorder",
+            "bedwetting episodes"),
+          "fashion" -> List(
+            "underwear with his name written in them",
+            "his hair in dredlocks",
+            "boots with cargo shorts",
+            "a fucking purple cape"),
+          "housing" -> List(
+            "with his mother",
+            "in a cloud of cat urine",
+            "in a basement",
+            "in a fetid dorm room"),
+          "other" -> List(
+            "smells like a soiled hobo",
+            "hasn't touched a woman")),
+      "forumPlot" -> Map(
         "templates" -> List(
           "a new comment appears on [forumSite], claiming \"[forumClaim]\"!" +
-          "  Linux Zealot leaps into action, writing [forumResponse] but it" +
-          " is too late :(.",
-
-          "he receives a phone call from [phoneFriend], who wants help with" +
-          " [phoneProblem]. Linux Zealot to the rescue:" +
-          " \"[phoneSolution]!\"  Sadly, though he [phoneMood],"),
-        "phoneFriend" -> List(
-          // linux zealot does not have friends, just family.
-          "his grandmother",
-          "his grandfather",
-          "his mother",
-          "his father",
-          "his brother",
-          "his sister",
-          "his uncle",
-          "his aunt",
-          "his nephew",
-          "his niece"),
-        "phoneMood" -> List(
-          "solved the problem",
-          "feels smug",
-          "feels righteous",
-          "got off the phone quickly",
-          "ensured they will never call again"),
-        "phoneProblem" -> List(
-          "organizing recipes",
-          "removing malware",
-          "an Excel spreadsheet",
-          "finding the facebook",
-          "configuring Outlook"),
-        "phoneSolution" -> List(
-          "I'm not your personal tech support",
-          "You just need to install Linux",
-          "If you installed Linux you wouldn't need to worry about that",
-          "Linux makes this easier, try that instead",
-          "Format and install Linux",
-          "Quit using winblowz"),
+          "  Linux Zealot leaps into action, writing [forumResponse], but it" +
+          " is too late :(."),
         "forumSite" -> List(
           "Slashdot",
           "Kotaku",
@@ -813,44 +810,47 @@ class PlotMaker {
           "a pedantic correction regarding the naming of GNU/Linux",
           "a furious screed fixating on an innocuous detail",
           "the first of months of comment-stalking replies",
-          "\"NO U\"")
-      ),
-      "nerdCondition" -> Map(
-          "templates" -> List(
-            "has no [asset]",
-            "has [problem]",
-            "wears [fashion]",
-            "lives [housing]",
-            "[other]"),
-          "asset" -> List(
-            "friends",
-            "money",
-            "girlfriend",
-            "social life",
-            "self-awareness"),
-          "problem" -> List(
-            "bad breath",
-            "horrible acne",
-            "borderline personality disorder",
-            "bedwetting episodes"),
-          "fashion" -> List(
-            "underwear with his name written in them",
-            "his hair in dredlocks",
-            "boots with cargo shorts",
-            "a fucking purple cape"),
-          "housing" -> List(
-            "with his mother",
-            "in a cloud of cat urine",
-            "in a basement",
-            "in a fetid dorm room"),
-          "other" -> List(
-            "smells like a soiled hobo",
-            "hasn't touched a woman")),
+          "\"NO U\"")),
+      "phonePlot" -> Map(
+        "templates" -> List(
+          "[phoneFriend] calls for help with" +
+          " [phoneProblem]. Linux Zealot to the rescue:" +
+          " \"[phoneSolution]!\"  Sadly, though he [phoneMood],"),
+        "phoneFriend" -> List(
+          // linux zealot does not have friends, just family.
+          "his grandmother",
+          "his grandfather",
+          "his mother",
+          "his father",
+          "his brother",
+          "his sister",
+          "his uncle",
+          "his aunt",
+          "his nephew",
+          "his niece"),
+        "phoneMood" -> List(
+          "solved the problem",
+          "feels smug",
+          "feels righteous",
+          "got off the phone quickly",
+          "ensured they will never call again"),
+        "phoneProblem" -> List(
+          "organizing recipes",
+          "removing malware",
+          "an Excel spreadsheet",
+          "finding the facebook",
+          "configuring Outlook"),
+        "phoneSolution" -> List(
+          "You just need to install Linux",
+          "If you installed Linux you wouldn't need to worry about that",
+          "Linux makes this easier, try that instead",
+          "Linux doesn't have that problem",
+          "Format and install Linux",
+          "Quit using winblowz")),
       "title" -> Map(
         "templates" -> List(
           "Linux Zealot [adventure]",
           "Linux Zealot in: Linux Zealot [adventure]"),
-
         "adventure" -> List(
           "Stays at Home",
           "Takes a Study Break",
@@ -860,5 +860,4 @@ class PlotMaker {
           "Forgets to Excercise",
           "Wonders What Day It Is",
           "Leans Forward On His Desk"))))
-
 }
