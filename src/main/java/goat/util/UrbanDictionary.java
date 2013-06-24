@@ -1,20 +1,19 @@
 package goat.util;
+import goat.core.BotStats;
+import goat.core.Constants;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.Vector;
 import java.util.ArrayList;
+import java.util.Vector;
 
-import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import goat.core.BotStats;
-import goat.core.Constants;
-import goat.util.Definition;
+import org.json.JSONObject;
 
 public class UrbanDictionary {
 
@@ -54,10 +53,10 @@ public class UrbanDictionary {
             JSONArray jlist = json.getJSONArray("list");
             for (int i = 0; i < jlist.length(); i++)
                 ret.add(new Definition("urban", dictionaryDescription,
-                                       jlist.getJSONObject(i).getString("word"),
-                                       jlist.getJSONObject(i).getString("definition") +
-                                       "  " + Constants.BOLD + "Example: " + Constants.NORMAL +
-                                       jlist.getJSONObject(i).getString("example")));
+                        jlist.getJSONObject(i).getString("word"),
+                        jlist.getJSONObject(i).getString("definition") +
+                        "  " + Constants.BOLD + "Example: " + Constants.NORMAL +
+                        jlist.getJSONObject(i).getString("example")));
 
         }
         return ret;
@@ -88,13 +87,13 @@ public class UrbanDictionary {
         String response = "";
         String protocol = "https";
         try {
-            URL url = new URL("http://api.urbandictionary.com/v0/define?term=" + word);
+            URL url = new URL("http://api.urbandictionary.com/v0/define?term=" + java.net.URLEncoder.encode(word, "UTF8"));
             connection = (HttpURLConnection) url.openConnection();
-	    connection.setRequestProperty("User-Agent", "Goat IRC Bot v" +
-					  BotStats.getInstance().getVersion() +
-					  " (" + System.getProperty("os.name") +
-					  " v" + System.getProperty("os.version") + ';'
-					  + System.getProperty("os.arch") + ")");
+            connection.setRequestProperty("User-Agent", "Goat IRC Bot v" +
+                    BotStats.getInstance().getVersion() +
+                    " (" + System.getProperty("os.name") +
+                    " v" + System.getProperty("os.version") + ';'
+                    + System.getProperty("os.arch") + ")");
             connection.setConnectTimeout(3000);  // 3 seconds, no waiting around
             connection.setReadTimeout(3000);  // 3 seconds, no waiting around
             connection.connect();
