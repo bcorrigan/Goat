@@ -691,6 +691,7 @@ class PlotMaker {
           // social
           "seeking validation in IRC",
           "cleaning his fleshlight",
+          "stalking the woman who lives down the street",
 
           // media consumption
           "watching pornographic Asian cartoons",
@@ -704,7 +705,8 @@ class PlotMaker {
           "re-encoding patent encumbered AACs to ogg vorbis",
           "daydreaming about The Singularity",
           "setting up a Tor relay",
-
+          "mining for bitcoin using his grandmother's electricity",
+        
           // technical
           "installing lunix on his Kindle",
           "compiling the latest point release of the lunix kernel",
@@ -798,6 +800,15 @@ class PlotMaker {
           "Cartoons and comic books are for children",
           "Your son may be a computer hacker",
           "The Gnu Public License is a harmful computer virus",
+          "Oracle is more appropriate for many enterprises than MariaDB",
+          "C is not a good language for writing a GUI",
+          "Apple laptops are well designed, desirable status symbols",
+          "Wikipedia can sometimes be unreliable because anybody can edit it",
+          "Managers are usually better at making strategic decisions than their reports",
+          "XKCD is self-fellating nerd tripe",
+          "Newspaper paywalls are needed to secure a revenue stream",
+          "Having three completely independent copy/paste buffers in X-Windows is confusing",
+          "Monads are difficult for most programmers to understand",
           "LISP is not a particularly useful programming language"),
         "forumResponse" -> List(
           "a seven-page manifesto",
@@ -809,7 +820,9 @@ class PlotMaker {
           "an exhaustively researched dissertation",
           "a pedantic correction regarding the naming of GNU/Linux",
           "a furious screed fixating on an innocuous detail",
+          "a laboured, windy explanation of exactly how they are wrong",
           "the first of months of comment-stalking replies",
+          "a comment epitomising a breathless and maniacal outlook",
           "\"NO U\"")),
       "phonePlot" -> Map(
         "templates" -> List(
@@ -832,6 +845,7 @@ class PlotMaker {
           "solved the problem",
           "feels smug",
           "feels righteous",
+          "realises this is the first time he has spoken in a week",
           "got off the phone quickly",
           "ensured they will never call again"),
         "phoneProblem" -> List(
@@ -839,13 +853,16 @@ class PlotMaker {
           "removing malware",
           "an Excel spreadsheet",
           "finding the facebook",
+          "getting rid of annoying popups",
+          "playing some music",
           "configuring Outlook"),
         "phoneSolution" -> List(
-          "You just need to install Linux",
-          "If you installed Linux you wouldn't need to worry about that",
-          "Linux makes this easier, try that instead",
-          "Linux doesn't have that problem",
-          "Format and install Linux",
+          "You just need to install GNU/Linux",
+          "If you installed GNU/Linux you wouldn't need to worry about that",
+          "GNU/Linux makes this easier, try that instead",
+          "GNU/Linux doesn't have that problem",
+          "Format and install GNU/Linux",
+          "Read the Gnu Manifesto at http://gnu.org/gnu/manifesto.html to see why you need to use GNU/Linux",
           "Quit using winblowz")),
       "title" -> Map(
         "templates" -> List(
@@ -853,6 +870,7 @@ class PlotMaker {
           "Linux Zealot in: Linux Zealot [adventure]"),
         "adventure" -> List(
           "Stays at Home",
+          "Types on his Keyboard",
           "Takes a Study Break",
           "Drinks Store-Brand Soda",
           "Remains Seated",
