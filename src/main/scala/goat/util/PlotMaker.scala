@@ -680,78 +680,141 @@ class PlotMaker {
           "crash"))),
 
     "linuxZealot" -> Map(
-
       "templates" -> List(
-         "Linux Zealot is [nerdActivity].  Suddenly, a new comment appears on [nerdSite], claiming " +
-         "\"[controversy]\"!  Linux Zealot leaps into action, writing [commentType], but it is " +
-         "too late :(.  Linux Zealot still [nerdCondition]."),
+         "Linux Zealot is [nerdActivity]. Suddenly, [nerdOpera]" +
+          " Linux Zealot still [nerdCondition]."),
 
-      "nerdActivity" -> List(
-        "seeking validation in IRC",
-        "watching pornographic Asian cartoons",
-        "reading some Lego blogging",
-        "re-encoding patent encumbered AACs to ogg vorbis",
-        "trying to get Civilization: Call to Power to work in WINE",
-        "reading copyright-infringing space fiction",
-        "daydreaming about The Singularity",
-        "installing lunix on his Kindle",
-        "compiling the latest point release of the lunix kernel",
-        "cleaning his fleshlight",
-        "trying to get his sound card to work",
-        "learning japanese to better understand his favourite animes",
-        "watching a grainy xvid of Pirates of Silicon Valley",
-        "listening to a They Might Be Giants bootleg"),
-      "nerdSite" -> List(
-        "Slashdot",
-        "Kotaku",
-        "Engadet",
-        "Diaspora",
-        "Hacker News",
-        "r/programming",
-        "reddit",
-        "r/linux",
-        "hardOCP",
-        "Friendster",
-        "GitHub",
-        "Tom's Hardware"),
-      "commentType" -> List(
-        "a seven-page manifesto",
-        "a painstaking point-by-point rebuttal",
-        "a scathing grammar correction",
-        "a mistakingly double-posted one line insult",
-        "a typo-laden tangential diatribe",
-        "an angry blog post recounting Free Software principles",
-        "an exhaustively researched dissertation",
-        "a pedantic correction regarding the naming of GNU/Linux",
-        "a furious screed fixating on an innocuous detail",
-        "the first of months of comment-stalking replies",
-        "\"NO U\""),
-      "controversy" -> List(
-        "iOS is superior to Android",
-        "women do not like men who don't bathe",
-        "insecure, territorial nerds scare women away from technical subjects",
-        "Computer hacking is a crime",
-        "Visual Studio is better than emacs",
-        "Gnome removes configuration options",
-        "apt-get is not an intuitive way for your grandmother to install software",
-        "Many computer games are flagrantly sexist",
-        "Lunix is not ready for the desktop",
-        "Software patents promote innovation",
-        "Pirating games hurts publishers",
-        "Steam on linux doesn't have many games",
-        "Libre Office is often incompatible with Microsoft Office",
-        "Lunix is based on code stolen from SCO",
-        "Stealing music does economic harm to musicians",
-        "Richard Stallman is not a charismatic ambassador for Free Software",
-        "The BSD license is more free than the GPL",
-        "Lunix has poor sound support",
-        "Eric S. Raymond is wrong about Gun Control",
-        "Foreign programmers are just as good as local ones, or better",
-        "Electronica is not very good",
-        "Cartoons and comic books are for children",
-        "Your son may be a computer hacker",
-        "The Gnu Public License is a harmful computer virus",
-        "LISP is not a particularly useful programming language"),
+      "nerdActivity" -> Map(
+        "templates" -> List(
+
+          // social
+          "seeking validation in IRC",
+          "cleaning his fleshlight",
+
+          // media consumption
+          "watching pornographic Asian cartoons",
+          "listening to a They Might Be Giants bootleg",
+          "reading copyright-infringing space fiction",
+          "watching a grainy xvid of Pirates of Silicon Valley",
+          "learning japanese to better understand his favourite animes",
+          "reading some Lego blogging",
+
+          // political
+          "re-encoding patent encumbered AACs to ogg vorbis",
+          "daydreaming about The Singularity",
+          "setting up a Tor relay",
+
+          // technical
+          "installing lunix on his Kindle",
+          "compiling the latest point release of the lunix kernel",
+          "adding features to his IRC bot",
+          "building a personal RSS reader",
+          "hand-editing configuration files",
+          "trying to [fruitlessEndeavor] in Linux",
+
+          // hygiene/loneliness
+          "eating at his computer",
+          "picking at a sore on his thigh"),
+
+        "fruitlessEndeavor" -> List(
+          "make Civilization: Call to Power to work under WINE",
+          "get his sound card to work",
+          "get Flash to work in Firefox",
+          "get his webcam to work",
+          "watch Youtube videos",
+          "copy and paste between applications")),
+      "nerdOpera" -> Map(
+        "templates" -> List(
+          "a new comment appears on [forumSite], claiming \"[forumClaim]\"!" +
+          "  Linux Zealot leaps into action, writing [forumResponse] but it" +
+          " is too late :(.",
+
+          "he receives a phone call from [phoneFriend], who wants help with" +
+          " [phoneProblem]. Linux Zealot to the rescue:" +
+          " \"[phoneSolution]!\"  Sadly, though he [phoneMood],"),
+        "phoneFriend" -> List(
+          // linux zealot does not have friends, just family.
+          "his grandmother",
+          "his grandfather",
+          "his mother",
+          "his father",
+          "his brother",
+          "his sister",
+          "his uncle",
+          "his aunt",
+          "his nephew",
+          "his niece"),
+        "phoneMood" -> List(
+          "solved the problem",
+          "feels smug",
+          "feels righteous",
+          "got off the phone quickly",
+          "ensured they will never call again"),
+        "phoneProblem" -> List(
+          "organizing recipes",
+          "removing malware",
+          "an Excel spreadsheet",
+          "finding the facebook",
+          "configuring Outlook"),
+        "phoneSolution" -> List(
+          "I'm not your personal tech support",
+          "You just need to install Linux",
+          "If you installed Linux you wouldn't need to worry about that",
+          "Linux makes this easier, try that instead",
+          "Format and install Linux",
+          "Quit using winblowz"),
+        "forumSite" -> List(
+          "Slashdot",
+          "Kotaku",
+          "Engadet",
+          "Diaspora",
+          "Hacker News",
+          "r/programming",
+          "reddit",
+          "r/linux",
+          "hardOCP",
+          "Friendster",
+          "GitHub",
+          "Tom's Hardware"),
+        "forumClaim" -> List(
+          "iOS is superior to Android",
+          "women do not like men who don't bathe",
+          "insecure, territorial nerds scare women away from technical subjects",
+          "Computer hacking is a crime",
+          "Visual Studio is better than emacs",
+          "Gnome removes configuration options",
+          "apt-get is not an intuitive way for your grandmother to install software",
+          "Many computer games are flagrantly sexist",
+          "Lunix is not ready for the desktop",
+          "Software patents promote innovation",
+          "Pirating games hurts publishers",
+          "Steam on linux doesn't have many games",
+          "Libre Office is often incompatible with Microsoft Office",
+          "Lunix is based on code stolen from SCO",
+          "Stealing music does economic harm to musicians",
+          "Richard Stallman is not a charismatic ambassador for Free Software",
+          "The BSD license is more free than the GPL",
+          "Lunix has poor sound support",
+          "Eric S. Raymond is wrong about Gun Control",
+          "Foreign programmers are just as good as local ones, or better",
+          "Electronica is not very good",
+          "Cartoons and comic books are for children",
+          "Your son may be a computer hacker",
+          "The Gnu Public License is a harmful computer virus",
+          "LISP is not a particularly useful programming language"),
+        "forumResponse" -> List(
+          "a seven-page manifesto",
+          "a painstaking point-by-point rebuttal",
+          "a scathing grammar correction",
+          "a mistakingly double-posted one line insult",
+          "a typo-laden tangential diatribe",
+          "an angry blog post recounting Free Software principles",
+          "an exhaustively researched dissertation",
+          "a pedantic correction regarding the naming of GNU/Linux",
+          "a furious screed fixating on an innocuous detail",
+          "the first of months of comment-stalking replies",
+          "\"NO U\"")
+      ),
       "nerdCondition" -> Map(
           "templates" -> List(
             "has no [asset]",
@@ -759,7 +822,6 @@ class PlotMaker {
             "wears [fashion]",
             "lives [housing]",
             "[other]"),
-
           "asset" -> List(
             "friends",
             "money",
