@@ -6,15 +6,56 @@
 package goat.util;
 
 import scala.util.Random
+import scala.collection.MapProxy
 
-class PlotMaker {
 
-  val random = new Random()
+class PlotMaker(val self: Map[String, Either[PlotMaker, List[Either[PlotMaker, String]]]])
+  extends MapProxy[String, Either[PlotMaker, List[Either[PlotMaker, String]]]] {
 
+  import PlotMaker._
 
   /* functions */
 
-  def rawGenres = tropes.keys.toList.filter(!_.endsWith("Title"))
+  def pick(pmv: PlotMapValue): String =
+    pmv match {
+      case Left(plotMaker) => plotMaker.generate
+      case Right(plotList) =>
+        sample(plotList)(random) match {
+          case Left(plotMaker) => plotMaker.generate
+          case Right(string) => string
+        }
+      }
+
+  def pickTemplate: String = pick(self("templates"))
+
+  def keyName(str: String) =
+    str.replaceFirst("[0-9]$", "")
+
+  def generate: String =
+    (for(k <- self.keys if k != "templates"; i <- "" +: (0 to 9).map(_.toString)) yield k + i)
+        .fold(pickTemplate)((s, r) => s.replaceAll("\\[" + r + "\\]", pick(self(keyName(r)))))
+
+  def title = pick(self("title"))
+}
+
+
+object PlotMaker {
+
+  /* type inconvenience definitions.  ffs, scala. */
+  type PlotListElement = Either[PlotMaker, String]
+  type PlotList = List[PlotListElement]
+  type PlotMapValue = Either[PlotMaker, PlotList]
+  type PlotMapEntry = (String, PlotMapValue)
+  type PlotMap = Map[String, PlotMapValue]
+  def PlotMap(seq: PlotMapEntry*) = new PlotMaker(seq.toMap)
+  def PlotList(seq: PlotListElement*) = seq.toList
+  implicit def makeLeft[A, B](a: A):Either[A, B] = Left(a)
+  implicit def makeRight[A, B](b: B):Either[A, B] = Right(b)
+
+
+  /* functions (class methods) */
+
+  def rawGenres = genreDefinitions.keys.toList.filter(!_.endsWith("Title"))
 
   def genres = rawGenres.sorted
 
@@ -24,32 +65,9 @@ class PlotMaker {
 
   def randomGenre = sample(rawGenres)
 
-  def pick(ref: AnyRef): String =
-    ref match {
-      case m: Map[String, AnyRef] => generate(m)
-      case list: List[AnyRef] =>
-        sample(list) match {
-          case s: String => s
-          case m: Map[String, AnyRef] => generate(m)
-        }
-      }
+  def plot(genre: String): String = genreDefinitions(genre).generate
 
-  def pickTemplate(node: Map[String, AnyRef]): String =
-    node("templates") match { case l: List[String] => sample(l) }
-
-  def keyName(str: String) =
-    str.replaceFirst("[0-9]$", "")
-
-  def generate(node: Map[String, AnyRef]): String =
-    (for(k <- node.keys; i <- "" +: (0 to 9).map(_.toString)) yield k + i)
-        .fold(pickTemplate(node))((s, r) => s.replaceAll("\\[" + r + "\\]", pick(node(keyName(r)))))
-
-  def plot(genre: String): String = generate(tropes(genre))
-
-  def title(genre: String): String =
-    tropes(genre) match {
-      case m: Map[String, AnyRef] => m("title") match {
-        case t: Map[String, AnyRef] => generate(t)} }
+  def title(genre: String): String = genreDefinitions(genre).title
 
 
   /* utility functions; these ought to go live in a library somewhere */
@@ -62,17 +80,48 @@ class PlotMaker {
     }
   }
 
-  def sample[A](list: List[A]):A =
+  implicit val random = new Random
+
+  def sample[A](list: List[A])(implicit random: Random):A =
     list(random.nextInt(list.length))
+
 
 
   /* data */
 
-  val tropes = Map(
 
-    "kungfu" -> Map(
+  /* Authoring hints:
+   *
+   * You need around a dozen items in your major lists if you don't want your plot to
+   *   wear out its welcome too quickly.  Shorter lists are fine for filler.
+   *
+   * You'll usually get much better results if you write lots of longer phrases instead of
+   *   trying to achieve variety by combining many short phrases together.
+   *
+   * With that said, judicious use of short lists can do wonderful things.
+   *
+   * Try writing out a full plot with all the specific details in place.  Then replace
+   *    various bits of it with more generic wording.  Keep this around in a comment, it
+   *    can help keep things focused as you add more.  Then write a template (or preferably
+   *    several).  Repeat!
+   *
+   * More top-level templates will increase apparent variety way more than adding
+   *    more list items.
+   *
+   * With that said, do add more list items.  They're much easier to invent than templates,
+   *    and more is generally better.
+   *
+   * Be aware of the fact that as you get deeper into sub-templates, your lists get (much)
+   *    less likely to be randomly selected.  There's probably some math involved.  If a
+   *    particular branch of plotland isn't getting enough love, try adding a duplicate
+   *    (or better, a near-duplicate) of whatever template invokes it.
+   *
+   */
 
-      "templates" -> List(
+  val genreDefinitions = Map[String, PlotMaker](
+
+    "kungfu" -> PlotMap(
+      "templates" -> PlotList(
         "In [settingAdjective] [setting], [heroAdjective] [hero] who " +
           "study [technique] stumble across [discovery] which lead to conflict " +
           "with [villain] with help of [companion], culminating in [climax].",
@@ -80,7 +129,7 @@ class PlotMaker {
           "[murderVictim].  Now, after years of [techniqueAdjective] [technique] training, " +
           "[heroAdjective] [hero2] will avenge [murderVictim], with help of [companion], in [climax]."),
 
-      "settingAdjective" -> List(
+      "settingAdjective" -> PlotList(
         "colonial",
         "ancient",
         "timeless",
@@ -93,7 +142,7 @@ class PlotMaker {
         "modern day",
         "feudal",
         "agrarian"),
-      "setting" -> List(
+      "setting" -> PlotList(
         "Japan",
         "China",
         "Thailand",
@@ -106,7 +155,7 @@ class PlotMaker {
         "Taiwan",
         "Peasant Village",
         "Slum"),
-      "heroAdjective" -> List(
+      "heroAdjective" -> PlotList(
         "simple",
         "old",
         "ancient",
@@ -122,7 +171,7 @@ class PlotMaker {
         "blind",
         "crippled",
         "drunken"),
-      "hero" -> List(
+      "hero" -> PlotList(
         "farmer",
         "fisherman",
         "monk",
@@ -136,7 +185,7 @@ class PlotMaker {
         "laborer",
         "soldier",
         "assassin"),
-      "villain" -> List(
+      "villain" -> PlotList(
         "gang of toughs",
         "interantional crime league",
         "local warlord",
@@ -149,7 +198,7 @@ class PlotMaker {
         "yakuza",
         "treaure hunters"),
       // companion should be split into parts
-      "companion" -> List(
+      "companion" -> PlotList(
         "cute shy girl",
         "cute dangerous girl",
         "fearless, useless girl",
@@ -163,7 +212,7 @@ class PlotMaker {
         "his father's sword",
         "a magic talking belt",
         "fat, friendly innkeeper"),
-      "technique" -> List(
+      "technique" -> PlotList(
         "kung fu",
         "muay thai",
         "karate",
@@ -175,7 +224,7 @@ class PlotMaker {
         "sumo",
         "tai chi",
         "ikibana"),
-      "techniqueAdjective" -> List(
+      "techniqueAdjective" -> PlotList(
         "secret",
         "forbidden",
         "furtive",
@@ -184,7 +233,7 @@ class PlotMaker {
         "mystical",
         "forgotten",
         "long lost"),
-      "murderMethod" -> List(
+      "murderMethod" -> PlotList(
         "butchered",
         "dismembered",
         "burned",
@@ -195,7 +244,7 @@ class PlotMaker {
         "stabbed",
         "raped",
         "crushed"),
-      "murderVictim" -> List(
+      "murderVictim" -> PlotList(
         "wife",
         "fiancee",
         "betrothed",
@@ -206,7 +255,7 @@ class PlotMaker {
         "little sister",
         "entire village",
         "puppy"),
-      "discovery" -> List(
+      "discovery" -> PlotList(
         "government corruption",
         "secret shipment of contraband",
         "theft of ancient heirloom",
@@ -218,7 +267,7 @@ class PlotMaker {
         "plot against emperor",
         "angry spirits",
         "illegal martial arts contest"),
-      "climax" -> List(
+      "climax" -> PlotList(
         "allegory of government unity",
         "heroic sacrifice",
         "daring rescue",
@@ -245,16 +294,16 @@ class PlotMaker {
         "fight",
         "fight",
         "fight"),
-      "title" -> Map(
+      "title" -> PlotMap(
 
-        "templates" -> List(
+        "templates" -> PlotList(
           "The [adjective] [noun]",
           "[adjective] [noun]",
           "[noun1] [noun2]",
           "[noun1] of the [adjective] [noun2]",
           "Enter The [noun]"),
 
-        "adjective" -> List(
+        "adjective" -> PlotList(
           "Iron",
           "Dark",
           "Last",
@@ -274,7 +323,7 @@ class PlotMaker {
           "Flying",
           "Sudden",
           "Dying"),
-        "noun" -> List(
+        "noun" -> PlotList(
           "Fist",
           "Dragon",
           "Tiger",
@@ -295,14 +344,14 @@ class PlotMaker {
           "Death",
           "Eye"))),
 
-    "wondermark" -> Map(
+    "wondermark" -> PlotMap(
 
-      "templates" -> List(
+      "templates" -> PlotList(
         "In [settingDescription] [settingLocation], a young [hero] stumbles across [maguffin], " +
         "which spurs him into conflict with [villain] with the help of [companion] and her [luggage], " +
         "culminating in [ending]."),
 
-      "settingDescription" -> List(
+      "settingDescription" -> PlotList(
         "a neo-noir",
         "an alternate-history",
         "an ancient",
@@ -346,7 +395,7 @@ class PlotMaker {
         "a steampunk",
         "a feudal",
         "a female dominated"),
-      "settingLocation" -> List(
+      "settingLocation" -> PlotList(
         "America",
         "Japan",
         "Soviet Russia",
@@ -398,7 +447,7 @@ class PlotMaker {
         "castle",
         "bandit camp",
         "log cabin"),
-      "hero" -> List(
+      "hero" -> PlotList(
         "flying message courier",
         "student of metaphysics",
         "milquetoast office drone",
@@ -450,7 +499,7 @@ class PlotMaker {
         "extreme sport enthusiast",
         "retired commando",
         "closeted gay politician"),
-      "maguffin" -> List(
+      "maguffin" -> PlotList(
         "a magic diadem",
         "an arcane prophecy",
         "a dusty tome",
@@ -495,7 +544,7 @@ class PlotMaker {
         "God himself",
         "the ghost of his dead brother",
         "something that evokes long-buried memories"),
-      "villain" -> List(
+      "villain" -> PlotList(
         "a megalomaniacal dictator",
         "a government conspiracy",
         "a profit-obsessed corporation",
@@ -534,7 +583,7 @@ class PlotMaker {
         "a demon loose from hell",
         "a ruthless serial killer",
         "an elusive and deadly sniper"),
-      "companion" -> List(
+      "companion" -> PlotList(
         "a sarcastic female techno-geek",
         "a tomboyish female mechanic",
         "a shape-shifting female assassin",
@@ -571,7 +620,7 @@ class PlotMaker {
         "his overprotective mother",
         "his soulmate",
         "an illegal immigrant who convinces him that she's a wereseal"),
-      "luggage" -> List(
+      "luggage" -> PlotList(
         "wacky pet",
         "welding gear",
         "closet full of assault rifles",
@@ -599,7 +648,7 @@ class PlotMaker {
         "fat acceptance activism",
         "silly feminine interests that turn out to be quite useful in the end",
         "surprising the male protagonist by impaling herself on his sexual organ for no apparent reason"),
-      "ending" -> List(
+      "ending" -> PlotList(
         "a fistfight atop a tower",
         "a daring rescue attempt",
         "a heroic sacrifice that no one will ever remember",
@@ -624,8 +673,8 @@ class PlotMaker {
         "a romance that ends tragically due only to wounded pride",
         "an intense but pointless denouement that answers no questions",
         "the protaganist accepting his differences as strengths"),
-      "title" -> Map(
-        "templates" -> List(
+      "title" -> PlotMap(
+        "templates" -> PlotList(
           "[prefix][root]",
           "[prefix][root] II",
           "[prefix][root] Reloaded",
@@ -635,7 +684,7 @@ class PlotMaker {
           "Rise of the [prefix][root]",
           "[prefix][root] vs. [prefix2][root]"),
 
-        "prefix" -> List(
+        "prefix" -> PlotList(
           "Chrono",
           "Neuro",
           "Aero",
@@ -658,7 +707,7 @@ class PlotMaker {
           "Mega",
           "Anti",
           "Aqua"),
-        "root" -> List(
+        "root" -> PlotList(
           "punk",
           "mech",
           "noiac",
@@ -679,20 +728,20 @@ class PlotMaker {
           "freeze",
           "crash"))),
 
-    "linuxZealot" -> Map(
-      "templates" -> List(
-         "Linux Zealot is [nerdActivity]. Suddenly, [phonePlot]" +
-          " Linux Zealot still [nerdCondition].",
+    "linuxZealot" -> PlotMap(
+      "templates" -> PlotList(
+         "Linux Zealot is [nerdActivity].  [phonePlot]" +
+           " Linux Zealot still [nerdCondition].",
          "Linux Zealot is [nerdActivity]. Suddenly, [forumPlot]" +
-          " Linux Zealot still [nerdCondition]."),
-      "nerdActivity" -> Map(
-        "templates" -> List(
+           " Linux Zealot still [nerdCondition].",
+         "Linux Zealot is [nerdActivity].  [moralityPlay]"),
 
+      "nerdActivity" -> PlotMap(
+        "templates" -> PlotList(
           // social
           "seeking validation in IRC",
           "cleaning his fleshlight",
           "stalking the woman who lives down the street",
-
           // media consumption
           "watching pornographic Asian cartoons",
           "listening to a They Might Be Giants bootleg",
@@ -700,69 +749,68 @@ class PlotMaker {
           "watching a grainy xvid of Pirates of Silicon Valley",
           "learning japanese to better understand his favourite animes",
           "reading some Lego blogging",
-
           // political
           "re-encoding patent encumbered AACs to ogg vorbis",
           "daydreaming about The Singularity",
           "setting up a Tor relay",
           "mining for bitcoin using his grandmother's electricity",
-        
           // technical
           "installing lunix on his Kindle",
           "compiling the latest point release of the lunix kernel",
           "adding features to his IRC bot",
           "building a personal RSS reader",
           "hand-editing configuration files",
-          "trying to [fruitlessEndeavor] in Linux",
-
-          // hygiene/loneliness
+          "devising a cockeyed templating system",
+          // other
           "eating at his computer",
-          "picking at a sore on his thigh"),
-
-        "fruitlessEndeavor" -> List(
-          "make Civilization: Call to Power to work under WINE",
+          "picking at a sore on his thigh",
+          //fruitless linux
+          "trying to [fruitlessLinuxEndeavor] in Linux",
+          "sweating profusely after hours of trying to [fruitlessLinuxEndeavor] without booting into his Windows partition"),
+       "fruitlessLinuxEndeavor" -> PlotList(
+          "make Civilization: Call to Power to work",
           "get his sound card to work",
           "get Flash to work in Firefox",
           "get his webcam to work",
           "watch Youtube videos",
           "copy and paste between applications")),
-      "nerdCondition" -> Map(
-          "templates" -> List(
+      "nerdCondition" -> PlotMap(
+          "templates" -> PlotList(
             "has no [asset]",
             "has [problem]",
             "wears [fashion]",
             "lives [housing]",
             "[other]"),
-          "asset" -> List(
+          "asset" -> PlotList(
             "friends",
             "money",
             "girlfriend",
             "social life",
             "self-awareness"),
-          "problem" -> List(
+          "problem" -> PlotList(
             "bad breath",
             "horrible acne",
             "borderline personality disorder",
             "bedwetting episodes"),
-          "fashion" -> List(
+          "fashion" -> PlotList(
             "underwear with his name written in them",
             "his hair in dredlocks",
             "boots with cargo shorts",
             "a fucking purple cape"),
-          "housing" -> List(
+          "housing" -> PlotList(
             "with his mother",
             "in a cloud of cat urine",
             "in a basement",
             "in a fetid dorm room"),
-          "other" -> List(
+          "other" -> PlotList(
             "smells like a soiled hobo",
             "hasn't touched a woman")),
-      "forumPlot" -> Map(
-        "templates" -> List(
+      "forumPlot" -> PlotMap(
+        "templates" -> PlotList(
           "a new comment appears on [forumSite], claiming \"[forumClaim]\"!" +
           "  Linux Zealot leaps into action, writing [forumResponse], but it" +
           " is too late :(."),
-        "forumSite" -> List(
+        "forumSite" -> PlotList(
           "Slashdot",
           "Kotaku",
           "Engadet",
@@ -775,7 +823,7 @@ class PlotMaker {
           "Friendster",
           "GitHub",
           "Tom's Hardware"),
-        "forumClaim" -> List(
+        "forumClaim" -> PlotList(
           "iOS is superior to Android",
           "women do not like men who don't bathe",
           "insecure, territorial nerds scare women away from technical subjects",
@@ -810,7 +858,7 @@ class PlotMaker {
           "Having three completely independent copy/paste buffers in X-Windows is confusing",
           "Monads are difficult for most programmers to understand",
           "LISP is not a particularly useful programming language"),
-        "forumResponse" -> List(
+        "forumResponse" -> PlotList(
           "a seven-page manifesto",
           "a painstaking point-by-point rebuttal",
           "a scathing grammar correction",
@@ -824,51 +872,100 @@ class PlotMaker {
           "the first of months of comment-stalking replies",
           "a comment epitomising a breathless and maniacal outlook",
           "\"NO U\"")),
-      "phonePlot" -> Map(
-        "templates" -> List(
-          "[phoneFriend] calls for help with" +
-          " [phoneProblem]. Linux Zealot to the rescue:" +
-          " \"[phoneSolution]!\"  Sadly, though he [phoneMood],"),
-        "phoneFriend" -> List(
+      "phonePlot" -> PlotMap(
+        "templates" -> PlotList(
+          "Out of the blue, his [friend] calls, in need of " +
+            " [phoneFavor]. Linux Zealot to the rescue:" +
+            " \"[phoneSolution]!\"  [phoneMood]",
+          "Gradually, he realizes the strange noise he " +
+            "has been hearing intermittently is his telephone.  It " +
+            "is his [friend], calling to ask for [phoneFavor].  " +
+            "\"[phoneSolution]\", he [phoneDelivery].  [phoneMood]"),
+        "friend" -> PlotList(
           // linux zealot does not have friends, just family.
-          "his grandmother",
-          "his grandfather",
-          "his mother",
-          "his father",
-          "his brother",
-          "his sister",
-          "his uncle",
-          "his aunt",
-          "his nephew",
-          "his niece"),
-        "phoneMood" -> List(
-          "solved the problem",
-          "feels smug",
-          "feels righteous",
-          "realises this is the first time he has spoken in a week",
-          "got off the phone quickly",
-          "ensured they will never call again"),
-        "phoneProblem" -> List(
-          "organizing recipes",
-          "removing malware",
-          "an Excel spreadsheet",
-          "finding the facebook",
-          "getting rid of annoying popups",
-          "playing some music",
-          "configuring Outlook"),
-        "phoneSolution" -> List(
+          "grandmother",
+          "grandfather",
+          "mother",
+          "stepmother",
+          "stepfather",
+          "half-brother",
+          "sister",
+          "uncle",
+          "aunt",
+          "nephew",
+          "niece"),
+        "phoneFavor" -> PlotList(
+          "help with organizing recipes",
+          "a simple malware scan",
+          "a formula for an Excel spreadsheet",
+          "\"how to find the facebook\"",
+          "a way to get rid of annoying popups",
+          "instructions on how to play some music",
+          "some pointers on configuring Outlook"),
+        "phoneSolution" -> PlotList(
           "You just need to install GNU/Linux",
           "If you installed GNU/Linux you wouldn't need to worry about that",
           "GNU/Linux makes this easier, try that instead",
           "GNU/Linux doesn't have that problem",
           "Format and install GNU/Linux",
           "Read the Gnu Manifesto at http://gnu.org/gnu/manifesto.html to see why you need to use GNU/Linux",
-          "Quit using winblowz")),
-      "title" -> Map(
-        "templates" -> List(
+          "Quit using winblowz"),
+        "phoneDelivery" -> PlotList(
+          "shouts, gesticulating stiffly",
+          "barks, briefly startling himself",
+          "mumbles rotely, fidgeting uncomfotably all the while",
+          "says, his voice cracking with disuse",
+          "yells, completely unaware of his own volume",
+          "sneers, free of the average man's sense of tact",
+          "mutters ominously, as if he might blow up a school at any moment"),
+        "phoneMood" -> PlotList(
+          // [this] Linux Zealot still [nerdCondition]
+          "Sadly, although he thinks he has solved the problem,",
+          "He enjoys a brief sense of smug superiority, but",
+          "In addition to having done more harm than good,",
+          "Sadly, Despite his unshakeable self-righteousness,",
+          "Slowly, it dawns on him that this is the first time he has spoken in a week. ",
+          "Though the ordeal of talking on the telephone is over,",
+          "While he has likely ensured his family will leave him alone for a while,")),
+      "moralityPlay" -> PlotMap(
+          "templates" -> PlotList(
+            // "for some reason, linux zealot acts on his rigid belief system.  He daydreams of glory!" +
+            //  "Later, his action has entirely predictable consequences.  Poor Linux Zealot!",
+            "[mobileReason], [mobileContractViolation].  Surely, [idol] would approve!  [mobileDisaster].  " +
+              "Poor Linux Zealot!"),
+          "idol" -> PlotList(
+             "Richard Stallman",
+             "Eric Raymond",
+             "Ray Kurzweil",
+             "Ayn Rand",
+             "Lineaus Torvaldez",
+             "Linus Torfalds",
+             "Leenus Torvhalds",
+             "Linnus Torvhalds"),
+          "mobileReason" -> PlotList(
+             "When a relative asks for help with Instagram",
+             "After reading an article about NSA spying",
+             "Consumed with rage at Apple's success",
+             "In a fit of Android rapture",
+             "In his crusade to impose the Linux Way on everything he sees",
+             "In the grip of his compulsion to fix things that already work"),
+           "mobileContractViolation" -> PlotList(
+             "he jailbreaks an Android phone",
+             "he takes the SIM card out of a 6-month old iPhone and puts it in a 3-year-old Android",
+             "he removes carrier improvements to Android",
+             "he opens up a phone and rewires the headphone jack",
+             "he replaces the battery in a phone with a cheap unbranded knockoff"),
+           "mobileDisaster" -> PlotList(
+             "Several hours later, the phone overheats, filling the room with toxic vapours",
+             "One month later, a fine for unauthorized use is billed.",
+             "Three days later, a routine update rolls back all of LZ's useless work",
+             "Belatedly, LZ realizes he has premanently deleted every email, text, and photo",
+             "Now the phone can do everything it could do before, except answer phone calls")),
+      "title" -> PlotMap(
+        "templates" -> PlotList(
           "Linux Zealot [adventure]",
           "Linux Zealot in: Linux Zealot [adventure]"),
-        "adventure" -> List(
+        "adventure" -> PlotList(
           "Stays at Home",
           "Types on his Keyboard",
           "Takes a Study Break",

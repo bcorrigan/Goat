@@ -23,7 +23,7 @@ public class PlotMaker extends Module {
 	}
 
 	private final goat.util.TranslateWrapper translator = new goat.util.TranslateWrapper();
-	private final goat.util.PlotMaker plotmaker = new goat.util.PlotMaker();
+	private final goat.util.PlotMaker$ plotmaker = goat.util.PlotMaker$.MODULE$;
 
 	@Override
 	public void processChannelMessage(Message m) {
