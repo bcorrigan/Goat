@@ -875,7 +875,7 @@ object PlotMaker {
       "phonePlot" -> PlotMap(
         "templates" -> PlotList(
           "Out of the blue, his [friend] calls, in need of " +
-            " [phoneFavor]. Linux Zealot to the rescue:" +
+            "[phoneFavor]. Linux Zealot to the rescue:" +
             " \"[phoneSolution]!\"  [phoneMood]",
           "Gradually, he realizes the strange noise he " +
             "has been hearing intermittently is his telephone.  It " +
