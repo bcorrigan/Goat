@@ -766,7 +766,7 @@ object PlotMaker {
           "trying to [fruitlessLinuxEndeavor] in Linux",
           "sweating profusely after hours of trying to [fruitlessLinuxEndeavor] without booting into his Windows partition"),
        "fruitlessLinuxEndeavor" -> PlotList(
-          "make Civilization: Call to Power to work",
+          "make Civilization: Call to Power work",
           "get his sound card to work",
           "get Flash to work in Firefox",
           "get his webcam to work",
