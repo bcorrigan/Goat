@@ -955,7 +955,7 @@ object PlotMaker {
              "he replaces the battery in a phone with a cheap unbranded knockoff"),
            "mobileDisaster" -> PlotList(
              "Several hours later, the phone overheats, filling the room with toxic vapours",
-             "One month later, a fine for unauthorized use is billed.",
+             "One month later, a fine for unauthorized use is billed",
              "Three days later, a routine update rolls back all of LZ's useless work",
              "Belatedly, LZ realizes he has premanently deleted every email, text, and photo",
              "Now the phone can do everything it could do before, except answer phone calls")),

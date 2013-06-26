@@ -3,9 +3,9 @@ package goojax.search;
 import goojax.GooJAXResponse;
 
 public class SearchResponse<T extends AbstractSearchResult> extends GooJAXResponse {
-	
+
 	public SearchResponseData<T> responseData;
-	
+
 	public SearchResponse() {
 		super();
 	}
@@ -17,8 +17,8 @@ public class SearchResponse<T extends AbstractSearchResult> extends GooJAXRespon
 	public void setResponseData(SearchResponseData<T> responseData) {
 		this.responseData = responseData;
 	}
-	
-	public int getEstimatedResultCount() {
+
+	public long getEstimatedResultCount() {
 		return responseData.cursor.estimatedResultCount;
 	}
 }

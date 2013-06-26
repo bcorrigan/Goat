@@ -1,23 +1,16 @@
 package goat.module ;
 
 import goat.Goat;
-import goat.core.Constants;
-import goat.core.Module;
 import goat.core.Message;
+import goat.core.Module;
+import goat.util.CommandParser;
 import goat.util.DICTClient;
 import goat.util.Definition;
 import goat.util.UrbanDictionary;
-import goat.util.CommandParser;
-import goat.module.WordGame;
 
-import java.io.*;
-import java.net.* ;
-import java.util.Collections;
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.Vector;
-import java.util.regex.* ;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 
 /**
@@ -36,10 +29,12 @@ public class Define extends Module {
 
     private static String host = "dict.org" ;
     public boolean debug = false ;
+    @Override
     public int messageType() {
         return WANT_COMMAND_MESSAGES;
     }
 
+    @Override
     public String[] getCommands() {
         return new String[] { "define", "randef", "dictionaries", "dictionary", "oed", "thesaurus"};
     }
@@ -48,10 +43,12 @@ public class Define extends Module {
     }
 
 
+    @Override
     public void processPrivateMessage(Message m) {
         processChannelMessage(m) ;
     }
 
+    @Override
     public void processChannelMessage(Message m) {
         //parse out args
 
@@ -112,7 +109,7 @@ public class Define extends Module {
         String[][] matchList = null ;
 
         if (dictionary.equalsIgnoreCase("urban")) {
-            UrbanDictionary urban = new UrbanDictionary(word);
+            UrbanDictionary urban = new UrbanDictionary(word.replaceAll("[\"']",""));
             if (!urban.error.equals("")) {
                 m.reply(urban.error);
                 return;
@@ -187,14 +184,14 @@ public class Define extends Module {
                 line = line + "\"." ;
             m.reply(line) ;
         } else {
-            Definition d = (Definition) definitionList.get(num - 1) ;
+            Definition d = definitionList.get(num - 1) ;
             text = d.getWord() + " (" + d.getDatabaseShort() + "): " + d.getDefinition() ;
             // System.out.println("Definition for '" + d.getWord() + "'\n\t" + d.getDefinition());
             m.reply(text) ;
             // show available definitions, if more than one.
             if (definitionList.size() > 1) {
                 int perDict = 0 ;
-                Definition thisDef = (Definition) definitionList.get(0) ;
+                Definition thisDef = definitionList.get(0) ;
                 String thisDict = thisDef.getDatabaseShort() ;
                 String msg = "Definitions available: " + thisDict + "(" ;
                 for (Object aDefinitionList : definitionList) {

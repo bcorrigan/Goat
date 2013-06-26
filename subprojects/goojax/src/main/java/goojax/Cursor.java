@@ -5,9 +5,9 @@ package goojax;
 public class Cursor {
 	public String moreResultsUrl;
 	public int currentPageIndex;
-	public int estimatedResultCount;
+	public long estimatedResultCount;
 	public CursorPage pages[];
-	
+
 	Cursor() {}
 
 }

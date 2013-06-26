@@ -1,36 +1,44 @@
 package goat.module;
 
-import java.lang.Math;
-// import java.util.Random ;
-//import java.net.URL ;
-//import java.net.MalformedURLException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.io.UnsupportedEncodingException;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.Date;
-import java.util.TimeZone;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Random;
-
 import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
+import goat.util.CommandParser;
 import goat.util.HTMLUtil;
 import goat.util.StringUtil;
-import goat.util.CommandParser;
+import goojax.GooJAXFetcher;
+import goojax.search.AbstractSearchResult;
+import goojax.search.BlogSearchResult;
+import goojax.search.BlogSearcher;
+import goojax.search.BookSearchResult;
+import goojax.search.BookSearcher;
+import goojax.search.NewsSearchResult;
+import goojax.search.NewsSearcher;
+import goojax.search.PatentSearchResult;
+import goojax.search.PatentSearcher;
+import goojax.search.SearchResponse;
+import goojax.search.WebSearcher;
 
-import goojax.*;
-import goojax.search.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.TimeZone;
+// import java.util.Random ;
+//import java.net.URL ;
+//import java.net.MalformedURLException;
 
 /**
  * Module to ask google about stuff.
- * 
+ *
  * This module is over 1000 lines long now, that's probably too much.
- * 
+ *
  * @author encontrado Created on 27-Feb-2006
  */
 public class Google extends Module {
@@ -51,6 +59,7 @@ public class Google extends Module {
                 .setDefaultKey("ABQIAAAA3SYwJ1rsiLgTvuisAwhOWBSj2h-HwVayfKLTNoeW4qFtyKpsrhSAZlVe3nAKyDZbufib0rUbOQ-MvA");
     }
 
+    @Override
     public String[] getCommands() {
         return new String[] {
             "google",
@@ -58,14 +67,16 @@ public class Google extends Module {
             // "pornometer",
             "sexiness", "gis", "yis", "wikipedia", "youtube", "imdb",
             "gayness", "flickr", "spergle",
-            "gnews", "booksearch", "patentsearch", "blogsearch", 
+            "gnews", "booksearch", "patentsearch", "blogsearch",
             "glink" };
     }
 
+    @Override
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
 
+    @Override
     public void processChannelMessage(Message m) {
         // debug
         // System.out.println("PROCESSING:  " + m.modCommand) ;
@@ -157,7 +168,7 @@ public class Google extends Module {
     }
 
     private String lastCachedResultType = null;
-    private HashMap<String, SearchResponse<NewsSearchResult>> newsResponseCache = new HashMap<String, SearchResponse<NewsSearchResult>>();
+    private final HashMap<String, SearchResponse<NewsSearchResult>> newsResponseCache = new HashMap<String, SearchResponse<NewsSearchResult>>();
     private boolean newsLinkMode = false;
 
     private void ircGoogleNews(Message m) throws IOException,
@@ -345,7 +356,7 @@ public class Google extends Module {
         // }
     }
 
-    private HashMap<String, SearchResponse<BookSearchResult>> booksResponseCache = new HashMap<String, SearchResponse<BookSearchResult>>();
+    private final HashMap<String, SearchResponse<BookSearchResult>> booksResponseCache = new HashMap<String, SearchResponse<BookSearchResult>>();
 
     private void ircGoogleBooks(Message m) throws IOException,
             SocketTimeoutException, MalformedURLException {
@@ -433,7 +444,7 @@ public class Google extends Module {
         }
     }
 
-    private HashMap<String, SearchResponse<PatentSearchResult>> patentsResponseCache = new HashMap<String, SearchResponse<PatentSearchResult>>();
+    private final HashMap<String, SearchResponse<PatentSearchResult>> patentsResponseCache = new HashMap<String, SearchResponse<PatentSearchResult>>();
 
     private void ircGooglePatents(Message m) throws IOException,
             SocketTimeoutException, MalformedURLException {
@@ -513,7 +524,7 @@ public class Google extends Module {
         }
     }
 
-    private HashMap<String, SearchResponse<BlogSearchResult>> blogsResponseCache = new HashMap<String, SearchResponse<BlogSearchResult>>();
+    private final HashMap<String, SearchResponse<BlogSearchResult>> blogsResponseCache = new HashMap<String, SearchResponse<BlogSearchResult>>();
 
     private void ircGoogleBlogs(Message m) throws IOException,
             SocketTimeoutException, MalformedURLException {
@@ -643,7 +654,7 @@ public class Google extends Module {
     private void ircSexiness(Message m) throws SocketTimeoutException,
             MalformedURLException, IOException {
         String query = quoteAndClean(m.getModTrailing());
-        int sexyPercentage = Math.round((float) 100 * sexiness(query));
+        int sexyPercentage = Math.round(100 * sexiness(query));
         if (sexyPercentage < 0) {
             m.reply(query
                     + " does not exist, and therefore can not be appraised for sexiness.");
@@ -655,7 +666,7 @@ public class Google extends Module {
     private void ircGayness(Message m) throws SocketTimeoutException,
             MalformedURLException, IOException {
         String query = quoteAndClean(m.getModTrailing());
-        int sexyPercentage = Math.round((float) 100 * gayness(query));
+        int sexyPercentage = Math.round(100 * gayness(query));
         if (sexyPercentage < 0) {
             m.reply(query
                     + " does not exist, and therefore can not be appraised for faggotry.");
@@ -700,7 +711,7 @@ public class Google extends Module {
         }
         for (int i = 0; i < contestants.length; i++)
             contestants[i] = contestants[i].trim();
-        int[] scores = getResultCounts(contestants);
+        long[] scores = getResultCounts(contestants);
         int[] winners = getWinners(scores);
         switch (winners.length) {
         case 0: // no winner
@@ -828,11 +839,11 @@ public class Google extends Module {
      * Given an array of query strings, return an array of search-result counts.
      */
 
-    public int[] getResultCounts(String[] queries) throws IOException,
+    public long[] getResultCounts(String[] queries) throws IOException,
             MalformedURLException, SocketTimeoutException {
         WebSearcher ws = new WebSearcher();
         ws.setSafeSearch(WebSearcher.SafeSearch.NONE);
-        int[] counts = new int[queries.length];
+        long[] counts = new long[queries.length];
         for (int i = 0; i < queries.length; i++) {
             if (queries[i].matches("\\s*")) { // if string is empty
                 counts[i] = -1;
@@ -848,11 +859,11 @@ public class Google extends Module {
     }
 
     /**
-     * Given an array of int, return an array of int containing the index of the
+     * Given an array of long, return an array of int containing the index of the
      * largest element (or elements, in case of a tie).
-     * 
+     *
      */
-    public int[] getWinners(int[] scores) {
+    public int[] getWinners(long[] scores) {
         int[] indices = new int[scores.length];
         if (indices.length == 0)
             return indices;
@@ -926,7 +937,7 @@ public class Google extends Module {
      * <p>
      * You should probably clean up your query and quote it before you pass it
      * to this method. Like with quoteAndClean(), say.
-     * 
+     *
      * @param query
      *            your search string.
      * @return a float between 0 and 1, usually, but sometimes more than 1. -1
@@ -972,7 +983,7 @@ public class Google extends Module {
 
     /*
      * main() replaced with junit class in src/goat/test
-     * 
+     *
      * public static void main(String[] args) { Google g = new Google() ; try {
      * System.out.println(g.luckyString("goat fucker")) ;
      * System.out.println("\"goat\" is " + (int) (100.0 * g.sexiness("goat")) +
