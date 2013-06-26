@@ -67,7 +67,7 @@ object PlotMaker {
 
   def plot(genre: String): String = genreDefinitions(genre).generate
 
-  def title(genre: String): String = genreDefinitions(genre).title
+  def title(genre: String): String = titleCase(genreDefinitions(genre).title).replaceAll("Vs.", "vs.")
 
 
   /* utility functions; these ought to go live in a library somewhere */
@@ -85,7 +85,9 @@ object PlotMaker {
   def sample[A](list: List[A])(implicit random: Random):A =
     list(random.nextInt(list.length))
 
+  def titleCase(s: String, sep: String): String = s.split(sep).map(_.capitalize) mkString sep
 
+  def titleCase(s: String): String = titleCase(titleCase(s, "-"), " ")
 
   /* data */
 
@@ -125,9 +127,9 @@ object PlotMaker {
         "In [settingAdjective] [setting], [heroAdjective] [hero] who " +
           "study [technique] stumble across [discovery] which lead to conflict " +
           "with [villain] with help of [companion], culminating in [climax].",
-        "As a child, [hero] [hero2] of [setting] watched as [villain] [murderMethod] his " +
+        "As a child, [heroAdjective] [hero] of [setting] watched as [villain] [murderMethod] his " +
           "[murderVictim].  Now, after years of [techniqueAdjective] [technique] training, " +
-          "[heroAdjective] [hero2] will avenge [murderVictim], with help of [companion], in [climax]."),
+          "[heroAdjective] [hero] will avenge [murderVictim], with help of [companion], in [climax]."),
 
       "settingAdjective" -> PlotList(
         "colonial",
@@ -157,10 +159,6 @@ object PlotMaker {
         "Slum"),
       "heroAdjective" -> PlotList(
         "simple",
-        "old",
-        "ancient",
-        "young",
-        "middle-aged",
         "bumbling",
         "fat",
         "scrawny",
@@ -196,7 +194,7 @@ object PlotMaker {
         "ancient wizard-ninja",
         "army led by sadist",
         "yakuza",
-        "treaure hunters"),
+        "treasure hunters"),
       // companion should be split into parts
       "companion" -> PlotList(
         "cute shy girl",
@@ -794,7 +792,7 @@ object PlotMaker {
             "bedwetting episodes"),
           "fashion" -> PlotList(
             "underwear with his name written in them",
-            "his hair in dredlocks",
+            "his hair in greasy dredlocks",
             "boots with cargo shorts",
             "a fucking purple cape"),
           "housing" -> PlotList(
@@ -964,15 +962,72 @@ object PlotMaker {
       "title" -> PlotMap(
         "templates" -> PlotList(
           "Linux Zealot [adventure]",
-          "Linux Zealot in: Linux Zealot [adventure]"),
+          "linux zealot and the [nasty] [thing]",
+          "linux zealot vs. the [nasty] [thing]"),
         "adventure" -> PlotList(
           "Stays at Home",
           "Types on his Keyboard",
           "Takes a Study Break",
           "Drinks Store-Brand Soda",
+          "Sits down",
+          "waits for a package",
+          "replies",
+          "returns",
+          "reposted",
+          "picks his toes",
           "Remains Seated",
           "Doesn't Brush his Teeth",
           "Forgets to Excercise",
           "Wonders What Day It Is",
-          "Leans Forward On His Desk"))))
+          "Leans Forward On His Desk"),
+        "nasty" -> PlotList(
+          "odiferous",
+          "malodorous",
+          "fetid",
+          "noxious",
+          "sulphurous",
+          "noisesome",
+          "hairy",
+          "bearded",
+          "dusty",
+          "decomposing",
+          "rotting",
+          "decaying",
+          "putrescent",
+          "rancid",
+          "leprous",
+          "somewhat whiffy",  // it's not always so bad, is it?
+          "quarantined",
+          "biohazardous",
+          "filth-encrusted",
+          "spittle-flecked",
+          "pus-soaked",
+          "mucuous-smeared",
+          "repulsive",
+          "revolting"
+          ),
+        "thing" -> PlotList(
+          "keyboard",
+          "mouse ball",
+          "cable",
+          "fantasy novel",
+          "pizza",
+          "sandwich",
+          "socks",
+          "t-shirt",
+          "mug",
+          "soda bottle",
+          "socks",
+          "fleshlight",
+          "screwdriver",
+          "pocket-knife",
+          "sweatpants",
+          "sandals",
+          "sneakers",
+          "hat",
+          "knapsack",
+          "toothbrush",
+          "soap",
+          "bathrobe",
+          "mattress"))))
 }
