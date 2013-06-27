@@ -728,11 +728,11 @@ object PlotMaker {
 
     "linuxZealot" -> PlotMap(
       "templates" -> PlotList(
-         "Linux Zealot is [nerdActivity].  [phonePlot]" +
-           " Linux Zealot still [nerdCondition].",
-         "Linux Zealot is [nerdActivity]. Suddenly, [forumPlot]" +
-           " Linux Zealot still [nerdCondition].",
-         "Linux Zealot is [nerdActivity].  [moralityPlay]"),
+        "Linux Zealot is [nerdActivity].  [phonePlot]" +
+            " Linux Zealot still [nerdCondition].",
+        "Linux Zealot is [nerdActivity]. Suddenly, [forumPlot]" +
+            " Linux Zealot still [nerdCondition].",
+        "Linux Zealot is [nerdActivity].  [moralityPlay]"),
 
       "nerdActivity" -> PlotMap(
         "templates" -> PlotList(
@@ -925,40 +925,87 @@ object PlotMaker {
           "Slowly, it dawns on him that this is the first time he has spoken in a week. ",
           "Though the ordeal of talking on the telephone is over,",
           "While he has likely ensured his family will leave him alone for a while,")),
+      
       "moralityPlay" -> PlotMap(
-          "templates" -> PlotList(
-            // "for some reason, linux zealot acts on his rigid belief system.  He daydreams of glory!" +
-            //  "Later, his action has entirely predictable consequences.  Poor Linux Zealot!",
-            "[mobileReason], [mobileContractViolation].  Surely, [idol] would approve!  [mobileDisaster].  " +
+        "templates" -> PlotList(
+          // for some reason, linux zealot acts on his rigid belief system.  He daydreams of glory!
+          // Later, his action has entirely predictable consequences.  Poor Linux Zealot!
+          "[mobileReason], [mobileContractViolation].  Surely, [idol] would approve!  [mobileDisaster].  " +
+              "Poor Linux Zealot!",
+          "[musicBelief], he [musicFeel] while he [musicAction].  Unfortunately [musicConsequence].  " +
               "Poor Linux Zealot!"),
-          "idol" -> PlotList(
-             "Richard Stallman",
-             "Eric Raymond",
-             "Ray Kurzweil",
-             "Ayn Rand",
-             "Lineaus Torvaldez",
-             "Linus Torfalds",
-             "Leenus Torvhalds",
-             "Linnus Torvhalds"),
-          "mobileReason" -> PlotList(
-             "When a relative asks for help with Instagram",
-             "After reading an article about NSA spying",
-             "Consumed with rage at Apple's success",
-             "In a fit of Android rapture",
-             "In his crusade to impose the Linux Way on everything he sees",
-             "In the grip of his compulsion to fix things that already work"),
-           "mobileContractViolation" -> PlotList(
-             "he jailbreaks an Android phone",
-             "he takes the SIM card out of a 6-month old iPhone and puts it in a 3-year-old Android",
-             "he removes carrier improvements to Android",
-             "he opens up a phone and rewires the headphone jack",
-             "he replaces the battery in a phone with a cheap unbranded knockoff"),
-           "mobileDisaster" -> PlotList(
-             "Several hours later, the phone overheats, filling the room with toxic vapours",
-             "One month later, a fine for unauthorized use is billed",
-             "Three days later, a routine update rolls back all of LZ's useless work",
-             "Belatedly, LZ realizes he has premanently deleted every email, text, and photo",
-             "Now the phone can do everything it could do before, except answer phone calls")),
+        "idol" -> PlotList(
+          "Richard Stallman",
+          "Eric Raymond",
+          "Ray Kurzweil",
+          "Ayn Rand",
+          "Julian Assange",
+          "Linux Torvez",
+          "Lineaus Torvaldez",
+          "Linus Torfalds",
+          "Leenus Torvhalds",
+          "Linnus Torvhalds"),
+        "mobileReason" -> PlotList(
+          "When a relative asks for help with Instagram",
+          "After reading an article about NSA spying",
+          "Consumed with rage at Apple's success",
+          "In a fit of Android rapture",
+          "In his crusade to impose the Linux Way on everything he sees",
+          "In the grip of his compulsion to fix things that already work"),
+        "mobileContractViolation" -> PlotList(
+          "he jailbreaks an Android phone",
+          "he takes the SIM card out of a 6-month old iPhone and puts it in a 3-year-old Android",
+          "he removes carrier improvements to Android",
+          "he opens up a phone and rewires the headphone jack",
+          "he replaces the battery in a phone with a cheap unbranded knockoff"),
+        "mobileDisaster" -> PlotList(
+          "Several hours later, the phone overheats, filling the room with toxic vapours",
+          "One month later, a fine for unauthorized use is billed",
+          "Three days later, a routine update rolls back all of LZ's useless work",
+          "Belatedly, LZ realizes he has premanently deleted every email, text, and photo",
+          "Now the phone can do everything it could do before, except answer phone calls"),
+        // [musicBelief], he [musicFeel] while he [musicAction]. Unfortunately [musicConsequence]
+        "musicBelief" -> PlotList(
+          "Believing that information wants to be free",
+          "As a form of protest against restrictive copyright law",
+          "Because he believes big media companies just rip off artists anyway",
+          "After reading on Slashdot about how evil music companies are",
+          "Convinced by a breathless article in favor of repealing all copyright forever",
+          "In a plan to follow in the footsteps of WikiLeaks founder Julian Assange",
+          "As an act of civil disobedience",
+          "In an attempt to impress a theoretical future woman"),
+        "musicFeel" -> PlotList(
+          "doesn't feel the least bit guilty",
+          "knows he's done nothing wrong",
+          "shifts in his chair righteously",
+          "feels quite pleased with himself",
+          "can hardly contain his excitement",
+          "shouts \"take that\""),
+        "musicAction" -> PlotMap(
+          "templates" -> PlotList(
+            "shares the latest album by [musicArtist] on Gnutella",
+            "downloads every album ever released by [musicArtist]",
+            "posts a song by [musicArtist] to YouTube",
+            "sells his used [musicArtist] CDs",
+            "loans the first [musicArtist] album to a friend",
+            "grabs the chart topping hit by [musicArtist] from an online friend",
+            "breaks the copy protection software on the new [musicArtist] album",
+            "burns a copy of his favorite [musicArtist] CD"),
+          "musicArtist" -> PlotList(
+            "They Might Be Giants",
+            "\"Weird Al\" Yankovic",
+            "MC Chris",
+            "Jonathan Coulton",
+            "Anthrax",
+            "Tool",
+            "Nine Inch Nails")),
+        "musicConsequence" -> PlotList(
+          "because he didn't support the artist, the band breaks up citing poor sales",
+          "the FBI detects this and shows up with a warrant for his arrest",
+          "the RIAA finds out and files a quarter million dollar lawsuit against him",
+          "his ISP finds out and disconnects his internet for copyright infrigement",
+          "no one notices or cares what he does and he makes no impact on the world",
+          "his computer catches a virus from shady music-stealing websites")),
       "title" -> PlotMap(
         "templates" -> PlotList(
           "Linux Zealot [adventure]",
