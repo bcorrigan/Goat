@@ -58,7 +58,7 @@ WORD_TYPES_RX = {
     )),
     # generic impurity.  Goat's turning into a tyrant!
     IMPURITY_COUNT: (True, re.compile(
-      r'(troll)'
+      r'(troll\b)'
     )),
     SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
@@ -114,6 +114,10 @@ class Stats(Module):
                 if impure:
                     pure = False
                 seen_types[word_type] = True
+
+        # goat is fickle.
+        if random.random() < .0005:
+          pure = False
 
         user_store = KVStore.getUserStore(m)
         user_store.save(LAST_SEEN, time.time())
