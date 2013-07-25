@@ -54,7 +54,7 @@ WORD_TYPES_RX = {
     )),
 
     HOMOPHOBIA_COUNT: (True, re.compile(
-        r'(fag|gaylord|(that\'?s|so|how)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo(\s+|$)|gaa+y|gayy+|bugger)'
+        r'(fag|gaylord|(that\'?s|so|how)\s*gay|fudge\s*pack|tranny|cock\s*sucker|butt\s*(ram|fuck)|sodomite|dyke|carpet\s*munch|muff\s*diver|cock\s*sucker|homo(\s+|$)|gaa+y|gayy+|bugger|poofter)'
     )),
     # generic impurity.  Goat's turning into a tyrant!
     IMPURITY_COUNT: (True, re.compile(
@@ -81,6 +81,7 @@ def praise_words():
         "Terrific stuff!",
         "Your conduct is impeccable.",
         "Great. You're teaching us all good manners.",
+        "You're the example we all should aspire to.",
     ])
 
 def chastise_words():
