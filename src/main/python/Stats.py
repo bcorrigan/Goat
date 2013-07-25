@@ -58,7 +58,7 @@ WORD_TYPES_RX = {
     )),
     # generic impurity.  Goat's turning into a tyrant!
     IMPURITY_COUNT: (True, re.compile(
-      r'(troll\b)'
+      r'(\btroll(?!op|ey|ies))'
     )),
     SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
