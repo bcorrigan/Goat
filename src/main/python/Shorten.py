@@ -25,6 +25,7 @@ random_urls = [
     "http://www.youtube.com/watch?v=kxopViU98Xo", # epic sax guy
     "http://www.youtube.com/watch?v=eh7lp9umG2I", # he-man hey hey hey
     "http://www.youtube.com/watch?v=yzC4hFK5P3g", # ponponpon
+    "https://www.youtube.com/watch?v=g-Spay1ui-8", # a sexy surprise
 ]
 
 
