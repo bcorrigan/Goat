@@ -614,7 +614,7 @@ class TwitterModule extends Module {
     
     if(tweetCountStore.has(status.getUser().getScreenName() )) {
       if(tweetCountStore.get(status.getUser().getScreenName())>=MAX_FOLLOW_COUNT) {
-        Message.createPrivmsg(chan, "Seen " + status.getUser().getScreenName() + " tweets from " + status.getUser().getScreenName() + " so unfollowing now.").send()
+        Message.createPrivmsg(chan, "Seen " + MAX_FOLLOW_COUNT + " tweets from " + status.getUser().getScreenName() + " so unfollowing now.").send()
         disableNotification(Message.createPrivmsg(chan,""), status.getUser().getScreenName())
       }
     }
