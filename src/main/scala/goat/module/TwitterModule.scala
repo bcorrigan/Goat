@@ -98,7 +98,7 @@ class TwitterModule extends Module {
   //we relay all @mentions to channel - this sets it up
   streamTwitter.user();
 
-  followIDs(followedIDs)
+  //followIDs(followedIDs)
 
   private val trendsMap:Map[String,Int] = {
     var tLocs = twitter.getAvailableTrends().toList
@@ -112,18 +112,6 @@ class TwitterModule extends Module {
 
   private val trendsReverseMap:Map[Int,String] = {
     trendsMap.map(_.swap)
-  }
-
-  private def refreshTwitterStream() {
-    //refreshIdsToFollow()
-    followIDs(followedIDs)
-  }
-
-  private def followIDs(followIDs:List[Long]) {
-    if (followIDs.nonEmpty) {
-      val query = new FilterQuery(followIDs.toArray)
-      streamTwitter.filter(query)
-    }
   }
 
   var trendsTimer:Option[Timer] = None
@@ -726,14 +714,8 @@ class TwitterModule extends Module {
         m.reply("You can't tell me where to send my tweeters")
       case ("follow", _) =>
         enableNotification(m, m.getModTrailing.trim())
-        refreshTwitterStream()
-      //case ("follow", false) =>
-      //  m.reply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..")
       case ("unfollow", _) =>
         disableNotification(m, m.getModTrailing.trim())
-        refreshTwitterStream()
-      //case ("unfollow", false) =>
-      //  m.reply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.")
       case ("tweetsearch" | "twitsearch" | "twittersearch" | "inanity" | "t", _) =>
         if (sanitiseAndScold(m))
           if (!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
