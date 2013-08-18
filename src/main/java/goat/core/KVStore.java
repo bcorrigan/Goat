@@ -147,7 +147,7 @@ public class KVStore<T> implements Map<String, T> {
 	}
 	
 	public boolean has(String key) {
-		return mapSlice.containsKey(ns+key);
+		return mapSlice.containsKey(ns+key); 
 	}
 	
 	public boolean hasValue(T value) {
@@ -244,6 +244,10 @@ public class KVStore<T> implements Map<String, T> {
 	
 	public static <T> KVStore<T> getModuleStore(String moduleName) {
 		return new KVStore<T>(moduleName+".");
+	}
+	
+	public static <T> KVStore<T> getModuleStore(String moduleName, String prefix) {
+	    return new KVStore<T>(moduleName+"."+prefix+".");
 	}
 
 	public static void main(String[] args) {

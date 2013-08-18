@@ -87,6 +87,10 @@ public abstract class Module implements Runnable {
 	protected <T> KVStore<T> getModuleStore() {
 	    return KVStore.getModuleStore(moduleName);
 	}
+	
+    protected <T> KVStore<T> getModuleStore(String prefix) {
+        return KVStore.getModuleStore(moduleName,prefix);
+    }
 
 	/**
 	 * <p>Sets the channels the module receives messages from.</p>

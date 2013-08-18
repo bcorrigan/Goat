@@ -40,6 +40,8 @@ class TwitterModule extends Module {
   private var filterTimeAvg: Long = 0
   private var filterCount: Int = 0
 
+  private val MAX_FOLLOW_COUNT=20;
+  
   private var pwds = getPasswords()
 
   private val consumerKey = pwds.getProperty("twitter.consumerKey")
@@ -61,6 +63,8 @@ class TwitterModule extends Module {
 
   //OAuth connection bullshit
   private val token = new AccessToken(accessToken,accessTokenSecret)
+  
+  private val tweetCountStore:KVStore[Integer] = getModuleStore("tweetCount")
 
   val cb = new ConfigurationBuilder();
 
@@ -80,9 +84,9 @@ class TwitterModule extends Module {
   //should make a facility for this generic
   private var searchResults: Set[Tuple2[String, List[Status]]] = new HashSet
 
-  private var followedIDs: Array[Long] = null
+  private var followedIDs: List[Long] = null
   refreshIdsToFollow()
-
+  
   //some random stats to see how effective the cache is
   private var searchesMade: Int = 0;
   private var cacheHits: Int = 0
@@ -111,13 +115,13 @@ class TwitterModule extends Module {
   }
 
   private def refreshTwitterStream() {
-    refreshIdsToFollow()
+    //refreshIdsToFollow()
     followIDs(followedIDs)
   }
 
-  private def followIDs(followIDs:Array[Long]) {
+  private def followIDs(followIDs:List[Long]) {
     if (followIDs.nonEmpty) {
-      val query = new FilterQuery(followIDs)
+      val query = new FilterQuery(followIDs.toArray)
       streamTwitter.filter(query)
     }
   }
@@ -450,25 +454,30 @@ class TwitterModule extends Module {
 
   private def enableNotification(m: Message, user: String) {
     try {
-      if (twitter.updateFriendship(user, true,false) == null)
-        m.reply("Oh Master, I am now following that user just as you desire.")
-      else m.reply("Looks like that user doesn't exist, my master.")
+      val followedUser = twitter.createFriendship(user, true) 
+      if (followedUser != null) {
+        m.reply("I am now following " + followedUser.getName() + " for their next " + MAX_FOLLOW_COUNT + " tweets.")
+        followedIDs = followedUser.getId()::followedIDs
+        tweetCountStore.save(followedUser.getScreenName, 0);
+      } else m.reply("Looks like that user doesn't exist.")
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
-        m.reply("Master, I must beg forgiveness. Those lackies at twitter have failed us. I was unable to follow that user as a result. Error: " + ex.getMessage)
+        m.reply("Those lackies at twitter have failed us. I was unable to follow that user as a result. Error: " + ex.getMessage)
     }
   }
 
   private def disableNotification(m: Message, user: String) {
     try {
-      if (twitter.updateFriendship(user, false, false) == null)
-        m.reply("Oh Wise Master, I am no longer following that user.")
-      else m.reply("Master! That user - it does not exist. I beg forgiveness.")
+      val unfollowedUser = twitter.destroyFriendship(user);
+      if (unfollowedUser != null) {
+        m.reply("OK, I am no longer following " + unfollowedUser.getName + "." )
+        followedIDs=followedIDs.filterNot(_==unfollowedUser.getId)
+    } else m.reply("That user - we weren't following it.")
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
-        m.reply("Master, I must beg forgiveness. Those lackies at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
+        m.reply("Those lackies at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
     }
   }
 
@@ -603,12 +612,26 @@ class TwitterModule extends Module {
     twitter.getHomeTimeline().toList.map((s) => BOLD + s.getUser.getName + NORMAL + ": " + s.getText).reverse
 
   private def refreshIdsToFollow() = {
-    followedIDs = twitter.getFriendsIDs(1l).getIDs
+    followedIDs = twitter.getFriendsIDs(-1l).getIDs.toList
   }
 
-  private def sendStatusToChan(status: Status, chan: String) =
-    Message.createPrivmsg(chan, BOLD + status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
-
+  private def sendStatusToChan(status: Status, chan: String):Unit = {
+    val countStr =  if(tweetCountStore.has(status.getUser().getScreenName() )) {
+      //increment
+      tweetCountStore.save(status.getUser().getScreenName(), tweetCountStore.get(status.getUser().getScreenName())+1)
+      tweetCountStore.get(status.getUser().getScreenName())
+    } else ""
+    
+    Message.createPrivmsg(chan, REVERSE + RED + "*** " + countStr + NORMAL + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
+    
+    if(tweetCountStore.has(status.getUser().getScreenName() )) {
+      if(tweetCountStore.get(status.getUser().getScreenName())>=MAX_FOLLOW_COUNT) {
+        Message.createPrivmsg(chan, "Seen " + status.getUser().getScreenName() + " tweets from " + status.getUser().getScreenName() + " so unfollowing now.").send()
+        disableNotification(Message.createPrivmsg(chan,""), status.getUser().getScreenName())
+      }
+    }
+  }
+    
   private def sanitiseAndScold(m: Message): Boolean =
     if (m.getModTrailing.trim.length == 0) {
       m.reply(m.getSender + ": Twitter might be inane, but you still need to tell me to search for *something*.")
@@ -663,8 +686,9 @@ class TwitterModule extends Module {
   private def filterIDs(ids: Array[Int]): Array[Int] =
     ids.filter((id) => followedIDs.contains(id))
 
-  private def isFollowed(id: Long): Boolean =
+  private def isFollowed(id: Long): Boolean = {
     followedIDs.contains(id)
+  }
 
   private def isMention(status:Status):Boolean =
     status.getText().contains("@"+USER)
@@ -700,16 +724,16 @@ class TwitterModule extends Module {
         Message.createPrivmsg(m.getChanname, "This channel is now the main channel for twitter following.").send()
       case ("tweetchannel", false) =>
         m.reply("You can't tell me where to send my tweeters")
-      case ("follow", true) =>
+      case ("follow", _) =>
         enableNotification(m, m.getModTrailing.trim())
         refreshTwitterStream()
-      case ("follow", false) =>
-        m.reply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..")
-      case ("unfollow", true) =>
+      //case ("follow", false) =>
+      //  m.reply(m.getSender + ": You're no master of mine. Go and follow your own arsehole..")
+      case ("unfollow", _) =>
         disableNotification(m, m.getModTrailing.trim())
         refreshTwitterStream()
-      case ("unfollow", false) =>
-        m.reply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.")
+      //case ("unfollow", false) =>
+      //  m.reply(m.getSender + ": You don't tell me what to do. I'll listen to who I like.")
       case ("tweetsearch" | "twitsearch" | "twittersearch" | "inanity" | "t", _) =>
         if (sanitiseAndScold(m))
           if (!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
@@ -780,9 +804,10 @@ class TwitterModule extends Module {
     }
 
     def onStatus(status: Status) {
-      if (isMention(status) || isFollowed(status.getUser.getId))
+      if (isMention(status) || isFollowed(status.getUser.getId)) {
         sendStatusToChan(status, chan);
-      println("TwitterModule status:  " + status.getText)
+        println("****GOOD: " + status.getUser().getScreenName() + ": " + status.getText)
+      } else println("JUNK: " + status.getUser().getScreenName() + ": " + status.getText)
     }
 
     def onDeletionNotice(statusDeletionNotice:StatusDeletionNotice) {
