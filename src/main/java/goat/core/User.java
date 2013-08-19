@@ -1,9 +1,12 @@
 package goat.core;
 
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.Locale;
 import java.util.HashMap;
+
 import static goat.util.CurrencyConverter.*;
+
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,102 +18,63 @@ import org.xml.sax.SAXException;
  */
 public class User {
 
-	private String name = "";
-	private String weatherStation = "";
-	private String timeZoneString = "";
-	private String currency = "";
-	private Locale locale = null;
-	private HashMap<String, Long> lastMessageTimestamps = new HashMap<String, Long>();
-	private String lastMessage = null;
-	private String lastChannel = null;
-	private double longitude = -4.250132; //users default to George Square, Glasgow
-	private double latitude = 55.861221;
-	private int woeId = 21125; //default to Glasgow of course 
+    KVStore<String> strStore;
+    KVStore<Object> objStore;
 	
 	public String getLastChannel() {
-		return lastChannel;
+		return strStore.get("lastChannel");
 	}
 
 	public void setLastChannel(String lastChannel) {
-		this.lastChannel = lastChannel;
-	}
-
-	private String lastfmName = "";
-	
-	private Users container = null;
-	
-	public User() {
+		strStore.save("lastChannel", lastChannel);
 	}
 	
 	protected User(String uname) {
-		name = uname ;
+		strStore = new KVStore<String>("user."+uname+".");
+		objStore = new KVStore<Object>("user."+uname+".");
+		
+		if(!strStore.has("name")) {
+		    //some backwards-compatible init required for a new user
+		    setName(uname);
+		    setWeatherStation("");
+		    setTimeZoneString("");
+		    strStore.save("currency","GBP");
+		    setLongitude(-4.250132); //George square, glasgow
+		    setLatitude(55.861221);
+		    setWoeId(21125); //also glasgow
+		}
 	}
 
-	/* possibly harmful
-	public User(String name, String weatherStation) {
-		this.name = name;
-		this.weatherStation = weatherStation;
+	public String getName() {
+	    return strStore.get("name");
+	}
+
+	public void setName(String userName) {
+	    strStore.save("name", userName);
+	}
+
+	public String getWeatherStation() {
+	    return strStore.get("weatherStation");
+	}
+
+	public void setWeatherStation(String station) {
+	    strStore.save("weatherStation", station);
 	}
 	
-	public User(String name, String weatherStation, String timezone) {
-		this.name = name;
-		this.weatherStation = weatherStation;
-		this.timeZoneString = TimeZone.getTimeZone(timezone).getID();
-	}
-	*/
-
-	public synchronized String getName() {
-		return name;
-	}
-
-	public synchronized void setName(String userName) {
-		if(null == container)
-			name = userName;
-		else
-			synchronized (container.writeLock) {
-				name = userName;
-				save();
-			}
-	}
-
-	public synchronized String getWeatherStation() {
-		return weatherStation;
-	}
-
-	public synchronized void setWeatherStation(String station) {
-		if(null == container)
-			weatherStation = station;
-		else
-			synchronized (container.writeLock) {
-				weatherStation = station;
-				save();
-			}
+	public String getTimeZoneString() {
+	    return strStore.get("timeZone");
 	}
 	
-	public synchronized String getTimeZoneString() {
-		return timeZoneString ;
-	}
-	
-	public synchronized TimeZone getTimeZone() {
+	public TimeZone getTimeZone() {
 		TimeZone ret = null;
-		if (! timeZoneString.equals(""))
-			ret = TimeZone.getTimeZone(timeZoneString);
+		if (strStore.has("timeZone"))
+			ret = TimeZone.getTimeZone(strStore.get("timeZone"));
 		return ret;
 	}
 	
-	public synchronized void setTimeZoneString(String tz) {
-		if(null == container)
-			reallySetTimeZoneString(tz);
-		else
-			synchronized (container.writeLock) {
-				reallySetTimeZoneString(tz);
-				save();
-			}
-	}
-	
-	private void reallySetTimeZoneString(String tz) {
+	public void setTimeZoneString(String tz) {
 		if (tz.equalsIgnoreCase("unset") || tz.equals("")) {
-			this.timeZoneString = "" ;
+		    strStore.save("timeZone","");
 			return ;
 		}
 		// this is more complicated than it has to be thanks to 
@@ -124,167 +88,112 @@ public class User {
 					|| tz.equalsIgnoreCase("UTC")
 					|| tz.equalsIgnoreCase("UCT")
 					|| tz.equalsIgnoreCase("Universal")) {
-				this.timeZoneString = newTZ.getID() ;
+			    strStore.save("timeZone",newTZ.getID());
 			}
 		} else {
-			this.timeZoneString = newTZ.getID();
+		    strStore.save("timeZone",newTZ.getID());
 		}
 	}
 	
-	public synchronized void setTimeZone(TimeZone tz) {
-		if(container == null)
-			timeZoneString = tz.getID() ;
-		else
-			synchronized(container.writeLock) {
-				timeZoneString = tz.getID() ;
-				save();
-			}
+	public void setTimeZone(TimeZone tz) {
+	    strStore.save("timeZone",tz.getID());
 	}
 	
-	public synchronized String getCurrency() {
-		return currency;
+	public String getCurrency() {
+		return strStore.get("currency");
 	}
 	
-	public synchronized void setCurrency(String newCurrency) throws IOException, ParserConfigurationException, SAXException {
-		if(null == container)
-			reallySetCurrency(newCurrency);
-		else
-			synchronized (container.writeLock) {
-				reallySetCurrency(newCurrency);
-				save();
-			}
-	}
-	
-	private void reallySetCurrency(String newCurrency) 
-	throws IOException, ParserConfigurationException, SAXException {
+	public void setCurrency(String newCurrency) 
+	        throws IOException, ParserConfigurationException, SAXException {
 		if (newCurrency.equalsIgnoreCase("unset")) {
-			this.currency = "";
+		    strStore.save("currency","");
 			return;
 		} else {
 			if (isRecognizedCurrency(newCurrency))
-				this.currency = newCurrency.toUpperCase();
+			    strStore.save("currency",newCurrency.toUpperCase());
 		}
 	}
 	
-	public synchronized Locale getLocale() {
-		return locale;
+	public Locale getLocale() {
+		return (Locale) objStore.get("locale");
 	}
 	
-	public synchronized void setLocale(Locale loc) {
-		if(null == container)
-			locale = loc;
-		else
-			synchronized(container.writeLock) {
-				locale = loc;
-				save();
-			}
+	public void setLocale(Locale loc) {
+		objStore.save("locale",loc);
 	}
-	
 	
 
-	public synchronized void setLastMessage(Message m) {
-		if(null == container) {
-			lastMessageTimestamps.put(m.getChanname(), System.currentTimeMillis());
-			lastMessage = m.getTrailing();
-			lastChannel = m.getChanname();
-		} else
-			synchronized(container.writeLock) {
-				lastMessageTimestamps.put(m.getChanname(), System.currentTimeMillis());
-				lastMessage = m.getTrailing();
-				lastChannel = m.getChanname();
-				save();
-			}
+	public void setLastMessage(Message m) {
+	    //note: lastMessageTimestamps put() here is committed by the subsequent strStore.save()
+	    getLastMessageTimestamps().put(m.getChanname(), System.currentTimeMillis());
+		strStore.save("lastMessage",m.getTrailing());
+		strStore.save("lastChannel",m.getChanname());
 	}
 
-	public synchronized Long getLastMessageTimestamp() {
-		return lastMessageTimestamps.get(lastChannel);
+	public boolean isActiveWithin(long duration) {
+	    long now = System.currentTimeMillis();
+	    Long seen = getLastMessageTimestamps().get(strStore.get("lastChannel"));
+	    if(seen==null)
+	        return false;
+	    else 
+	        return (now-seen)<duration;
+	}
+	
+	public Long getLastMessageTimestamp() {
+		return getLastMessageTimestamps().get(strStore.get("lastChannel"));
 	}
 
-	public synchronized Long getLastMessageTimestamp(String channel) {
-		return lastMessageTimestamps.get(channel);
+	public Long getLastMessageTimestamp(String channel) {
+		return getLastMessageTimestamps().get(channel);
 	}
 	
 	
-	public synchronized String getLastMessage() {
-		return lastMessage;
+	public String getLastMessage() {
+		return strStore.get("lastMessage");
 	}
 	
 	
 	// possibly harmful, but required for serialization
-	public HashMap<String, Long> getLastMessageTimestamps() {
-		return lastMessageTimestamps;
+	public Map<String, Long> getLastMessageTimestamps() {
+	    return new KVStore<Long>("user."+getName()+".lastMessageTimestamps");
 	}
 	 
 
-	public void setLastMessageTimestamps(HashMap<String, Long> lastMessageTimestamps) {
-		this.lastMessageTimestamps = lastMessageTimestamps;
+	public void setLastMessageTimestamps(Map<String, Long> lastMessageTimestamps) {
+	    KVStore<Long> tStore = new KVStore<Long>("user."+getName()+".lastMessageTimestamps");
+	    tStore.putAll(lastMessageTimestamps);
+	    tStore.save();
 	}
 	
-	public synchronized String getLastfmname() {
-		return lastfmName;
+	public String getLastfmname() {
+		return strStore.get("lastfmName");
 	}
 	
-	public synchronized void setLastfmname(String name) {
-		if(container == null)
-			lastfmName = name;
-		else
-			synchronized (container.writeLock) {
-				lastfmName = name;
-				save();
-			}
+	public void setLastfmname(String name) {
+	    strStore.save("lastfmName", name);
 	}
 	
-	public synchronized double getLongitude() {
-		return longitude;
+	public double getLongitude() {
+	    return (double) objStore.get("longitude");
 	}
 	
-	public synchronized void setLongitude(double longitude) {
-		if(container == null)
-			this.longitude = longitude;
-		else
-			synchronized (container.writeLock) {
-				this.longitude = longitude;
-				save();
-			}
+	public void setLongitude(double longitude) {
+	    objStore.save("longitude", longitude);
 	}
 	
-	public synchronized double getLatitude() {
-		return latitude;
+	public double getLatitude() {
+	    return (double) objStore.get("latitude");
 	}
 	
-	public synchronized void setLatitude(double latitude) {
-		if(container == null)
-			this.latitude = latitude;
-		else
-			synchronized (container.writeLock) {
-				this.latitude = latitude;
-				save();
-			}
+	public void setLatitude(double latitude) {
+	    objStore.save("latitude", latitude);
 	}
 	
-	public synchronized int getWoeId() {
-		return woeId;
+	public int getWoeId() {
+	    return (int) objStore.get("woeId");
 	}
 	
-	public synchronized void setWoeId(int woeId) {
-		if(container == null)
-			this.woeId = woeId;
-		else
-			synchronized (container.writeLock) {
-				this.woeId = woeId;
-				save();
-			}
-	}
-	
-	
-	private synchronized void save() {
-		if (!(null == container))
-			synchronized (container.writeLock) {
-				container.notifyUpdatesPending();
-			}
-	}
-	
-	protected void setContainer(Users bucket) {
-		container = bucket;
+	public void setWoeId(int woeId) {
+	    objStore.save("woeId", woeId);
 	}
 }
