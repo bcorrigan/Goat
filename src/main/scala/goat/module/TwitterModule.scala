@@ -2,7 +2,7 @@ package goat.module
 
 import goat.core.Constants._
 import goat.util.StringUtil
-import goat.core.{KVStore, Module, Message}
+import goat.core.{KVStore, Module, Message, Users}
 import goat.util.CommandParser
 import goat.util.Passwords._
 import goat.Goat
@@ -185,7 +185,7 @@ class TwitterModule extends Module {
     try {
       //val parser = new CommandParser(m);
       //val query: Query = new Query(parser.remaining())
-      val user = Goat.getUsers().getOrCreateUser(m.getSender)
+      val user = Users.getOrCreateUser(m.getSender)
       var woeId: Option[Int] = None
       var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
       if(isNear) {
@@ -233,7 +233,7 @@ class TwitterModule extends Module {
     try {
       val parser = new CommandParser(m);
       val query: Query = new Query(parser.remaining())
-      val user = Goat.getUsers().getOrCreateUser(m.getSender)
+      val user = Users.getOrCreateUser(m.getSender)
       if (parser.hasVar("radius") || parser.hasVar("location")) {
         //parse radius
         var radius: Double = 50 //50km by default
@@ -440,10 +440,13 @@ class TwitterModule extends Module {
     }
   }
 
-  private def enableNotification(m: Message, user: String) {
+  private def enableNotification(m: Message, userStr: String) {
     try {
-      val followedUser = twitter.createFriendship(user, true) 
+      val screenName = userStr.replaceAll("@","")
+      val followedUser = twitter.createFriendship(screenName, true) 
       if (followedUser != null) {
+        val user = Users.getUser(m.getSender().toLowerCase());
+        user.addFollowing(screenName);
         m.reply("I am now following " + followedUser.getName() + " for their next " + MAX_FOLLOW_COUNT + " tweets.")
         followedIDs = followedUser.getId()::followedIDs
         tweetCountStore.save(followedUser.getScreenName, 0);
@@ -455,10 +458,13 @@ class TwitterModule extends Module {
     }
   }
 
-  private def disableNotification(m: Message, user: String) {
+  private def disableNotification(m: Message, userStr: String) {
     try {
-      val unfollowedUser = twitter.destroyFriendship(user);
+      val screenName = userStr.replaceAll("@","")
+      val unfollowedUser = twitter.destroyFriendship(screenName);
       if (unfollowedUser != null) {
+        val user = Users.getUser(m.getSender().toLowerCase());
+        user.rmFollowing(screenName);
         m.reply("OK, I am no longer following " + unfollowedUser.getName + "." )
         followedIDs=followedIDs.filterNot(_==unfollowedUser.getId)
     } else m.reply("That user - we weren't following it.")
@@ -675,6 +681,12 @@ class TwitterModule extends Module {
     ids.filter((id) => followedIDs.contains(id))
 
   private def isFollowed(id: Long): Boolean = {
+    //what users are following the ID?
+    //Are they active?
+    
+    //follow -> adds user.following.screenname
+    //unfollow -> removes it
+    
     followedIDs.contains(id)
   }
 

@@ -2,6 +2,7 @@ package goat.module
 
 import goat.core.Module
 import goat.core.Message
+import goat.core.Users
 import goat.util.CommandParser
 import goat.util.WeatherStore
 import goat.core.KVStore
@@ -11,7 +12,6 @@ import java.io.IOException;
 
 class WeatherRecords extends Module {
   
-  val users = goat.Goat.getUsers()
   val wstore = new WeatherStore()
   
   override def getCommands(): Array[String] = {
@@ -36,12 +36,12 @@ class WeatherRecords extends Module {
     println("command:" + m.getModCommand)
     val userName = if(parser.hasVar("user")) parser.get("user") else m.getSender
     
-    if(!users.hasUser(userName)) {
+    if(!Users.hasUser(userName)) {
       m.reply(m.getSender + ": Uh, who?")
       return
     }
     
-    val user = users.getUser(userName)
+    val user = Users.getUser(userName)
     
     val weatherStation = user.getWeatherStation()
     

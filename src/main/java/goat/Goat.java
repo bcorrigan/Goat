@@ -110,7 +110,7 @@ public class Goat {
 	    goat.module.Help.class,
 	    goat.module.Auth.class,
 	    goat.module.Core.class,
-	    goat.module.Users.class,
+	    goat.module.UserManagement.class,
 	    goat.module.ServerCommands.class
 	} ;
 	try {

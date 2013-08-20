@@ -13,14 +13,14 @@ import goat.core.User;
  */
 public class Users {
     
-    KVStore<String> strStore = new KVStore<String>("userstore.");
+    static KVStore<String> strStore = new KVStore<String>("userstore.");
     static KVStore<String[]> nmStore = new KVStore<String[]>("userstore.");
     
-    public boolean hasUser(String name) {
+    public static boolean hasUser(String name) {
         return strStore.has(name.toLowerCase()+".name");
     }
 
-    public User getUser(String name) {
+    public static User getUser(String name) {
         if(!hasUser(name)) {
             noteName(name.toLowerCase());
         }
@@ -28,11 +28,11 @@ public class Users {
         return new User(name.toLowerCase());
     }
 
-    public User getOrCreateUser(String uname) {
+    public static User getOrCreateUser(String uname) {
         return getUser(uname);
     }
     
-    public List<User> getAllUsers() {
+    public static List<User> getAllUsers() {
         if(nmStore.has("names")) {
             String[] names = nmStore.get("names");
             List<User> users = new ArrayList<User>(names.length);
@@ -46,7 +46,7 @@ public class Users {
     }
     
     //all users active within the supplied duration
-    public List<User> getActiveUsers(long duration) {
+    public static List<User> getActiveUsers(long duration) {
         List<User> users = getAllUsers();
         List<User> activeUsers = new ArrayList<User>(10);
         
@@ -60,7 +60,7 @@ public class Users {
     
     //all existing users with the supplied property defined.. User.SCREENNAME, User.WEATHERSTATION, whatever
     //within specified duration
-    public List<User> getUsersWith(String property, long duration) {
+    public static List<User> getUsersWith(String property, long duration) {
         List<User> activeUsers = getActiveUsers(duration);
         List<User> definedUsers = new ArrayList<User>(10);
         
@@ -73,7 +73,7 @@ public class Users {
     }
     
     //when we have JDK8 with lambdas replace this with soemthing generic!
-    public List<User> getActiveUsersFollowing(String screenName, long duration) {
+    public static List<User> getActiveUsersFollowing(String screenName, long duration) {
         List<User> users = getActiveUsers(duration);
         List<User> followingUsers = new ArrayList<User>(5);
         for(User user : users) 
@@ -86,7 +86,7 @@ public class Users {
         return followingUsers;
     }
     
-    public Set<String> channels(List<User> users) {
+    public static Set<String> channels(List<User> users) {
         Set<String> chans = new HashSet<String>(2);
         
         for(User user : users) {
@@ -98,7 +98,7 @@ public class Users {
     
     
     //note all user names as an array within one property for easy lookup without scanning
-    private void noteName(String uname) {
+    private static void noteName(String uname) {
         if(nmStore.has("names")) {
             String[] oldNames = nmStore.get("names");
             String[] newNames = Arrays.copyOf(oldNames,oldNames.length+1);
