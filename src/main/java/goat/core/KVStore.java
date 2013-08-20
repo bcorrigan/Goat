@@ -137,6 +137,10 @@ public class KVStore<T> implements Map<String, T> {
 		mapSlice = (SortedMap<String,T>) globalMap.subMap(nameSpace, toKey);
 	}
 	
+	public KVStore<T> subStore(String subNs) {
+	    return new KVStore<T>(ns+"."+subNs);
+	}
+	
 	public void save(String key, T value) {
 		mapSlice.put(ns+key,  value);
 		db.commit();
