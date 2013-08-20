@@ -4,6 +4,7 @@ import goat.core.Constants;
 import goat.core.Message;
 import goat.core.Module;
 import goat.core.User;
+import goat.core.Users;
 import goat.util.StringUtil;
 import goat.util.Location;
 import static goat.util.CurrencyConverter.*;
@@ -24,7 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 
-public class Users extends Module {
+public class UserManagement extends Module {
 
 	public static final String TIMEZONE_HELP_MESSAGE = 
 		"To set your timezone, type 'timezone [code]', or 'timezone unset' to erase your setting.  A partial timezone code will work, if I can resolve it to a single timeszone.  To find your code directly instead of making me guess, try a web index, like this one: http://twiki.org/cgi-bin/xtra/tzdatepick.html";
@@ -39,7 +40,7 @@ public class Users extends Module {
 
 	private goat.core.Users users ;
 
-	public Users() {
+	public UserManagement() {
 		users = goat.Goat.getUsers() ;
 	}
 
@@ -78,9 +79,9 @@ public class Users extends Module {
 		String url = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		if(url.matches("")) { //no input
 			double[] location = new double[2];
-			if(users.hasUser(m.getSender())) {
-				location[0] = users.getUser(m.getSender()).getLatitude();
-				location[1] = users.getUser(m.getSender()).getLongitude();
+			if(Users.hasUser(m.getSender())) {
+				location[0] = Users.getUser(m.getSender()).getLatitude();
+				location[1] = Users.getUser(m.getSender()).getLongitude();
 			}
 			m.reply(m.getSender() + ", your location is  http://maps.google.co.uk/maps?ll=" + location[0] + "," + location[1] + " - to change this, see instructions in /msg");
 			Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
@@ -89,7 +90,7 @@ public class Users extends Module {
 			    Location location = new Location(url);
 			    if(location.isValid()) {
     				double[] loc = location.getPosPair();
-    				User u = users.getOrCreateUser(m.getSender());
+    				User u = Users.getOrCreateUser(m.getSender());
     				u.setLatitude(loc[0]);
     				u.setLongitude(loc[1]);
     				m.reply(u.getName() + "'s location set to lat:" + u.getLatitude() + " long:" + u.getLongitude());
@@ -107,7 +108,7 @@ public class Users extends Module {
 		if(m.getModTrailing().trim().matches("\\d+")) {
 			int woeId = Integer.parseInt( m.getModTrailing().trim() );
 			m.reply(m.getSender() + ", setting your Yahoo Where on Earth ID to " + woeId);
-			User u = users.getOrCreateUser(m.getSender());
+			User u = Users.getOrCreateUser(m.getSender());
 			u.setWoeId(woeId);
 		} else {
 			m.reply(m.getSender() + ", you can set your Yahoo Where on Earth ID by searching for a suitable location here: http://isithackday.com/geoplanet-explorer/ the valid woeIds here: http://api.twitter.com/1/trends/available.xml and then say: woeId <id>");
@@ -118,8 +119,8 @@ public class Users extends Module {
 		String tz = StringUtil.removeFormattingAndColors(m.getModTrailing()).trim();
 		if (tz.matches("")) { // no input
 			String tzString = "";
-			if(users.hasUser(m.getSender()))
-				tzString = users.getUser(m.getSender()).getTimeZoneString();
+			if(Users.hasUser(m.getSender()))
+				tzString = Users.getUser(m.getSender()).getTimeZoneString();
 			if (tzString.equals("")) {
 				m.reply(m.getSender() + ", your time zone is not set.  Instructions in /msg.");
 			} else {
@@ -127,13 +128,13 @@ public class Users extends Module {
 			}
 			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 		} else if (tz.equalsIgnoreCase("unset")) {
-			if(users.hasUser(m.getSender()))
-				users.getUser(m.getSender()).setTimeZoneString(tz) ;
+			if(Users.hasUser(m.getSender()))
+				Users.getUser(m.getSender()).setTimeZoneString(tz) ;
 			m.reply("Time zone unset for user " + m.getSender()) ;
 		} else {
 			ArrayList<String> matches = timezoneSearch(tz);
 			if (matches.size() == 1) {
-				User u = users.getOrCreateUser(m.getSender());
+				User u = Users.getOrCreateUser(m.getSender());
 				u.setTimeZoneString(matches.get(0));
 				m.reply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString()));
 			} else if(matches.size() == 0) {
@@ -153,21 +154,21 @@ public class Users extends Module {
 		newCurrency = newCurrency.trim();
 		try {
 			if (newCurrency.equals("")) { // no input
-				if(users.hasUser(m.getSender()) && !users.getUser(m.getSender()).equals(""))
-					m.reply(m.getSender() + ", your currency is " + users.getUser(m.getSender()).getCurrency() + ".");
+				if(Users.hasUser(m.getSender()) && !Users.getUser(m.getSender()).equals(""))
+					m.reply(m.getSender() + ", your currency is " + Users.getUser(m.getSender()).getCurrency() + ".");
 				else
 					m.reply(m.getSender() + ", your currency is not set.  Instructions in /msg");
 				Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE).send();
 			} else if(newCurrency.equalsIgnoreCase("unset")) {
-				if(users.hasUser(m.getSender()) && ! users.getUser(m.getSender()).getCurrency().equals("")) {
-					users.getUser(m.getSender()).setCurrency(newCurrency);
+				if(Users.hasUser(m.getSender()) && ! Users.getUser(m.getSender()).getCurrency().equals("")) {
+					Users.getUser(m.getSender()).setCurrency(newCurrency);
 					m.reply("Currency unset for user " + m.getSender());
 				} else
 					m.reply("eh, your currency wasn't set to begin with, " + m.getSender() + ".");
 			} else if(newCurrency.matches("[a-zA-Z]{3}")) {
 				if(isRecognizedCurrency(newCurrency)) {
-					users.getOrCreateUser(m.getSender()).setCurrency(newCurrency);
-					m.reply(m.getSender() + "'s currency set to " + users.getUser(m.getSender()).getCurrency());
+					Users.getOrCreateUser(m.getSender()).setCurrency(newCurrency);
+					m.reply(m.getSender() + "'s currency set to " + Users.getUser(m.getSender()).getCurrency());
 				} else {
 					m.reply("\"" + newCurrency + "\" is not a currency code I'm familiar with.");
 				}
@@ -192,19 +193,19 @@ public class Users extends Module {
 		uname = StringUtil.removeFormattingAndColors(uname);
 		String reply = "";
 		if (m.getSender().equalsIgnoreCase(uname) || uname.equals("")) {
-			if(! users.hasUser(m.getSender())) {
+			if(! Users.hasUser(m.getSender())) {
 				reply="I don't know anything about you, " + m.getSender() + ".";
 				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
-			} else if(users.getUser(m.getSender()).getTimeZoneString().equals("")) {
+			} else if(Users.getUser(m.getSender()).getTimeZoneString().equals("")) {
 				reply="I don't know your time zone, " + m.getSender() + ".";
 				Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
 			}
 			else 
-				reply="Your current time is " + StringUtil.timeString(users.getUser(m.getSender()).getTimeZoneString()); 
+				reply="Your current time is " + StringUtil.timeString(Users.getUser(m.getSender()).getTimeZoneString()); 
 		}
 		else if (! isValidIRCNick(uname) && !m.getModCommand().equals("localtime"))
 			reply = "You're being difficult";
-		else if(! users.hasUser(uname))
+		else if(! Users.hasUser(uname))
 			if(m.getModCommand().equals("localtime")) {
 				ArrayList<String> matches = timezoneSearch(uname);
 				if (matches.size() == 1) {
@@ -219,10 +220,10 @@ public class Users extends Module {
 			}
 			else 
 				reply="I don't know anything about user \"" + uname + "\"";
-		else if(users.getUser(uname).getTimeZoneString().equals(""))
+		else if(Users.getUser(uname).getTimeZoneString().equals(""))
 			reply="I don't know " + uname + "'s time zone.";
 		else 
-			reply="Current time for " + uname + " is " + StringUtil.timeString(users.getUser(uname).getTimeZoneString()); 
+			reply="Current time for " + uname + " is " + StringUtil.timeString(Users.getUser(uname).getTimeZoneString()); 
 		m.reply(reply);
 	}
 
@@ -289,12 +290,12 @@ public class Users extends Module {
 			};
 			m.reply(snarkyReplies[random.nextInt(snarkyReplies.length)]);
 		} else if (! name.equals("")) {
-			if (users.hasUser(name)) {
-				User u = users.getUser(name);
+			if (Users.hasUser(name)) {
+				User u = Users.getUser(name);
 				if(u.getLastMessageTimestamp() != 0) {
 					SimpleDateFormat df = new SimpleDateFormat("EEEE, d MMMM yyyy, hh:mma z", Locale.UK);
-					if(users.hasUser(m.getSender()) && users.getUser(m.getSender()).getTimeZoneString() != "")
-						df.setTimeZone(TimeZone.getTimeZone(users.getUser(m.getSender()).getTimeZoneString()));
+					if(Users.hasUser(m.getSender()) && Users.getUser(m.getSender()).getTimeZoneString() != "")
+						df.setTimeZone(TimeZone.getTimeZone(Users.getUser(m.getSender()).getTimeZoneString()));
 					else {
 						df.setTimeZone(TimeZone.getTimeZone("Zulu"));
 						// nag the user if they haven't got their time zone set
@@ -345,7 +346,7 @@ public class Users extends Module {
 
 	private void recordSighting(Message m) {
 		if (! m.isPrivate()) {
-			users.getOrCreateUser(m.getSender()).setLastMessage(m);
+			Users.getOrCreateUser(m.getSender()).setLastMessage(m);
 		}
 	}
 
