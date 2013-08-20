@@ -454,7 +454,7 @@ class TwitterModule extends Module {
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
-        m.reply("Those lackies at twitter have failed us. I was unable to follow that user as a result. Error: " + ex.getMessage)
+        m.reply("Those lackeys at twitter have failed us. I was unable to follow that user as a result. Error: " + ex.getMessage)
     }
   }
 
@@ -471,7 +471,7 @@ class TwitterModule extends Module {
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
-        m.reply("Those lackies at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
+        m.reply("Those lackeys at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
     }
   }
 
