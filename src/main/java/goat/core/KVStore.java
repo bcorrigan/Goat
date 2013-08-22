@@ -138,7 +138,7 @@ public class KVStore<T> implements Map<String, T> {
 	}
 	
 	public KVStore<T> subStore(String subNs) {
-	    return new KVStore<T>(ns+"."+subNs);
+	    return new KVStore<T>(ns+subNs+".");
 	}
 	
 	public void save(String key, T value) {
@@ -347,7 +347,12 @@ public class KVStore<T> implements Map<String, T> {
 
 	@Override
 	public Set<String> keySet() {
-		return mapSlice.keySet();
+		Set<String> keySet = mapSlice.keySet();
+		Set<String> trimmedKeys = new HashSet<String>(keySet.size());
+		for(String key : keySet) {
+		    trimmedKeys.add(key.replaceFirst(ns, ""));
+		}
+		return trimmedKeys;
 	}
 
 	@Override

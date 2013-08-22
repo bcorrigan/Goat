@@ -74,16 +74,34 @@ public class Users {
     
     //when we have JDK8 with lambdas replace this with soemthing generic!
     public static List<User> getActiveUsersFollowing(String screenName, long duration) {
+        String sn = screenName.toLowerCase();
         List<User> users = getActiveUsers(duration);
         List<User> followingUsers = new ArrayList<User>(5);
         for(User user : users) 
-            for(String following : user.getFollowing()) 
-                if(screenName.equals(following)) {
+            for(String following : user.getFollowing()) {
+                if(sn.equals(following)) {
                     followingUsers.add(user);
                     break;
                 }
+            }
         
         return followingUsers;
+    }
+    
+    public static List<User> getAllUsersFollowing(String screenName) {
+        String sn = screenName.toLowerCase();
+        //hmn this could potentially get quite large, oh well!
+        List<User> following = new ArrayList<User>();
+        if(nmStore.has("names")) {
+            String[] names = nmStore.get("names");
+            for(String name : names) {
+                //userstore.bc.screenName.bbcnews
+                if(strStore.has(name+"."+User.SCREENNAME+"."+sn.toLowerCase())) {
+                    following.add(new User(name));
+                }
+            }
+        }
+        return following;
     }
     
     public static Set<String> channels(List<User> users) {

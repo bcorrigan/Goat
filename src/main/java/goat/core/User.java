@@ -36,6 +36,7 @@ public class User {
     public static final String LASTMESSAGE="lastMessage";
     public static final String LASTMESSAGETIMESTAMPS="lastMessageTimestamps";
     public static final String LOCALE="locale";
+    public static final String TWEETBUDGET="tweetBudget"; 
     
     KVStore<String> strStore;
     KVStore<Object> objStore;
@@ -62,6 +63,8 @@ public class User {
 		    setLongitude(-4.250132); //George square, glasgow
 		    setLatitude(55.861221);
 		    setWoeId(21125); //also glasgow
+		    //max of 10 tweets per hour default
+		    setTweetBudget(10);
 		}
 	}
 
@@ -219,6 +222,14 @@ public class User {
 	    objStore.save(WOEID, woeId);
 	}
 	
+    public int getTweetBudget() {
+        return (int) objStore.get(TWEETBUDGET);
+    }
+    
+    public void setTweetBudget(int budget) {
+        objStore.save(TWEETBUDGET, budget);
+    }
+	
 	public boolean has(String property) {
 	    return objStore.has(property);
 	}
@@ -228,7 +239,6 @@ public class User {
 	    KVStore<Object> following = objStore.subStore(SCREENNAME);
 	    List<String> followList = new ArrayList<String>(following.size());
 	    for(String screenName : following.keySet()) {
-	        System.out.println("screenName:"+screenName);
 	        if((Boolean) following.get(screenName)) 
 	            followList.add(screenName);
 	    }
@@ -237,14 +247,20 @@ public class User {
 	
 	//zap a particular screenname as being followed by this user
 	public void rmFollowing(String screenName) {
-	    if(objStore.has(SCREENNAME+"."+screenName)) {
-	        objStore.remove(SCREENNAME+"."+screenName);
+	    String sn = screenName.toLowerCase();
+	    if(objStore.has(SCREENNAME+"."+sn)) {
+	        objStore.remove(SCREENNAME+"."+sn);
 	        objStore.save();
 	    }
 	}
 	
 	//add a screenname as being followed by this user
 	public void addFollowing(String screenName) {
-	    objStore.save(SCREENNAME+"."+screenName,true);
+	    String sn = screenName.toLowerCase();
+	    objStore.save(SCREENNAME+"."+sn,true);
+	}
+	
+	public boolean equals(User user) {
+	    return user.getName().equals(getName());
 	}
 }
