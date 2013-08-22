@@ -256,7 +256,7 @@ class Stats(Module):
         line_count = store.getOrElse(LINE_COUNT, 0)
 
         reply = "%s has a current purity score of %d, " % (target, score)
-        if best == 0:
+        if best == 0 and impure_count == 0:
             reply += "and has never had an impure thought."
         else:
             reply += "has a previous best of %d and is impure %.1f%% of the time." % (best, 100 * impure_count / float(line_count))
