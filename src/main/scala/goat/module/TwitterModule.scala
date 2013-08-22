@@ -25,14 +25,7 @@ import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
 
 /*
  * Lets have the vapid outpourings of the digerati in goat.
- * TODO make ids List not array and convert when sending and receiving it
- * TODO trends search would be nice
- * Consumer key: ZkKYRoR7lPZQBfFrxrpog
- * Consumer secret: lHbOOtBPi8JmIPOf3MAS0eXB2yUiPrUHnPtVkBWuG4
- * Access token: 57130163-b1BquTcyX6rHLOXwnGts9zfY9WymA99GQbIhH6VMg
- * Access token sekret: Ye9bo17hKMxyCb9IaGgv7RVnRY5qUxOaxjq5w6l0
- * useId: 57130163
- * Goat user is: goatbot/slashnet
+ *
  * @author Barry Corrigan
  */
 class TwitterModule extends Module {
