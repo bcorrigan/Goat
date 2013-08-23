@@ -181,7 +181,7 @@ class TwitterModule extends Module {
     try {
       //val parser = new CommandParser(m);
       //val query: Query = new Query(parser.remaining())
-      val user = Users.getOrCreateUser(m.getSender)
+      val user = Users.getOrCreateUser(m.getSender) 
       var woeId: Option[Int] = None
       var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
       if(isNear) {
@@ -691,7 +691,7 @@ class TwitterModule extends Module {
       tweetCountStore.get(status.getUser().getScreenName())
     } else ""
     
-    val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, 2*HOUR))
+    val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR))
     val userStr = users.foldLeft("") { (u1,u2) =>
       if(u1!="") {u1+","+u2.getName()} else u2.getName()
     }
@@ -757,7 +757,7 @@ class TwitterModule extends Module {
 
   private def isFollowed(status: Status): Boolean = {    
     if(followedIDs.contains(status.getUser.getId)) {
-      withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, 2*HOUR)).length>0
+      withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR)).length>0
     } else false;
   }
 
@@ -773,7 +773,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -796,10 +796,16 @@ class TwitterModule extends Module {
       case ("tweetchannel", false) =>
         m.reply("You can't tell me where to send my tweeters")
       case ("follow", _) =>
-        enableNotification(m, m.getModTrailing.trim())
+        m.reply("You mean twollow.")
       case ("unfollow", _) =>
-        disableNotification(m, m.getModTrailing.trim())
+        m.reply("You mean untwollow.")
       case ("rmfollow", true) =>
+        m.reply("You mean rmtwollow.")
+      case ("twollow", _) =>
+        enableNotification(m, m.getModTrailing.trim())
+      case ("untwollow", _) =>
+        disableNotification(m, m.getModTrailing.trim())
+      case ("rmtwollow", true) =>
         disableNotificationAll(m, m.getModTrailing.trim())
       case ("twudget", _) =>
         showBudget(m);
