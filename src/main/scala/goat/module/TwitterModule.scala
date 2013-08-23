@@ -443,7 +443,7 @@ class TwitterModule extends Module {
   private def trimTweetAccount(user:GoatUser) {
     tweetAccounts.put(user.getName(), tweetAccounts.get(user.getName())
                                 .getOrElse(List())
-                                .filter(_>(System.currentTimeMillis-HOUR)))
+                                .filter(_>(System.currentTimeMillis-(HOUR/2))))
   }
   
   private def tweetsInLastHour(user:GoatUser):Int = {
@@ -773,7 +773,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -810,6 +810,8 @@ class TwitterModule extends Module {
       case ("twudget", _) =>
         showBudget(m);
       case ("following", _) =>
+        m.reply("You mean twollowing.")
+      case ("twollowing", _) =>
         showFollowing(m);
       case ("rmfollow", false) =>
         m.reply("Er, don't be so presumptious. Use unfollow if you want to unfollow.")
