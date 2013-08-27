@@ -508,7 +508,7 @@ class TwitterModule extends Module {
     val usersFollowing = Users.getAllUsersFollowing(screenName)
       
     val user = Users.getUser(m.getSender().toLowerCase());
-    if(usersFollowing.length>0) {
+    if(usersFollowing.length>1) {
       m.reply(m.getSender+", I have unmarked you as following that user")
       user.rmFollowing(screenName);
     } else try {
