@@ -885,7 +885,7 @@ class TwitterModule extends Module {
     }
 
     def onStatus(status: Status) {
-      if (isMention(status) || isFollowed(status)) {
+      if (isMention(status) || (isFollowed(status) && !status.isRetweet())) {
         sendStatusToChan(status, chan);
         println("****GOOD: " + status.getUser().getScreenName() + ": " + status.getText)
       } else println("JUNK: " + status.getUser().getScreenName() + ": " + status.getText)
