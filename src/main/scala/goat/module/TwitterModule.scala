@@ -525,7 +525,7 @@ class TwitterModule extends Module {
   }
   
   //unfollows given account for ALL users
-  private def disableNotificationAll(m: Message, userStr: String) {
+  private def disableNotificationAllUsers(m: Message, userStr: String) {
     val screenName = userStr.replaceAll("@","")
     val usersFollowing = Users.getAllUsersFollowing(screenName)
     usersFollowing.foreach(_.rmFollowing(screenName))
@@ -548,15 +548,32 @@ class TwitterModule extends Module {
   }
   
   //unfollows all accounts a user is following
-  private def disableNotificationAll(m: Message, user: GoatUser) {
-    val unfollowed = user.getFollowing() map { screenName =>
-      user.rmFollowing(screenName)
+  private def disableNotificationAll(chan:String, userToRm: GoatUser, scold:String) {
+    val unfollowed = userToRm.getFollowing() map { screenName =>
+      userToRm.rmFollowing(screenName)
       if(Users.getAllUsersFollowing(screenName).length==0) {
         twitter.destroyFriendship(screenName)
         Left(screenName)
       } else Right(screenName)
     }
-    m.reply("Unfollowed from twitter:" + delimit(unfollowed.filter(_.isLeft).map(_.left)))
+    
+    Message.createPrivmsg(chan, scold +
+        (if(unfollowed.exists(_.isLeft)) {
+          "Unfollowed from twitter: " + delimit(unfollowed.filter(_.isLeft).map(_.left.get))
+        } else "None to unfollow on twitter.")
+        +
+        (if(unfollowed.exists(_.isRight)) {
+          " Marked as unfollowing: " + delimit(unfollowed.filter(_.isRight).map(_.right.get))
+        } else " None to mark unfollowing.")
+    ).send()
+  }
+  
+  private def disableNotificationAll(m:Message, userToRm: String, scold:String="") {
+    if(Users.hasUser(userToRm)) {
+      disableNotificationAll(m.getChanname, Users.getUser(userToRm), scold)
+    } else {
+      m.reply(m.getSender+", who?")
+    }
   }
 
   private def tweetMessage(m: Message, message: String): Boolean = {
@@ -705,10 +722,19 @@ class TwitterModule extends Module {
     val userStr = users.foldLeft("") { (u1,u2) =>
       if(u1!="") {u1+","+u2.getName()} else u2.getName()
     }
-      
-    Message.createPrivmsg(chan, REVERSE + RED + "*** " + countStr + " " + userStr + NORMAL + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
     
-    users.foreach(user => addToTweetAccount(user))
+    //bit of a quick fix, should really collate based on last seen chans
+    val sendchan = if(users.length==1) users.head.getLastChannel() else chan
+    
+    Message.createPrivmsg(sendchan, REVERSE + RED + "*** " + countStr + " " + userStr + NORMAL + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
+    
+    users foreach { user => 
+      addToTweetAccount(user)
+      if(tweetsInLastHour(user)>=user.getTweetBudget()) {
+        //lets lay down some harsh punishment!
+        disableNotificationAll(sendchan, user, user.getName() + ", you've blown your twudget! Mend your spammy ways. ")
+      }
+    }
   }
     
   private def sanitiseAndScold(m: Message): Boolean =
@@ -812,7 +838,7 @@ class TwitterModule extends Module {
       case ("rmfollow", true) =>
         m.reply("You mean rmtwollow.")
       case ("tweradicate", true) =>
-        disableNotificationAll(m, Users.getUser(m.getSender))
+        disableNotificationAll(m, m.getModTrailing.trim())
       case ("tweradicate", false) =>
         m.reply("I'm afraid you have to put up with that git until you find my owner.")
       case ("twollow", _) =>
@@ -820,7 +846,7 @@ class TwitterModule extends Module {
       case ("untwollow", _) =>
         disableNotification(m, m.getModTrailing.trim())
       case ("rmtwollow", true) =>
-        disableNotificationAll(m, m.getModTrailing.trim())
+        disableNotificationAllUsers(m, m.getModTrailing.trim())
       case ("twudget", _) =>
         showBudget(m);
       case ("following", _) =>
