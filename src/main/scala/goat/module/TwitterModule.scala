@@ -468,9 +468,7 @@ class TwitterModule extends Module {
     val following = Users.getUser(m.getSender).getFollowing()
     if(following.length>0)
       m.reply(m.getSender + ", you're following " +
-        Users.getUser(m.getSender).getFollowing().foldLeft("") { (s1,s2) =>
-          if(s1!="") {s1+","+s2} else s2
-        }
+        delimit(Users.getUser(m.getSender).getFollowing())
       )
     else
       m.reply(m.getSender + ", you're not following anybody. Show some curiosity in the world around you, FFS. And stop looking down on twitter.")
@@ -526,7 +524,7 @@ class TwitterModule extends Module {
     }
   }
   
-  //unfollows for ALL users
+  //unfollows given account for ALL users
   private def disableNotificationAll(m: Message, userStr: String) {
     val screenName = userStr.replaceAll("@","")
     val usersFollowing = Users.getAllUsersFollowing(screenName)
@@ -547,6 +545,18 @@ class TwitterModule extends Module {
           ex.printStackTrace()
           m.reply("Those lackeys at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
     }
+  }
+  
+  //unfollows all accounts a user is following
+  private def disableNotificationAll(m: Message, user: GoatUser) {
+    val unfollowed = user.getFollowing() map { screenName =>
+      user.rmFollowing(screenName)
+      if(Users.getAllUsersFollowing(screenName).length==0) {
+        twitter.destroyFriendship(screenName)
+        Left(screenName)
+      } else Right(screenName)
+    }
+    m.reply("Unfollowed from twitter:" + delimit(unfollowed.filter(_.isLeft).map(_.left)))
   }
 
   private def tweetMessage(m: Message, message: String): Boolean = {
@@ -773,7 +783,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -801,6 +811,10 @@ class TwitterModule extends Module {
         m.reply("You mean untwollow.")
       case ("rmfollow", true) =>
         m.reply("You mean rmtwollow.")
+      case ("tweradicate", true) =>
+        disableNotificationAll(m, Users.getUser(m.getSender))
+      case ("tweradicate", false) =>
+        m.reply("I'm afraid you have to put up with that git until you find my owner.")
       case ("twollow", _) =>
         enableNotification(m, m.getModTrailing.trim())
       case ("untwollow", _) =>
@@ -813,8 +827,8 @@ class TwitterModule extends Module {
         m.reply("You mean twollowing.")
       case ("twollowing", _) =>
         showFollowing(m);
-      case ("rmfollow", false) =>
-        m.reply("Er, don't be so presumptious. Use unfollow if you want to unfollow.")
+      case ("rmtwollow", false) =>
+        m.reply("Er, don't be so presumptious. Use untwollow if you want to unfollow.")
       case ("tweetsearch" | "twitsearch" | "twittersearch" | "inanity" | "t", _) =>
         if (sanitiseAndScold(m))
           if (!popTweetToChannel(m, m.getModTrailing.trim().toLowerCase)) {
@@ -874,6 +888,13 @@ class TwitterModule extends Module {
       tweetMessage(m, m.getTrailing)
       lastOutgoingTweetTime = now
     }
+  }
+  
+  //TODO move to some scana StringUtil lib
+  private def delimit(strs:Iterable[String],delimiter:String=","):String = {
+    strs.foldLeft("") { (s1,s2) =>
+          if(s1!="") {s1+delimiter+s2} else s2
+        }
   }
   
   case class Trends(prefix:String, trends:String);
