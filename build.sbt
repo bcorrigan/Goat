@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
   "commons-lang" % "commons-lang" % "2.+",
   "org.apache.lucene" % "lucene-core" % "2.+",
   "org.python" % "jython-standalone" % "2.5.+", // picks up 2.5 betas, but not 2.7
-  "org.mapdb" % "mapdb" % "0.9.1"
+  "org.mapdb" % "mapdb" % "0.9.5"
 )
 
 // normal libs, use version latest.integration
