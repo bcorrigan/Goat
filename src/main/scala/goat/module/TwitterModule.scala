@@ -458,10 +458,30 @@ class TwitterModule extends Module {
   }
   
   private def showBudget(m:Message) {
-    val user = Users.getUser(m.getSender());
-    if(tweetsInLastHour(user)<user.getTweetBudget())
-      m.reply(m.getSender() + ", you have currently used " + tweetsInLastHour(user) + " out of your budget of " + user.getTweetBudget() + " tweets.")
-    else m.reply(m.getSender() + ", you've maxed out your budget of " + user.getTweetBudget() + ". You should probably follow some less spammy accounts, or cry to someone about how you need more twudget.")
+    val parser = new CommandParser(m);
+    val userStr=if(parser.hasVar("user")) {
+      parser.get("user");
+    } else {
+      m.getSender()
+    }
+    val directlyAddressed=m.getSender==userStr
+    
+    if(Users.hasUser(userStr)) {
+      val user = Users.getUser(m.getSender());
+      if(tweetsInLastHour(user)<user.getTweetBudget()) {
+        if(directlyAddressed)
+          m.reply(m.getSender() + ", you have currently used " + tweetsInLastHour(user) + " out of your budget of " + user.getTweetBudget() + " tweets.")
+        else 
+          m.reply(m.getSender() + ", " + userStr + " has currently used " + tweetsInLastHour(user) + " out of their budget of " + user.getTweetBudget() + " tweets.")
+      } else {
+        if(directlyAddressed)
+          m.reply(m.getSender() + ", you've maxed out your budget of " + user.getTweetBudget() + ". You should probably follow some less spammy accounts, or cry to someone about how you need more twudget.")
+        else
+          m.reply(m.getSender() + ", " + userStr + " maxed out their twudget of " + user.getTweetBudget() + ". What a spammer, eh? Don't worry, they have been harshly dealt with.")
+      }
+    } else {
+      m.reply(m.getSender() + ", I don't know of that person.")
+    }
   }
   
   private def showFollowing(m:Message) {
