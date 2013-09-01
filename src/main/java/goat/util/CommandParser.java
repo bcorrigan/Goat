@@ -97,7 +97,6 @@ public class CommandParser {
      */
     public void merge(CommandParser otherParser) {
         remaining=remaining+" "+otherParser.remaining + " " + otherParser.command;
-        System.out.println("New remaining:" + remaining);
         for(String otherVar : otherParser.vars.keySet()) {
             if(!vars.containsKey(otherVar)) {
                 vars.put(otherVar,otherParser.vars.get(otherVar));
