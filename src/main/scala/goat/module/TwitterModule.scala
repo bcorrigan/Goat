@@ -62,6 +62,8 @@ class TwitterModule extends Module {
   
   private val tweetCountStore:KVStore[Integer] = getModuleStore("tweetCount")
 
+  private val searchStore:KVStore[String] = getModuleStore("savedSearch")
+  
   val cb = new ConfigurationBuilder();
 
   cb.setDebugEnabled(true)
@@ -228,6 +230,21 @@ class TwitterModule extends Module {
   private def queryTwitter(m: Message, queryString: String) {
     try {
       val parser = new CommandParser(m);
+      val searchArg = if(parser.hasVar("search"))
+          Some(parser.get("search"))
+        else if(parser.hasVar("s"))
+          Some(parser.get("s"))
+        else None
+      if(searchArg.isDefined) {
+        if(searchStore.has(searchArg.get)) {
+          val search = searchStore.get(searchArg.get)
+          val searchParser = new CommandParser(search)
+          parser.merge(searchParser);
+        } else {
+          m.reply(m.getSender() + ", I know of no such saved search.")
+          return
+        }
+      }
       val query: Query = new Query(parser.remaining())
       val user = Users.getOrCreateUser(m.getSender)
       if (parser.hasVar("radius") || parser.hasVar("location")) {
@@ -763,6 +780,70 @@ class TwitterModule extends Module {
       false
     } else true
 
+  private def saveSearch(m:Message) = {
+    val parser = new CommandParser(m);
+    if(parser.hasVar("name")) {
+      val name = parser.get("name").toLowerCase()
+      if(name.matches(".*\\p{javaWhitespace}.*")) {
+        m.reply(m.getSender() + ", please use a name without a space.")
+      } else {
+        val search=m.getModTrailing().replaceFirst("name="+name,"").replaceFirst("name=\""+name+"\"","")
+        searchStore.save(name,search)
+        m.reply(m.getSender()+", saved a new search called " + name.toLowerCase() + ".")
+      }
+    } else {
+      m.reply(m.getSender + ", you need to supply a name argument - such as name=dongress - and the search will be saved with that name")
+    }
+  }
+  
+  private def rmSearch(m:Message) = {
+    val parser = new CommandParser(m);
+    if(parser.hasVar("name")) {
+      val name = parser.get("name").toLowerCase()
+      if(name.matches(".*\\p{javaWhitespace}.*")) {
+        m.reply(m.getSender() + ", please use a name without a space.")
+      } else {
+        searchStore.remove(name)
+        m.reply(m.getSender()+", deleted the search called " + name + ".")
+      }
+    } else {
+      m.reply(m.getSender + ", you need to supply a name argument - such as name=dongress - and the matching search will be deleted.")
+    }
+  }
+  
+  private def searchSearch(m:Message) = {
+    val parser = new CommandParser(m);
+    val name = if(parser.hasVar("name")) {
+      ".*"+parser.get("name").toLowerCase()+".*"
+    } else if(parser.remaining().trim().length>0) {
+      ".*"+parser.remaining().toLowerCase().trim()+".*"
+    } else {
+      ".*"
+    }
+    if(name.matches(".*\\p{javaWhitespace}.*")) {
+      m.reply(m.getSender() + ", please use a name without a space.")
+    } else {
+      if(searchStore.exists(_._1.matches(name))) {
+        m.reply(m.getSender+", found searches: " + delimit(searchStore.filter(_._1.matches(name)).keys.map(_.replaceFirst(".*savedSearch.","") )) + " - use viewsearch [search] to view.")
+      } else {
+        m.reply(m.getSender + ", found no matching searches.")
+      }
+    }
+  }
+  
+  private def viewSearch(m:Message) = {
+    val parser = new CommandParser(m)
+    val name = if(parser.hasVar("name")) {
+      parser.get("name").toLowerCase()
+    } else parser.remaining().toLowerCase()
+    
+    if(searchStore.has(name)) {
+      m.reply(m.getSender() + ", " + name + " is search: " + searchStore.get(name))
+    } else {
+      m.reply(m.getSender + ", found no matching searches.")
+    }
+  }
+    
   private def tweetpurge(m: Message) =
     m.reply(m.getSender + ": Purged " + purge(0) + " tweets from cache.")
 
@@ -828,7 +909,7 @@ class TwitterModule extends Module {
 
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
-        "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge",
+        "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "savesearch", "searchsearch","rmsearch","viewsearch",
         "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate")
   }
 
@@ -839,6 +920,14 @@ class TwitterModule extends Module {
   override def processChannelMessage(m: Message) {
     manageCache()
     (m.getModCommand.toLowerCase, m.isAuthorised) match {
+      case ("savesearch",_) =>
+        saveSearch(m);
+      case ("rmsearch", _) =>
+        rmSearch(m);
+      case ("searchsearch", _) =>
+        searchSearch(m)
+      case ("viewsearch", _) =>
+        viewSearch(m)
       case ("tweet", true) =>
         tweetMessage(m, m.getModTrailing)
         m.reply("Most beneficant Master " + m.getSender + ", I have tweeted your wise words.")

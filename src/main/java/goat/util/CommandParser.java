@@ -25,7 +25,7 @@ public class CommandParser {
 
     private HashMap<String,String> vars = new HashMap<String,String>();
     private String command = "" ;
-    private String remaining = "" ; 
+    private String remaining = "" ;
     private ArrayList<String> remainingAsArrayList = new ArrayList<String>() ;
 	
     /**
@@ -50,7 +50,7 @@ public class CommandParser {
         String commandRegex = "[^\\\"\\p{javaWhitespace}]*?=[^\\\"\\p{javaWhitespace}]+|[^\\\"\\p{javaWhitespace}]+?=\\\"([^\\\"]+?)\\\"|^[^\\\"\\p{javaWhitespace}]+";
         Pattern commandRE = Pattern.compile(commandRegex);
         Matcher m = commandRE.matcher(text);
-
+        
         int last=0;
         String[] buf = {};
         if(command.equals("") & m.find()) { //we do not want to short circuit! that causes a bug
@@ -89,6 +89,21 @@ public class CommandParser {
         if(!remaining.equals(""))
             Collections.addAll(remainingAsArrayList, remaining.split("\\s+"));
     }
+    
+    /**
+     * Merges another goat query into this one.
+     * Any args in this parser are not overwritten by args in the other parser 
+     * @param otherParser
+     */
+    public void merge(CommandParser otherParser) {
+        remaining=remaining+" "+otherParser.remaining + " " + otherParser.command;
+        System.out.println("New remaining:" + remaining);
+        for(String otherVar : otherParser.vars.keySet()) {
+            if(!vars.containsKey(otherVar)) {
+                vars.put(otherVar,otherParser.vars.get(otherVar));
+            }
+        }
+    }
 	
     /**
      * Command getter
@@ -107,7 +122,8 @@ public class CommandParser {
     public String remaining() {
         return remaining ;
     }
-	
+    
+    	
     /**
      * "films search num=20 poopy poop" 
      * 
