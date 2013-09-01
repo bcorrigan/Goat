@@ -8,6 +8,7 @@ import goat.core.KVStore
 import java.io.IOException;
 
 import scala.collection.JavaConverters._;
+import scala.collection.TraversableOnce
 
 class DbUtils extends Module {
 
@@ -103,7 +104,11 @@ class DbUtils extends Module {
     val key = parser.get("key")
     if(store.has(key)) {
       val value = store.get(key)
-      m.reply(m.getSender+": " + key + "=>" + value)
+      val valueStr = if(value.isInstanceOf[Array[Any]]) {
+        value.asInstanceOf[Array[Any]].deep.mkString(",")
+      } else value.toString()
+      
+      m.reply(m.getSender+": " + key + "=>" + value.getClass().getName() + ": " + valueStr )
     } else {
       m.reply(m.getSender+": dinnae ken yon key :(")
     }

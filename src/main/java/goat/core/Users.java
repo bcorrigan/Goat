@@ -15,6 +15,7 @@ public class Users {
     
     static KVStore<String> strStore = new KVStore<String>("userstore.");
     static KVStore<String[]> nmStore = new KVStore<String[]>("userstore.");
+    static Set<String> userNames = new HashSet<String>();
     
     public static boolean hasUser(String name) {
         return strStore.has(name.toLowerCase()+".name");
@@ -34,9 +35,9 @@ public class Users {
     
     public static List<User> getAllUsers() {
         if(nmStore.has("names")) {
-            String[] names = nmStore.get("names");
-            List<User> users = new ArrayList<User>(names.length);
-            for(String nm : names) {
+            //String[] names = nmStore.get("names");
+            List<User> users = new ArrayList<User>(userNames.size());
+            for(String nm : userNames) {
                 User user = getUser(nm);
                 users.add(user);
             }
@@ -93,8 +94,8 @@ public class Users {
         //hmn this could potentially get quite large, oh well!
         List<User> following = new ArrayList<User>();
         if(nmStore.has("names")) {
-            String[] names = nmStore.get("names");
-            for(String name : names) {
+            //String[] names = nmStore.get("names");
+            for(String name : userNames) {
                 //userstore.bc.screenName.bbcnews
                 if(strStore.has(name+"."+User.SCREENNAME+"."+sn.toLowerCase())) {
                     following.add(new User(name));
@@ -116,12 +117,19 @@ public class Users {
     
     
     //note all user names as an array within one property for easy lookup without scanning
-    private static void noteName(String uname) {
+    private synchronized static void noteName(String uname) {
+        //this nmStore thing was such a shitty idea, need to work out how mapdb does secondary keys, cos it does.
         if(nmStore.has("names")) {
             String[] oldNames = nmStore.get("names");
-            String[] newNames = Arrays.copyOf(oldNames,oldNames.length+1);
-            newNames[oldNames.length]=uname;
-            nmStore.save("names", newNames);
+            
+            for(String user: oldNames) {
+                if(user!=null) {
+                    userNames.add(user);
+                }
+            }
+            
+            userNames.add(uname);
+            nmStore.save("names", userNames.toArray(new String[1]));
         } else {
             nmStore.save("names", new String[]{uname});
         }
