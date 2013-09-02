@@ -79,7 +79,7 @@ public class Wunderground {
             connection.setReadTimeout(7000);  // 3 seconds.
             connection.connect();
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                return new JSONObject("{\"error\":\"Weather Underground gave me a " + connection.getResponseCode() + " :(\"}");
+                return new JSONObject(jsonError(Integer.toString(connection.getResponseCode()), "HTTP Error"));
             }
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String inputLine = "" ;
@@ -87,10 +87,10 @@ public class Wunderground {
                 response += inputLine;
 
         } catch  (SocketTimeoutException e) {
-            response = "{\"error\":\"I got bored waiting for Weather Underground.\"}" ;
+            response = jsonError("timeout", "I got bored waiting for Weather Underground.");
         } catch (IOException e) {
             e.printStackTrace();
-            response = "{\"error\":\"I had an I/O problem when trying to talk to Weather Underground :(\"}";
+            response = jsonError("I/O", "Weather Underground connection failure");
         } finally {
             if(connection!=null) connection.disconnect();
             try {
@@ -101,5 +101,10 @@ public class Wunderground {
             }
         }
         return new JSONObject(response);
+    }
+
+    private String jsonError(String type, String description) {
+        return "{\"response\":{\"error\":{\"type\":\"" +
+            type + "\",\"description\":\"" + description + "\"}}}";
     }
 }

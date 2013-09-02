@@ -179,9 +179,15 @@ class Wunderground extends Module {
     json.getString("temp_c") + "/" + json.getString("temp_f") +
       "F" + conditions + windString(json) + " " + humidity +
       "  Reported " + minutes_ago + " minutes ago at " +
-      json.getString("station_id") + " (" +
+      stationIdString(json) + " (" +
       json.getJSONObject("observation_location").getString("full") + ")"
   }
+
+  def stationIdString(json: JSONObject) =
+    if(json.getString("station_id").matches("\\b[A-Z]{8}\\d+\\b"))
+      "pws:" + json.getString("station_id")
+    else
+      json.getString("station_id")
 
   def windString(json: JSONObject): String = {
     val dir = json.getString("wind_dir")
@@ -206,7 +212,7 @@ class Wunderground extends Module {
     else if (response.has("error")) {
       val error = response.getJSONObject("error")
       if(error.getString("type").equals("querynotfound"))
-        "I couldn't find a forecast for \"" + query + "\""
+        "I couldn't find anything for \"" + query + "\""
       else
         "Wunderground had a problem.  type: " + error.getString("type") + ".  description: " + error.getString("description")
     } else {
@@ -223,7 +229,8 @@ class Wunderground extends Module {
                   ", " + json.getString("state")
                 else
                   ""
-    json.getString("city") + state + " " + json.getString("country")
+    json.getString("city") + state + " " + json.getString("country") + " (zmw:" +
+      json.getString("zmw") + ")"
   }
 
 
