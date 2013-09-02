@@ -16,7 +16,7 @@ class Wunderground extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] =
-    Array("forecast", "hourlyforecast", "hforcast")
+    Array("forecast", "hourlyforecast", "hforecast", "amateurweather", "aweather")
 
   def processPrivateMessage(m: Message) =
     processChannelMessage(m)
@@ -26,6 +26,7 @@ class Wunderground extends Module {
       m.getModCommand.toLowerCase match {
         case "forecast" => m.reply(forecast(m, "forecast"))
         case "hourlyforecast" | "hforecast" => m.reply(forecast(m, "hourly"))
+        case "amateurweather" | "aweather" => m.reply(amateurWeather(m))
       }
     } catch {
       case je: JSONException =>
@@ -35,7 +36,7 @@ class Wunderground extends Module {
   val fetcher = new goat.util.Wunderground
 
   def forecast(m: Message, method: String): String = {
-    val query = getQuery(m)
+    val query = getQuery(m, false)
     if(query.equals(""))
        "I don't know where you want me to forecast"
     else {
@@ -55,22 +56,38 @@ class Wunderground extends Module {
     }
   }
 
-  def getQuery(m: Message): String = {
+  def amateurWeather(m: Message): String = {
+    val query = getQuery(m, true)
+    if(query.equals(""))
+       "I don't know where you want me to look for a hobbyist weather observation."
+    else {
+      val json = fetcher.apiCall("conditions", query)
+      if(json.has("current_observation"))
+        formatObservation(json.getJSONObject("current_observation"))
+      else if(json.has("response"))
+        formatOtherResponse(json.getJSONObject("response"), query)
+      else {
+        println(json.toString(2));
+        "I got a JSON from Wunderground, but didn't understand it at all."
+      }
+    }
+  }
+
+  def getQuery(m: Message, ignoreUserStation: Boolean): String = {
     val trailing = scrub(m.getModTrailing)
     if(trailing.equals(""))
-      getQueryFromUser(m.getSender)
+      getQueryFromUser(m.getSender, ignoreUserStation)
     else
       trailing
   }
 
-  def getQueryFromUser(name: String): String = {
+  def getQueryFromUser(name: String, ignoreUserStation: Boolean): String = {
     if(hasUser(name)) {
-      println("found user " + name)
       val user = getUser(name)
       val weatherStation = Option(user.getWeatherStation)
       weatherStation match {
         case Some(icao) =>
-          if(icao.equals("")) // annoyingly, this can be the case
+          if(ignoreUserStation || icao.equals(""))
             getUserLatLon(user)
           else
             icao.toUpperCase
@@ -145,6 +162,43 @@ class Wunderground extends Module {
 
   def isSnowCode(code: Integer): Boolean =
     List[Integer](9, 16, 18, 19, 20, 21, 24).contains(code)
+
+  def formatObservation(json: JSONObject) = {
+    val conditions =
+      if (json.getString("weather").equals(""))
+        " "
+      else
+        ", " + json.getString("weather").toLowerCase + ". "
+    val humidity =
+      if (json.getString("relative_humidity").equals(""))
+        ""
+      else
+        "Humidity " + json.getString("relative_humidity") + ". "
+    val minutes_ago =
+      (System.currentTimeMillis/1000L - json.getString("observation_epoch").toLong) / 60L
+    json.getString("temp_c") + "/" + json.getString("temp_f") +
+      "F" + conditions + windString(json) + " " + humidity +
+      "  Reported " + minutes_ago + " minutes ago at " +
+      json.getString("station_id") + " (" +
+      json.getJSONObject("observation_location").getString("full") + ")"
+  }
+
+  def windString(json: JSONObject): String = {
+    val dir = json.getString("wind_dir")
+    val mph = json.getString("wind_mph")
+    val gust_mph = json.getString("wind_gust_mph")
+    val gust =
+      if(gust_mph.equals("") || gust_mph.equals("0"))
+        ""
+      else
+        " gusting to " + gust_mph + "mph"
+    if(mph.equals("") || mph.equals("0"))
+      "No Wind."
+    else if (dir.equals(""))
+      "Wind " + mph + "mph" + gust + "."
+    else
+      "Wind " + dir + " " + mph + "mph" + "."
+  }
 
   def formatOtherResponse(response: JSONObject, query: String): String =
     if(response.has("results"))
