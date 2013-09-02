@@ -68,7 +68,10 @@ public class Wunderground {
             protocol = "http";
 
         try {
-            URL url = new URL(protocol + "://api.wunderground.com/api/" + apiKey() + "/" + method + "/q/" + java.net.URLEncoder.encode(query.trim()) + ".json");
+            String queryPart = "";
+            if (query != null && !query.equals(""))
+                queryPart = "/q/" + java.net.URLEncoder.encode(query.trim());
+            URL url = new URL(protocol + "://api.wunderground.com/api/" + apiKey() + "/" + method + queryPart + ".json");
             connection = (HttpURLConnection) url.openConnection();
 	    connection.setRequestProperty("User-Agent", "Goat IRC Bot v" +
 					  BotStats.getInstance().getVersion() +

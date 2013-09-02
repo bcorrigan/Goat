@@ -102,7 +102,9 @@ public class Constants {
     public static final String PUBLIC_ADDRESS_LOUDSPEAKER = new String(Character.toChars(128226));
     public static final String CHRISTMAS_TREE = new String(Character.toChars(127876));
     public static final String BROKEN_HEART = new String(Character.toChars(128148));
+
     public static final String CLOSED_UMBRELLA = new String(Character.toChars(127746));
+    public static final String CYCLONE = new String(Character.toChars(127744));
 
     // Error Replies.
 

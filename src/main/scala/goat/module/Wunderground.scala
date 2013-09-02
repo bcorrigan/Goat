@@ -12,11 +12,16 @@ import goat.core.Users.hasUser
 import goat.core.Users.getUser
 import goat.core.User
 
+import scala.math.round
+
 class Wunderground extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] =
-    Array("forecast", "hourlyforecast", "hforecast", "amateurweather", "aweather")
+    Array("forecast",
+          "hourlyforecast", "hforecast",
+          "amateurweather", "amweather",
+          "hurricaneporn", "hurrporn")
 
   def processPrivateMessage(m: Message) =
     processChannelMessage(m)
@@ -26,7 +31,8 @@ class Wunderground extends Module {
       m.getModCommand.toLowerCase match {
         case "forecast" => m.reply(forecast(m, "forecast"))
         case "hourlyforecast" | "hforecast" => m.reply(forecast(m, "hourly"))
-        case "amateurweather" | "aweather" => m.reply(amateurWeather(m))
+        case "amateurweather" | "amweather" => m.reply(amateurWeather(m))
+        case "hurricaneporn" | "hurrporn" => m.reply(hurricane(m))
       }
     } catch {
       case je: JSONException =>
@@ -70,6 +76,18 @@ class Wunderground extends Module {
         println(json.toString(2));
         "I got a JSON from Wunderground, but didn't understand it at all."
       }
+    }
+  }
+
+  def hurricane(m: Message): String = {
+    val json = fetcher.apiCall("currenthurricane/view", "")
+    if(json.has("currenthurricane"))
+      formatHurricanes(json.getJSONArray("currenthurricane"))
+    else if(json.has("response"))
+      formatOtherResponse(json.getJSONObject("response"), "hurricane porn")
+    else {
+      println(json.toString(2));
+      "I got a JSON from Wunderground, but didn't understand it at all."
     }
   }
 
@@ -173,11 +191,11 @@ class Wunderground extends Module {
       if (json.getString("relative_humidity").equals(""))
         ""
       else
-        "Humidity " + json.getString("relative_humidity") + ". "
+        "Humidity " + json.getString("relative_humidity") + "."
     val minutes_ago =
       (System.currentTimeMillis/1000L - json.getString("observation_epoch").toLong) / 60L
-    json.getString("temp_c") + "/" + json.getString("temp_f") +
-      "F" + conditions + windString(json) + " " + humidity +
+    json.getString("temp_f") + "F/" + json.getString("temp_c") +
+      "C" + conditions + windString(json) + " " + humidity +
       "  Reported " + minutes_ago + " minutes ago at " +
       stationIdString(json) + " (" +
       json.getJSONObject("observation_location").getString("full") + ")"
@@ -194,16 +212,48 @@ class Wunderground extends Module {
     val mph = json.getString("wind_mph")
     val gust_mph = json.getString("wind_gust_mph")
     val gust =
-      if(gust_mph.equals("") || gust_mph.equals("0"))
+      if(gust_mph.equals("") || gust_mph.equals("0") || gust_mph.equals("0.0"))
         ""
       else
-        " gusting to " + gust_mph + "mph"
-    if(mph.equals("") || mph.equals("0"))
+        " gusting to " + round(gust_mph.toFloat) + "mph"
+    if(mph.equals("") || mph.equals("0") || mph.equals("0.0"))
       "No Wind."
     else if (dir.equals(""))
-      "Wind " + mph + "mph" + gust + "."
+      "Wind " + round(mph.toFloat) + "mph" + gust + "."
     else
-      "Wind " + dir + " " + mph + "mph" + "."
+      "Wind " + dir + " " + round(mph.toFloat) + "mph" + "."
+  }
+
+  def formatHurricanes(json: JSONArray): String = {
+    val hurricanes: String = (0 until json.length).map(json.getJSONObject(_)).filter(isSeriousHurricane(_)).map(formatHurricane(_)).reduceLeft(_ + " " + hurrIcon + " " + _)
+    if(hurricanes.equals(""))
+      "No hurricanes."
+    else
+      hurrIcon + " " + hurricanes
+  }
+
+  val hurrIcon = CYAN + ",02" + CYCLONE + " " + NORMAL
+
+  //FIXME: this should look at forecasted strength, too
+  def isSeriousHurricane(json: JSONObject): Boolean =
+    json.getJSONObject("Current").getString("SaffirSimpsonCategory").toInt >= -2
+
+  def formatHurricane(json: JSONObject): String = {
+    val current = json.getJSONObject("Current")
+    val stormInfo = json.getJSONObject("stormInfo")
+    stormInfo.getString("stormName_Nice") + " (cat. " +
+      current.getString("SaffirSimpsonCategory") + ") " +
+      current.getString("lat") + ", " + current.getString("lon") + ".  " +
+      "Wind " + hurrWindString(current) + ". "
+  }
+
+  def hurrWindString(json: JSONObject): String = {
+    val sustained = json.getJSONObject("WindSpeed").getString("Kts")
+    val gustOpt = Option(json.getJSONObject("WindGust").getString("Kts"))
+    gustOpt match {
+      case Some(str) => sustained + "kt gusting to " + str
+      case None => sustained + "kt"
+    }
   }
 
   def formatOtherResponse(response: JSONObject, query: String): String =
