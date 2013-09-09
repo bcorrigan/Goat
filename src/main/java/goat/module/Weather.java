@@ -42,7 +42,7 @@ import java.io.Serializable;
 public class Weather extends Module {
 
     private static Users users;	//all the users of this weather module
-    private String codes_url = "http://aviationweather.gov/adds/metars/stations.txt" ;
+    private String codes_url = "http://aviationweather.gov/static/adds/metars/stations.txt";
     private WeatherStore wStore = new WeatherStore();
 
     public Weather() {
