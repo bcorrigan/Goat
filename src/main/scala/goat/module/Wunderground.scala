@@ -11,6 +11,7 @@ import goat.util.StringUtil.scrub
 import goat.core.Users.hasUser
 import goat.core.Users.getUser
 import goat.core.User
+import goat.util.CommandParser
 
 import scala.math.round
 
@@ -42,17 +43,21 @@ class Wunderground extends Module {
   val fetcher = new goat.util.Wunderground
 
   def forecast(m: Message, method: String): String = {
-    val query = getQuery(m, false)
+    val cp = new CommandParser(m)
+    val query = getQuery(cp, m.getSender, false)
+    val units = getUnits(cp, m.getSender)
     if(query.equals(""))
-       "I don't know where you want me to forecast"
+      "I don't know where you want me to forecast"
+    else if(units.equals("bogus"))
+      "Sorry, but \"" + cp.get("units") + "\" isn't real units."
     else {
       val json = fetcher.apiCall(method, query)
       if(json.has("forecast"))
         "for " + UNDERLINE + query + NORMAL + " " +
-        formatForecast(json.getJSONObject("forecast"))
+        formatForecast(json.getJSONObject("forecast"), units)
       else if(json.has("hourly_forecast"))
         "for " + UNDERLINE + query + NORMAL + ":  " +
-        formatHourlyForecast(json.getJSONArray("hourly_forecast"))
+        formatHourlyForecast(json.getJSONArray("hourly_forecast"), units, 3)
       else if(json.has("response"))
         formatOtherResponse(json.getJSONObject("response"), query)
       else {
@@ -63,7 +68,8 @@ class Wunderground extends Module {
   }
 
   def amateurWeather(m: Message): String = {
-    val query = getQuery(m, true)
+    val cp = new CommandParser(m)
+    val query = getQuery(cp, m.getSender, true)
     if(query.equals(""))
        "I don't know where you want me to look for a hobbyist weather observation."
     else {
@@ -91,29 +97,30 @@ class Wunderground extends Module {
     }
   }
 
-  def getQuery(m: Message, ignoreUserStation: Boolean): String = {
-    val trailing = scrub(m.getModTrailing)
-    if(trailing.equals(""))
-      getQueryFromUser(m.getSender, ignoreUserStation)
+  def getQuery(cp: CommandParser, user: String, ignoreUserStation: Boolean): String = {
+    val remaining = scrub(cp.remaining)
+    if(remaining.equals(""))
+      if(cp.hasVar("user") && hasUser(cp.get("user")))
+        getQueryFromUser(getUser(cp.get("user")), ignoreUserStation)
+      else if(hasUser(user))
+        getQueryFromUser(getUser(user), ignoreUserStation)
+      else
+        ""
     else
-      trailing
+      remaining
   }
 
-  def getQueryFromUser(name: String, ignoreUserStation: Boolean): String = {
-    if(hasUser(name)) {
-      val user = getUser(name)
-      val weatherStation = Option(user.getWeatherStation)
-      weatherStation match {
-        case Some(icao) =>
-          if(ignoreUserStation || icao.equals(""))
-            getUserLatLon(user)
-          else
-            icao.toUpperCase
-        case None =>
+  def getQueryFromUser(user: User, ignoreUserStation: Boolean): String = {
+    val weatherStation = Option(user.getWeatherStation)
+    weatherStation match {
+      case Some(icao) =>
+        if(ignoreUserStation || icao.equals(""))
           getUserLatLon(user)
-      }
-    } else
-      "" // user unknown
+        else
+          icao.toUpperCase
+      case None =>
+        getUserLatLon(user)
+    }
   }
 
   def getUserLatLon(user: User): String = {
@@ -129,23 +136,37 @@ class Wunderground extends Module {
     }
   }
 
-  def formatForecast(json: JSONObject): String = {
+  def getUnits(cp: CommandParser, user: String):String =
+    if(cp.hasVar("units"))
+      if(cp.get("units").toLowerCase.equals("english"))
+        "english"
+      else if(cp.get("units").toLowerCase.equals("metric"))
+        "metric"
+      else
+        "bogus"
+    else
+      "default"
+
+  def formatForecast(json: JSONObject, units: String): String = {
     val txt_forecast = json.getJSONObject("txt_forecast")
     val date = txt_forecast.getString("date")
     val forecastday = txt_forecast.getJSONArray("forecastday")
     val days = (0 until forecastday.length).map(forecastday.getJSONObject(_))
-    "(" + date + ")  " + days.map(formatDay(_)).reduceLeft(_ + BLUE + " \u2022 " + NORMAL + _)
+    days.map(formatDay(_, units)).foldLeft("(" + date + ") ")(_ + BLUE + " \u2022 " + NORMAL + _)
   }
 
-  def formatDay(day: JSONObject): String =
-    BOLD + day.getString("title") + NORMAL + " " + day.getString("fcttext_metric")
-
-  def formatHourlyForecast(json: JSONArray): String = {
-    val hours = (0 until json.length).map(json.getJSONObject(_))
-    hours.map(formatHour(_)).reduceLeft(_ + "  " + _)
+  def formatDay(day: JSONObject, units: String): String = {
+    val unitKey: String = if (units.equals("english")) "fcttext"
+                          else "fcttext_metric"
+    BOLD + day.getString("title") + NORMAL + " " + day.getString(unitKey)
   }
 
-  def formatHour(json: JSONObject): String = {
+  def formatHourlyForecast(json: JSONArray, units: String, interval: Int): String = {
+    val hours = (0 until json.length).map(json.getJSONObject(_)).filter(_.getJSONObject("FCTTIME").getString("hour").toInt % interval == 0)
+    hours.map(formatHour(_, units)).reduceLeft(_ + ", " + _)
+  }
+
+  def formatHour(json: JSONObject, units: String): String = {
     val fcttime = json.getJSONObject("FCTTIME")
     val hour = fcttime.getString("hour").toInt
     val day = if(hour == 0)
@@ -154,12 +175,19 @@ class Wunderground extends Module {
     val time = (hour % 12).toString.replaceAll("\\b0", "12") +
       fcttime.getString("ampm").toLowerCase
     val tempjson = json.getJSONObject("temp")
-    val temp = tempjson.getString("metric") + "/" +
-      tempjson.getString("english") + "F"
+    val temp =
+      if(units.equals("metric"))
+          tempjson.getString("metric") + "C"
+      else if(units.equals("english"))
+        tempjson.getString("english") + "F"
+      else
+        tempjson.getString("english") + "F/" + tempjson.getString("metric") + "C"
     val pop = json.getString("pop").toInt
     val fctcode = json.getString("fctcode").toInt
-    // Fixme: add qpf/snow if available
-    day + BOLD + time + NORMAL + " " +  temp + " " + rainChanceString(pop, fctcode)
+
+    List(codeIcon(fctcode), temp, windString(json, units), rainChanceString(pop, fctcode))
+      .filter(! _.equals(""))
+      .foldLeft(day + BOLD + time + NORMAL)(_ + " " + _)
   }
 
   def rainChanceString(pop: Integer, code: Integer): String =
@@ -167,16 +195,47 @@ class Wunderground extends Module {
       precipIcon(pop, code) + " " + pop + "% "
     else
       ""
+  def windString(json: JSONObject, units: String): String = {
+    val direction = json.getJSONObject("wdir").getString("dir").filter("NSEW".contains(_))
+    val speed =
+      if(units.equals("english"))
+        json.getJSONObject("wspd").getString("english") + "mph"
+      else
+        json.getJSONObject("wspd").getString("metric") + "kph"
+
+    if(speed.equals("") || json.getJSONObject("wspd").getString("english").toInt < 6)
+      ""
+    else if(direction.equals(""))
+      windIcon + speed
+    else
+      windIcon + direction + " " + speed
+  }
+
+  val windIcon = DASH_SYMBOL + " "
+
+  def codeIcon(code: Int): String =
+    code match {
+      case 1 => "\u000308,02" + BLACK_SUN_WITH_RAYS + " " + NORMAL
+      case 2 => "\u000300,02" + SUN_BEHIND_CLOUD + " " + NORMAL
+      case 3 => "\u000300,12" + SUN_BEHIND_CLOUD + " " + NORMAL
+      case 4 => "\u000300,14" + CLOUD + " " + NORMAL
+      case 5 => "\u000308,14" + WHITE_SUN_WITH_RAYS + " " + NORMAL
+      case 6 => "\u000314,15" + FOGGY + " " + NORMAL
+      case 7 => "\u000304,02" + BLACK_SUN_WITH_RAYS + " " + NORMAL
+      case 8 => "\u000311,12" + SNOWMAN_WITHOUT_SNOW + " " + NORMAL
+      case 14 | 15 => "\u000308,15" + THUNDER_CLOUD_AND_RAIN + " " + NORMAL
+      case _ => ""
+    }
 
   def precipIcon(pop: Integer, code: Integer) =
     if(isSnowCode(code))
-      WHITE + "\u2744" + NORMAL // snowflake
+      WHITE + SNOWFLAKE + NORMAL
     else if(pop < 25)
-      DARK_BLUE + CLOSED_UMBRELLA + NORMAL // closed umbrella
+      DARK_BLUE + CLOSED_UMBRELLA + NORMAL
     else if(pop < 50)
-      BLUE + "\u2602" + NORMAL // open umbrella
+      BLUE + UMBRELLA + NORMAL // open umbrella
     else
-      TEAL + "\u2614" + NORMAL // open umbrella with rain
+      TEAL + UMBRELLA_WITH_RAIN_DROPS + NORMAL // open umbrella with rain
 
   def isSnowCode(code: Integer): Boolean =
     List[Integer](9, 16, 18, 19, 20, 21, 24).contains(code)
@@ -225,7 +284,7 @@ class Wunderground extends Module {
   }
 
   def formatHurricanes(json: JSONArray): String = {
-    val hurricanes: String = (0 until json.length).map(json.getJSONObject(_)).filter(isSeriousHurricane(_)).map(formatHurricane(_)).reduceLeft(_ + " " + hurrIcon + " " + _)
+    val hurricanes: String = (0 until json.length).map(json.getJSONObject(_)).filter(isSeriousHurricane(_)).map(formatHurricane(_)).foldLeft("")(_ + " " + hurrIcon + " " + _)
     if(hurricanes.equals(""))
       "No hurricanes."
     else
@@ -272,7 +331,7 @@ class Wunderground extends Module {
     }
 
   def formatSearchResults(json: JSONArray): String =
-    (0 until json.length).map(json.getJSONObject(_)).map(formatSearchResult(_)).reduceLeft(_ + " \u2022 " + _)
+    (0 until json.length).map(json.getJSONObject(_)).map(formatSearchResult(_)).foldLeft("")(_ + " \u2022 " + _)
 
   def formatSearchResult(json: JSONObject): String = {
     val state = if(! json.getString("state").equals(""))
