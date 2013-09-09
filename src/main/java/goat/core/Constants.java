@@ -121,6 +121,16 @@ public class Constants {
     public static final String FOGGY = new String(Character.toChars(127745));
     public static final String DASH_SYMBOL = new String(Character.toChars(128168));
 
+    // Emoonji
+    public static final String NEW_MOON_SYMBOL = new String(Character.toChars(127761));
+    public static final String WAXING_CRESCENT_MOON_SYMBOL = new String(Character.toChars(127762));
+    public static final String FIRST_QUARTER_MOON_SYMBOL = new String(Character.toChars(127763));
+    public static final String WAXING_GIBBOUS_MOON_SYMBOL = new String(Character.toChars(127764));
+    public static final String FULL_MOON_SYMBOL = new String(Character.toChars(127765));
+    public static final String WANING_GIBBOUS_MOON_SYMBOL = new String(Character.toChars(127766));
+    public static final String LAST_QUARTER_MOON_SYMBOL = new String(Character.toChars(127767));
+    public static final String WANING_CRESCENT_MOON_SYMBOL = new String(Character.toChars(127768));
+
     // Error Replies.
 
     public static final int ERR_NOSUCHNICK = 401;

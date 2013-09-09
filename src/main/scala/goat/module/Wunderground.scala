@@ -31,7 +31,7 @@ class Wunderground extends Module {
     try {
       m.getModCommand.toLowerCase match {
         case "forecast" => m.reply(forecast(m, "forecast"))
-        case "hourlyforecast" | "hforecast" => m.reply(forecast(m, "hourly"))
+        case "hourlyforecast" | "hforecast" => m.reply(forecast(m, "hourly/astronomy"))
         case "amateurweather" | "amweather" => m.reply(amateurWeather(m))
         case "hurricaneporn" | "hurrporn" => m.reply(hurricane(m))
       }
@@ -55,9 +55,10 @@ class Wunderground extends Module {
       if(json.has("forecast"))
         "for " + UNDERLINE + query + NORMAL + " " +
         formatForecast(json.getJSONObject("forecast"), units)
-      else if(json.has("hourly_forecast"))
+      else if(json.has("hourly_forecast")) {
         "for " + UNDERLINE + query + NORMAL + ":  " +
-        formatHourlyForecast(json.getJSONArray("hourly_forecast"), units, 3)
+        formatHourlyForecast(json, units, getInterval(cp,3))
+      }
       else if(json.has("response"))
         formatOtherResponse(json.getJSONObject("response"), query)
       else {
@@ -147,6 +148,20 @@ class Wunderground extends Module {
     else
       "default"
 
+  def getInterval(cp: CommandParser, default: Int): Int = {
+    val ret: Int =
+      if(cp.hasVar("interval"))
+        cp.getInt("interval", default)
+      else if(cp.hasVar("i"))
+        cp.getInt("i", default)
+      else
+        default
+    if(ret < 1 || ret > 12)
+      default
+    else
+      ret
+  }
+
   def formatForecast(json: JSONObject, units: String): String = {
     val txt_forecast = json.getJSONObject("txt_forecast")
     val date = txt_forecast.getString("date")
@@ -161,12 +176,13 @@ class Wunderground extends Module {
     BOLD + day.getString("title") + NORMAL + " " + day.getString(unitKey)
   }
 
-  def formatHourlyForecast(json: JSONArray, units: String, interval: Int): String = {
-    val hours = (0 until json.length).map(json.getJSONObject(_)).filter(_.getJSONObject("FCTTIME").getString("hour").toInt % interval == 0)
-    hours.map(formatHour(_, units)).reduceLeft(_ + ", " + _)
+  def formatHourlyForecast(json: JSONObject, units: String, interval: Int): String = {
+    val hfJsonArr = json.getJSONArray("hourly_forecast")
+    val hours = (0 until hfJsonArr.length).map(hfJsonArr.getJSONObject(_)).filter(_.getJSONObject("FCTTIME").getString("hour").toInt % interval == 0)
+    hours.map(formatHour(_, SunMoon(json), units)).reduceLeft(_ + ", " + _)
   }
 
-  def formatHour(json: JSONObject, units: String): String = {
+  def formatHour(json: JSONObject, sunMoon: SunMoon, units: String): String = {
     val fcttime = json.getJSONObject("FCTTIME")
     val hour = fcttime.getString("hour").toInt
     val day = if(hour == 0)
@@ -185,14 +201,14 @@ class Wunderground extends Module {
     val pop = json.getString("pop").toInt
     val fctcode = json.getString("fctcode").toInt
 
-    List(codeIcon(fctcode), temp, windString(json, units), rainChanceString(pop, fctcode))
+    List(codeIcon(fctcode, sunMoon, hour), temp, windString(json, units), rainChanceString(pop, fctcode))
       .filter(! _.equals(""))
       .foldLeft(day + BOLD + time + NORMAL)(_ + " " + _)
   }
 
   def rainChanceString(pop: Integer, code: Integer): String =
     if(pop > 0)
-      precipIcon(pop, code) + " " + pop + "% "
+      precipIcon(pop, code) + " " + pop + "%"
     else
       ""
   def windString(json: JSONObject, units: String): String = {
@@ -213,19 +229,36 @@ class Wunderground extends Module {
 
   val windIcon = DASH_SYMBOL + " "
 
-  def codeIcon(code: Int): String =
+  def codeIcon(code: Int, sunMoon: SunMoon, hour: Int): String = {
+    val daytime: Boolean = sunMoon.isDaylightHour(hour)
+    val bg = // background color
+      if(daytime) ",02"
+      else ",01"
+    val bg2 = // background color for haze, partly cloudy
+      if(daytime) ",12"
+      else ",14"
+
     code match {
-      case 1 => "\u000308,02" + BLACK_SUN_WITH_RAYS + " " + NORMAL
-      case 2 => "\u000300,02" + SUN_BEHIND_CLOUD + " " + NORMAL
-      case 3 => "\u000300,12" + SUN_BEHIND_CLOUD + " " + NORMAL
-      case 4 => "\u000300,14" + CLOUD + " " + NORMAL
-      case 5 => "\u000308,14" + WHITE_SUN_WITH_RAYS + " " + NORMAL
-      case 6 => "\u000314,15" + FOGGY + " " + NORMAL
-      case 7 => "\u000304,02" + BLACK_SUN_WITH_RAYS + " " + NORMAL
-      case 8 => "\u000311,12" + SNOWMAN_WITHOUT_SNOW + " " + NORMAL
-      case 14 | 15 => "\u000308,15" + THUNDER_CLOUD_AND_RAIN + " " + NORMAL
+      case 1 =>
+        if(daytime)
+          "\u000308" + bg + BLACK_SUN_WITH_RAYS + " " + NORMAL
+        else // sadly, unicode moons only make sense on a light background
+          "\u000301,00" + sunMoon.moonIcon + " " + NORMAL
+      case 2 => "\u000300" + bg + SUN_BEHIND_CLOUD + " " + NORMAL
+      case 3 => "\u000300" + bg2 + SUN_BEHIND_CLOUD + " " + NORMAL
+      case 4 => "\u000300" + bg2 + CLOUD + " " + NORMAL
+      case 5 =>
+        if(daytime)
+          "\u000308" + bg2 + WHITE_SUN_WITH_RAYS + " " + NORMAL //haze
+        else
+          "\u000315,14" + sunMoon.moonIcon + " " + NORMAL
+      case 6 => "\u000314,15" + FOGGY + " " + NORMAL // fog
+      case 7 => "\u000304" + bg + BLACK_SUN_WITH_RAYS + " " + NORMAL // very hot
+      case 8 => "\u000311" + bg + SNOWMAN_WITHOUT_SNOW + " " + NORMAL // very cold
+      case 14 | 15 => "\u000308" + bg2 + THUNDER_CLOUD_AND_RAIN + " " + NORMAL
       case _ => ""
     }
+  }
 
   def precipIcon(pop: Integer, code: Integer) =
     if(isSnowCode(code))
@@ -342,5 +375,55 @@ class Wunderground extends Module {
       json.getString("zmw") + ")"
   }
 
+  // This is tied to Wunderground's API, no sense in extracting it for now
+  case class SunMoon(sunriseHour: Int, sunriseMinute: Int, sunsetHour: Int, sunsetMinute: Int, moonPercent: Int, moonAge: Int) {
+
+    def sunrise(): Double = sunriseHour + sunriseMinute / 60.0
+
+    def sunset(): Double = sunsetHour + sunsetMinute / 60.0
+
+    def isDaylightHour(hour: Int): Boolean =
+      hour > sunrise().round && hour < sunset().round
+
+    def moonDescription: String =
+      if(moonPercent > 94) "full"
+      else if(moonPercent < 6) "new"
+      else if(moonPercent < 44) moonDirection + " crescent"
+      else if (moonPercent > 56) moonDirection + " gibbous"
+      else moonDirection + " quarter"
+
+    def moonDirection: String =
+      if (moonAge < 14) "waxing"
+      else "waning"
+
+    def moonIcon: String =
+      moonDescription match {
+        case "new" => NEW_MOON_SYMBOL
+        case "waxing crescent" => WAXING_CRESCENT_MOON_SYMBOL
+        case "waxing quarter" => FIRST_QUARTER_MOON_SYMBOL
+        case "waxing gibbous" => WAXING_GIBBOUS_MOON_SYMBOL
+        case "full" => FULL_MOON_SYMBOL
+        case "waning gibbous" => WAXING_GIBBOUS_MOON_SYMBOL
+        case "waning quarter" => LAST_QUARTER_MOON_SYMBOL
+        case "waning crescent" => WANING_CRESCENT_MOON_SYMBOL
+        case _ => "SOMEBODY BROKE THE MOON"
+      }
+
+  }
+
+  object SunMoon {
+    def apply(json: JSONObject) = {
+      val moonPhase = json.getJSONObject("moon_phase")
+      val sunPhase = json.getJSONObject("sun_phase")
+      val sunrise = sunPhase.getJSONObject("sunrise")
+      val sunset = sunPhase.getJSONObject("sunset")
+      new SunMoon(sunrise.getString("hour").toInt,
+                  sunrise.getString("minute").toInt,
+                  sunset.getString("hour").toInt,
+                  sunset.getString("minute").toInt,
+                  moonPhase.getString("percentIlluminated").toInt,
+                  moonPhase.getString("ageOfMoon").toInt)
+    }
+  }
 
 }
