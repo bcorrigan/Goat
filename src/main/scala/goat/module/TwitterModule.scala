@@ -34,7 +34,7 @@ class TwitterModule extends Module {
   private var filterCount: Int = 0
 
   private val MAX_FOLLOW_COUNT=20;
-  
+
   private var pwds = getPasswords()
 
   private val consumerKey = pwds.getProperty("twitter.consumerKey")
@@ -49,7 +49,7 @@ class TwitterModule extends Module {
 
   private var lastOutgoingTweetTime: Long = 0
   private var lastPurge: Long = System.currentTimeMillis
-  
+
   //each user maps to a list of timestamps of sent tweets
   private val tweetAccounts:Map[String, List[Long]] = Map()
 
@@ -59,11 +59,11 @@ class TwitterModule extends Module {
 
   //OAuth connection bullshit
   private val token = new AccessToken(accessToken,accessTokenSecret)
-  
+
   private val tweetCountStore:KVStore[Integer] = getModuleStore("tweetCount")
 
   private val searchStore:KVStore[String] = getModuleStore("savedSearch")
-  
+
   val cb = new ConfigurationBuilder();
 
   cb.setDebugEnabled(true)
@@ -84,7 +84,7 @@ class TwitterModule extends Module {
 
   private var followedIDs: List[Long] = null
   refreshIdsToFollow()
-  
+
   //some random stats to see how effective the cache is
   private var searchesMade: Int = 0;
   private var cacheHits: Int = 0
@@ -183,7 +183,7 @@ class TwitterModule extends Module {
     try {
       //val parser = new CommandParser(m);
       //val query: Query = new Query(parser.remaining())
-      val user = Users.getOrCreateUser(m.getSender) 
+      val user = Users.getOrCreateUser(m.getSender)
       var woeId: Option[Int] = None
       var isNear = m.getModTrailing.trim.toLowerCase.startsWith("near");
       if(isNear) {
@@ -223,7 +223,7 @@ class TwitterModule extends Module {
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace
-      m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage) 
+      m.reply("Twitter is not providing me with trends, sorry." + ex.getMessage)
     }
   }
 
@@ -452,28 +452,28 @@ class TwitterModule extends Module {
         m.reply(m.getSender + ": can't stalk that user - got a TwitterException saying: " + ex.getMessage)
     }
   }
-  
+
   private def addToTweetAccount(user:GoatUser) {
     tweetAccounts.put(user.getName(), System.currentTimeMillis()::tweetAccounts.get(user.getName()).getOrElse(List()))
   }
-  
+
   private def trimTweetAccount(user:GoatUser) {
     tweetAccounts.put(user.getName(), tweetAccounts.get(user.getName())
                                 .getOrElse(List())
                                 .filter(_>(System.currentTimeMillis-(HOUR/2))))
   }
-  
+
   private def tweetsInLastHour(user:GoatUser):Int = {
     trimTweetAccount(user)
     tweetAccounts.get(user.getName()).getOrElse(List()).length
   }
-  
+
   private def withinBudget(users:Seq[GoatUser]):Seq[GoatUser] = {
     users.filter { user =>
       tweetsInLastHour(user)<user.getTweetBudget()
     }
   }
-  
+
   private def showBudget(m:Message) {
     val parser = new CommandParser(m);
     val userStr=if(parser.hasVar("user")) {
@@ -482,13 +482,13 @@ class TwitterModule extends Module {
       m.getSender()
     }
     val directlyAddressed=m.getSender==userStr
-    
+
     if(Users.hasUser(userStr)) {
       val user = Users.getUser(m.getSender());
       if(tweetsInLastHour(user)<user.getTweetBudget()) {
         if(directlyAddressed)
           m.reply(m.getSender() + ", you have currently used " + tweetsInLastHour(user) + " out of your budget of " + user.getTweetBudget() + " tweets.")
-        else 
+        else
           m.reply(m.getSender() + ", " + userStr + " has currently used " + tweetsInLastHour(user) + " out of their budget of " + user.getTweetBudget() + " tweets.")
       } else {
         if(directlyAddressed)
@@ -500,7 +500,7 @@ class TwitterModule extends Module {
       m.reply(m.getSender() + ", I don't know of that person.")
     }
   }
-  
+
   private def showFollowing(m:Message) {
     val following = Users.getUser(m.getSender).getFollowing()
     if(following.length>0)
@@ -516,19 +516,19 @@ class TwitterModule extends Module {
     //TODO
     val user = Users.getUser(m.getSender().toLowerCase());
     val usersFollowing = Users.getAllUsersFollowing(screenName)
-    
+
     if(usersFollowing.length>0) {
       m.reply(m.getSender+", I have marked you as following that user as well.")
       user.addFollowing(screenName);
     } else {
       try {
-        val followedUser = twitter.createFriendship(screenName, true) 
-        if (followedUser != null) {    
+        val followedUser = twitter.createFriendship(screenName, true)
+        if (followedUser != null) {
           m.reply(m.getSender + ", you're now following " + followedUser.getName() + ". You're the only one following them.")
           followedIDs = followedUser.getId()::followedIDs
           tweetCountStore.save(followedUser.getScreenName, 0);
           user.addFollowing(screenName);
-        } 
+        }
           else m.reply("Looks like that user doesn't exist.")
       } catch {
         case ex: TwitterException =>
@@ -541,7 +541,7 @@ class TwitterModule extends Module {
   private def disableNotification(m: Message, userStr: String) {
     val screenName = userStr.replaceAll("@","")
     val usersFollowing = Users.getAllUsersFollowing(screenName)
-      
+
     val user = Users.getUser(m.getSender().toLowerCase());
     if(usersFollowing.length>1) {
       m.reply(m.getSender+", I have unmarked you as following that user")
@@ -560,7 +560,7 @@ class TwitterModule extends Module {
           m.reply("Those lackeys at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
     }
   }
-  
+
   //unfollows given account for ALL users
   private def disableNotificationAllUsers(m: Message, userStr: String) {
     val screenName = userStr.replaceAll("@","")
@@ -583,7 +583,7 @@ class TwitterModule extends Module {
           m.reply("Those lackeys at twitter have failed us. I was unable to cease following that user as a result. Error: " + ex.getMessage)
     }
   }
-  
+
   //unfollows all accounts a user is following
   private def disableNotificationAll(chan:String, userToRm: GoatUser, scold:String) {
     val unfollowed = userToRm.getFollowing() map { screenName =>
@@ -593,7 +593,7 @@ class TwitterModule extends Module {
         Left(screenName)
       } else Right(screenName)
     }
-    
+
     Message.createPrivmsg(chan, scold +
         (if(unfollowed.exists(_.isLeft)) {
           "Unfollowed from twitter: " + delimit(unfollowed.filter(_.isLeft).map(_.left.get))
@@ -604,7 +604,7 @@ class TwitterModule extends Module {
         } else " None to mark unfollowing.")
     ).send()
   }
-  
+
   private def disableNotificationAll(m:Message, userToRm: String, scold:String="") {
     if(Users.hasUser(userToRm)) {
       disableNotificationAll(m.getChanname, Users.getUser(userToRm), scold)
@@ -650,11 +650,11 @@ class TwitterModule extends Module {
          lastTweets.put(m.getChanname(), List[Either[Status,Trends]](tweet))
      }
   }
-  
+
   private def addToLastTweets(m:Message, tweet:Status): Unit = {
     addToLastTweets(m,Left(tweet))
   }
-  
+
   private def addToLastTweets(m:Message, trends:Trends):Unit = {
     addToLastTweets(m, Right(trends))
   }
@@ -754,18 +754,18 @@ class TwitterModule extends Module {
       tweetCountStore.save(status.getUser().getScreenName(), tweetCountStore.get(status.getUser().getScreenName())+1)
       tweetCountStore.get(status.getUser().getScreenName())
     } else ""
-    
+
     val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR))
     val userStr = users.foldLeft("") { (u1,u2) =>
       if(u1!="") {u1+","+u2.getName()} else u2.getName()
     }
-    
+
     //bit of a quick fix, should really collate based on last seen chans
     val sendchan = if(users.length==1) users.head.getLastChannel() else chan
-    
+
     Message.createPrivmsg(sendchan, REVERSE + RED + "*** " + countStr + " " + userStr + NORMAL + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
-    
-    users foreach { user => 
+
+    users foreach { user =>
       addToTweetAccount(user)
       if(tweetsInLastHour(user)>=user.getTweetBudget()) {
         //lets lay down some harsh punishment!
@@ -773,7 +773,7 @@ class TwitterModule extends Module {
       }
     }
   }
-    
+
   private def sanitiseAndScold(m: Message): Boolean =
     if (m.getModTrailing.trim.length == 0) {
       m.reply(m.getSender + ": Twitter might be inane, but you still need to tell me to search for *something*.")
@@ -795,7 +795,7 @@ class TwitterModule extends Module {
       m.reply(m.getSender + ", you need to supply a name argument - such as name=dongress - and the search will be saved with that name")
     }
   }
-  
+
   private def rmSearch(m:Message) = {
     val parser = new CommandParser(m);
     if(parser.hasVar("name")) {
@@ -810,7 +810,7 @@ class TwitterModule extends Module {
       m.reply(m.getSender + ", you need to supply a name argument - such as name=dongress - and the matching search will be deleted.")
     }
   }
-  
+
   private def searchSearch(m:Message) = {
     val parser = new CommandParser(m);
     val name = if(parser.hasVar("name")) {
@@ -830,20 +830,20 @@ class TwitterModule extends Module {
       }
     }
   }
-  
+
   private def viewSearch(m:Message) = {
     val parser = new CommandParser(m)
     val name = if(parser.hasVar("name")) {
       parser.get("name").toLowerCase()
     } else parser.remaining().toLowerCase()
-    
+
     if(searchStore.has(name)) {
       m.reply(m.getSender() + ", " + name + " is search: " + searchStore.get(name))
     } else {
       m.reply(m.getSender + ", found no matching searches.")
     }
   }
-    
+
   private def tweetpurge(m: Message) =
     m.reply(m.getSender + ": Purged " + purge(0) + " tweets from cache.")
 
@@ -892,7 +892,7 @@ class TwitterModule extends Module {
   private def filterIDs(ids: Array[Int]): Array[Int] =
     ids.filter((id) => followedIDs.contains(id))
 
-  private def isFollowed(status: Status): Boolean = {    
+  private def isFollowed(status: Status): Boolean = {
     if(followedIDs.contains(status.getUser.getId)) {
       withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR)).length>0
     } else false;
@@ -1024,14 +1024,14 @@ class TwitterModule extends Module {
       lastOutgoingTweetTime = now
     }
   }
-  
+
   //TODO move to some scana StringUtil lib
   private def delimit(strs:Iterable[String],delimiter:String=","):String = {
     strs.foldLeft("") { (s1,s2) =>
           if(s1!="") {s1+delimiter+s2} else s2
         }
   }
-  
+
   case class Trends(prefix:String, trends:String);
 
   class GoatUserListener extends UserStreamListener {
@@ -1041,9 +1041,9 @@ class TwitterModule extends Module {
     }
 
     def onStatus(status: Status) {
-      if (isMention(status) || (isFollowed(status) && !status.isRetweet())) {
+      if (isMention(status) || (isFollowed(status))) {
         sendStatusToChan(status, chan);
-        println("****GOOD: " + status.getUser().getScreenName() + ": " + status.getText)
+        // println("****GOOD: " + status.getUser().getScreenName() + ": " + status.getText)
       } else println("JUNK: " + status.getUser().getScreenName() + ": " + status.getText)
     }
 

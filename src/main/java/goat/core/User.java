@@ -42,11 +42,11 @@ public class User {
     KVStore<Object> objStore;
 
 	
-	public String getLastChannel() {
+	public synchronized String getLastChannel() {
 		return strStore.get(LASTCHANNEL);
 	}
 
-	public void setLastChannel(String lastChannel) {
+	public synchronized void setLastChannel(String lastChannel) {
 		strStore.save(LASTCHANNEL, lastChannel);
 	}
 	
@@ -70,34 +70,34 @@ public class User {
 
 
 	
-	public String getName() {
+	public synchronized String getName() {
 	    return strStore.get(NAME);
 	}
 
-	public void setName(String userName) {
+	public synchronized void setName(String userName) {
 	    strStore.save(NAME, userName);
 	}
 
-	public String getWeatherStation() {
+	public synchronized String getWeatherStation() {
 	    return strStore.get(WEATHERSTATION);
 	}
 
-	public void setWeatherStation(String station) {
+	public synchronized void setWeatherStation(String station) {
 	    strStore.save(WEATHERSTATION, station);
 	}
 	
-	public String getTimeZoneString() {
+	public synchronized String getTimeZoneString() {
 	    return strStore.get(TIMEZONE);
 	}
 	
-	public TimeZone getTimeZone() {
+	public synchronized TimeZone getTimeZone() {
 		TimeZone ret = null;
 		if (strStore.has(TIMEZONE))
 			ret = TimeZone.getTimeZone(strStore.get(TIMEZONE));
 		return ret;
 	}
 	
-	public void setTimeZoneString(String tz) {
+	public synchronized void setTimeZoneString(String tz) {
 		if (tz.equalsIgnoreCase("unset") || tz.equals("")) {
 		    strStore.save(TIMEZONE,"");
 			return ;
@@ -120,15 +120,15 @@ public class User {
 		}
 	}
 	
-	public void setTimeZone(TimeZone tz) {
+	public synchronized void setTimeZone(TimeZone tz) {
 	    strStore.save(TIMEZONE,tz.getID());
 	}
 	
-	public String getCurrency() {
+	public synchronized String getCurrency() {
 		return strStore.get(CURRENCY);
 	}
 	
-	public void setCurrency(String newCurrency) 
+	public synchronized void setCurrency(String newCurrency) 
 	        throws IOException, ParserConfigurationException, SAXException {
 		if (newCurrency.equalsIgnoreCase("unset")) {
 		    strStore.save(CURRENCY,"");
@@ -139,23 +139,23 @@ public class User {
 		}
 	}
 	
-	public Locale getLocale() {
+	public synchronized Locale getLocale() {
 		return (Locale) objStore.get(LOCALE);
 	}
 	
-	public void setLocale(Locale loc) {
+	public synchronized void setLocale(Locale loc) {
 		objStore.save(LOCALE,loc);
 	}
 	
 
-	public void setLastMessage(Message m) {
+	public synchronized void setLastMessage(Message m) {
 	    //note: lastMessageTimestamps put() here is committed by the subsequent strStore.save()
 	    getLastMessageTimestamps().put(m.getChanname(), System.currentTimeMillis());
 		strStore.save(LASTMESSAGE,m.getTrailing());
 		strStore.save(LASTCHANNEL,m.getChanname());
 	}
 
-	public boolean isActiveWithin(long duration) {
+	public synchronized boolean isActiveWithin(long duration) {
 	    long now = System.currentTimeMillis();
 	    Long seen = getLastMessageTimestamps().get(strStore.get(LASTCHANNEL));
 	    if(seen==null)
@@ -164,69 +164,69 @@ public class User {
 	        return (now-seen)<duration;
 	}
 	
-	public Long getLastMessageTimestamp() {
+	public synchronized Long getLastMessageTimestamp() {
 		return getLastMessageTimestamps().get(strStore.get(LASTCHANNEL));
 	}
 
-	public Long getLastMessageTimestamp(String channel) {
+	public synchronized Long getLastMessageTimestamp(String channel) {
 		return getLastMessageTimestamps().get(channel);
 	}
 	
 	
-	public String getLastMessage() {
+	public synchronized String getLastMessage() {
 		return strStore.get(LASTMESSAGE);
 	}
 	
 	
 	// possibly harmful, but required for serialization
-	public Map<String, Long> getLastMessageTimestamps() {
+	public synchronized Map<String, Long> getLastMessageTimestamps() {
 	    return new KVStore<Long>("userstore."+getName()+"."+LASTMESSAGETIMESTAMPS);
 	}
 	 
 
-	public void setLastMessageTimestamps(Map<String, Long> lastMessageTimestamps) {
+	public synchronized void setLastMessageTimestamps(Map<String, Long> lastMessageTimestamps) {
 	    KVStore<Long> tStore = new KVStore<Long>("userstore."+getName()+"."+LASTMESSAGETIMESTAMPS);
 	    tStore.putAll(lastMessageTimestamps);
 	    tStore.save();
 	}
 	
-	public String getLastfmname() {
+	public synchronized String getLastfmname() {
 		return strStore.get(LASTFMNAME);
 	}
 	
-	public void setLastfmname(String name) {
+	public synchronized void setLastfmname(String name) {
 	    strStore.save(LASTFMNAME, name);
 	}
 	
-	public double getLongitude() {
+	public synchronized double getLongitude() {
 	    return (double) objStore.get(LONGITUDE);
 	}
 	
-	public void setLongitude(double longitude) {
+	public synchronized void setLongitude(double longitude) {
 	    objStore.save(LONGITUDE, longitude);
 	}
 	
-	public double getLatitude() {
+	public synchronized double getLatitude() {
 	    return (double) objStore.get(LATITUDE);
 	}
 	
-	public void setLatitude(double latitude) {
+	public synchronized void setLatitude(double latitude) {
 	    objStore.save(LATITUDE, latitude);
 	}
 	
-	public int getWoeId() {
+	public synchronized int getWoeId() {
 	    return (int) objStore.get(WOEID);
 	}
 	
-	public void setWoeId(int woeId) {
+	public synchronized void setWoeId(int woeId) {
 	    objStore.save(WOEID, woeId);
 	}
 	
-    public int getTweetBudget() {
+    public synchronized int getTweetBudget() {
         return (int) objStore.get(TWEETBUDGET);
     }
     
-    public void setTweetBudget(int budget) {
+    public synchronized void setTweetBudget(int budget) {
         objStore.save(TWEETBUDGET, budget);
     }
 	
@@ -235,7 +235,7 @@ public class User {
 	}
 	
 	//get all tweeter screennames this user is following
-	public List<String> getFollowing() {
+	public synchronized List<String> getFollowing() {
 	    KVStore<Object> following = objStore.subStore(SCREENNAME);
 	    List<String> followList = new ArrayList<String>(following.size());
 	    for(String screenName : following.keySet()) {
@@ -246,7 +246,7 @@ public class User {
 	}
 	
 	//zap a particular screenname as being followed by this user
-	public void rmFollowing(String screenName) {
+	public synchronized void rmFollowing(String screenName) {
 	    String sn = screenName.toLowerCase();
 	    if(objStore.has(SCREENNAME+"."+sn)) {
 	        objStore.remove(SCREENNAME+"."+sn);
@@ -255,7 +255,7 @@ public class User {
 	}
 	
 	//add a screenname as being followed by this user
-	public void addFollowing(String screenName) {
+	public synchronized void addFollowing(String screenName) {
 	    String sn = screenName.toLowerCase();
 	    objStore.save(SCREENNAME+"."+sn,true);
 	}
