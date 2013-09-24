@@ -145,8 +145,11 @@ public class ServerConnection extends Thread {
                             }
                         }
                         else {
-                            if (!BotStats.getInstance().containsIgnoreName(m.getSender()))
+                            if (!BotStats.getInstance().containsIgnoreName(m.getSender())) {
                                 inqueue.add(m); //add to inqueue
+                            } else {
+                                System.out.println("Ignored: " + m);
+                            }
                         }
                         // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
                         //		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
