@@ -86,6 +86,11 @@ public class BotStats {
      */
     private Charset charset = Charset.forName("UTF-8");
 
+    /**
+     * List of names to ignore.
+     */
+    private List<String> ignoreNames = new CopyOnWriteArrayList<String>();
+
     public String getBotname() {
         return botname;
     }
@@ -242,6 +247,29 @@ public class BotStats {
         return charset;
     }
 
+    /**
+     * Tracking the ignoreNames list.
+     */
+    public synchronized String[] getIgnoreNames() {
+        Object[] ob = ignoreNames.toArray();
+        String[] names = new String[ob.length];
+        for (int i = 0; i < ob.length; i++) {
+            names[i] = (String) ob[i];
+        }
+        return names;
+    }
+
+    public synchronized void addIgnoreName(String name) {
+        ignoreNames.add(name);
+    }
+
+    public synchronized void removeIgnoreName(String name) {
+        ignoreNames.remove(name);
+    }
+
+    public synchronized boolean containsIgnoreName(String name) {
+        return ignoreNames.contains(name);
+    }
 
     public void readConfFile() {
         try {

@@ -41,6 +41,8 @@ insmod More all
 #insmod TumblrIdle.py all
 #insmod DbUtils all
 
+ignore SomeOtherBot
+
 join #goat
 
 #TwitterModule takes ages to instantiate, to ensure it is alive and receiving messages

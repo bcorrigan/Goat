@@ -58,6 +58,15 @@ public class Core extends Module {
                 }
                 BotStats.getInstance().setCharset(charset);
                 m.reply("OK, changed to " + m.getModTrailing().trim() + " charset.");
+            } else if (m.getModCommand().toLowerCase().equals("ignore")) {
+                String name = m.getModTrailing().trim();
+                String response = "Ignored " + name + "." ;
+                // we do this next dodge to avoid sending messages to nobody on startup
+                if (m.getReplyTo().equals(""))
+                    System.out.println(response);
+                else
+                    m.reply(response);
+                BotStats.getInstance().addIgnoreName(name);
             }
         }
         if (m.getModCommand().toLowerCase().equals("showcharset")) {
@@ -71,6 +80,6 @@ public class Core extends Module {
     }
 
     public String[] getCommands() {
-        return new String[]{"part", "join", "nick", "quit", "charset", "showcharset"};
+        return new String[]{"part", "join", "nick", "quit", "charset", "showcharset", "ignore"};
     }
 }
