@@ -140,12 +140,14 @@ public class ServerConnection extends Thread {
 
                         if (m.getCommand().equals("PING")) {
                             outqueue.add(new Message("", "PONG", "", m.getTrailing()));
-			    if (debug) {
-				System.out.println("PUNG at " + new Date());
-			    }
-			}
-                        else
-                            inqueue.add(m); //add to inqueue
+                            if (debug) {
+                               System.out.println("PUNG at " + new Date());
+                            }
+                        }
+                        else {
+                            if (!BotStats.getInstance().containsIgnoreName(m.getSender()))
+                                inqueue.add(m); //add to inqueue
+                        }
                         // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
                         //		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
