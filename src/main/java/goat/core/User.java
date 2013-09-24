@@ -148,9 +148,11 @@ public class User {
     }
 
 
-    public void setLastMessage(Message m) {
-	//note: lastMessageTimestamps put() here is committed by the subsequent strStore.save()
-	getLastMessageTimestamps().put(m.getChanname(), System.currentTimeMillis());
+    public synchronized void setLastMessage(Message m) {
+	// Use a copy of the timestamp Map, not the underlying KVStore object...
+	Map<String, Long> timestamps = new HashMap<String, Long>(getLastMessageTimestamps());
+	timestamps.put(m.getChanname(), System.currentTimeMillis());
+	setLastMessageTimestamps(timestamps);
 	strStore.save(LASTMESSAGE,m.getTrailing());
 	strStore.save(LASTCHANNEL,m.getChanname());
     }
