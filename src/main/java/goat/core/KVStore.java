@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
+import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.Map;
 
 import org.mapdb.*;
@@ -35,6 +35,8 @@ import static goat.util.StringUtil.incString;
  *
  * SortedMap has a sub method, that allows us to fetch keys within a specified range.
  *
+ * (ConcurrentNavigableMap implements SortedMap)
+ *
  * Therefore, KVStore controls the namespace, and the namespace is used to index onto just
  * ONE map that goat creates.
  *
@@ -44,8 +46,8 @@ import static goat.util.StringUtil.incString;
 //TODO should really be <T extends Serializable> I guess :-(
 public class KVStore<T> implements Map<String, T> {
     private static DB db;
-    private static SortedMap<String,Object>  globalMap;
-    private SortedMap<String,T> mapSlice;
+    private static ConcurrentNavigableMap<String,Object>  globalMap;
+    private ConcurrentNavigableMap<String,T> mapSlice;
     private String ns;
 
     static {
@@ -124,7 +126,7 @@ public class KVStore<T> implements Map<String, T> {
     //caution - this returns a global store! handy for Dbutils but not otherwise
     public KVStore() {
 	ns="";
-	mapSlice=(SortedMap<String,T>) globalMap;
+	mapSlice=(ConcurrentNavigableMap<String,T>) globalMap;
     }
 
     public KVStore(String nameSpace) {
@@ -134,7 +136,7 @@ public class KVStore<T> implements Map<String, T> {
 	ns=nameSpace;
 
 	String toKey = incString(nameSpace);
-	mapSlice = (SortedMap<String,T>) globalMap.subMap(nameSpace, toKey);
+	mapSlice = (ConcurrentNavigableMap<String,T>) globalMap.subMap(nameSpace, toKey);
     }
 
     public KVStore<T> subStore(String subNs) {
