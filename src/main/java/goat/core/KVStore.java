@@ -144,6 +144,7 @@ public class KVStore<T> implements Map<String, T> {
     }
 
     public void save(String key, T value) {
+        debugWrite(value, "save()");
 	mapSlice.put(ns+key,  value);
 	db.commit();
     }
@@ -325,6 +326,7 @@ public class KVStore<T> implements Map<String, T> {
 
     @Override
 	public T put(String key, T value) {
+        debugWrite(value, "put()");
 	return mapSlice.put(ns+key, value);
     }
 
@@ -337,6 +339,8 @@ public class KVStore<T> implements Map<String, T> {
 	public void putAll(Map<? extends String, ? extends T> m) {
 	Map<String, T> mNsCopy = new HashMap<String, T>(m.size());
 	for(String key:m.keySet()) {
+            T value = m.get(key);
+            debugWrite(value, "putAll");
 	    mNsCopy.put(ns+key, m.get(key));
 	}
 	mapSlice.putAll(mNsCopy);
@@ -396,5 +400,20 @@ public class KVStore<T> implements Map<String, T> {
         oos.writeObject( o );
         oos.close();
         return new String( Base64Coder.encode( baos.toByteArray() ) );
+    }
+
+    private void debugWrite(T value, String methodName) {
+        Class klass = value.getClass();
+        if(klass != String.class
+           && klass != int.class
+           && klass != long.class
+           && klass != double.class
+           && klass != Integer.class
+           && klass != Long.class
+           && klass != Double.class) {
+            System.out.println("WARNING - KVStrore: attempting to " + methodName + " value of type " + klass.getName());
+            Thread.dumpStack();
+        }
+
     }
 }
