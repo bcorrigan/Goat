@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerConnection extends Thread {
 
-    public boolean debug = true;
+    public boolean debug = false;
 
     private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue; //Queue of messages FROM the server
     private static LinkedBlockingQueue<Message> outqueue = Goat.outqueue; //Queue of messages TO the server
@@ -140,16 +140,21 @@ public class ServerConnection extends Thread {
 
                         if (m.getCommand().equals("PING")) {
                             outqueue.add(new Message("", "PONG", "", m.getTrailing()));
-                            if (debug) {
-                               System.out.println("PUNG at " + new Date());
-                            }
+                            if (debug)
+                                System.out.println("PUNG at " + new Date());
                         }
-                        else {
-                            if (!BotStats.getInstance().containsIgnoreName(m.getSender()))
-                                inqueue.add(m); //add to inqueue
+                        else if (BotStats.getInstance().containsIgnoreName(m.getSender())) {
+                            if (debug)
+                                System.out.println("Ignored: " + m);
+                        } else {
+                            inqueue.add(m); //add to inqueue
+                            if (debug)
+                                System.out.println(m.toString());
+                            // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:"
+                            // + m.trailing + " command:" + m.command + " sender: " + m.sender + "\n    "
+                            // + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand
+                            // + " CTCPMessage:" + m.CTCPMessage);
                         }
-                        // System.out.println("Inbuffer: prefix: " + m.prefix + " params: " + m.params + " trailing:" + m.trailing + " command:" + m.command + " sender: " + m.sender +
-                        //		           "\n    " + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand + " CTCPMessage:" + m.CTCPMessage);
                     } else {
                         if (System.currentTimeMillis() - lastActivity > 305000) {
                             in.close();
