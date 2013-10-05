@@ -4,7 +4,7 @@ version := "4.0"
 
 mainClass in (Compile, run) := Some("goat.Goat")
 
-scalaVersion in ThisBuild := "2.10.0"
+scalaVersion in ThisBuild := "2.10.2"
 
 
 // make pythons work plz

@@ -94,6 +94,19 @@ public class Constants {
     public static final String TEAL = "\u000310";
 
 
+    // Assorted useful UTC-16 glyphs
+
+    public static final String WHITE_SUN_WITH_RAYS = "\u263C";
+    public static final String BLACK_SUN_WITH_RAYS = "\u2600";
+    public static final String SNOWFLAKE = "\u2744";
+    public static final String UMBRELLA = "\u2602";
+    public static final String UMBRELLA_WITH_RAIN_DROPS = "\u2614";
+    public static final String CLOUD = "\u2601";
+    public static final String SUN_BEHIND_CLOUD = "\u26C5";
+    public static final String SNOWMAN_WITHOUT_SNOW = "\u26C4";
+    public static final String BLACK_SNOWMAN = "\u26C7";
+    public static final String THUNDER_CLOUD_AND_RAIN = "\u26C8";
+
     // Emoji.
 
     public static final String GOATJI = new String(Character.toChars(128016));
@@ -105,6 +118,18 @@ public class Constants {
 
     public static final String CLOSED_UMBRELLA = new String(Character.toChars(127746));
     public static final String CYCLONE = new String(Character.toChars(127744));
+    public static final String FOGGY = new String(Character.toChars(127745));
+    public static final String DASH_SYMBOL = new String(Character.toChars(128168));
+
+    // Emoonji
+    public static final String NEW_MOON_SYMBOL = new String(Character.toChars(127761));
+    public static final String WAXING_CRESCENT_MOON_SYMBOL = new String(Character.toChars(127762));
+    public static final String FIRST_QUARTER_MOON_SYMBOL = new String(Character.toChars(127763));
+    public static final String WAXING_GIBBOUS_MOON_SYMBOL = new String(Character.toChars(127764));
+    public static final String FULL_MOON_SYMBOL = new String(Character.toChars(127765));
+    public static final String WANING_GIBBOUS_MOON_SYMBOL = new String(Character.toChars(127766));
+    public static final String LAST_QUARTER_MOON_SYMBOL = new String(Character.toChars(127767));
+    public static final String WANING_CRESCENT_MOON_SYMBOL = new String(Character.toChars(127768));
 
     // Error Replies.
 

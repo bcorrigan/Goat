@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
 
 /**
  * A simple command parser
- * 
+ *
  * @author encontrado
- * 
+ *
  * 	Takes a string or Message, condenses whitespace,
  * 	strips off first word, makes available through command(),
  * 	finds "foo=bar" substrings, makes values available via get() and getInt(),
@@ -27,7 +27,7 @@ public class CommandParser {
     private String command = "" ;
     private String remaining = "" ;
     private ArrayList<String> remainingAsArrayList = new ArrayList<String>() ;
-	
+
     /**
      * @param m Message to be parsed
      */
@@ -50,7 +50,7 @@ public class CommandParser {
         String commandRegex = "[^\\\"\\p{javaWhitespace}]*?=[^\\\"\\p{javaWhitespace}]+|[^\\\"\\p{javaWhitespace}]+?=\\\"([^\\\"]+?)\\\"|^[^\\\"\\p{javaWhitespace}]+";
         Pattern commandRE = Pattern.compile(commandRegex);
         Matcher m = commandRE.matcher(text);
-        
+
         int last=0;
         String[] buf = {};
         if(command.equals("") & m.find()) { //we do not want to short circuit! that causes a bug
@@ -62,7 +62,7 @@ public class CommandParser {
                 last=m.end();
                 remaining+=text.substring(0,m.start()).trim() + " "; //anything unmatched from start onto remaining
             }
-        } 
+        }
 
         //process each match
         while(m.find()) {
@@ -72,7 +72,7 @@ public class CommandParser {
             last=m.end();
             buf = group.split("=",2);
             //trim quotes
-            if( buf[1].startsWith("\"")) 
+            if( buf[1].startsWith("\""))
                 buf[1] = buf[1].substring(1);
             if( buf[1].endsWith("\""))
                 buf[1] = buf[1].substring(0,buf[1].length()-1);
@@ -81,7 +81,7 @@ public class CommandParser {
         //unmatched tail onto remaining
         remaining += text.substring(last, text.length()).trim();
         remaining=remaining.trim();
-		
+
         //now for remaining as list - simply split on whitespace and add to arraylist
         //no quote handling here but dunno if we want it
         // we need to wrap this in an if() because java's split() returns an
@@ -89,10 +89,10 @@ public class CommandParser {
         if(!remaining.equals(""))
             Collections.addAll(remainingAsArrayList, remaining.split("\\s+"));
     }
-    
+
     /**
      * Merges another goat query into this one.
-     * Any args in this parser are not overwritten by args in the other parser 
+     * Any args in this parser are not overwritten by args in the other parser
      * @param otherParser
      */
     public void merge(CommandParser otherParser) {
@@ -103,7 +103,7 @@ public class CommandParser {
             }
         }
     }
-	
+
     /**
      * Command getter
      *
@@ -121,11 +121,11 @@ public class CommandParser {
     public String remaining() {
         return remaining ;
     }
-    
-    	
+
+
     /**
-     * "films search num=20 poopy poop" 
-     * 
+     * "films search num=20 poopy poop"
+     *
      * Gives you "poopy poop" if you call remainingAfterWord("search")
      *
      * @return what remains of the line, after the command and vars and a supplied subcommand have been parsed out
@@ -141,13 +141,13 @@ public class CommandParser {
     /**
      * Remainder setter.  For use in further user processing of the command.
      *
-     * @param string New remainder.  
+     * @param string New remainder.
      */
     public void setRemaining(String string) {
         if( string != null)
             remaining = string.trim() ;
     }
-	
+
     /**
      * Remainder checker
      *
@@ -164,7 +164,7 @@ public class CommandParser {
      * Variable Checker
      *
      * @param name var name to check for
-     * 
+     *
      * @return true if we've got a var with that name (case insensitive), otherwise false.
      */
     public boolean hasVar(String name) {
@@ -174,7 +174,7 @@ public class CommandParser {
         else
             return false ;
     }
-	
+
     /**
      * Checks for a standalone word - not part of an arg - among those remaining after command
      * @param name
@@ -188,32 +188,34 @@ public class CommandParser {
         }
         return false;
     }
-		
+
     /**
      * Variable getter
-     * 
+     *
      * @param name name of var to be fetched
      *
      * @return value of var, as String
      */
     public String get(String name) {
         name = name.toLowerCase() ;
-        if (vars.containsKey(name)) 
+        if (vars.containsKey(name))
             return (String) vars.get(name) ;
-        else 
+        else
             return null ;
     }
 
     /**
      * Variable-as-int getter
-     * 
+     *
      * @param name name of var to be fetched
      *
-     * @return value of var, as Int
+     * @param defualt default to return if the param can't be parsed as an int
+     *
+     * @return value of var as Int, or default if it can't be parsed
      */
-    public int getInt(String name) {
+    public int getInt(String name, int defaultVal) {
         name = name.toLowerCase() ;
-        int ret = 0 ;
+        int ret = defaultVal ;
         if (vars.containsKey(name)) {
             try {
                 ret = Integer.parseInt((String) vars.get(name)) ;
@@ -223,7 +225,20 @@ public class CommandParser {
         }
         return ret ;
     }
-	
+
+    /**
+     * Variable-as-int getter, with default 0
+     *
+     * mostly for backwards compatibility
+     *
+     * @param name name of var to be fetched
+     *
+     * @return value of var as Int, or 0 if it can't be parsed
+     */
+    public int getInt(String name) {
+        return getInt(name, 0);
+    }
+
     /**
      * Convenience method
      *
@@ -241,12 +256,12 @@ public class CommandParser {
             ret = Double.parseDouble(removeFormattingAndColors(remaining));
         return ret;
     }
-	
+
     /**
      * Convenience method go with findNumber()
-     * 
+     *
      * @return true if we found "number=" or "num=" or remaining
-     */	
+     */
     public boolean hasNumber() {
         return hasVar("num") || hasVar("number") || remaining.matches("#?" + doubleRegex);
     }
@@ -258,5 +273,5 @@ public class CommandParser {
     // this hideous regex is for string representations of Double
     //  see: http://www.regular-expressions.info/floatingpoint.html
     private final String doubleRegex = "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
-	
+
 }

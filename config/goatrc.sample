@@ -5,7 +5,6 @@
 insmod Say all
 insmod More all
 #insmod GoatSay all
-#insmod Confessions2 all
 #insmod WordGame all
 #insmod Uno #wordgame
 #insmod Weather all
@@ -50,5 +49,3 @@ join #goat
 ##when trendsnotify command is issued, we sleep 225 seconds
 #sleep 25000
 #trendsnotify #goat
-
-
