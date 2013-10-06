@@ -27,6 +27,7 @@ import org.eclipse.egit.github.core.client.PageIterator
 
 import java.util.Date
 import java.util.TimeZone
+import java.util.concurrent.ConcurrentNavigableMap
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Buffer
@@ -85,21 +86,25 @@ class Github extends Module {
 
   private val separator = DARK_BLUE + BOLD + " \u00A7  " + NORMAL
 
-  private def commitsReport: String =
-    commits.slice(0, 16).map(shortCommit(_)).reduce(_ + separator + _) +
+  private def commitsReport: String = {
+    updateCommitStore
+    (0 to math.min(16, commitStore.size)).map((i: Int) => commitStore(commitStore.size - i - 1)).map(shortCommit(_)).reduce(_ + separator + _) +
     ".  " + separator + separator + " for more, see " + goatRepo.getHtmlUrl + "/issues"
+  }
 
-  private def commit(num: Int): String =
-    if(num > commits.size)
-      "I only have " + commits.size + " commits."
+  private def commit(num: Int): String = {
+    updateCommitStore
+    if(num > commitStore.size)
+      "I only have " + commitStore.size + " commits."
     else if(num == 0)
       "Nerd."
     else if(num > 0)
       longCommit(getCommit(num - 1))
-    else if(-num > commits.size)  // num is negative here
-      "I'm only up to " + commits.size + " commits."
+    else if(-num > commitStore.size)  // num is negative here
+      "I'm only up to " + commitStore.size + " commits."
     else
-      longCommit(getCommit(commits.size + num)) // num is negative here
+      longCommit(getCommit(commitStore.size + num)) // num is negative here
+  }
 
   private def shortCommit(rc: RepositoryCommit): String =
     formatUtcTime(rc.getCommit.getCommitter.getDate) + " " +
@@ -336,47 +341,32 @@ class Github extends Module {
   // Getting the nth most recent commit via github's api is, um, inconvenient.
   // So we do some caching.  Caching is no fun.
 
-  var commitsListBuffer: Buffer[RepositoryCommit] = null
-  var lastCommitsBufferUpdate: Date = new Date(0)
+  var lastCommitUpdate: Date = new Date(0)
   val cacheTimeout = 1 * 60 * 1000
-  val commitsListStore = new KVStore[Buffer[RepositoryCommit]]("github.commitList")
+  val commitStore: ConcurrentNavigableMap[Integer, RepositoryCommit] = KVStore.getDB().getTreeMap("githubCommits")
 
   private def getCommit(num: Int): RepositoryCommit =
-    commitService.getCommit(goatRepo, commits(num).getSha)
+    commitService.getCommit(goatRepo, commitStore.get(commitStore.size - num - 1).getSha)
 
-  private def getSha(num: Int): String = commitsListBuffer(num).getSha
+  private def getSha(num: Int): String = commitStore.get(commitStore.size - num - 1).getSha
 
-  private def commits: Buffer[RepositoryCommit] =
-    if (commitsListBuffer == null || commitsListBuffer.isEmpty)
-      initCommitsBuffer
-    else if((new Date).getTime - lastCommitsBufferUpdate.getTime > cacheTimeout)
-      updateCommitsBuffer
-    else commitsListBuffer
-
-  private def initCommitsBuffer: Buffer[RepositoryCommit] = {
-    if (commitsListStore.has("commits"))
-      commitsListBuffer = commitsListStore.get("commits")
-    updateCommitsBuffer
-  }
-
-  private def updateCommitsBuffer: Buffer[RepositoryCommit] = {
-    if (commitsListBuffer == null || commitsListBuffer.isEmpty) {
-      commitsListBuffer = commitService.getCommits(goatRepo)
-      cacheCommits
-    } else {
-      val newCommits = getNewCommits
-      if(newCommits.isEmpty)
-        commitsListBuffer
-      else {
-        commitsListBuffer.prependAll(newCommits)
-        cacheCommits
-      }
+  private def updateCommitStore = {
+    if(lastCommitUpdate.getTime + cacheTimeout < (new Date).getTime) {
+      val (commits, startKey) =
+        if (commitStore.isEmpty)
+          (commitService.getCommits(goatRepo).toList, 0)
+        else
+          (getNewCommits, commitStore.size)
+      for((commit, i) <- commits.reverse.view.zipWithIndex)
+        commitStore.put(startKey + i, commit)
+      KVStore.getDB.commit
+      lastCommitUpdate = new Date
     }
   }
 
   private def getNewCommits: List[RepositoryCommit] = {
-    val oldHeadSha = commitsListBuffer.head.getSha
-    val newCommitsPager = commitService.pageCommits(goatRepo, 32)  // 32 is more or less arbitrary
+    val oldHeadSha = commitStore.get(commitStore.lastKey).getSha
+    val newCommitsPager = commitService.pageCommits(goatRepo, 32)  // 32 is arbitrary
     getCommitsUntilSha(newCommitsPager.next, newCommitsPager, oldHeadSha, List[RepositoryCommit]()).dropRight(1)
   }
 
@@ -395,9 +385,4 @@ class Github extends Module {
     else
       getCommitsUntilSha(page.tail, pager, sha, page.head :: newCommits)
 
-  def cacheCommits: Buffer[RepositoryCommit] = {
-    commitsListStore.save("commits", commitsListBuffer)
-    lastCommitsBufferUpdate = new Date
-    commitsListBuffer
-  }
 }

@@ -161,9 +161,13 @@ public class KVStore<T> implements Map<String, T> {
 	return mapSlice.containsValue(value);
     }
 
-    /*public Map getMap() {
+    public static DB getDB() {
+        return db;
+    }
+
+    public ConcurrentNavigableMap<String, T> getMapSlice() {
       return mapSlice;
-      }*/
+    }
 
     public void save() {
 	db.commit();
