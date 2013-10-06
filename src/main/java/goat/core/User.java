@@ -38,8 +38,9 @@ public class User {
     public static final String LOCALE="locale";
     public static final String TWEETBUDGET="tweetBudget";
 
-    KVStore<String> strStore;
-    KVStore<Object> objStore;
+    private KVStore<String> strStore;
+    private KVStore<Object> objStore;
+    private KVStore<Long> lastTimestamps;
 
 
     public String getLastChannel() {
@@ -53,6 +54,7 @@ public class User {
     protected User(String uname) {
 	strStore = new KVStore<String>("userstore."+uname+".");
 	objStore = new KVStore<Object>("userstore."+uname+".");
+        lastTimestamps = new KVStore<Long>("userstore."+uname+"."+LASTMESSAGETIMESTAMPS);
 
 	if(!strStore.has("name")) {
 	    //some backwards-compatible init required for a new user
@@ -67,7 +69,6 @@ public class User {
 	    setTweetBudget(10);
 	}
     }
-
 
 
     public String getName() {
@@ -147,19 +148,15 @@ public class User {
 	objStore.save(LOCALE,loc);
     }
 
-
     public synchronized void setLastMessage(Message m) {
-	// Use a copy of the timestamp Map, not the underlying KVStore object...
-	Map<String, Long> timestamps = new HashMap<String, Long>(getLastMessageTimestamps());
-	timestamps.put(m.getChanname(), System.currentTimeMillis());
-	setLastMessageTimestamps(timestamps);
+	lastTimestamps.save(m.getChanname(), System.currentTimeMillis());
 	strStore.save(LASTMESSAGE,m.getTrailing());
 	strStore.save(LASTCHANNEL,m.getChanname());
     }
 
     public boolean isActiveWithin(long duration) {
 	long now = System.currentTimeMillis();
-	Long seen = getLastMessageTimestamps().get(strStore.get(LASTCHANNEL));
+	Long seen = lastTimestamps.get(strStore.get(LASTCHANNEL));
 	if(seen==null)
 	    return false;
 	else
@@ -167,29 +164,15 @@ public class User {
     }
 
     public Long getLastMessageTimestamp() {
-	return getLastMessageTimestamps().get(strStore.get(LASTCHANNEL));
+	return lastTimestamps.get(strStore.get(LASTCHANNEL));
     }
 
     public Long getLastMessageTimestamp(String channel) {
-	return getLastMessageTimestamps().get(channel);
+	return lastTimestamps.get(channel);
     }
-
 
     public String getLastMessage() {
 	return strStore.get(LASTMESSAGE);
-    }
-
-
-    // possibly harmful, but required for serialization
-    public Map<String, Long> getLastMessageTimestamps() {
-	return new KVStore<Long>("userstore."+getName()+"."+LASTMESSAGETIMESTAMPS);
-    }
-
-
-    public void setLastMessageTimestamps(Map<String, Long> lastMessageTimestamps) {
-	KVStore<Long> tStore = new KVStore<Long>("userstore."+getName()+"."+LASTMESSAGETIMESTAMPS);
-	tStore.putAll(lastMessageTimestamps);
-	tStore.save();
     }
 
     public String getLastfmname() {
