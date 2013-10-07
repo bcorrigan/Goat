@@ -107,9 +107,14 @@ public class KVStore<T> implements Map<String, T> {
 		try {
 		    o = fromBase64String(vals[2]);
 		} catch (ClassNotFoundException e) {
-		    System.out.println("Couldn't instantiate " + key + " --SKIPPING");
+		    System.out.println("Couldn't instantiate " + key + " --SKIPPING (ClassNotFoundException)");
 		    duffObjects.append("key:").append(key).append(":type:").append(type).append("||");
 		    continue;
+		} catch (OptionalDataException e) {
+		    System.out.println("Couldn't instantiate " + key + " --SKIPPING (OptionalDataException)");
+		    duffObjects.append("key:").append(key).append(":type:").append(type).append("||");
+		    continue;
+
 		}
 		globalMap.put(key, o);
 	    }
