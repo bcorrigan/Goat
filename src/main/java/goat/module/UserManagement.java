@@ -292,7 +292,8 @@ public class UserManagement extends Module {
 	} else if (! name.equals("")) {
 	    if (Users.hasUser(name)) {
 		User u = Users.getUser(name);
-		if(u.getLastMessageTimestamp() != 0) {
+		Long lmts = u.getLastMessageTimestamp();
+		if(lmts != null && lmts != 0) {
 		    SimpleDateFormat df = new SimpleDateFormat("EEEE, d MMMM yyyy, hh:mma z", Locale.UK);
 		    if(Users.hasUser(m.getSender()) && Users.getUser(m.getSender()).getTimeZoneString() != "")
 			df.setTimeZone(TimeZone.getTimeZone(Users.getUser(m.getSender()).getTimeZoneString()));
