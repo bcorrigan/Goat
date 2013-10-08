@@ -57,7 +57,7 @@ class Wunderground extends Module {
         formatForecast(json.getJSONObject("forecast"), units)
       else if(json.has("hourly_forecast")) {
         "for " + UNDERLINE + query + NORMAL + ":  " +
-        formatHourlyForecast(json, units, getInterval(cp,3))
+        formatHourlyForecast(json, units, getInterval(cp,3), getIcons(cp, m.getSender))
       }
       else if(json.has("response"))
         formatOtherResponse(json.getJSONObject("response"), query)
@@ -148,6 +148,12 @@ class Wunderground extends Module {
     else
       "default"
 
+  def getIcons(cp: CommandParser, user: String): Map[String, String] =
+    if(cp.hasVar("icons") && iconsets.contains(cp.get("icons")))
+      iconsets(cp.get("icons"))
+    else
+      iconsets("consolas")
+
   def getInterval(cp: CommandParser, default: Int): Int = {
     val ret: Int =
       if(cp.hasVar("interval"))
@@ -176,10 +182,10 @@ class Wunderground extends Module {
     BOLD + day.getString("title") + NORMAL + " " + day.getString(unitKey)
   }
 
-  def formatHourlyForecast(json: JSONObject, units: String, interval: Int): String = {
+  def formatHourlyForecast(json: JSONObject, units: String, interval: Int, icons: Map[String, String]): String = {
     val hfJsonArr = json.getJSONArray("hourly_forecast")
     val hours = (0 until hfJsonArr.length).map(hfJsonArr.getJSONObject(_)).filter(_.getJSONObject("FCTTIME").getString("hour").toInt % interval == 0)
-    hours.map(formatHour(_, SunMoon(json), units)).reduceLeft(_ + ", " + _)
+    hours.map(formatHour(_, SunMoon(json, icons), units)).reduceLeft(_ + ", " + _)
   }
 
   def formatHour(json: JSONObject, sunMoon: SunMoon, units: String): String = {
@@ -201,16 +207,17 @@ class Wunderground extends Module {
     val pop = json.getString("pop").toInt
     val fctcode = json.getString("fctcode").toInt
 
-    List(codeIcon(fctcode, sunMoon, hour), temp, windString(json, units), rainChanceString(pop, fctcode))
+    List(codeIcon(fctcode, sunMoon, hour), temp, windString(json, units), rainChanceString(pop, fctcode, sunMoon.icons))
       .filter(! _.equals(""))
       .foldLeft(day + BOLD + time + NORMAL)(_ + " " + _)
   }
 
-  def rainChanceString(pop: Integer, code: Integer): String =
+  def rainChanceString(pop: Integer, code: Integer, icons: Map[String, String]): String =
     if(pop > 0)
-      precipIcon(pop, code) + " " + pop + "%"
+      precipIcon(pop, code, icons) + " " + pop + "%"
     else
       ""
+
   def windString(json: JSONObject, units: String): String = {
     val direction = json.getJSONObject("wdir").getString("dir").filter("NSEW".contains(_))
     val speed =
@@ -222,53 +229,68 @@ class Wunderground extends Module {
     if(speed.equals("") || json.getJSONObject("wspd").getString("english").toInt < 6)
       ""
     else if(direction.equals(""))
-      windIcon + speed
+      speed.head + "\u0362" + speed.tail
     else
-      windIcon + direction + " " + speed
+      direction.head + "\u0362" + direction.tail + " " + speed
   }
 
-  val windIcon = DASH_SYMBOL + " "
-
   def codeIcon(code: Int, sunMoon: SunMoon, hour: Int): String = {
+    val icons = sunMoon.icons
     val daytime: Boolean = sunMoon.isDaylightHour(hour)
-    val bg = // background color
-      if(daytime) ",02"
-      else ",01"
-    val bg2 = // background color for haze, partly cloudy
-      if(daytime) ",12"
-      else ",14"
+    val bg = if(daytime) ",02" else ",01"
+    // background color for haze, mostly cloudy
+    val bg2 = if(daytime) ",12" else ",14"
+    val suncolor = if(daytime) "08" else "00"
 
     code match {
       case 1 =>
-        if(daytime)
-          "\u000308" + bg + BLACK_SUN_WITH_RAYS + " " + NORMAL
-        else // sadly, unicode moons only make sense on a light background
-          "\u000301,00" + sunMoon.moonIcon + " " + NORMAL
-      case 2 => "\u000300" + bg + SUN_BEHIND_CLOUD + " " + NORMAL
-      case 3 => "\u000300" + bg2 + SUN_BEHIND_CLOUD + " " + NORMAL
-      case 4 => "\u000300" + bg2 + CLOUD + " " + NORMAL
-      case 5 =>
-        if(daytime)
-          "\u000308" + bg2 + WHITE_SUN_WITH_RAYS + " " + NORMAL //haze
+        if (!daytime && icons("setName") == "emoji")
+          // sadly, unicode emoji moons only make sense on a light background
+          "\u000301,00" + sunMoon.moonIcon + NORMAL
         else
-          "\u000315,14" + sunMoon.moonIcon + " " + NORMAL
-      case 6 => "\u000314,15" + FOGGY + " " + NORMAL // fog
-      case 7 => "\u000304" + bg + BLACK_SUN_WITH_RAYS + " " + NORMAL // very hot
-      case 8 => "\u000311" + bg + SNOWMAN_WITHOUT_SNOW + " " + NORMAL // very cold
-      case 14 | 15 => "\u000308" + bg2 + THUNDER_CLOUD_AND_RAIN + " " + NORMAL
+          "\u0003"+suncolor+bg + sunMoon.icon(hour) + NORMAL
+      case 2 =>
+        if (icons.contains("partlyCloudy") && icons("partlyCloudy") != "")
+          "\u000300"+bg + icons("partlyCloudy") + NORMAL
+        else
+          "\u000300"+bg + sunMoon.icon(hour) + icons("partlyCloudyModifier") + NORMAL
+      case 3 =>
+        if (icons.contains("mostlyCloudy") && icons("mostlyCloudy") != "")
+          "\u000300"+bg2 + icons("mostlyCloudy") + NORMAL
+        else
+          "\u000300"+bg2 + sunMoon.icon(hour) + icons("mostlyCloudyModifier") + NORMAL
+      case 4 => "\u000300"+bg2 + icons("cloudy") + NORMAL
+      case 5 =>
+        if (!daytime && icons("setName") == "emoji")
+          "\u000315,14" + sunMoon.moonIcon + NORMAL // emoji moons
+        else
+          "\u0003"+suncolor+bg2 + sunMoon.icon(hour) + NORMAL //haze
+      case 6 => "\u000314,15" + icons("foggy") + NORMAL
+      case 7 => "\u000304" + bg + icons("veryHot") + NORMAL
+      case 8 => "\u000311" + bg + icons("veryCold") + NORMAL
+      case 14 | 15 => "\u000308" + bg2 + icons("thunderstorm") + NORMAL
       case _ => ""
     }
   }
 
-  def precipIcon(pop: Integer, code: Integer) =
+  def precipIcon(pop: Integer, code: Integer, icons: Map[String,String]) =
     if(isSnowCode(code))
-      WHITE + SNOWFLAKE + NORMAL
-    else if(pop < 25)
-      DARK_BLUE + CLOSED_UMBRELLA + NORMAL
-    else if(pop < 50)
-      BLUE + UMBRELLA + NORMAL // open umbrella
+      WHITE + icons("snow") + NORMAL
+    else if(pop < 35)
+      TEAL + icons("chanceOfShowers") +
+        (if (icons.contains("partlyCloudyModifier"))
+          icons("partlyCloudyModifier")
+         else "") + NORMAL
+    else if(pop < 75)
+      BLUE + icons("showers") +
+        (if (icons.contains("mostlyCloudyModifier"))
+          icons("mostlyCloudyModifier")
+         else "") + NORMAL
     else
-      TEAL + UMBRELLA_WITH_RAIN_DROPS + NORMAL // open umbrella with rain
+      DARK_BLUE + icons("rain") +
+        (if (icons.contains("mostlyCloudyModifier"))
+          icons("mostlyCloudyModifier")
+         else "") + NORMAL
 
   def isSnowCode(code: Integer): Boolean =
     List[Integer](9, 16, 18, 19, 20, 21, 24).contains(code)
@@ -375,8 +397,81 @@ class Wunderground extends Module {
       json.getString("zmw") + ")"
   }
 
-  // This is tied to Wunderground's API, no sense in extracting it for now
-  case class SunMoon(sunriseHour: Int, sunriseMinute: Int, sunsetHour: Int, sunsetMinute: Int, moonPercent: Int, moonAge: Int) {
+  val iconsets: Map[String,Map[String,String]] =
+    Map(
+      "emoji" -> Map(
+        "setName" -> "emoji",
+        "sun" -> (BLACK_SUN_WITH_RAYS + " "),
+        "partlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
+        // "partlyCloudyModifier" -> "",
+        "mostlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
+        // "mostlyCloudyModifier" -> "",
+        "cloudy" -> (CLOUD + " "),
+        "hazy" -> (WHITE_SUN_WITH_RAYS + " "),
+        "foggy" -> (FOGGY + " "),
+        "veryHot" -> (BLACK_SUN_WITH_RAYS + " "),
+        "veryCold" -> (SNOWMAN_WITHOUT_SNOW + " "),
+        // "blowingSnow" -> "",
+        "chanceOfShowers" -> (CLOSED_UMBRELLA + " "),
+        "showers" -> (UMBRELLA + " "),
+        // "chanceOfRain" -> "",
+        "rain" -> (UMBRELLA_WITH_RAIN_DROPS + " "),
+        // "chanceOfThunderstorm" -> "",
+        "thunderstorm" -> (THUNDER_CLOUD_AND_RAIN + " "),
+        // "chanceOfSnowShowers" -> "",
+        // "snowShowers" -> "",
+        // "chanceOfSnow" -> "",
+        "snow" -> (SNOWFLAKE + " "),
+        // "chanceOfIcePellets" -> "",
+        // "icePellets" -> "",
+        // "blizzard" -> "",
+        "newMoon" -> (NEW_MOON_SYMBOL + " "),
+        "waxingCrescentMoon" -> (WAXING_CRESCENT_MOON_SYMBOL + " "),
+        "waxingQuarterMoon" -> (FIRST_QUARTER_MOON_SYMBOL + " "),
+        "waxingGibbousMoon" -> (WAXING_GIBBOUS_MOON_SYMBOL + " "),
+        "fullMoon" -> (FULL_MOON_SYMBOL + " "),
+        "waningGibbousMoon" -> (WANING_GIBBOUS_MOON_SYMBOL + " "),
+        "waningQuarterMoon" -> (LAST_QUARTER_MOON_SYMBOL + " "),
+        "waningCrescentMoon" -> (WANING_CRESCENT_MOON_SYMBOL + " ")
+      ),
+      // call this one consolas because that's the font I stared at to make it
+      "consolas" -> Map(
+        "setName" -> "consolas",
+        "sun" -> WHITE_SUN_WITH_RAYS,
+        // "partlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
+        "partlyCloudyModifier" -> "\u0342",
+        //"mostlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
+        "mostlyCloudyModifier" -> "\u034c",
+        "cloudy" -> "\u2248",
+        "hazy" -> WHITE_SUN_WITH_RAYS,
+        "foggy" -> "\u2592",
+        "veryHot" -> (WHITE_SUN_WITH_RAYS + "\u333e"),
+        "veryCold" -> "*\u02df\u0359",
+        // "blowingSnow" -> "",
+        "chanceOfShowers" -> ":",
+        "showers" -> ":",
+        // "chanceOfRain" -> "",
+        "rain" -> "\u205e",
+        // "chanceOfThunderstorm" -> "",
+        "thunderstorm" -> (":\u034c" + YELLOW + "\03df"),
+        // "chanceOfSnowShowers" -> "",
+        // "snowShowers" -> "",
+        // "chanceOfSnow" -> "",
+        "snow" -> "*\u02df\u0359",
+        // "chanceOfIcePellets" -> "",
+        // "icePellets" -> "",
+        // "blizzard" -> "",
+        "newMoon" -> "\u25cc",
+        "waxingCrescentMoon" -> "\u208e",
+        "waxingQuarterMoon" -> "\u037b",
+        "waxingGibbousMoon" -> "\u037d",
+        "fullMoon" -> "\u25cf",
+        "waningGibbousMoon" -> "\037c",
+        "waningQuarterMoon" -> "\u1d12", //boo, the only other choice is 'c'
+        "waningCrescentMoon" -> "\u208d"
+      ))
+
+  case class SunMoon(sunriseHour: Int, sunriseMinute: Int, sunsetHour: Int, sunsetMinute: Int, moonPercent: Int, moonAge: Int, icons: Map[String,String]) {
 
     def sunrise(): Double = sunriseHour + sunriseMinute / 60.0
 
@@ -388,31 +483,26 @@ class Wunderground extends Module {
     def moonDescription: String =
       if(moonPercent > 94) "full"
       else if(moonPercent < 6) "new"
-      else if(moonPercent < 44) moonDirection + " crescent"
-      else if (moonPercent > 56) moonDirection + " gibbous"
-      else moonDirection + " quarter"
+      else if(moonPercent < 44) moonDirection + "Crescent"
+      else if (moonPercent > 56) moonDirection + "Gibbous"
+      else moonDirection + "Quarter"
 
     def moonDirection: String =
       if (moonAge < 14) "waxing"
       else "waning"
 
-    def moonIcon: String =
-      moonDescription match {
-        case "new" => NEW_MOON_SYMBOL
-        case "waxing crescent" => WAXING_CRESCENT_MOON_SYMBOL
-        case "waxing quarter" => FIRST_QUARTER_MOON_SYMBOL
-        case "waxing gibbous" => WAXING_GIBBOUS_MOON_SYMBOL
-        case "full" => FULL_MOON_SYMBOL
-        case "waning gibbous" => WAXING_GIBBOUS_MOON_SYMBOL
-        case "waning quarter" => LAST_QUARTER_MOON_SYMBOL
-        case "waning crescent" => WANING_CRESCENT_MOON_SYMBOL
-        case _ => "SOMEBODY BROKE THE MOON"
-      }
+    def moonIcon: String = icons(moonDescription + "Moon")
 
+    def icon(hour: Int): String =
+      if (isDaylightHour(hour))
+        icons("sun")
+      else
+        moonIcon
   }
 
   object SunMoon {
-    def apply(json: JSONObject) = {
+    // this is tied pretty closely to the Wunderground API
+    def apply(json: JSONObject, icons: Map[String, String]) = {
       val moonPhase = json.getJSONObject("moon_phase")
       val sunPhase = json.getJSONObject("sun_phase")
       val sunrise = sunPhase.getJSONObject("sunrise")
@@ -422,8 +512,10 @@ class Wunderground extends Module {
                   sunset.getString("hour").toInt,
                   sunset.getString("minute").toInt,
                   moonPhase.getString("percentIlluminated").toInt,
-                  moonPhase.getString("ageOfMoon").toInt)
+                  moonPhase.getString("ageOfMoon").toInt,
+                  icons)
     }
   }
 
+  // end SunMoon Class + Object
 }
