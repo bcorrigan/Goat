@@ -50,7 +50,7 @@ WORD_TYPES_RX = {
     )),
 
     RACISM_COUNT: (True, re.compile(
-        r'(kike|chink|nigger|\bspick?\b|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|paddy|paddie|\bmick\b|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey|negro)'
+        r'(kike|chink|nigger|\bspick?\b|gook|boche|wetback|\bkraut\b|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|paddy|paddie|\bmick\b|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey|negro|beaner)'
     )),
 
     HOMOPHOBIA_COUNT: (True, re.compile(
