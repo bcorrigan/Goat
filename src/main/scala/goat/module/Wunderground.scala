@@ -143,6 +143,8 @@ class Wunderground extends Module {
         "english"
       else if(cp.get("units").toLowerCase.equals("metric"))
         "metric"
+      else if(cp.get("units").toLowerCase.equals("imperial"))
+        "imperial"
       else
         "bogus"
     else
@@ -177,7 +179,7 @@ class Wunderground extends Module {
   }
 
   def formatDay(day: JSONObject, units: String): String = {
-    val unitKey: String = if (units.equals("english")) "fcttext"
+    val unitKey: String = if (units == "imperial" || units == "english") "fcttext"
                           else "fcttext_metric"
     BOLD + day.getString("title") + NORMAL + " " + day.getString(unitKey)
   }
@@ -198,9 +200,9 @@ class Wunderground extends Module {
       fcttime.getString("ampm").toLowerCase
     val tempjson = json.getJSONObject("temp")
     val temp =
-      if(units.equals("metric"))
+      if(units == "metric" || units == "english")
           tempjson.getString("metric") + "C"
-      else if(units.equals("english"))
+      else if(units.equals("imperial"))
         tempjson.getString("english") + "F"
       else
         tempjson.getString("english") + "F/" + tempjson.getString("metric") + "C"
@@ -221,7 +223,7 @@ class Wunderground extends Module {
   def windString(json: JSONObject, units: String): String = {
     val direction = json.getJSONObject("wdir").getString("dir").filter("NSEW".contains(_))
     val speed =
-      if(units.equals("english"))
+      if(units == "english" || units == "imperial")
         json.getJSONObject("wspd").getString("english") + "mph"
       else
         json.getJSONObject("wspd").getString("metric") + "kph"
@@ -295,6 +297,7 @@ class Wunderground extends Module {
   def isSnowCode(code: Integer): Boolean =
     List[Integer](9, 16, 18, 19, 20, 21, 24).contains(code)
 
+  // This is meant to mimic the output of WeatherModule.java for observations
   def formatObservation(json: JSONObject) = {
     val conditions =
       if (json.getString("weather").equals(""))
@@ -309,7 +312,7 @@ class Wunderground extends Module {
     val minutes_ago =
       (System.currentTimeMillis/1000L - json.getString("observation_epoch").toLong) / 60L
     json.getString("temp_f") + "F/" + json.getString("temp_c") +
-      "C" + conditions + windString(json) + " " + humidity +
+      "C" + conditions + windStringMph(json) + " " + humidity +
       "  Reported " + minutes_ago + " minutes ago at " +
       stationIdString(json) + " (" +
       json.getJSONObject("observation_location").getString("full") + ")"
@@ -321,7 +324,7 @@ class Wunderground extends Module {
     else
       json.getString("station_id")
 
-  def windString(json: JSONObject): String = {
+  def windStringMph(json: JSONObject): String = {
     val dir = json.getString("wind_dir")
     val mph = json.getString("wind_mph")
     val gust_mph = json.getString("wind_gust_mph")
@@ -437,15 +440,15 @@ class Wunderground extends Module {
       // call this one consolas because that's the font I stared at to make it
       "consolas" -> Map(
         "setName" -> "consolas",
-        "sun" -> WHITE_SUN_WITH_RAYS,
+        "sun" -> (WHITE_SUN_WITH_RAYS + " "),
         // "partlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
-        "partlyCloudyModifier" -> "\u0342",
+        "partlyCloudyModifier" -> "\u0303",
         //"mostlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
         "mostlyCloudyModifier" -> "\u034c",
         "cloudy" -> "\u2248",
-        "hazy" -> WHITE_SUN_WITH_RAYS,
+        "hazy" -> (WHITE_SUN_WITH_RAYS + " "),
         "foggy" -> "\u2592",
-        "veryHot" -> (WHITE_SUN_WITH_RAYS + "\u333e"),
+        "veryHot" -> (WHITE_SUN_WITH_RAYS + "\u333e "),
         "veryCold" -> "*\u02df\u0359",
         // "blowingSnow" -> "",
         "chanceOfShowers" -> ":",
