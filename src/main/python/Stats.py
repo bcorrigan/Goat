@@ -50,7 +50,7 @@ WORD_TYPES_RX = {
     )),
 
     RACISM_COUNT: (True, re.compile(
-        r'(kike|chink|nigger|\bspick?\b|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|paddy|paddie|\bmick\b|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey)'
+        r'(kike|chink|nigger|\bspick?\b|gook|boche|wetback|\bkraut|honkey|porch\s*monkey|raghead|camel\s*jockey|darkie|greaser|paddy|paddie|\bmick\b|pikey|fenian|gypsy|shylock|m[ou]sselman|moslem|gringo|porridge\s*wog|white\s*(pride|power)|slit[a-z]*\s*eye|red\s*indian|juden|dago|paki\b|haj|anglos?(\s+|$)|whitey|negro)'
     )),
 
     HOMOPHOBIA_COUNT: (True, re.compile(
@@ -58,7 +58,7 @@ WORD_TYPES_RX = {
     )),
     # generic impurity.  Goat's turning into a tyrant!
     IMPURITY_COUNT: (True, re.compile(
-      r'(\btroll(?!op|ey|ies))'
+      r'(\btroll(?!op|ey|ies))|retarded'
     )),
     SEX_COUNT: (False, re.compile(
         # any sexual terms or even common euphemisms for sexual terms.  we
