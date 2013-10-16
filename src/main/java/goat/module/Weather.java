@@ -211,11 +211,14 @@ public class Weather extends Module {
             String weather_type = "";
             String precipitation = "none";
             String humidity = "";
+            Date report_date = null;
             long minutes_since_report = 0 ;
             // String report_timezone = "" ;
             int report_year = 0;
             int report_month = 0;
             int report_day = 0;
+            int report_hour = 0;
+            int report_minute = 0;
             double longitude = 0;
             double latitude = 0;
             while ((inputLine = in.readLine()) != null) {
@@ -270,7 +273,7 @@ public class Weather extends Module {
                 }
 
                 // Time
-                m = Pattern.compile(".* ([A-Z]{3}) / ((\\d+)\\.(\\d+)\\.(\\d+) \\d+ UTC).*").matcher(inputLine) ;
+                m = Pattern.compile(".* ([A-Z]{3}) / ((\\d+)\\.(\\d+)\\.(\\d+) (\\d{2})(\\d{2}) UTC).*").matcher(inputLine) ;
                 if (m.matches()) {
                     // By way of explanation:  the regexp should yield groups:
                     //  (1) local time zone as "ZZZ"
@@ -278,19 +281,21 @@ public class Weather extends Module {
                     //report_timezone = m.group(1) ;  //unused
                     //  (2) UTC date and time as "yyyy.MM.dd HHmm UTC"
                     //  (3) year as "yyyy"
-                    report_year = Integer.parseInt(m.group(3)) ;
+                    report_year = Integer.parseInt(m.group(3));
                     //  (4) month as "MM"
-                    report_month = Integer.parseInt(m.group(4)) ;
+                    report_month = Integer.parseInt(m.group(4));
                     //  (5) day as "dd"
-                    report_day = Integer.parseInt(m.group(5)) ;
+                    report_day = Integer.parseInt(m.group(5));
+                    report_hour =  Integer.parseInt(m.group(6));
+                    report_minute =  Integer.parseInt(m.group(7));
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HHmm zzz") ;
                     try {
-                        Date now = new Date() ;
-                        long diff = now.getTime() - sdf.parse(m.group(2)).getTime() ;
-                        minutes_since_report = diff / (1000L*60L) ;
+                        report_date =  sdf.parse(m.group(2));
+                        Date now = new Date();
+                        minutes_since_report =  (now.getTime() - report_date.getTime()) / 1000L / 60L;
                     } catch(java.text.ParseException e) {
-                        System.out.println("Date parse exception.") ;
-                        e.printStackTrace() ;
+                        System.out.println("Date parse exception.");
+                        e.printStackTrace();
                     }
 
                 }
@@ -343,8 +348,18 @@ public class Weather extends Module {
             double score = getScore(wind_mph, wind_gust,temp_c,sky_conditions,weather_type,humidity,sunrise_UTC,sunset_UTC);
             double scoreRounded = Math.round(score*100)/100d;
             String short_response = temp_f + "F/" + temp_c + "C";
+            boolean daylight = false;
+            double fractionalHour = report_hour + report_minute / 60.0;
+            if (sunrise_UTC.getFractionalHours() < sunset_UTC.getFractionalHours())
+                daylight = (sunrise_UTC.getFractionalHours() < fractionalHour) && (sunset_UTC.getFractionalHours() > fractionalHour);
+            else
+                daylight = (sunrise_UTC.getFractionalHours() < fractionalHour) || (sunset_UTC.getFractionalHours() > fractionalHour);
+
             if (! sky_conditions.equals("")) {
-                short_response += ", " + sky_conditions ;
+                if(daylight)
+                    short_response += ", " + sky_conditions.replace("clear", "sunny") ;
+                else
+                    short_response += ", " + sky_conditions.replace("clear", "moony") ;
             }
             if (! weather_type.equals("")) {
                 short_response += ", " + weather_type ;

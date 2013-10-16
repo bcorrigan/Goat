@@ -440,15 +440,15 @@ class Wunderground extends Module {
       // call this one consolas because that's the font I stared at to make it
       "consolas" -> Map(
         "setName" -> "consolas",
-        "sun" -> (WHITE_SUN_WITH_RAYS + " "),
+        "sun" -> WHITE_SUN_WITH_RAYS,
         // "partlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
         "partlyCloudyModifier" -> "\u0303",
         //"mostlyCloudy" -> (SUN_BEHIND_CLOUD + " "),
         "mostlyCloudyModifier" -> "\u034c",
         "cloudy" -> "\u2248",
-        "hazy" -> (WHITE_SUN_WITH_RAYS + " "),
+        "hazy" -> WHITE_SUN_WITH_RAYS ,
         "foggy" -> "\u2592",
-        "veryHot" -> (WHITE_SUN_WITH_RAYS + "\u333e "),
+        "veryHot" -> (WHITE_SUN_WITH_RAYS + "\u333e"),
         "veryCold" -> "*\u02df\u0359",
         // "blowingSnow" -> "",
         "chanceOfShowers" -> ":",
