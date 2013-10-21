@@ -18,6 +18,7 @@ import org.eclipse.egit.github.core.service.OAuthService
 import org.eclipse.egit.github.core.RepositoryCommit
 import org.eclipse.egit.github.core.CommitFile
 import org.eclipse.egit.github.core.Issue
+import org.eclipse.egit.github.core.IssueEvent
 import org.eclipse.egit.github.core.Label
 import org.eclipse.egit.github.core.RepositoryIssue
 import org.eclipse.egit.github.core.User
@@ -40,7 +41,7 @@ class Github extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
 
   def getCommands(): Array[String] =
-    Array("commits", "issues", "commit", "issue", "goatbug", "goatbugs")
+    Array("commits", "issues", "commit", "issue", "goatbug", "goatbugs", "bugstats")
 
   def processPrivateMessage(m: Message) =
     processChannelMessage(m)
@@ -52,6 +53,8 @@ class Github extends Module {
           m.reply(commitsReport)
         case "issues" | "goatbugs" =>
           m.reply(issuesReport)
+        case "bugstats" =>
+          m.reply(bugStatsReport)
         case "commit" =>
           m.reply(commit(new CommandParser(m).findNumber.toInt))
         case "issue" =>
@@ -74,11 +77,16 @@ class Github extends Module {
 
   private val utc = TimeZone.getTimeZone("UTC")
   private val timeFormat = new java.text.SimpleDateFormat("H:mm")
+  timeFormat.setTimeZone(utc)
   private val dateFormat = new java.text.SimpleDateFormat("d MMM")
+  dateFormat.setTimeZone(utc)
+  private val oldDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd")
+  oldDateFormat.setTimeZone(utc)
   private def formatUtcTime(date: Date): String = {
-    timeFormat.setTimeZone(utc)
     val now = new Date
-    if(now.getTime - date.getTime > 24 * 60 * 60 * 1000)
+    if((now.getTime - date.getTime) > 365L * 24 * 60 * 60 * 1000)
+      oldDateFormat.format(date)
+    else if((now.getTime - date.getTime) > 24L * 60 * 60 * 1000)
       dateFormat.format(date)
     else
       timeFormat.format(date)
@@ -272,6 +280,61 @@ class Github extends Module {
     issueService.editIssue(goatRepo, issue)
   }
 
+  private def bugStatsReport:String = {
+    val bunkLabels = Set[String]("Shite","Tailings")
+    val openIssues: List[Issue] = issueService.getIssues(goatRepo, null).toList
+    val closedIssues: List[Issue] = issueService.getIssues(goatRepo, Map(IssueService.FILTER_STATE -> IssueService.STATE_CLOSED)).toList
+    val nonShiteClosed = closedIssues.filter(! _.getLabels.exists((l) => bunkLabels.contains(l.getName)))
+    val shite = (openIssues ::: closedIssues).filter(_.getLabels.exists(_.getName == "Shite"))
+    val oldest = openIssues.sortWith(_.getCreatedAt.getTime < _.getCreatedAt.getTime).head
+    val lastClosed = nonShiteClosed.sortWith(_.getClosedAt.getTime > _.getClosedAt.getTime).head
+    val longestOutstandingClosed = nonShiteClosed.sortWith(fixDays(_) > fixDays(_)).head
+    val events = issueEvents.sortWith(_.getCreatedAt.getTime > _.getCreatedAt.getTime)
+    val complainerCounts: Map[String, Int] =
+      (openIssues ::: closedIssues).foldLeft(Map[String, Int]())((acc, i) => {
+        val name = getComplainer(i)
+        acc + (name -> (acc.getOrElse(name, 0) + 1))})
+    val fixerCounts: Map[String, Int] =
+      nonShiteClosed.foldLeft(Map[String, Int]())((acc, i) => {
+        val name = getFixer(i.getId, events)
+        acc + (name -> (acc.getOrElse(name, 0) + 1))})
+    val shiteCounts: Map[String, Int] =
+      shite.foldLeft(Map[String, Int]())((acc, i) => {
+        val name = getComplainer(i)
+        acc + (name -> (acc.getOrElse(name, 0) + 1))})
+    val now = new Date()
+
+    RED + openIssues.size + " open" + NORMAL + ", " +
+    BLUE + closedIssues.size + " closed" + NORMAL + " " +
+    BROWN + "(" + shite.size + " shite).  " + NORMAL +
+    BOLD + "Average age: " + NORMAL +
+    ((now.getTime - openIssues.foldLeft(0.0)((acc, i) => acc + i.getCreatedAt.getTime)/openIssues.size)/1000/60/60/24.0).toInt + " days (open), " +
+    (nonShiteClosed.foldLeft(0.0)((acc, i) => acc + fixDays(i)/nonShiteClosed.size)).toInt + " days (closed nonshite).  " +
+    BOLD + "Most Heroic:  " + NORMAL +
+      getFixer(longestOutstandingClosed.getId, events) + ", " +
+      " for fixing #" + longestOutstandingClosed.getNumber + ", " +
+      "\"" + titleString(longestOutstandingClosed) + "\", " +
+      "open " + fixDays(longestOutstandingClosed).toInt + " days.  " +
+    BOLD + "Most Annoying Whiners:  " + NORMAL +
+    (for(p <- complainerCounts.toList.sortBy(_._2).reverse.take(3)) yield { p._1 + " (" + p._2 + ")" }).reduce(_ + ", " + _) + ".  " +
+    BOLD + "Best Programmers:  " + NORMAL +
+    (for(p <- fixerCounts.toList.sortBy(_._2).reverse.take(3)) yield { p._1 + " (" + p._2 + ")" }).reduce(_ + ", " + _) + ".  " +
+    BOLD + "Full of Shite:  " + NORMAL +
+    (for(p <- shiteCounts.toList.sortBy(_._2).reverse.take(3)) yield { p._1 + " (" + p._2 + ")" }).reduce(_ + ", " + _) + ".  " +
+    BOLD + "Last non-shite closed: " + NORMAL + shortIssue(lastClosed) + ", closed " + formatUtcTime(lastClosed.getClosedAt) + " " +
+    " by " + getFixer(lastClosed.getId, events) + ".  " +
+    BOLD + "Oldest outstanding: " + NORMAL + "(open " + ((now.getTime - oldest.getCreatedAt.getTime)/1000/24.0/60/60).toInt + " days) " + shortIssue(oldest)
+  }
+
+  private def fixDays(issue: Issue):Double =
+    (issue.getClosedAt.getTime - issue.getCreatedAt.getTime) / 1000 / 24 / 60 / 60.0
+
+  private def getFixer(id: Long, events: List[IssueEvent]):String =
+    events.find((e) => e.getEvent == "closed" && e.getIssue.getId == id) match {
+      case Some(e) => e.getActor.getLogin
+      case None => "(unknown)"
+    }
+
   private val goatbugUsage = "You're supposed to say: " +
                              DARK_BLUE + "goatbug [title=\"my complaint\"] " +
                              "[label=" + labelService.getLabels(goatRepo).map(_.getName).reduce(_ + "|" + _) + "] " +
@@ -384,5 +447,21 @@ class Github extends Module {
       (page.head :: newCommits).reverse
     else
       getCommitsUntilSha(page.tail, pager, sha, page.head :: newCommits)
+
+  // this, too, is a method we shouldn't have to write...
+  private def issueEvents: List[IssueEvent] = {
+    val pager = issueService.pageEvents("bcorrigan","goat")
+    issueEvents_1(pager.next, pager, List[IssueEvent]())
+  }
+
+  // and we might want to cache these, too, if our issues keep growing fast
+  private def issueEvents_1(page: java.util.Collection[IssueEvent], pager: PageIterator[IssueEvent], events: List[IssueEvent]):List[IssueEvent] =
+    if (page.isEmpty)
+      if(pager.hasNext)
+        issueEvents_1(pager.next, pager, events)
+      else
+        events
+    else
+      issueEvents_1(page.tail, pager, page.head :: events)
 
 }
