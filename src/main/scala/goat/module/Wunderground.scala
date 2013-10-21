@@ -139,16 +139,12 @@ class Wunderground extends Module {
 
   def getUnits(cp: CommandParser, user: String):String =
     if(cp.hasVar("units"))
-      if(cp.get("units").toLowerCase.equals("english"))
-        "english"
-      else if(cp.get("units").toLowerCase.equals("metric"))
-        "metric"
-      else if(cp.get("units").toLowerCase.equals("imperial"))
-        "imperial"
+      if(Set("metric","imperial","english").contains(cp.get("units")))
+        getUser(user).setUnits(cp.get("units"))
       else
         "bogus"
     else
-      "default"
+      getUser(user).getUnits
 
   def getIcons(cp: CommandParser, user: String): Map[String, String] =
     if(cp.hasVar("icons") && iconsets.contains(cp.get("icons")))

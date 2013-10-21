@@ -37,6 +37,7 @@ public class User {
     public static final String LASTMESSAGETIMESTAMPS="lastMessageTimestamps";
     public static final String LOCALE="locale";
     public static final String TWEETBUDGET="tweetBudget";
+    public static final String UNITS="units";
 
     private KVStore<String> strStore;
     private KVStore<Object> objStore;
@@ -213,6 +214,22 @@ public class User {
 
     public void setTweetBudget(int budget) {
         objStore.save(TWEETBUDGET, budget);
+    }
+
+    public String getUnits() {
+        String units = "default";
+        if(has(UNITS))
+            units = strStore.get(UNITS);
+        return units;
+    }
+
+    public String setUnits(String units) {
+        units = units.toLowerCase();
+        if(Arrays.asList(new String[] {"metric", "english", "imperial"}).contains(units))
+            strStore.save(UNITS, units);
+        else
+            units = "default";
+        return units;
     }
 
     public boolean has(String property) {
