@@ -307,8 +307,10 @@ class Wunderground extends Module {
         "Humidity " + json.getString("relative_humidity") + "."
     val minutes_ago =
       (System.currentTimeMillis/1000L - json.getString("observation_epoch").toLong) / 60L
-    json.getString("temp_f") + "F/" + json.getString("temp_c") +
-      "C" + conditions + windStringMph(json) + " " + humidity +
+    val temp_f = json.getDouble("temp_f")
+    val temp_c = json.getDouble("temp_c")
+    f"$temp_f%.1fF/$temp_c%.1fC" +
+      conditions + windStringMph(json) + " " + humidity +
       "  Reported " + minutes_ago + " minutes ago at " +
       stationIdString(json) + " (" +
       json.getJSONObject("observation_location").getString("full") + ")"
@@ -322,50 +324,56 @@ class Wunderground extends Module {
 
   def windStringMph(json: JSONObject): String = {
     val dir = json.getString("wind_dir")
-    val mph = json.getString("wind_mph")
-    val gust_mph = json.getString("wind_gust_mph")
+    val mph = json.getDouble("wind_mph")
+    val gust_mph = json.getDouble("wind_gust_mph")
     val gust =
       if(gust_mph.equals("") || gust_mph.equals("0") || gust_mph.equals("0.0"))
         ""
       else
-        " gusting to " + round(gust_mph.toFloat) + "mph"
+        " gusting to " + round(gust_mph) + "mph"
     if(mph.equals("") || mph.equals("0") || mph.equals("0.0"))
       "No Wind."
     else if (dir.equals(""))
-      "Wind " + round(mph.toFloat) + "mph" + gust + "."
+      "Wind " + round(mph) + "mph" + gust + "."
     else
-      "Wind " + dir + " " + round(mph.toFloat) + "mph" + "."
+      "Wind " + dir + " " + round(mph) + "mph" + "."
   }
 
   def formatHurricanes(json: JSONArray): String = {
-    val hurricanes: String = (0 until json.length).map(json.getJSONObject(_)).filter(isSeriousHurricane(_)).map(formatHurricane(_)).foldLeft("")(_ + " " + hurrIcon + " " + _)
+    val hurricanes: String = (0 until json.length)
+      .map(json.getJSONObject(_))
+      .filter(isSeriousHurricane(_))
+      .map(hurrIcon + " " + formatHurricane(_))
+      .reduceLeft(_ + " " + _)
     if(hurricanes.equals(""))
       "No hurricanes."
     else
-      hurrIcon + " " + hurricanes
+      hurricanes
   }
 
   val hurrIcon = CYAN + ",02" + CYCLONE + " " + NORMAL
 
   //FIXME: this should look at forecasted strength, too
   def isSeriousHurricane(json: JSONObject): Boolean =
-    json.getJSONObject("Current").getString("SaffirSimpsonCategory").toInt >= -2
+    json.getJSONObject("Current").getInt("SaffirSimpsonCategory") >= -2
 
   def formatHurricane(json: JSONObject): String = {
     val current = json.getJSONObject("Current")
     val stormInfo = json.getJSONObject("stormInfo")
+    val lat = current.getDouble("lat")
+    val lon = current.getDouble("lon")
     stormInfo.getString("stormName_Nice") + " (cat. " +
-      current.getString("SaffirSimpsonCategory") + ") " +
-      current.getString("lat") + ", " + current.getString("lon") + ".  " +
+      current.getInt("SaffirSimpsonCategory").toString + ") " +
+      f"$lat%.2f, $lon%.2f. " +
       "Wind " + hurrWindString(current) + ". "
   }
 
   def hurrWindString(json: JSONObject): String = {
-    val sustained = json.getJSONObject("WindSpeed").getString("Kts")
-    val gustOpt = Option(json.getJSONObject("WindGust").getString("Kts"))
+    val sustained = json.getJSONObject("WindSpeed").getDouble("Kts")
+    val gustOpt = Option(json.getJSONObject("WindGust").getDouble("Kts"))
     gustOpt match {
-      case Some(str) => sustained + "kt gusting to " + str
-      case None => sustained + "kt"
+      case Some(speed) => f"$sustained%.1fkt gusting to $speed%.1fkt"
+      case None => f"$sustained%.1fkt"
     }
   }
 
