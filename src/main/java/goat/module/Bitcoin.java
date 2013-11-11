@@ -273,7 +273,7 @@ public class Bitcoin extends Module {
 
         HttpURLConnection connection = null;
 
-        URL bitcoincharts = new URL("http://bitcoincharts.com/t/markets.json");
+        URL bitcoincharts = new URL("http://bitcoincharts.com/v1/markets.json");
         connection = (HttpURLConnection) bitcoincharts.openConnection();
         connection.setConnectTimeout(3000);
         connection.setReadTimeout(3000);
