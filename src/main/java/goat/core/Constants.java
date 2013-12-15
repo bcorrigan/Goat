@@ -95,6 +95,8 @@ public class Constants {
 
 
     // Assorted useful UTC-16 glyphs
+    public static final String LATIN_CAPITAL_LETTER_B_WITH_STROKE = "\u0243";
+    public static final String BUTTCOIN = LATIN_CAPITAL_LETTER_B_WITH_STROKE;
 
     public static final String WHITE_SUN_WITH_RAYS = "\u263C";
     public static final String BLACK_SUN_WITH_RAYS = "\u2600";

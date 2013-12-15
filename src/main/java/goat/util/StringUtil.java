@@ -23,6 +23,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.CharBuffer;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -174,7 +175,7 @@ public class StringUtil {
         }
         return durString;
     }
-    
+
     public static String toDateStr(String format, long time) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         Date date = new Date(time);
@@ -470,7 +471,7 @@ public class StringUtil {
 						+(char) (str.substring(
 						str.length()-1).charAt(0)+1);
 	}
-	
+
 
     /**
     * Parses an URL query string and returns a map with the parameter values.
@@ -573,4 +574,18 @@ public class StringUtil {
         return ret;
     }
 
+    public static String formatMoney(Double amount) {
+        DecimalFormat formatter = new DecimalFormat("###,###,###,###,###,###.00");
+        return formatter.format(amount);
+    }
+
+    public static String formatBigNumber(Double amount) {
+        DecimalFormat formatter = new DecimalFormat("###,###,###,###,###,###");
+        return formatter.format(amount);
+    }
+
+    public static String formatSmallNumber(Double amount) {
+        DecimalFormat formatter = new DecimalFormat("0.############");
+        return formatter.format(amount);
+    }
 }
