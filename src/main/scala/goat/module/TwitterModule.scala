@@ -650,31 +650,79 @@ class TwitterModule extends Module {
 
   private def tweply(m:Message):Boolean = {
     try {
-      val Pattern = """(^\d+).*""".r
-      m.getModTrailing.trim match {
-        case Pattern(numStr) =>
-          try {
-            val num = Integer.parseInt(numStr)
-            if(num<0 || num>999) {
-              m.reply("Ur a hueg dick") ; false
-            } else {
-              val reply = m.getModTrailing.replaceFirst(numStr,"").trim
-              getStatusId(num) match {
-                case Some(statusId) => tweetMessage(m,"@" + getScreenName(num).get + " " + reply,Some(statusId))
-                case None => m.reply("I have no record of that twid, tw" + m.getSender) ; false
-              }
-            }
-          } catch {
-            case nfe: NumberFormatException =>
-              m.reply("Nice try, arsewipe.") ; false
-          }
-        case _ => m.reply("You must supply twid of the tweet to tweply to, tw"+m.getSender) ; false
+      getLeadingNum(m) match {
+        case Some((statusId,reply,screenName)) => tweetMessage(m,"@" + screenName + " " + reply,Some(statusId))
+        case None => false
       }
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
         m.reply("Some sort of problem with twitter: " + ex.getMessage)
         false
+    }
+  }
+
+  private def getLeadingNum(m:Message):Option[(Long, String, String)] = {
+    val Pattern = """(^\d+).*""".r
+    m.getModTrailing.trim match {
+      case Pattern(numStr) =>
+        try {
+          val num = Integer.parseInt(numStr)
+          if(num<0 || num>999) {
+            m.reply("Ur a hueg dick") ; None
+          } else {
+            val reply = m.getModTrailing.replaceFirst(numStr,"").trim
+            getStatusId(num) match {
+              case Some(statusId) => Some(statusId,reply, getScreenName(num).get)
+              case None => m.reply("I have no record of that twid, tw" + m.getSender) ; None
+            }
+          }
+        } catch {
+          case nfe: NumberFormatException =>
+            m.reply("Nice try, arsewipe.") ; None
+        }
+      case _ => m.reply("You must supply a tweet twid, tw"+m.getSender) ; None
+    }
+  }
+
+  private def twontext(m:Message) = {
+    try {
+      getLeadingNum(m) match {
+        case Some((statusId,_,_)) =>
+          val context = buildContext(statusId,6)
+          if(context.length>1) {
+            m.reply(formatStatuses(context))
+          } else {
+            m.reply("There doesn't seem to be a context for that, tw" + m.getSender)
+          }
+      }
+    } catch {
+      case ex: TwitterException =>
+        ex.printStackTrace()
+        m.reply("Some sort of problem with twitter: " + ex.getMessage)
+        false
+    }
+  }
+
+  private def buildContext(statusId:Long, fuse:Int):List[Status] = {
+    if(fuse>0) {
+      val status = twitter.showStatus(statusId)
+      if(status.getInReplyToScreenName!=null)
+        status :: buildContext(status.getInReplyToStatusId, fuse-1)
+      else
+        List(status)
+    } else Nil
+  }
+
+  /*
+      val userStr = users.foldLeft("") { (u1,u2) =>
+      if(u1!="") {u1+","+u2.getName()} else u2.getName()
+    }
+   */
+
+  private def formatStatuses(statuses:List[Status]):String = {
+    statuses.reverse.foldLeft ("") { (acc, status) =>
+      if(acc!="") {acc + " " + REVERSE + RED + "=>" + NORMAL + formatTweet(status, Some(getTwid(status)), true)} else formatTweet(status, Some(getTwid(status)), true)
     }
   }
 
@@ -743,7 +791,7 @@ class TwitterModule extends Module {
       val langStr = "(from " + BOLD + lang.name + ")  "
       tweet match {
       case Left(t) => formatTweet(t, langStr +
-          NORMAL + translator.localize(m, translator.translate(tweeText, translator.defaultLanguage())), None)
+          NORMAL + translator.localize(m, translator.translate(tweeText, translator.defaultLanguage())), None, false)
       case Right(s) => s.prefix + " " + langStr + translator.localize(m, translator.translate(s.trends, translator.defaultLanguage()))
       }
     }
@@ -761,19 +809,19 @@ class TwitterModule extends Module {
         if (result._2.length > 1 && result._2.tail.length > 0)
           searchResults = searchResults + Tuple2(result._1, result._2.tail)
 
-        val twid=getTwid(tweet.getId, tweet.getUser.getScreenName)
+        val twid=getTwid(tweet)
 
-        m.reply(formatTweet(tweet,Some(twid)))
+        m.reply(formatTweet(tweet,Some(twid),false))
         addToLastTweets(m, tweet)
         true
     }
   }
 
-  private def formatTweet(tweet: Status, twid:Option[Long]): String =
-    formatTweet(tweet, unescapeHtml(tweet.getText), twid)
+  private def formatTweet(tweet: Status, twid:Option[Long], shortAge:Boolean): String =
+    formatTweet(tweet, unescapeHtml(tweet.getText), twid, shortAge)
 
-  private def formatTweet(tweet: Status, body: String, twid:Option[Long]): String =
-    formatTwid(twid) + ageOfTweet(tweet) + " ago, " +
+  private def formatTweet(tweet: Status, body: String, twid:Option[Long], shortAge:Boolean): String =
+    formatTwid(twid) + ageOfTweet(tweet, shortAge) + " ago, " +
     BOLD + tweet.getUser().getName() +
     " [@" + tweet.getUser().getScreenName() + "]" +
     NORMAL + ": " + body.replaceAll("\\s+", " ")
@@ -784,8 +832,12 @@ class TwitterModule extends Module {
       case None => ""
     }
 
-  private def ageOfTweet(tweet: Status): String = {
-    StringUtil.shortDurationString(System.currentTimeMillis - tweet.getCreatedAt.getTime)
+  private def ageOfTweet(tweet: Status, shortAge:Boolean): String = {
+    val duration = System.currentTimeMillis - tweet.getCreatedAt.getTime
+    if(shortAge)
+      StringUtil.vvshortDurationString(duration)
+    else
+      StringUtil.shortDurationString(duration)
   }
 
   private def fetchFriendStatuses(twitter: Twitter): List[String] =
@@ -796,7 +848,7 @@ class TwitterModule extends Module {
   }
 
   //gets local tweet ID - 3 digit code - if you pass in status ID
-  private def getTwid(statusId:Long, screenName:String):Long = {
+  private def getTwid(status:Status):Long = {
     tweetCountStore.incSave("idcount",1)
     val currentId = forceLong(tweetCountStore.get("idcount"))
     val id = if(currentId>999) {
@@ -804,8 +856,8 @@ class TwitterModule extends Module {
       0
     } else currentId
 
-    tweetCountStore.save("twid."+id, statusId)
-    screenNameStore.save("twid.screenName."+id, screenName)
+    tweetCountStore.save("twid."+id, status.getId)
+    screenNameStore.save("twid.screenName."+id, status.getUser.getScreenName)
     id
   }
 
@@ -831,7 +883,7 @@ class TwitterModule extends Module {
 
   private def sendStatusToChan(status: Status, chan: String, colour:String):Unit = {
     //this notes down the number of tiems a user has tweeted to channel. Will keep it just so we can see volumes
-    val twid=getTwid(status.getId, status.getUser().getScreenName)
+    val twid=getTwid(status)
 
     val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR))
     val userStr = users.foldLeft("") { (u1,u2) =>
@@ -993,7 +1045,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "savesearch", "searchsearch","rmsearch","viewsearch",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -1016,6 +1068,8 @@ class TwitterModule extends Module {
         m.reply("Most beneficant Master " + m.getSender + ", I have tweeted your wise words.")
       case ("tweply", _) =>
         tweet(m, true)
+      case ("twontext", _) =>
+        twontext(m)
       case ("tweet", false) =>
         tweet(m, false)
       case ("stalk", _) =>
