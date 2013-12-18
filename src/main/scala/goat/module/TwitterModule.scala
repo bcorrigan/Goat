@@ -650,7 +650,7 @@ class TwitterModule extends Module {
 
   private def tweply(m:Message):Boolean = {
     try {
-      val Pattern = """(^\d)+.*""".r
+      val Pattern = """(^\d+).*""".r
       m.getModTrailing.trim match {
         case Pattern(numStr) =>
           try {
