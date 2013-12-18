@@ -209,7 +209,7 @@ public class CommandParser {
      *
      * @param name name of var to be fetched
      *
-     * @param defualt default to return if the param can't be parsed as an int
+     * @param defaultVal default to return if the param can't be parsed as an int
      *
      * @return value of var as Int, or default if it can't be parsed
      */

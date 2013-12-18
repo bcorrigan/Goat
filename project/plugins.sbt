@@ -7,4 +7,4 @@ addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.2.5")
 //eclipse innit
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.3.0")
 
-addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.1")
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.5.2")
