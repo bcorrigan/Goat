@@ -523,7 +523,7 @@ class TwitterModule extends Module {
         if (followedUser != null) {    
           m.reply(m.getSender + ", you're now following " + followedUser.getName() + ". You're the only one following them.")
           followedIDs = followedUser.getId()::followedIDs
-          tweetCountStore.save(followedUser.getScreenName, 0)
+          tweetCountStore.save(followedUser.getScreenName, 0l)
           user.addFollowing(screenName)
         } 
           else m.reply("Looks like that user doesn't exist.")
@@ -800,7 +800,7 @@ class TwitterModule extends Module {
     tweetCountStore.incSave("idcount",1)
     val currentId = forceLong(tweetCountStore.get("idcount"))
     val id = if(currentId>999) {
-      tweetCountStore.save("idcount",0)
+      tweetCountStore.save("idcount",0l)
       0
     } else currentId
 
@@ -832,12 +832,7 @@ class TwitterModule extends Module {
   private def sendStatusToChan(status: Status, chan: String, colour:String):Unit = {
     //this notes down the number of tiems a user has tweeted to channel. Will keep it just so we can see volumes
     val twid=getTwid(status.getId, status.getUser().getScreenName)
-    val countStr =  if(tweetCountStore.has(status.getUser().getScreenName() )) {
-      //increment
-      tweetCountStore.save(status.getUser().getScreenName(), tweetCountStore.get(status.getUser().getScreenName())+1)
-      tweetCountStore.get(status.getUser().getScreenName())
-    } else ""
-    
+
     val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR))
     val userStr = users.foldLeft("") { (u1,u2) =>
       if(u1!="") {u1+","+u2.getName()} else u2.getName()
