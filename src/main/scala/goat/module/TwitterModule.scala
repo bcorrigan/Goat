@@ -1028,7 +1028,7 @@ class TwitterModule extends Module {
       } else {
         m.reply("tw" + m.getSender + ", I'm afraid that tweet cannot be deleted - you've waited too long, and now the channel looks like an idiot. Do try and pay attention in future.")
       }
-    } else m.reply(m.getSender + ", I've never sent a tweet for you to delete.")
+    } else m.reply(m.getSender + ", tweets are too old for you to delete. You'll just have to live with it.")
   }
 
   private def tweetCooldown: Boolean =  (System.currentTimeMillis - lastOutgoingTweetTime) > MINUTE
