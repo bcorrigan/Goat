@@ -73,7 +73,7 @@ class TwitterModule extends Module {
 
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
-  private var chan = "#goat" //BotStats.getInstance().getChannels()(0)
+  private var chan = "#jism" //BotStats.getInstance().getChannels()(0)
 
   //HashSet of tuples (queries and tweets), we will use this as a local cache
   //should make a facility for this generic
