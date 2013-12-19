@@ -73,7 +73,7 @@ class TwitterModule extends Module {
 
   private val USER = "goatbot"
   private val PASSWORD = "slashnet"
-  private var chan = "#jism" //BotStats.getInstance().getChannels()(0)
+  private var chan = "#goat" //BotStats.getInstance().getChannels()(0)
 
   //HashSet of tuples (queries and tweets), we will use this as a local cache
   //should make a facility for this generic
@@ -612,7 +612,7 @@ class TwitterModule extends Module {
     }
   }
 
-  private def tweetMessage(m: Message, message: String, statusId:Option[Long]): Boolean = {
+  private def tweetMessage(m: Message, message: String, statusId:Option[Long]): (Boolean, Long) = {
     try {
       if(message.length()<=140) {
         lastOutgoingTweetTime=System.currentTimeMillis()
@@ -627,8 +627,9 @@ class TwitterModule extends Module {
         update.setLocation(location)
 
         val sentStatus = twitter.updateStatus(update)
+        getTwid(sentStatus)
         lastSentTweetId=sentStatus.getId
-        true
+        (true, getTwid(sentStatus))
       } else {
         val remains=message.substring(139)
         var remInd=0
@@ -639,29 +640,48 @@ class TwitterModule extends Module {
         val prefix = message.substring(124, 139) + "_"
 
         m.reply(m.getSender() + ": tweet too long, goes over at …" + prefix + BOLD + remains.substring(0, remInd) + "…" )
-        false
+        (false,0)
       }
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
         m.reply("Some sort of problem with twitter: " + ex.getMessage)
-        false
+        (false,0)
     }
   }
 
+  private def viewTweet(m:Message) {
+    val parser = new CommandParser(m)
+    if(parser.hasOnlyNumber) {
+      val num = parser.findNumber().intValue()
+      if(num<0 || num>999) {
+        m.reply("Ur a hueg dick") ; return
+      } else {
+        if(tweetCountStore.has("twid.screenName."+num)) {
+          val screenName = screenNameStore.get("twid.screenName."+num)
+          if(tweetCountStore.has("twid.screenName.msg."+num)) {
+            val msg = screenNameStore.get("twid.screenName.msg."+num)
+            m.reply(BOLD + "[@" + screenName + "] " + NORMAL + msg)
+            return
+          }
+        }
+        m.reply("Oddly, I don't seem to have the necessary details of that one stored. Oh well.")
+      }
+    } else m.reply("Not sure what you expect me to do with that. Try supplying a number, eh? A twid in fact.")
+  }
 
 
-  private def tweply(m:Message):Boolean = {
+  private def tweply(m:Message):(Boolean, Long) = {
     try {
       getLeadingNum(m) match {
         case Some((statusId,reply,screenName)) => tweetMessage(m,"@" + screenName + " " + reply,Some(statusId))
-        case None => false
+        case None => (false,0)
       }
     } catch {
       case ex: TwitterException =>
         ex.printStackTrace()
         m.reply("Some sort of problem with twitter: " + ex.getMessage)
-        false
+        (false,0)
     }
   }
 
@@ -855,12 +875,15 @@ class TwitterModule extends Module {
     tweetCountStore.incSave("idcount",1)
     val currentId = forceLong(tweetCountStore.get("idcount"))
     val id = if(currentId>999) {
-      tweetCountStore.save("idcount",0l)
+      tweetCountStore.put("idcount",0l)
       0
     } else currentId
 
-    tweetCountStore.save("twid."+id, status.getId)
-    screenNameStore.save("twid.screenName."+id, status.getUser.getScreenName)
+    tweetCountStore.put("twid."+id, status.getId)
+    tweetCountStore.put("twid.reverseLookup."+status.getId, id)
+    screenNameStore.put("twid.screenName."+id, status.getUser.getScreenName)
+    screenNameStore.put("twid.screenName.msg."+id, status.getText)
+    screenNameStore.save()
     id
   }
 
@@ -905,6 +928,10 @@ class TwitterModule extends Module {
         disableNotificationAll(sendchan, user, user.getName() + ", you've blown your twudget! Mend your spammy ways. ")
       }
     }
+  }
+
+  private def sendInfoMessageToChan(msg:String, chan:String):Unit = {
+    Message.createPrivmsg(chan, REVERSE + PURPLE + "***" + NORMAL + " " + unescapeHtml(msg)).send()
   }
     
   private def sanitiseAndScold(m: Message): Boolean =
@@ -1003,11 +1030,15 @@ class TwitterModule extends Module {
     val now = System.currentTimeMillis
     if (tweetCooldown) {
       if(tweply) {
-        if(this.tweply(m))
-          m.reply(tweetConfirmation)
+        val result=this.tweply(m)
+        if(result._1)
+          m.reply(BOLD + "[" + result._2 + "] " + NORMAL + tweetConfirmation)
       }
-      else if(tweetMessage(m, m.getModTrailing, None))
-        m.reply(tweetConfirmation)
+      else {
+        val result=tweetMessage(m, m.getModTrailing, None)
+        if(result._1)
+          m.reply(BOLD + "[" + result._2 + "] " + NORMAL + tweetConfirmation)
+      }
     }
     else
       m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
@@ -1068,7 +1099,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "savesearch", "searchsearch","rmsearch","viewsearch",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext", "twegret", "twegwet")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext", "twegret", "twegwet", "viewtweet")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -1086,6 +1117,8 @@ class TwitterModule extends Module {
         searchSearch(m)
       case ("viewsearch", _) =>
         viewSearch(m)
+      case ("viewtweet", _) =>
+        viewTweet(m)
       case ("tweet", true) =>
         tweetMessage(m, m.getModTrailing, None)
         m.reply("Most beneficant Master " + m.getSender + ", I have tweeted your wise words.")
@@ -1230,15 +1263,30 @@ class TwitterModule extends Module {
       //pass
     }
 
-    def onBlock(source:User, blockedUser:User) { }
+    def onBlock(source:User, blockedUser:User) {
+      sendInfoMessageToChan("Looks like @" + source.getScreenName + " finally got sick of your shit - they've blocked us. Please cut it out, eh?", chan)
+    }
     def onDeletionNotice(directMessageId:Long, userId:Long) { }
     def onDirectMessage(directMessage:DirectMessage) {
-      //TODO
+      sendInfoMessageToChan("Direct Message! : " + BOLD + "[@" + directMessage.getSenderScreenName + "] " + directMessage.getText, chan)
     }
-    def onFavorite(source:User, target:User, favoritedStatus:Status) { }
-    def onFollow(source:User, followedUser:User) { }
+    def onFavorite(source:User, target:User, favoritedStatus:Status) {
+      if(tweetCountStore.has("twid.reverseLookup."+favoritedStatus.getId)) {
+        val twid=tweetCountStore.get("twid.reverseLookup."+favoritedStatus.getId)
+        sendInfoMessageToChan("Wow. Tweet " + twid + " was favourited by " + BOLD + source.getName + " [@" + source.getScreenName + "]" + NORMAL + ". Don't get too cocky.",chan)
+      } else {
+        sendInfoMessageToChan("Gosh, one of our tweets, despite almost certainly being boorish and idiotic, was favourited by " + BOLD + source.getName + " [@" + source.getScreenName + "]" + NORMAL + ". The tweet text was: " + favoritedStatus.getText, chan)
+      }
+    }
+    def onFollow(source:User, followedUser:User) {
+      if(source.getScreenName!="goatbot")
+        sendInfoMessageToChan("New Follower! @" + source.getScreenName + ". I'm very proud of you all.", chan)
+    }
+
     def onFriendList(friendIds:Array[Long]) { }
-    def onUnblock(source:User, unblockedUser:User) { }
+    def onUnblock(source:User, unblockedUser:User) {
+      sendInfoMessageToChan("In a move they will likely soon regret, @" + source.getScreenName + " has unblocked us. Please leave them alone this time.", chan)
+    }
     def onUnfavorite(source:User, target:User, unfavoritedStatus:Status) { }
     def onUserListCreation(listOwner:User, list:UserList) { }
     def onUserListDeletion(listOwner:User, list:UserList) { }
