@@ -88,6 +88,8 @@ class TwitterModule extends Module {
 
   private val streamTwitter: TwitterStream = new TwitterStreamFactory().getInstance(twitter.getAuthorization())
 
+  private var lastSentTweetId: Long = 0;
+
   //streamTwitter.addListener( new GoatStatusListener() )
   streamTwitter.addListener( new GoatUserListener() )
   //we relay all @mentions to channel - this sets it up
@@ -624,7 +626,8 @@ class TwitterModule extends Module {
         val location = new GeoLocation(user.getLatitude, user.getLongitude)
         update.setLocation(location)
 
-        twitter.updateStatus(update)
+        val sentStatus = twitter.updateStatus(update)
+        lastSentTweetId=sentStatus.getId
         true
       } else {
         val remains=message.substring(139)
@@ -998,7 +1001,7 @@ class TwitterModule extends Module {
 
   private def tweet(m: Message, tweply:Boolean) {
     val now = System.currentTimeMillis
-    if ((now - lastOutgoingTweetTime) > MINUTE ) {
+    if (tweetCooldown) {
       if(tweply) {
         if(this.tweply(m))
           m.reply(tweetConfirmation)
@@ -1009,6 +1012,26 @@ class TwitterModule extends Module {
     else
       m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
   }
+
+  private def twegret(m:Message) {
+    if(lastSentTweetId!=0) {
+      if(!tweetCooldown) {
+        try {
+          twitter.destroyStatus(lastSentTweetId)
+          lastSentTweetId=0
+          m.reply("tw"+m.getSender+", whew, saved! You've stopped us looking like idiots, and just in time. Do be more careful in future.")
+        } catch {
+          case ex: TwitterException =>
+            ex.printStackTrace
+            m.reply("Oh dear, there was some issue deleting that tweet :" + ex.getMessage)
+        }
+      } else {
+        m.reply("tw" + m.getSender + ", I'm afraid that tweet cannot be deleted - you've waited too long, and now the channel looks like an idiot. Do try and pay attention in future.")
+      }
+    } else m.reply(m.getSender + ", I've never sent a tweet for you to delete.")
+  }
+
+  private def tweetCooldown: Boolean =  (System.currentTimeMillis - lastOutgoingTweetTime) > MINUTE
 
   private def tweetConfirmation: String =
     confirmationGripes(Random.nextInt(confirmationGripes.length))
@@ -1045,7 +1068,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "savesearch", "searchsearch","rmsearch","viewsearch",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext", "twegret", "twegwet")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -1072,6 +1095,10 @@ class TwitterModule extends Module {
         twontext(m)
       case ("tweet", false) =>
         tweet(m, false)
+      case ("twegret", _) =>
+        twegret(m)
+      case ("twegwet",_) =>
+        m.createReply("Twou tware twnot twery twood twat twis. Twy twegret.")
       case ("stalk", _) =>
         stalk(m)
       case ("tweetchannel", true) =>
