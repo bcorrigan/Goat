@@ -627,9 +627,9 @@ class TwitterModule extends Module {
         update.setLocation(location)
 
         val sentStatus = twitter.updateStatus(update)
-        getTwid(sentStatus)
+        val twid = getTwid(sentStatus)
         lastSentTweetId=sentStatus.getId
-        (true, getTwid(sentStatus))
+        (true, twid)
       } else {
         val remains=message.substring(139)
         var remInd=0
