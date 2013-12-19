@@ -1098,7 +1098,7 @@ class TwitterModule extends Module {
       case ("twegret", _) =>
         twegret(m)
       case ("twegwet",_) =>
-        m.createReply("Twou tware twnot twery twood twat twis. Twy twegret.")
+        m.reply("Twou tware twnot twery twood twat twis. Twy twegret.")
       case ("stalk", _) =>
         stalk(m)
       case ("tweetchannel", true) =>
