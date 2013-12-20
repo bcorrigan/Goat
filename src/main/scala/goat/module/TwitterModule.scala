@@ -926,7 +926,7 @@ class TwitterModule extends Module {
     //bit of a quick fix, should really collate based on last seen chans
     val sendchan = if(users.length==1) users.head.getLastChannel() else chan
     
-    Message.createPrivmsg(sendchan, REVERSE + colour + "*"+twid+"* " + userStr + NORMAL + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
+    Message.createPrivmsg(sendchan, REVERSE + colour + "*"+twid+"* " + userStr + NORMAL + " " + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
     
     users foreach { user => 
       addToTweetAccount(user)
