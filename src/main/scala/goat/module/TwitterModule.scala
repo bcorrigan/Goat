@@ -619,7 +619,6 @@ class TwitterModule extends Module {
         val update = new StatusUpdate(message)
         if(statusId.isDefined) {
           update.setInReplyToStatusId(statusId.get)
-          println("Set statusId:" + statusId.get)
         }
         val user = Users.getUser(m.getSender)
         update.setDisplayCoordinates(true)
@@ -718,6 +717,7 @@ class TwitterModule extends Module {
           } else {
             m.reply("There doesn't seem to be a context for that, tw" + m.getSender)
           }
+        case None => Unit
       }
     } catch {
       case ex: TwitterException =>
@@ -736,12 +736,6 @@ class TwitterModule extends Module {
         List(status)
     } else Nil
   }
-
-  /*
-      val userStr = users.foldLeft("") { (u1,u2) =>
-      if(u1!="") {u1+","+u2.getName()} else u2.getName()
-    }
-   */
 
   private def formatStatuses(statuses:List[Status]):String = {
     statuses.reverse.foldLeft ("") { (acc, status) =>
@@ -870,8 +864,15 @@ class TwitterModule extends Module {
     followedIDs = twitter.getFriendsIDs(-1l).getIDs.toList
   }
 
-  //gets local tweet ID - 3 digit code - if you pass in status ID
   private def getTwid(status:Status):Long = {
+    reverseLookupTwid(status.getId) match {
+      case Some(twid)=>twid
+      case None=>mkTwid(status)
+    }
+  }
+
+  //gets local tweet ID - 3 digit code - if you pass in status ID
+  private def mkTwid(status:Status):Long = {
     tweetCountStore.incSave("idcount",1)
     val currentId = forceLong(tweetCountStore.get("idcount"))
     val id = if(currentId>999) {
@@ -885,6 +886,12 @@ class TwitterModule extends Module {
     screenNameStore.put("twid.screenName.msg."+id, status.getText)
     screenNameStore.save()
     id
+  }
+
+  private def reverseLookupTwid(statusId:Long):Option[Long] = {
+    if(tweetCountStore.has("twid.reverseLookup."+statusId))
+      Some(tweetCountStore.get("twid.reverseLookup."+statusId))
+    else None
   }
 
   //sigh
@@ -1081,7 +1088,7 @@ class TwitterModule extends Module {
   private def filterIDs(ids: Array[Int]): Array[Int] =
     ids.filter((id) => followedIDs.contains(id))
 
-  private def isFollowed(status: Status): Boolean = {    
+  private def isFollowed(status: Status): Boolean = {
     if(followedIDs.contains(status.getUser.getId)) {
       withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR)).length>0
     } else false
@@ -1271,11 +1278,11 @@ class TwitterModule extends Module {
       sendInfoMessageToChan("Direct Message! : " + BOLD + "[@" + directMessage.getSenderScreenName + "] " + directMessage.getText, chan)
     }
     def onFavorite(source:User, target:User, favoritedStatus:Status) {
-      if(tweetCountStore.has("twid.reverseLookup."+favoritedStatus.getId)) {
-        val twid=tweetCountStore.get("twid.reverseLookup."+favoritedStatus.getId)
-        sendInfoMessageToChan("Wow. Tweet " + twid + " was favourited by " + BOLD + source.getName + " [@" + source.getScreenName + "]" + NORMAL + ". Don't get too cocky.",chan)
-      } else {
-        sendInfoMessageToChan("Gosh, one of our tweets, despite almost certainly being boorish and idiotic, was favourited by " + BOLD + source.getName + " [@" + source.getScreenName + "]" + NORMAL + ". The tweet text was: " + favoritedStatus.getText, chan)
+      reverseLookupTwid(favoritedStatus.getId) match {
+        case Some(twid) =>
+          sendInfoMessageToChan("Wow. Tweet " + twid + " was favourited by " + BOLD + source.getName + " [@" + source.getScreenName + "]" + NORMAL + ". Don't get too cocky.",chan)
+        case None =>
+          sendInfoMessageToChan("Gosh, one of our tweets, despite almost certainly being boorish and idiotic, was favourited by " + BOLD + source.getName + " [@" + source.getScreenName + "]" + NORMAL + ". The tweet text was: " + favoritedStatus.getText, chan)
       }
     }
     def onFollow(source:User, followedUser:User) {

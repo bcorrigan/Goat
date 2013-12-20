@@ -18,6 +18,10 @@ public class Users {
     static KVStore<String[]> nmStore = new KVStore<String[]>("userstore.");
     private static CopyOnWriteArraySet<String> userNames = new CopyOnWriteArraySet<String>();
 
+    static {
+        initNames();
+    }
+
     public static boolean hasUser(String name) {
         return strStore.has(name.toLowerCase()+".name");
     }
@@ -51,7 +55,6 @@ public class Users {
     public static List<User> getActiveUsers(long duration) {
         List<User> users = getAllUsers();
         List<User> activeUsers = new ArrayList<User>(10);
-
         for(User user : users) {
             if(user.isActiveWithin(duration))
                 activeUsers.add(user);
@@ -116,10 +119,7 @@ public class Users {
         return chans;
     }
 
-
-    //note all user names as an array within one property for easy lookup without scanning
-    private synchronized static void noteName(String uname) {
-        //this nmStore thing was such a shitty idea, need to work out how mapdb does secondary keys, cos it does.
+    private synchronized static void initNames() {
         if(nmStore.has("names")) {
             String[] oldNames = nmStore.get("names");
 
@@ -128,7 +128,15 @@ public class Users {
                     userNames.add(user);
                 }
             }
+        } else {
+            nmStore.save("names", new String[]{});
+        }
+    }
 
+    //note all user names as an array within one property for easy lookup without scanning
+    private synchronized static void noteName(String uname) {
+        //this nmStore thing was such a shitty idea, need to work out how mapdb does secondary keys, cos it does.
+        if(nmStore.has("names")) {
             userNames.add(uname);
             nmStore.save("names", userNames.toArray(new String[userNames.size()]));
         } else {
