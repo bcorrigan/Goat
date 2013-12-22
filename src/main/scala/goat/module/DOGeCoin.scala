@@ -39,7 +39,7 @@ class DOGeCoin extends Module {
   val fetcher = new goat.util.DOGeCoin
 
   def ticker(m: Message): String = {
-    val json = fetcher.insecureApiCall("")
+    val json = fetcher.apiCall("")
     if(json.has("ticker"))
       formatTicker(json.getJSONObject("ticker"))
     else
