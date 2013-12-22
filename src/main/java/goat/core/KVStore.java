@@ -184,11 +184,19 @@ public class KVStore<T> implements Map<String, T> {
 
     public void incSave(String propName, int inc) {
 	if(has(propName)) {
-	    if(inc>0) {
-		Integer prop = (Integer) get(propName);
-		prop=prop+inc;
-		save(propName,(T) prop);
-	    }
+        if(get(propName) instanceof Long) {
+            if(inc>0) {
+                Long prop = (Long) get(propName);
+                prop=prop+inc;
+                save(propName,(T) prop);
+            }
+        } else { //assume int
+            if(inc>0) {
+                Integer prop = (Integer) get(propName);
+                prop=prop+inc;
+                save(propName,(T) prop);
+            }
+        }
 	} else {
 	    save(propName, (T) new Integer(inc));
 	}
