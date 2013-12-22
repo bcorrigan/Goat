@@ -82,12 +82,12 @@ class DOGeCoin extends Module {
   }
 
   def hashrate(m: Message): String = {
-    val lines: List[String] = chainFetcher.insecureApiCall("nethash/10/-10/0").toList
+    val lines: List[String] = chainFetcher.insecureApiCall("nethash/60/-60/0").toList
     if(lines.head.startsWith("error:"))
       lines.head.substring(6).trim
     else {
       val fields = lines.dropWhile(_ != "START DATA").tail.head.split(",").map(_.toDouble)
-      "The internet is currenlty wasting " + formatBigNumber(fields(7)) + " GPUs every second to produce one bag of DOG eCoins every " + formatBigNumber(fields(6)) + " seconds."
+      "The internet is currently wasting " + formatBigNumber(fields(7)) + " GPUs every second to produce one bag of DOG eCoins every " + formatBigNumber(fields(6)) + " seconds."
     }
   }
 
