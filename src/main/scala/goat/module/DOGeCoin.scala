@@ -87,7 +87,7 @@ class DOGeCoin extends Module {
       lines.head.substring(6).trim
     else {
       val fields = lines.dropWhile(_ != "START DATA").tail.head.split(",").map(_.toDouble)
-      "The internet is currenlty wasting " + formatBigNumber(fields(7)) + " GPUs every second to produce one DOG eCoin every " + formatBigNumber(fields(6)) + " seconds."
+      "The internet is currenlty wasting " + formatBigNumber(fields(7)) + " GPUs every second to produce one bag of DOG eCoins every " + formatBigNumber(fields(6)) + " seconds."
     }
   }
 
