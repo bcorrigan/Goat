@@ -49,9 +49,7 @@ public class ServerConnection extends Thread {
 
         ih.start();
         oh.start();
-        /*  wtf  --rs
-        new Message("", "PASS", "foo", "").send();
-        */
+
         new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
         new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.getInstance().getVersion()).send();
         //we sleep until we are connected, don't want to send these next messages too soon
@@ -120,23 +118,26 @@ public class ServerConnection extends Thread {
                             continue;
                         Message m = new Message(messageString);
 
-                        if (!connected) {
+                        if(m.getCommand().matches("\\d+"))
                             try {
                                 int intcommand = Integer.parseInt(m.getCommand());
-                                if (intcommand == Constants.RPL_ENDOFMOTD)
+                                if (intcommand == Constants.RPL_ENDOFMOTD) {
+                                    System.err.println("MOTD SEEN, must be connected.");
                                     connected = true;
-                                else if (intcommand == Constants.ERR_NICKNAMEINUSE) {
+                                } else if (intcommand == Constants.ERR_NICKNAMEINUSE) {
+                                    System.err.println("NICKNAMEINUSE");
                                     namecount++;
                                     BotStats.getInstance().setBotname( botdefaultname + namecount );
                                     new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
                                     new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " +
                                             BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() +
                                             " v." + BotStats.getInstance().getVersion()).send();
+                                    System.err.println("Setting nick to:" + botdefaultname + namecount);
                                 }
                             } catch (NumberFormatException nfe) {
                                 //we ignore this
+                                System.err.println("Unknown command:" + m.getCommand());
                             }
-                        }
 
                         if (m.getCommand().equals("PING")) {
                             outqueue.add(new Message("", "PONG", "", m.getTrailing()));
@@ -157,6 +158,7 @@ public class ServerConnection extends Thread {
                         }
                     } else {
                         if (System.currentTimeMillis() - lastActivity > 305000) {
+                            System.err.println("305 seconds since last activity! Attempting reconnect");
                             in.close();
                             oh.disconnect();
                             keeprunning = false;
