@@ -60,8 +60,8 @@ public class ServerConnection extends Thread {
                 e.printStackTrace();
             }
         }
-        String[] channels = BotStats.getInstance().getChannels();
-        for (String channel : channels) new Message("", "JOIN", channel, "").send();
+
+        joinChannels();
     }
 
     private void reconnect() {
@@ -123,6 +123,8 @@ public class ServerConnection extends Thread {
                                 int intcommand = Integer.parseInt(m.getCommand());
                                 if (intcommand == Constants.RPL_ENDOFMOTD) {
                                     System.err.println("MOTD SEEN, must be connected.");
+                                    if(connected)
+                                        joinChannels();
                                     connected = true;
                                 } else if (intcommand == Constants.ERR_NICKNAMEINUSE) {
                                     System.err.println("NICKNAMEINUSE");
@@ -241,4 +243,9 @@ public class ServerConnection extends Thread {
 	public boolean alreadySeenMOTD() {
 		return alreadySeenMOTD;
 	}
+
+    private void joinChannels() {
+        String[] channels = BotStats.getInstance().getChannels();
+        for (String channel : channels) new Message("", "JOIN", channel, "").send();
+    }
 }
