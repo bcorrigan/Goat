@@ -612,9 +612,16 @@ class TwitterModule extends Module {
     }
   }
 
+  //twitter turn all urls into 22 char t.co urls, so substitute any urls with a fake t.co url
+  private def getUrlSubstitutedMsg(message:String):String = {
+    message.replaceAll("https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]","http://t.co/aybabtuqmf")
+  }
+
   private def tweetMessage(m: Message, message: String, statusId:Option[Long]): (Boolean, Long) = {
+    val shortenedMsg = if(message.length<=140) message else getUrlSubstitutedMsg(message)
+
     try {
-      if(message.length()<=140) {
+      if(shortenedMsg.length<=140) {
         lastOutgoingTweetTime=System.currentTimeMillis()
         val update = new StatusUpdate(message)
         if(statusId.isDefined) {
@@ -630,13 +637,14 @@ class TwitterModule extends Module {
         lastSentTweetId=sentStatus.getId
         (true, twid)
       } else {
-        val remains=message.substring(139)
+
+        val remains=shortenedMsg.substring(139)
         var remInd=0
         if(remains.length()<10)
           remInd=remains.length()
         else remInd=9
 
-        val prefix = message.substring(124, 139) + "_"
+        val prefix = shortenedMsg.substring(124, 139) + "_"
 
         m.reply(m.getSender() + ": tweet too long, goes over at …" + prefix + BOLD + remains.substring(0, remInd) + "…" )
         (false,0)
