@@ -219,7 +219,7 @@ class ThreadedGisSearch extends Thread {
     // concurrently instead of making a new one each time.
     private void initEngine() throws Exception {
         if (inv == null) {
-            FileReader f = new FileReader("vendor/libpy/goatpy/tumblr.py");
+            FileReader f = new FileReader("src/main/python/goatpy/tumblr.py");
             ScriptEngine engine = new ScriptEngineManager().getEngineByName("python");
             engine.eval(f);
             inv = (Invocable) engine;

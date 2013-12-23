@@ -8,10 +8,12 @@ scalaVersion in ThisBuild := "2.10.3"
 
 
 // make pythons work plz
-javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / "vendor/libpy") }).toString
+val pyLibs=List("vendor/libpy","src/main/python")
 
-unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / "vendor/libpy") }
-
+pyLibs map { pyLib =>
+  javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / pyLib) }).toString
+  unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / pyLib) }
+}
 
 // the trustStore javaOption is not picked up unless we fork
 fork := true
