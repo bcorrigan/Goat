@@ -82,7 +82,7 @@ class DOGeCoin extends Module {
   }
 
   def hashrate(m: Message): String = {
-    val lines: List[String] = chainFetcher.insecureApiCall("nethash/60/-60/0").toList
+    val lines: List[String] = chainFetcher.insecureApiCall("nethash/60/-60").toList
     if(lines.head.startsWith("error:"))
       lines.head.substring(6).trim
     else {
