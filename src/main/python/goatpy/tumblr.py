@@ -2,12 +2,13 @@ from goat.core import KVStore
 from goat.util import Passwords
 
 from goatpy.util import get_page
+import base64
 import oauth2 as oauth # yes this oauth v1 not v2
 import pickle
 import random
+import re
 import sets
 import simplejson as json
-import re
 import time
 import urllib
 import urllib2
@@ -202,6 +203,51 @@ def gis_search(search, tags=None, show_search=True, skip_repeats=True):
 
         return safe_post(random.choice(images), caption=search,
             post_type="photo", tags=tags, skip_repeats=skip_repeats)
+
+def bis_search(search, tags=None, show_search=True, skip_repeats=True):
+    if cache_search(search):
+        if skip_repeats:
+            return
+    terms = " ".join(map(lambda q: "+" + q, search.split()))
+
+    queryBingFor = "'%s'" % terms # the apostrophe's required as that is the format the API Url expects.
+    quoted_query = urllib.quote(queryBingFor)
+
+    rootURL = "https://api.datamarket.azure.com/Bing/Search/"
+    searchURL = rootURL + "Image?Adult=%27Off%27&$format=json&Query=" + quoted_query
+
+    print searchURL
+    pwds = Passwords()
+    username = pwds.getPassword('microsoft.accountKey')
+    accountKey = pwds.getPassword('microsoft.accountKey')
+    password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    password_mgr.add_password(None, searchURL,username,accountKey)
+
+    handler = urllib2.HTTPBasicAuthHandler(password_mgr)
+    opener = urllib2.build_opener(handler)
+    urllib2.install_opener(opener)
+    try:
+        resp = urllib2.urlopen(searchURL)
+        content = resp.read()
+        code = 200
+    except urllib2.URLError, e:
+        code = str(e)
+
+    if code != 200:
+        return "Bing said: %s" % (str(code))
+    results = json.loads(content)
+
+    try:
+        images = [i['MediaUrl'] for i in results['d']['results']]
+    except:
+        images = None
+
+    if images is not None and len(images) > 0:
+        if show_search is False:
+            search = None
+        return safe_post(random.choice(images), caption=search,
+            post_type="photo", tags=tags, skip_repeats=skip_repeats)
+
 
 ###
 ### Manage a store of recently seen words. (tumblrbrain)

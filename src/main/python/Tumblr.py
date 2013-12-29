@@ -92,7 +92,7 @@ class Tumblr(Module):
     def processChannelMessage(self, m):
         commands = {
             "gis": goatpy.tumblr.gis_search,
-            "bis": goatpy.tumblr.gis_search,  # TODO
+            "bis": goatpy.tumblr.bis_search,
             "yis": goatpy.tumblr.gis_search,  # TODO
         }
 
@@ -125,7 +125,7 @@ class Tumblr(Module):
                 if is_obsessed(m):
                     goatpy.tumblr.cache_search(search) # saves as seen
                 else:
-                    provider = m.modCommand
+                    provider = "bis"
                     parser = CommandParser(m)
                     if parser.hasVar("provider"):
                         provider = parser.get("provider")
