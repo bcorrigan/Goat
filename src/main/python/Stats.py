@@ -107,7 +107,7 @@ class Stats(Module):
     def updateStats(self, m):
         msg = StringUtil.removeFormattingAndColors(m.getTrailing()).lower()
         word_count = len(msg.split())
-        seen_types = dict()
+        seen_types = {}
         pure = True
 
         for word_type, (impure, rx) in WORD_TYPES_RX.items():

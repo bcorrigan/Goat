@@ -13,10 +13,9 @@ import time
 import urllib
 import urllib2
 
-# this module posts images and videos to tumblr.  it picks these up when
-# someone pastes them directly in the channel or when someone makes use of a
-# search module like gis/yis/bis.
-# TODO: implement bis, yis searches
+# this module posts images and videos to tumblr.
+
+# TODO: implement yis search
 
 ###
 ### Tumblr API
@@ -101,33 +100,26 @@ def dashboard():
     success, response, results = make_tumblr_request(url, params)
     return results
 
-def post(url, post_type="photo", caption=None, link=None,
-    tags=None, skip_repeats=True):
+def post(url, post_type="photo", caption=None, tags=None):
     set_last_post_time()
-    params = { }
+
+    params = {}
     params['type'] = post_type
+    if post_type == "photo_embed":
+      params['type'] = "photo"
     if tags is not None:
         params['tags'] = ",".join(tags)
+    if caption is not None:
+        params['title'] = caption
 
     if post_type == "photo":
         params['source'] = url
         if caption is not None:
             params['caption'] = caption
-        if link is not None:
-            params['link'] = link
-
     elif post_type == "photo_embed":
-        if caption is not None:
-            params['title'] = caption
         params['type'] = 'text'
-        if link is not None:
-            params['body'] = '<a href="%s"><img src="%s"></a>' % (link, url)
-        else:
-            params['body'] = '<img src="%s">' % url
-
+        params['body'] = '<img src="%s">' % url
     elif post_type == "video":
-        if caption is not None:
-            params['title'] = caption
         embed_code = '<iframe width="640" height="480" src="%s" frameborder="0" allowfullscreen></iframe>'
         params['embed'] = embed_code % url
 
@@ -142,8 +134,7 @@ def safe_post(url, *args, **kwargs):
     """A posting method that falls back to posting images to imgur if  the
 tumblr image quota is exceeded."""
     if cache_url(url):
-        if "skip_repeats" not in kwargs or kwargs["skip_repeats"]:
-            return
+        return
 
     msg = post(url, *args, **kwargs)
     if msg is not None:
@@ -167,10 +158,13 @@ tumblr image quota is exceeded."""
 ### Higher level functions that make use of the Tumblr API to do things.
 ###
 
-def gis_search(search, tags=None, show_search=True, skip_repeats=True):
+def post_search(search, tags=None):
+    """Post a random image, using the preferred method."""
+    bis_search(search, tags=tags)
+
+def gis_search(search, tags=None):
     if cache_search(search):
-        if skip_repeats:
-            return
+        return
     params = {
         "v": "1.0",
         "start": "1",   # this can be incremented for more results.
@@ -193,21 +187,12 @@ def gis_search(search, tags=None, show_search=True, skip_repeats=True):
         images = None
 
     if images is not None and len(images) > 0:
-        link = None
-        if show_search is False:
-            search = None
-        else:
-            link = 'http://images.google.com/images?%s' % urllib.urlencode({
-                'safe': 'off',
-                'q': search })
-
         return safe_post(random.choice(images), caption=search,
-            post_type="photo", tags=tags, skip_repeats=skip_repeats)
+            post_type="photo", tags=tags)
 
-def bis_search(search, tags=None, show_search=True, skip_repeats=True):
-    if cache_search(search):
-        if skip_repeats:
-            return
+def bis_search(search, tags=None):
+    if cache_search(search):  # skip repeats
+        return
     terms = " ".join(map(lambda q: "+" + q, search.split()))
 
     queryBingFor = "'%s'" % terms # the apostrophe's required as that is the format the API Url expects.
@@ -243,38 +228,35 @@ def bis_search(search, tags=None, show_search=True, skip_repeats=True):
         images = None
 
     if images is not None and len(images) > 0:
-        if show_search is False:
-            search = None
         return safe_post(random.choice(images), caption=search,
-            post_type="photo", tags=tags, skip_repeats=skip_repeats)
+            post_type="photo", tags=tags)
 
 
 ###
-### Manage a store of recently seen words. (tumblrbrain)
+### Manage a store of recently seen words. (tumblr brain)
 ###
 
-SEED_LENGTH=12
+BRAIN_SIZE=24
 TUMBLR_WORDS_KEY="tumblrWords"
 
 stop_words = None   # stop words cached here once loaded
-
 def get_stop_words():
-    """provide the dict of stop words"""
+    """Returns the set of stop_words."""
     global stop_words
     if stop_words is not None:
         return stop_words
 
+    s = set()
     try:
         f = file("resources/stop_words", "r")
         words = f.readlines()
         f.close()
     except IOError, e:
         print "error reading stopwords!"
-        return None
+        return s
 
-    s = dict()
     for word in words:
-        s[word.rstrip()] = True
+        s.add(word.rstrip())
     stop_words = s
     return stop_words
 
@@ -282,52 +264,49 @@ def get_tumblr_store():
     store = KVStore.getCustomStore("tumblr")
     return store
 
-def get_word_seeds():
+def get_words():
     store = get_tumblr_store()
-
-    word_seeds = store.getOrElse(TUMBLR_WORDS_KEY, None)
-    if not word_seeds:
-        word_seeds = []
+    words = store.getOrElse(TUMBLR_WORDS_KEY, None)
+    if not words:
+        words = []
     else:
-        word_seeds = pickle.loads(word_seeds)
-    return word_seeds
+        words = pickle.loads(words)
+    return words
 
-def save_word_seeds(word_seeds):
+def save_words(words):
+    # This adjusts the saved word count if BRAIN_SIZE changes
+    if len(words) > BRAIN_SIZE:
+        words = words[:BRAIN_SIZE]
+
     store = get_tumblr_store()
-    store.save(TUMBLR_WORDS_KEY, pickle.dumps(word_seeds))
+    store.save(TUMBLR_WORDS_KEY, pickle.dumps(words))
 
 def get_random_words(count=3):
-    word_seeds = get_word_seeds()
-    random.shuffle(word_seeds)
-    if len(word_seeds) < count:
-        return word_seeds
+    words = get_words()
+    random.shuffle(words)
+    if len(words) < count:
+        return words
     else:
-        return word_seeds[:count]
+        return words[:count]
 
-def feed_random_words(msg):
-    word_seeds = get_word_seeds()
+def add_words(msg):
+    words = get_words()
+    stop_words = get_stop_words()
     msg = re.sub('[^a-z\s.]',  "", msg.lower())
     new_words = msg.split()
     random.shuffle(new_words)
 
-    if len(word_seeds) > SEED_LENGTH:
-        word_seeds = word_seeds[:SEED_LENGTH]
-
-    stop_words = get_stop_words()
-    if stop_words is None:
-        return None
-
     for word in new_words:
         if (len(word) < 4 or word.startswith("http") or "." in word or
-            word in word_seeds or word in stop_words):
+            word in words or word in stop_words):
             continue
 
-        if len(word_seeds) < SEED_LENGTH:
-            word_seeds.append(word)
+        if len(words) < BRAIN_SIZE:
+            words.append(word)
         else:
-            word_seeds[random.randint(0, SEED_LENGTH-1)] = word
-    save_word_seeds(word_seeds)
-    return word_seeds
+            words[random.randint(0, BRAIN_SIZE-1)] = word
+    save_words(words)
+    return words
 
 
 ###

@@ -14,13 +14,15 @@ import time
 # this module posts images and videos to tumblr.  it picks these up when
 # someone pastes them directly in the channel or when someone makes use of a
 # search module like gis/yis/bis.
-# TODO: implement bis, yis searches
+# TODO: implement yis search
 # TODO: what about youtube search?
-# TODO: prevent double-posting
 
 URL_RX = re.compile(r'https?://\S+\.(jpe?g|gif|png|bmp)')
 VIDEO_RX = re.compile(r'https?://[^/]*youtube\S+')
 
+
+# TODO delete/reimplement this obsession thing.  maybe a simple x% of last
+# N posts = obsessed.
 refractory_period = 300 # random wait period from 0 .. this_number
 base_chance = 0.75
 random_bonus = 0.50 # start_level = base_chance + random(random_bonus)
@@ -81,7 +83,7 @@ def is_obsessed(m):
             "cool", "hero"]
         tags = [user, "obama", random.choice(words)]
         search = " ".join(tags[1:])
-        goatpy.tumblr.gis_search(search, tags, skip_repeats=False)
+        goatpy.tumblr.post_search(search, tags)
 
     return obsessed
 
@@ -93,7 +95,7 @@ class Tumblr(Module):
         commands = {
             "gis": goatpy.tumblr.gis_search,
             "bis": goatpy.tumblr.bis_search,
-            "yis": goatpy.tumblr.gis_search,  # TODO
+            "yis": goatpy.tumblr.bis_search,  # TODO
         }
 
         msg = StringUtil.removeFormattingAndColors(m.getTrailing())
@@ -131,6 +133,10 @@ class Tumblr(Module):
                         provider = parser.get("provider")
                         if provider == "my mommy":
                             provider = "gis"
+                        elif provider not in commands:
+                          print "Unknown provider: %s" % provider
+                          return
+
 
                     tags = [m.sender]
                     tags.extend(tokens[1:])

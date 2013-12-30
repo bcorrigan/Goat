@@ -76,7 +76,7 @@ public class RandWords extends Module {
             else
                 words = getWord() + ' ' + arg;
             m.reply(words);
-            new ThreadedGisSearch(m, words);
+            new ThreadedImageSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("headline")) {
             ArrayList<String> seeds = parser.remainingAsArrayList() ;
             String words;
@@ -93,7 +93,7 @@ public class RandWords extends Module {
                 words = al2str(seeds);
             }
             m.reply(words);
-            new ThreadedGisSearch(m, words);
+            new ThreadedImageSearch(m, words);
         } else if (m.getModCommand().equalsIgnoreCase("emoji")) {
             try {
                 if(parser.hasNumber())
@@ -199,19 +199,19 @@ public class RandWords extends Module {
 
 }
 
-class ThreadedGisSearch extends Thread {
+class ThreadedImageSearch extends Thread {
     private Message m;
     private String result;
     private Invocable inv = null;
 
-    ThreadedGisSearch(Message m, String result) {
+    ThreadedImageSearch(Message m, String result) {
         this.m = m;
         this.result = result;
         start();
     }
 
     public void run() {
-        gisSearch(this.m, this.result);
+        imageSearch(this.m, this.result);
     }
 
     // Try to load a Python
@@ -227,7 +227,7 @@ class ThreadedGisSearch extends Thread {
     }
 
 
-    private void gisSearch(Message m, String result) {
+    private void imageSearch(Message m, String result) {
         try {
             initEngine();
         } catch (Exception e) {
@@ -237,9 +237,9 @@ class ThreadedGisSearch extends Thread {
         Object ret;
         try {
             // TODO add tags.
-            ret = inv.invokeFunction("gis_search", result);
+            ret = inv.invokeFunction("post_search", result);
         } catch (Exception e) {
-            m.reply("error gis searching: " + e.getMessage());
+            m.reply("error image searching: " + e.getMessage());
             return;
         }
         if (ret instanceof String) {
