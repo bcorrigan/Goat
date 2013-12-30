@@ -757,6 +757,8 @@ public class Google extends Module {
 
     public String imageBingUrl(String s) {
         s = StringUtil.removeFormattingAndColors(s);
+        if (! s.matches(".*[\"'+].*"))
+            s = "+" + s.trim().replaceAll("\\s+", " +");
         try {
             return "http://www.bing.com/images/search?adlt=off&q="
                     + URLEncoder.encode(s.trim(), encoding) + " "
