@@ -657,6 +657,22 @@ class TwitterModule extends Module {
     }
   }
 
+  private def retweetMessage(m: Message, statusId:Long): (Boolean, Long) = {
+    try {
+        lastOutgoingTweetTime=System.currentTimeMillis()
+        val sentStatus = twitter.retweetStatus(statusId)
+        val twid = getTwid(sentStatus)
+        lastSentTweetId=sentStatus.getId
+        m.reply(BOLD + "[" + twid + "] " + NORMAL + tweetConfirmation)
+        (true, twid)
+    } catch {
+      case ex: TwitterException =>
+        ex.printStackTrace()
+        m.reply("Some sort of problem with twitter: " + ex.getMessage)
+        (false,0)
+    }
+  }
+
   private def viewTweet(m:Message) {
     val parser = new CommandParser(m)
     if(parser.hasOnlyNumber) {
@@ -690,6 +706,27 @@ class TwitterModule extends Module {
         m.reply("Some sort of problem with twitter: " + ex.getMessage)
         (false,0)
     }
+  }
+
+  private def tweetweet(m:Message):(Boolean, Long) = {
+    val now = System.currentTimeMillis
+    if (tweetCooldown) {
+        try {
+        getLeadingNum(m) match {
+            case Some((statusId,_,_)) => retweetMessage(m, statusId)
+            case None => (false,0)
+        }
+        } catch {
+        case ex: TwitterException =>
+            ex.printStackTrace()
+            m.reply("Some sort of problem with twitter: " + ex.getMessage)
+            (false,0)
+        }
+    }
+    else
+      m.reply("Don't ask me to be a blabbermouth. I tweeted only " + StringUtil.durationString(now - lastOutgoingTweetTime) + " ago.")
+      (false,0)
+
   }
 
   private def getLeadingNum(m:Message):Option[(Long, String, String)] = {
@@ -1114,7 +1151,7 @@ class TwitterModule extends Module {
   override def getCommands(): Array[String] = {
     Array("tweet", "tweetchannel", "follow", "following", "unfollow", "rmfollow", "tweetsearch", "twitsearch",
         "twittersearch", "twudget", "inanity", "tweetstats", "trends","localtrends", "tweetpurge", "savesearch", "searchsearch","rmsearch","viewsearch",
-        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext", "twegret", "twegwet", "viewtweet")
+        "tweetsearchsize", "trendsnotify", "t", "twanslate", "twans", "stalk", "twollowing","untwollow","rmtwollow","twollow","tweradicate","tweply", "twontext", "twegret", "twegwet", "viewtweet","tweetweet")
   }
 
   override def processPrivateMessage(m: Message) {
@@ -1139,6 +1176,8 @@ class TwitterModule extends Module {
         m.reply("Most beneficant Master " + m.getSender + ", I have tweeted your wise words.")
       case ("tweply", _) =>
         tweet(m, true)
+      case ("tweetweet", _) =>
+        tweetweet(m)
       case ("twontext", _) =>
         twontext(m)
       case ("tweet", false) =>
