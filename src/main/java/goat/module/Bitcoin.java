@@ -3,6 +3,7 @@ package goat.module;
 import goat.core.Module;
 import goat.core.Message;
 import goat.core.Users;
+import goat.core.Constants;
 import goat.util.CommandParser;
 import goat.util.MtGox;
 
@@ -16,6 +17,7 @@ import org.json.JSONException;
 import java.net.SocketTimeoutException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
@@ -129,15 +131,19 @@ public class Bitcoin extends Module {
         String column = "close";
         if (parser.hasVar("column") && columns.contains(parser.get("column")))
             column = parser.get("column");
+        //Make bitcoinaverage.com default source.
+        //String symbol = "mtgoxUSD";
+        String symbol = "btcavg";
 
-        String symbol = "mtgoxUSD";
-
+        // Only use symbol if specifically requested otherwise fall back to currency and BitcoinAverage quote.
         if (parser.hasVar("symbol"))
             symbol = parser.get("symbol");
         else if (parser.hasVar("currency") && symbols.containsKey(parser.get("currency").toUpperCase()))
-            symbol = symbols.get(parser.get("currency").toUpperCase());
+            userCurrency = parser.get("currency").toUpperCase();
+        /*
         else if (symbols.containsKey(userCurrency))
             symbol = symbols.get(userCurrency);
+        */
 
         try {
             if (symbol.startsWith("mtgox")) {
@@ -147,6 +153,20 @@ public class Bitcoin extends Module {
                     m.reply(formatGoxQuote(quote.getJSONObject("return"), column, tz));
                 else
                     m.reply("MtGox error: " + quote.getString("error"));
+            } else if (symbol.startsWith("btcavg")) {
+                JSONObject quotes = btcavgQuotes();
+                JSONObject quote = null;
+                try {
+                    quote = quotes.getJSONObject(userCurrency);
+                } catch (JSONException e) {
+                    try {
+                        quote = quotes.getJSONObject("GBP");
+                    } catch (JSONException e2) {
+                        m.reply("Can't find currency in BitcoinAverage.com JSON");
+                    }
+                }
+                //m.reply(quote.toString());
+                m.reply(formatBtcAvgQuote(quote, tz, userCurrency));
             } else {
                 JSONArray quotes;
                 if (tooSoon(symbol)) {
@@ -249,6 +269,37 @@ public class Bitcoin extends Module {
         return ret;
     }
 
+    private String formatBtcAvgQuote(JSONObject quote, TimeZone tz, String currency) {
+        String ret = "My programmers are horrible";
+        double price = quote.getDouble("last");
+        double avg = quote.getDouble("24h_avg");
+        String timestamp = quote.getString("timestamp");  //RFC 1123 Format
+        SimpleDateFormat df = new SimpleDateFormat("EEEE, d MMMM yyyy, hh:mma z");
+        Date date;
+        try {
+            date = df.parse(timestamp);
+        } catch (ParseException e) {
+            date = new Date();
+        }
+        String date_fmt = compactDate(date, tz);
+        double price_fmt = Double.parseDouble(new DecimalFormat("#.##").format(price));
+        ret = date_fmt + " " + currency + " " + price_fmt + " ";
+        double change = price - avg;
+        double percentage_change = ((change)/avg)*100;
+        ret += "(";
+        if(change > 0)
+            ret += "+";
+        if(change < 0)
+            ret += Constants.RED;
+        if(percentage_change != 0)
+            ret += Double.parseDouble(new DecimalFormat("#.##").format(percentage_change)) + "%)";
+        if(change < 0)
+            ret += Constants.NORMAL;
+        ret += " (via bitcoinaverage)";
+        return ret;
+
+    }
+
 
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
@@ -291,6 +342,32 @@ public class Bitcoin extends Module {
             connection.disconnect();
 
         return new JSONArray(content);
+    }
+
+    private JSONObject btcavgQuotes()
+        throws SocketTimeoutException, MalformedURLException,
+               ProtocolException, IOException, JSONException {
+
+        HttpURLConnection connection = null;
+
+        URL bitcoinavg = new URL("https://api.bitcoinaverage.com/ticker/all");
+        connection = (HttpURLConnection) bitcoinavg.openConnection();
+        connection.setConnectTimeout(3000);
+        connection.setReadTimeout(3000);
+        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
+            throw new ProtocolException("bitcoinaverage.com HTTP error: " + connection.getResponseCode());
+        StringBuilder builder = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String line;
+        while((line = reader.readLine())!=null)
+            builder.append(line);
+
+        String content = builder.toString();
+
+        if (connection!=null)
+            connection.disconnect();
+
+        return new JSONObject(content);
     }
 
 
