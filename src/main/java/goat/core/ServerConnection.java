@@ -26,7 +26,7 @@ public class ServerConnection extends Thread {
     private InputHandler ih;
     private OutputHandler oh;
     private String serverName;
-    private boolean connected = false;
+    private volatile boolean connected = false;
     private boolean alreadySeenMOTD = false;
 
     /**
@@ -100,6 +100,7 @@ public class ServerConnection extends Thread {
 
         public InputHandler(BufferedReader in) {
             this.in = in;
+            System.out.println("New inputHandler created");
         }
 
         void disconnect() {
