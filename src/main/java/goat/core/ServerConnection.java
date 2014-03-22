@@ -71,16 +71,16 @@ public class ServerConnection extends Thread {
                 connect();
                 return;
             } catch (UnknownHostException uhe) {
-                System.out.println("Hmmn unknown host, will wait 305 seconds then try connecting again.. ");
+                System.out.println("Hmmn unknown host, will wait 400 seconds then try connecting again.. ");
             } catch (IOException ioe) {
-                System.out.println("IOException, waiting 305 secs then retry. ");
+                System.out.println("IOException, waiting 400 secs then retry. ");
             } catch (Exception e) {
 		System.err.println("Unexpected exception while trying reconnect() :");
 		e.printStackTrace();
 	    }
 
             try {
-                sleep(305000);
+                sleep(400000);
             } catch (InterruptedException e) {
 		System.err.println("Interrupted from sleep between reconnect attempts :");
                 e.printStackTrace();
@@ -94,7 +94,7 @@ public class ServerConnection extends Thread {
 
     class InputHandler extends Thread {
         BufferedReader in;
-        private boolean keeprunning = true;
+        private volatile boolean keeprunning = true;
         int namecount = 1;
         private String botdefaultname = BotStats.getInstance().getBotname();
 
@@ -113,7 +113,7 @@ public class ServerConnection extends Thread {
                 try {
                     if (in.ready()) {
                         messageString = in.readLine();
-                        lastActivity = System.currentTimeMillis();
+                        
                         if (messageString == null )
                             continue;
                         Message m = new Message(messageString);
@@ -158,9 +158,11 @@ public class ServerConnection extends Thread {
                             // + "isCTCP:" + m.isCTCP + " isPrivate:" + m.isPrivate + " CTCPCommand:" + m.CTCPCommand
                             // + " CTCPMessage:" + m.CTCPMessage);
                         }
+                        
+                        lastActivity = System.currentTimeMillis();
                     } else {
-                        if (System.currentTimeMillis() - lastActivity > 305000) {
-                            System.err.println("305 seconds since last activity! Attempting reconnect");
+                        if (System.currentTimeMillis() - lastActivity > 400000) {
+                            System.err.println("400 seconds since last activity! Attempting reconnect");
                             in.close();
                             oh.disconnect();
                             keeprunning = false;
@@ -188,7 +190,7 @@ public class ServerConnection extends Thread {
     class OutputHandler extends Thread {
 
         PrintWriter out;
-        private boolean keeprunning;
+        private volatile boolean keeprunning;
 
         void disconnect() {
             keeprunning = false;
