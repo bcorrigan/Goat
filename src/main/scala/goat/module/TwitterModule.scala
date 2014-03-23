@@ -977,13 +977,14 @@ class TwitterModule extends Module {
     
     Message.createPrivmsg(sendchan, REVERSE + colour + "*"+twid+"* " + userStr + NORMAL + " " + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
     
-    users foreach { user => 
-      addToTweetAccount(user)
-      if(tweetsInLastHour(user)>=user.getTweetBudget()) {
-        //lets lay down some harsh punishment!
-        disableNotificationAll(sendchan, user, user.getName() + ", you've blown your twudget! Mend your spammy ways. ")
-      }
-    }
+    if(!isMention(status)) 
+        users foreach { user => 
+          addToTweetAccount(user)
+          if(tweetsInLastHour(user)>=user.getTweetBudget()) {
+            //lets lay down some harsh punishment!
+            disableNotificationAll(sendchan, user, user.getName() + ", you've blown your twudget! Mend your spammy ways. ")
+          }
+        }
   }
 
   private def sendInfoMessageToChan(msg:String, chan:String):Unit = {
