@@ -868,12 +868,16 @@ class TwitterModule extends Module {
       case Some(result) =>
         val tweet: Status = result._2.head
         searchResults = searchResults - result
+        var wasLast = "";
         if (result._2.length > 1 && result._2.tail.length > 0)
           searchResults = searchResults + Tuple2(result._1, result._2.tail)
+        else {
+          wasLast=BOLD + " [last result]";
+        }
 
         val twid=getTwid(tweet)
 
-        m.reply(formatTweet(tweet,Some(twid),false))
+        m.reply(formatTweet(tweet,Some(twid),false) + wasLast)
         addToLastTweets(m, tweet)
         true
     }
@@ -1335,6 +1339,11 @@ class TwitterModule extends Module {
     def onFollow(source:User, followedUser:User) {
       if(source.getScreenName!="goatbot")
         sendInfoMessageToChan("New Follower! @" + source.getScreenName + ". I'm very proud of you all.", chan)
+    }
+    
+    def onUnfollow(source:User, followedUser:User) {
+      if(source.getScreenName!="goatbot")
+        sendInfoMessageToChan("Someone has left us! @" + source.getScreenName + ". I'm very dissapointed in you all.", chan)
     }
 
     def onFriendList(friendIds:Array[Long]) { }
