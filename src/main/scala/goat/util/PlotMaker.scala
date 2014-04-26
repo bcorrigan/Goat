@@ -750,7 +750,7 @@ object PlotMaker {
           // political
           "re-encoding patent encumbered AACs to ogg vorbis",
           "writing a perl script to automatically obtain First post on Slashdot",
-          "configuring his gentoo to use obscure supposedly performance-enhancing compilation flags"
+          "configuring his gentoo to use obscure supposedly performance-enhancing compilation flags",
           "daydreaming about The Singularity",
           "setting up a Tor relay",
           "mining for bitcoin using his grandmother's electricity",
