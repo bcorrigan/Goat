@@ -43,24 +43,21 @@ class DOGeCoin extends Module {
   val tickerFetcher = new goat.util.DOGeCoin
 
   def ticker(m: Message): String = {
-    val json = tickerFetcher.apiCall("")
-    if(json.has("ticker"))
-      formatTicker(json.getJSONObject("ticker"))
+    val json = tickerFetcher.insecureApiCall("")
+    if(json.has("success"))
+      formatTicker(json)
     else
       "I got a JSON from DOGeCoin.org, but I didn't understand it."
   }
 
   def formatTicker(json: JSONObject): String = {
-    val megajson = json.getJSONObject("megadoge")
-    val megabtc = megajson.getString("btc").toDouble
-    val megausd = megajson.getString("usd").toDouble
-    val dogbtcstr = formatBigNumber(1000000.0 / megabtc)
-    val dogusdstr = formatBigNumber(1000000.0 / megausd)
-    val btcdogstr = formatSmallNumber(megabtc / 1000000.0)
-    val usddogstr = formatSmallNumber(megausd / 1000000.0)
+    val jdata = json.getJSONObject("return").getJSONObject("markets").getJSONObject("DOGE")
 
+    val dogusd = jdata.getDouble("lasttradeprice")
+    val dogusdstr = formatSmallNumber(dogusd)
+    val usddogstr = formatBigNumber(1.0 / dogusd)
 
-    s"$$$usddogstr; $BUTTCOIN$btcdogstr  |  $$1 = $dogusdstr; ${BUTTCOIN}1 = $dogbtcstr"
+    s"$$$dogusdstr  |  $$1.00 = $usddogstr dog eCoins"
   }
 
   val chainFetcher = new goat.util.DOGeChain

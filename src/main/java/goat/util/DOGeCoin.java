@@ -30,7 +30,7 @@ public class DOGeCoin {
             protocol = "http";
 
         try {
-            URL url = new URL(protocol + "://dogecoin.org/api/market.json");
+            URL url = new URL(protocol + "://pubapi.cryptsy.com/api.php?method=singlemarketdata&marketid=182");
             connection = (HttpURLConnection) url.openConnection();
 	    connection.setRequestProperty("User-Agent", "Goat IRC Bot v" +
 					  BotStats.getInstance().getVersion() +
