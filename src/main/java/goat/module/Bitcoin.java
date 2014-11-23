@@ -5,7 +5,7 @@ import goat.core.Message;
 import goat.core.Users;
 import goat.core.Constants;
 import goat.util.CommandParser;
-import goat.util.MtGox;
+import goat.util.BitcoinCharts;
 
 import java.io.*;
 import java.net.* ;
@@ -14,15 +14,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-import java.net.SocketTimeoutException;
 import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimeZone;
-import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -33,9 +32,10 @@ public class Bitcoin extends Module {
      * A hodgepodge of copied code and googled examples.
      */
 
+    private BitcoinCharts bitcoincharts = new BitcoinCharts();
+
     // set up some constants
     private static ArrayList<String> columns = new ArrayList<String>();
-    private static LinkedHashMap<String,String> symbols = new LinkedHashMap<String,String>();
     {
         columns.add("volume");
         columns.add("bid");
@@ -45,47 +45,29 @@ public class Bitcoin extends Module {
         columns.add("close");
         columns.add("avg");
         columns.add("low");
-
-        // This list last updated 2013-04-28
-        symbols.put("AUD", "mtgoxAUD");
-        symbols.put("CAD", "virtexCAD");
-        symbols.put("CHF", "mtgoxCHF");
-        symbols.put("CNY", "btcnCNY");
-        symbols.put("DKK", "mtgoxDKK");
-        symbols.put("EUR", "mtgoxEUR");
-        symbols.put("GBP", "mtgoxGBP");
-        symbols.put("HKD", "mtgoxHKD");
-        symbols.put("ILS", "bit2cILS");
-        symbols.put("JPY", "mtgoxJPY");
-        symbols.put("NZD", "mtgoxNZD");
-        symbols.put("PLN", "bitcurexPLN");
-        symbols.put("RUB", "btceRUR");
-        symbols.put("SEK", "kptnSEK");
-        symbols.put("SGD", "mtgoxSGD");
-        symbols.put("SLL", "virwoxSLL");
-        symbols.put("THB", "mtgoxTHB");
-        symbols.put("USD", "mtgoxUSD");
-        symbols.put("XRP", "rippleXRP");
     }
-
-
-    private long lastCall = 0;
-    private JSONArray lastQuotes;
 
     public boolean isThreadSafe() {
         return false;
     }
 
     public void processChannelMessage(Message m) {
+
+        String currencies;
+        try {
+            currencies = keysToOrderedString(bitcoincharts.getSymbols().keySet());
+        } catch (Exception e) {
+            currencies = "<error fetching list>";
+            System.err.println("Error building currency list from bitcoincharts: \n\n" + e.getMessage());
+        }
+
         if(m.getModTrailing().startsWith("help"))
-            m.reply("usage: goxlag|bitcoin [help]  " +
+            m.reply("usage: bitcoin [help]  " +
                     "[column={volume, bid, high, currency_volume, ask, close, avg, low}]  " +
-                    "[currency={"+ keysToOrderedString(symbols.keySet()) +"}] " +
+                    "[currency={"+ currencies +"}] " +
                     "[symbol={see http://bitcoincharts.com/markets for list}]  " +
                     "  If both currency and symbol are specified, symbol overrides currency. " +
-                    "Non-mtgox results cached for 30 seconds");
-        else if("goxlag".equalsIgnoreCase(m.getModCommand()))
-            m.reply(goxLag());
+                    "results cached for 30 seconds");
         else
             ircQuote(m);
     }
@@ -96,21 +78,6 @@ public class Bitcoin extends Module {
         while (iter.hasNext())
             sb.append(iter.next() + " ");
         return sb.toString();
-    }
-
-    private String goxLag() {
-        String ret = "My programmers are awful.";
-        MtGox gox = new MtGox();
-        try {
-            JSONObject lag = gox.apiCall("generic/order/lag");
-            if (lag.has("result") && lag.getString("result").equals("success"))
-                ret = lag.getJSONObject("return").getString("lag_text");
-            else
-                ret = "MtGox error: " + lag.getString("error");
-        } catch (JSONException e) {
-            ret = "I had a JSON problem: " + e.getMessage();
-        }
-        return ret;
     }
 
     public void ircQuote(Message m) {
@@ -131,29 +98,20 @@ public class Bitcoin extends Module {
         String column = "close";
         if (parser.hasVar("column") && columns.contains(parser.get("column")))
             column = parser.get("column");
-        //Make bitcoinaverage.com default source.
-        //String symbol = "mtgoxUSD";
         String symbol = "btcavg";
 
-        // Only use symbol if specifically requested otherwise fall back to currency and BitcoinAverage quote.
-        if (parser.hasVar("symbol"))
-            symbol = parser.get("symbol");
-        else if (parser.hasVar("currency") && symbols.containsKey(parser.get("currency").toUpperCase()))
-            userCurrency = parser.get("currency").toUpperCase();
-        /*
-        else if (symbols.containsKey(userCurrency))
-            symbol = symbols.get(userCurrency);
-        */
-
         try {
-            if (symbol.startsWith("mtgox")) {
-                String currency = symbol.substring(5);
-                JSONObject quote = new MtGox().apiCall("BTC" + currency + "/ticker");
-                if (quote.has("result") && quote.getString("result").equals("success"))
-                    m.reply(formatGoxQuote(quote.getJSONObject("return"), column, tz));
-                else
-                    m.reply("MtGox error: " + quote.getString("error"));
-            } else if (symbol.startsWith("btcavg")) {
+
+            if (parser.hasVar("symbol"))
+                symbol = parser.get("symbol");
+            else if (parser.hasVar("currency") && bitcoincharts.getSymbols().containsKey(parser.get("currency").toUpperCase()))
+                userCurrency = parser.get("currency").toUpperCase();
+            /*
+              else if (symbols.containsKey(userCurrency))
+                  symbol = symbols.get(userCurrency);
+            */
+
+            if (symbol.startsWith("btcavg")) {
                 JSONObject quotes = btcavgQuotes();
                 JSONObject quote = null;
                 try {
@@ -168,19 +126,12 @@ public class Bitcoin extends Module {
                 //m.reply(quote.toString());
                 m.reply(formatBtcAvgQuote(quote, tz, userCurrency));
             } else {
-                JSONArray quotes;
-                if (tooSoon(symbol)) {
-                    quotes = lastQuotes;
-                } else {
-                    quotes = btchartQuotes();
-                    if (quotes == null) {
-                        m.reply("Problem getting bitcoincharts.com API");
-                        return;
-                    }
-                    lastQuotes = quotes;
-                    lastCall = System.currentTimeMillis();
-                }
+                JSONArray quotes = bitcoincharts.fetchQuotes();
                 JSONObject quote = null;
+                if (quotes == null) {
+                    m.reply("Problem getting bitcoincharts.com API");
+                    return;
+                }
 
                 for (int i=0;i < quotes.length();i++) {
                     if (symbol.equals(quotes.getJSONObject(i).getString("symbol"))){
@@ -207,6 +158,7 @@ public class Bitcoin extends Module {
         }
     }
 
+
     private String formatQuote(JSONObject quote, String column, TimeZone tz) throws JSONException {
 
         String ret = "My programmers are horrible";
@@ -222,50 +174,6 @@ public class Bitcoin extends Module {
         } else {
             ret = "Unable to locate that symbol";
         }
-        return ret;
-    }
-
-    private String formatGoxQuote(JSONObject quote, String column, TimeZone tz) throws JSONException {
-
-        String ret = "My programmers are horrible";
-
-
-        MtGox gox = new MtGox();
-
-        String price_fmt;
-        switch(column) {
-        case "close": price_fmt = quote.getJSONObject("last_local").getString("display");
-            break;
-        case "volume": price_fmt = "volume: " + quote.getJSONObject("vol").getString("display");
-            break;
-        case "high": price_fmt = "high: " + quote.getJSONObject("high").getString("display");
-            break;
-        case "low": price_fmt = "low: " + quote.getJSONObject("low").getString("display");
-            break;
-        case "bid": price_fmt = "bid: " + quote.getJSONObject("buy").getString("display");
-            break;
-        case "ask": price_fmt = "ask: " + quote.getJSONObject("sell").getString("display");
-            break;
-        case "avg": price_fmt = "avg: " + quote.getJSONObject("avg").getString("display");
-            break;
-        case "currency_volume":
-            return "my programmers are too lazy to figure that out";
-        default:
-            return "unknown column: " + column;
-        }
-
-        Date date = new Date(quote.getLong("now") / 1000); // Gox gives us microseconds
-        String time_fmt = compactDate(date,tz);
-        String symbol = quote.getJSONObject("last_local").getString("currency");
-
-        String lag = " (MtGox)";
-        JSONObject lago = gox.apiCall("generic/order/lag");
-        if(lago.has("result")
-           && lago.getString("result").equals("success")
-           && lago.getJSONObject("return").getDouble("lag_secs") > 1.0)
-            lag = " (MtGox lag: " + lago.getJSONObject("return").getString("lag_text") + ")";
-
-        ret = price_fmt + "  " + time_fmt + " " + lag;
         return ret;
     }
 
@@ -300,48 +208,12 @@ public class Bitcoin extends Module {
 
     }
 
-
     public void processPrivateMessage(Message m) {
         processChannelMessage(m);
     }
 
     public String[] getCommands() {
-        return new String[]{"bitcoin", "buttcoin", "goxlag"};
-    }
-
-    private boolean tooSoon(String symbol) {
-        if (symbol.startsWith("mtgox"))
-            return false; // it's never too soon at MtGox.  Even if they claim it's 30 seconds.
-	if ((System.currentTimeMillis() - lastCall) < 30000)
-            return true;
-	else
-            return false;
-    }
-
-    private JSONArray btchartQuotes()
-        throws SocketTimeoutException, MalformedURLException,
-               ProtocolException, IOException, JSONException {
-
-        HttpURLConnection connection = null;
-
-        URL bitcoincharts = new URL("http://bitcoincharts.com/v1/markets.json");
-        connection = (HttpURLConnection) bitcoincharts.openConnection();
-        connection.setConnectTimeout(3000);
-        connection.setReadTimeout(3000);
-        if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
-            throw new ProtocolException("bitcoincharts.com HTTP error: " + connection.getResponseCode());
-        StringBuilder builder = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        String line;
-        while((line = reader.readLine())!=null)
-            builder.append(line);
-
-        String content = builder.toString();
-
-        if (connection!=null)
-            connection.disconnect();
-
-        return new JSONArray(content);
+        return new String[]{"bitcoin", "buttcoin"};
     }
 
     private JSONObject btcavgQuotes()
@@ -370,7 +242,6 @@ public class Bitcoin extends Module {
         return new JSONObject(content);
     }
 
-
     private String compactDate(Date date, TimeZone tz) {
     	if (null == tz)
             tz = TimeZone.getDefault();
@@ -388,31 +259,6 @@ public class Bitcoin extends Module {
     	SimpleDateFormat sdf = new SimpleDateFormat(formatString);
     	sdf.setTimeZone(tz);
     	return sdf.format(date).replace("AM ", "am ").replace("PM ", "pm ");
-    }
-
-    private String abbreviateNumber(Long number) {
-    	return abbreviateNumber((double) number);
-    }
-
-    private String abbreviateNumber(Double number) {
-       	String suffix = "";
-    	Double divisor = 1D;
-    	if(Math.abs(number) > 1000000000000L) {
-            suffix = "T";
-            divisor = 1000000000000D;
-    	} else if (Math.abs(number) > 1000000000) {
-            suffix = "B";
-            divisor = 1000000000D;
-    	} else if (Math.abs(number) > 1000000) {
-            suffix = "M";
-            divisor = 1000000D;
-    	} else if (Math.abs(number) > 1000) {
-            suffix = "K";
-            divisor = 1000D;
-    	}
-    	NumberFormat nf = NumberFormat.getInstance();
-    	nf.setMaximumFractionDigits(2);
-    	return nf.format(number / divisor) + suffix;
     }
 
 }
