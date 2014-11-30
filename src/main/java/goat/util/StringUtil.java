@@ -588,4 +588,25 @@ public class StringUtil {
         DecimalFormat formatter = new DecimalFormat("0.############");
         return formatter.format(amount);
     }
+
+
+    public static String compactDate(Date date, TimeZone tz) {
+    	if (null == tz)
+            tz = TimeZone.getDefault();
+        Date now = new Date();
+        String formatString = "hh:mm:ss zzz";  // default format for recent quotes (less than one hour)
+        if(now.getTime() - date.getTime() > 1000*60*60*24*365) // more than one year ago, roughly
+            formatString = "d MMM yyyy";
+        else if(now.getTime() - date.getTime() > 1000*60*60*24*2) // more than two days ago, less than a year
+            formatString = "d MMM zzz";
+        else if(now.getTime() - date.getTime() > 1000*60*60*24) // between one and two days ago
+            formatString = "d MMM haa zzz";
+        else if(now.getTime() - date.getTime() > 1000*60*60) // between one hour and one day ago
+            formatString = "h:mmaa zzz";
+
+    	SimpleDateFormat sdf = new SimpleDateFormat(formatString);
+    	sdf.setTimeZone(tz);
+    	return sdf.format(date).replace("AM ", "am ").replace("PM ", "pm ");
+    }
+
 }
