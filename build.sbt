@@ -4,7 +4,7 @@ version := "4.0"
 
 mainClass in (Compile, run) := Some("goat.Goat")
 
-scalaVersion in ThisBuild := "2.10.3"
+scalaVersion in ThisBuild := "2.11.4"
 
 
 // make pythons work plz
@@ -50,7 +50,8 @@ libraryDependencies ++= Seq(
   "org.reflections" % "reflections" % "latest.integration",
   "org.twitter4j" % "twitter4j-core" % "latest.integration",
   "org.twitter4j" % "twitter4j-stream" % "latest.integration",
-  "biz.source_code" % "base64coder" % "latest.integration"
+  "biz.source_code" % "base64coder" % "latest.integration",
+  "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "latest.integration"
 )
 
 

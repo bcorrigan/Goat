@@ -15,6 +15,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONException
 
+import org.openqa.selenium.By
+import org.openqa.selenium.WebElement
+import org.openqa.selenium.htmlunit.HtmlUnitDriver
+
 import java.text.NumberFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -38,20 +42,24 @@ class Bitcoin extends Module {
   def getCommands() =
     Array("bitcoin", "buttcoin")
 
-  def processChannelMessage(m: Message) =
+  def processChannelMessage(m: Message) = {
+    val parser = new CommandParser(m.getModTrailing)
     if(m.getModTrailing().startsWith("help"))
       m.reply("usage: bitcoin [help]  " +
+        "[communism [period={day, week, month}]]" +
         "[column={volume, bid, high, currency_volume, ask, close, avg, low}]  " +
         "[currency={"+ bitcoincharts.currencies() +"}] " +
         "[symbol={see http://bitcoincharts.com/markets for list}]  " +
         "  If both currency and symbol are specified, symbol overrides currency. " +
         "results cached for 30 seconds")
-    else
-      ircQuote(m)
+    else if(m.getModTrailing().startsWith("communism")) {
+      val period = if(parser.hasVar("period")) parser.get("period") else "24 hours"
+      m.reply(communism(period))
+    } else
+      ircQuote(m, parser)
+  }
 
-  def ircQuote(m: Message) = {
-    val parser = new CommandParser(m.getModTrailing())
-
+  private def ircQuote(m: Message, parser: CommandParser) = {
     val userCurrency =
       if (parser.hasVar("currency") && bitcoincharts.hasCurrency(parser.get("currency")))
         parser.get("currency").toUpperCase()
@@ -92,4 +100,28 @@ class Bitcoin extends Module {
         e.printStackTrace();
     }
   }
+
+  def communism(period: String) = {
+    val validPeriod =
+      period match {
+        case "week" => "week"
+        case "month" => "month"
+        case _ => "24 hours"
+      }
+
+    val driver = new HtmlUnitDriver
+    driver.get("https://bitcoinwisdom.com/")
+    val currencyRows = driver.findElements(By.cssSelector(".overview .outer tbody.body tr")).filter{(we) => val id = we.getAttribute("id"); id.startsWith("o_btc") && id.length == 8}.toList
+    val currencyVolumes = currencyRows.foldLeft(Map[String, Map[String, Double]]()) { (m, we) =>
+      val tdata = we.findElements(By.cssSelector("td")).map(_.getText.replaceAll(",","")).toList
+      m + (tdata.head -> List("24 hours", "week", "month").zip(List(5, 7, 9).map(tdata(_).toDouble)).toMap)
+    }
+
+    val totalVolume = currencyVolumes.map(_._2(validPeriod)).fold(0.0)(_+_)
+    val communistVolume = currencyVolumes.filter{(p) => p._1 == "CNY" || p._1 == "RUR"}.map(_._2(validPeriod)).fold(0.0)(_+_)
+    val capitalistVolume =  currencyVolumes.filter{(p) => p._1 != "CNY" && p._1 != "RUR"}.map(_._2(validPeriod)).fold(0.0)(_+_)
+    val communistPercent = 100 * communistVolume / totalVolume
+    f"Bitcoin was $communistPercent%2.1f%% communist in the past " + validPeriod + "."
+  }
+
 }
