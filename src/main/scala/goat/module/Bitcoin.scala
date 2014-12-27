@@ -53,7 +53,7 @@ class Bitcoin extends Module {
         "  If both currency and symbol are specified, symbol overrides currency. " +
         "results cached for 30 seconds")
     else if(m.getModTrailing().startsWith("communism")) {
-      val period = if(parser.hasVar("period")) parser.get("period") else "24 hours"
+      val period = if(parser.hasVar("period")) parser.get("period").toLowerCase else "24 hours"
       m.reply(communism(period))
     } else
       ircQuote(m, parser)
@@ -102,26 +102,42 @@ class Bitcoin extends Module {
   }
 
   def communism(period: String) = {
-    val validPeriod =
-      period match {
-        case "week" => "week"
-        case "month" => "month"
-        case _ => "24 hours"
-      }
+    val volumes = fetchCurrencyVolumes
+    val comPercent = communistPercent(volumes, period)
+    val summary = f"Bitcoin was ${comPercent}%2.1f%% communist in the past " + period
+    val change = period match {
+      case "month" => "."
+      case _ => f""", ${comPercent - communistPercent(volumes, "month")}%+3.1f%% compared to the past 30 days."""
+    }
+    val breakdown = volumes.map { case (sym, vols) =>
+      sym + ": " + abbreviated(vols(period))
+    }.mkString(", ")
+    summary + change + s"  Volumes for past $period:  " + breakdown
+  }
 
+  def fetchCurrencyVolumes:Map[String, Map[String, Double]] = {
     val driver = new HtmlUnitDriver
     driver.get("https://bitcoinwisdom.com/")
     val currencyRows = driver.findElements(By.cssSelector(".overview .outer tbody.body tr")).filter{(we) => val id = we.getAttribute("id"); id.startsWith("o_btc") && id.length == 8}.toList
-    val currencyVolumes = currencyRows.foldLeft(Map[String, Map[String, Double]]()) { (m, we) =>
+    currencyRows.foldLeft(Map[String, Map[String, Double]]()) { (m, we) =>
       val tdata = we.findElements(By.cssSelector("td")).map(_.getText.replaceAll(",","")).toList
       m + (tdata.head -> List("24 hours", "week", "month").zip(List(5, 7, 9).map(tdata(_).toDouble)).toMap)
     }
-
-    val totalVolume = currencyVolumes.map(_._2(validPeriod)).fold(0.0)(_+_)
-    val communistVolume = currencyVolumes.filter{(p) => p._1 == "CNY" || p._1 == "RUR"}.map(_._2(validPeriod)).fold(0.0)(_+_)
-    val capitalistVolume =  currencyVolumes.filter{(p) => p._1 != "CNY" && p._1 != "RUR"}.map(_._2(validPeriod)).fold(0.0)(_+_)
-    val communistPercent = 100 * communistVolume / totalVolume
-    f"Bitcoin was $communistPercent%2.1f%% communist in the past " + validPeriod + "."
   }
 
+  def totalVolume(volumes:Map[String, Map[String, Double]], period:String):Double = volumes.map(_._2(period)).fold(0.0)(_+_)
+  def communistVolume(volumes:Map[String, Map[String, Double]], period:String):Double = volumes.filter{(p) => p._1 == "CNY" || p._1 == "RUR"}.map(_._2(period)).fold(0.0)(_+_)
+  def capitalistVolume(volumes:Map[String, Map[String, Double]], period:String):Double = volumes.filter{(p) => p._1 != "CNY" && p._1 != "RUR"}.map(_._2(period)).fold(0.0)(_+_)
+  def communistPercent(volumes:Map[String, Map[String, Double]], period:String):Double = 100 * communistVolume(volumes, period) / totalVolume(volumes, period)
+
+  def abbreviated(num: Double):String = {
+    num match {
+      case n if n < 1 => f"$num%.2f"
+      case n if n < 1000 => Math.round(num).toString
+      case n if n < 10000 => f"${num/1000}%.1fK"
+      case n if n < 1000000 => val k = Math.round(num/1000); f"$k%dK"
+      case n if n < 10000000 => f"${num/1000000}%.1fM"
+      case _ => val m = Math.round(num/1000000); f"$m%dM"
+    }
+  }
 }
