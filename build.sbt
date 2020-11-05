@@ -1,3 +1,5 @@
+import scala.sys.process._
+
 name := "goat"
 
 version := "4.0"
@@ -46,7 +48,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "latest.integration",
   "jivesoftware" % "smackx" % "latest.integration",
   "log4j" % "log4j" % "latest.integration",
-  "net.sourceforge.javacsv" % "javacsv" % "latest.integration",
+  "net.sourceforge.javacsv" % "javacsv" % "2.0",
   "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
   "org.json" % "json" % "latest.integration",
   "org.reflections" % "reflections" % "latest.integration",
@@ -64,25 +66,20 @@ libraryDependencies +=
 
 // make version and name available at runtime via sbt-buildinfo plugin;
 // they will be available in class goat.Buildinfo (via .name(), .version(), etc)
-buildInfoSettings
 
-sourceGenerators in Compile <+= buildInfo
+lazy val root = (project in file(".")).
+  enablePlugins(BuildInfoPlugin).
+  settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, BuildInfoKey.action("gitRevision") {
+      try {
+        ("git log --no-merges --oneline" lineStream_!).length.toString
+      } catch {
+        case ioe: java.io.IOException => "???"
+      }}),
+    buildInfoPackage := "goat"
+  )
 
-buildInfoKeys := Seq[BuildInfoKey](
-  name,
-  version,
-  scalaVersion,
-  sbtVersion,
-  BuildInfoKey.action("gitRevision") {
-    try {
-      ("git log --no-merges --oneline" lines_!).length.toString
-    } catch {
-      case ioe: java.io.IOException => "???"
-    }})
-
-buildInfoPackage := "goat"
-
-EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
+//EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
 
 // project root
 lazy val goatRoot = (project in file("."))
