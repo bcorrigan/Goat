@@ -460,7 +460,7 @@ class Wunderground extends Module {
         // "chanceOfRain" -> "",
         "rain" -> "\u205e",
         // "chanceOfThunderstorm" -> "",
-        "thunderstorm" -> (":\u034c" + YELLOW + "\03df"),
+        "thunderstorm" -> (":\u034c" + YELLOW + "\u0003"),
         // "chanceOfSnowShowers" -> "",
         // "snowShowers" -> "",
         // "chanceOfSnow" -> "",
@@ -473,7 +473,7 @@ class Wunderground extends Module {
         "waxingQuarterMoon" -> "\u037b",
         "waxingGibbousMoon" -> "\u037d",
         "fullMoon" -> "\u25cf",
-        "waningGibbousMoon" -> "\037c",
+        "waningGibbousMoon" -> "\u001f",
         "waningQuarterMoon" -> "\u1d12", //boo, the only other choice is 'c'
         "waningCrescentMoon" -> "\u208d"
       ))

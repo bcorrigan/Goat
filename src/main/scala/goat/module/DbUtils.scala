@@ -7,7 +7,7 @@ import goat.core.KVStore
 
 import java.io.IOException;
 
-import scala.collection.JavaConverters._;
+import scala.jdk.CollectionConverters._
 import scala.collection.TraversableOnce
 
 class DbUtils extends Module {

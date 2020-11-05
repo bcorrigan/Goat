@@ -7,7 +7,7 @@ import goat.util.CommandParser
 import com.omertron.rottentomatoesapi._
 import com.omertron.rottentomatoesapi.model._
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 //todo let user save personal picks - films they want to watch etc
 

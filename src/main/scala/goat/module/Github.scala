@@ -30,7 +30,7 @@ import java.util.Date
 import java.util.TimeZone
 import java.util.concurrent.ConcurrentNavigableMap
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.Buffer
 import scala.math.max
 

@@ -14,7 +14,7 @@ import goat.core.User
 import goat.util.CommandParser
 
 import scala.math.round
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class DOGeCoin extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES

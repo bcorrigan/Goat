@@ -10,7 +10,7 @@ import goat.util.TranslateWrapper
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scala.util.Random
 
 import java.util.Timer
