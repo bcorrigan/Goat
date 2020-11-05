@@ -4,7 +4,9 @@ version := "4.0"
 
 mainClass in (Compile, run) := Some("goat.Goat")
 
-scalaVersion in ThisBuild := "2.11.4"
+scalaVersion in ThisBuild := "2.13.3"
+
+resolvers += Resolver.bintrayIvyRepo("com.eed3si9n", "sbt-plugins")
 
 
 // make pythons work plz
@@ -12,7 +14,7 @@ val pyLibs=List("vendor/libpy","src/main/python")
 
 pyLibs map { pyLib =>
   javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / pyLib) }).toString
-  unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / pyLib) }
+  Runtime / unmanagedClasspath += baseDirectory.value / "pylib"
 }
 
 // the trustStore javaOption is not picked up unless we fork
@@ -81,3 +83,43 @@ buildInfoKeys := Seq[BuildInfoKey](
 buildInfoPackage := "goat"
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
+
+// project root
+lazy val goatRoot = (project in file("."))
+  .aggregate(dice)
+  .aggregate(goojax)
+  .aggregate(uno)
+  .aggregate(eliza)
+  .aggregate(jcalc)
+  .settings(
+    name := "Goat"
+  )
+
+// Our own subprojects; things we've (mostly) written ourselves
+lazy val dice = (project in file("subprojects/dice"))
+  .settings(
+    name := "dice"
+  )
+
+lazy val goojax = (project in file("subprojects/goojax"))
+  .settings(
+    name := "goojax"
+  )
+
+lazy val uno = (project in file("subprojects/uno"))
+  .settings(
+    name := "uno"
+  )
+
+// External subprojects; libraries which have neither maven repo nor jar,
+//   or to which we've made minor source alterations
+lazy val eliza = (project in file("vendor/eliza"))
+  .settings(
+    name := "eliza"
+  )
+
+lazy val jcalc = (project in file("vendor/jcalc"))
+  .settings(
+    name := "jcalc"
+  )
+
