@@ -96,7 +96,7 @@ class Github extends Module {
 
   private def commitsReport: String = {
     updateCommitStore
-    (0 to math.min(16, commitStore.size)).map((i: Int) => commitStore(commitStore.size - i - 1)).map(shortCommit(_)).reduce(_ + separator + _) +
+    (0 to math.min(16, commitStore.size)).map((i: Int) => commitStore.get(commitStore.size - i - 1)).map(shortCommit(_)).reduce(_ + separator + _) +
     ".  " + separator + separator + " for more, see " + goatRepo.getHtmlUrl + "/issues"
   }
 
@@ -133,7 +133,7 @@ class Github extends Module {
     if(rc.getFiles == null || rc.getFiles.isEmpty)
       ""
     else
-      "Files:  " + rc.getFiles.map(fileSummary(_)).reduce(_ + ", " + _)
+      "Files:  " + rc.getFiles.asScala.map(fileSummary(_)).reduce(_ + ", " + _)
 
   private def fileSummary(cf: CommitFile): String =
     cf.getFilename + " " +
@@ -145,7 +145,7 @@ class Github extends Module {
     if(issues.isEmpty())
       "No issues."
     else
-      issues.map(shortIssue(_)).reduce(_ + separator + _)
+      issues.asScala.map(shortIssue(_)).reduce(_ + separator + _)
   }
 
   private def showIssue(m:Message):Unit = {
@@ -159,14 +159,14 @@ class Github extends Module {
   private def issue(num: Int): String = {
     val pager = issueService.pageIssues(goatRepo)
     if(pager.hasNext) {
-      val page = pager.next
+      val page = pager.next.asScala
       if (page.isEmpty)
         "No Issues."
       else {
-        val closedPager = issueService.pageIssues(goatRepo, Map[String, String](("state", "closed")))
+        val closedPager = issueService.pageIssues(goatRepo, Map[String, String](("state", "closed")).asJava)
         val maxNum = {
           if (closedPager.hasNext) {
-            val closedPage = closedPager.next
+            val closedPage = closedPager.next.asScala
             if (closedPage.isEmpty)
               page.head.getNumber;
             else
@@ -188,7 +188,7 @@ class Github extends Module {
 
   private def emojiForIssue(issue: Issue): String =
     if (issue.getLabels.isEmpty) ""
-    else issue.getLabels.head.getName match {
+    else issue.getLabels.get(0).getName match {
       case "Shite"  => OLIVE + PILE_OF_POO + "  " + NORMAL
       case "Demand" => DARK_GREEN + CHRISTMAS_TREE + "  " + NORMAL
       case "Whine"  => RED + BROKEN_HEART + "  " + NORMAL
@@ -245,13 +245,13 @@ class Github extends Module {
     val issue = new Issue
     val cp = new CommandParser(m)
     if (crapSender(m)) {
-      val labels: Buffer[Label] = labelService.getLabels(goatRepo)
-      issue.setLabels(List[Label](new Label().setName("Shite")))
+      val labels: Buffer[Label] = labelService.getLabels(goatRepo).asScala
+      issue.setLabels(List[Label](new Label().setName("Shite")).asJava)
     } else if (cp.hasVar("label")) {
-      val labels: Buffer[Label] = labelService.getLabels(goatRepo)
+      val labels: Buffer[Label] = labelService.getLabels(goatRepo).asScala
       val parsedLabel = scrub(cp.get("label"))
       labels.find( l => l.getName.toLowerCase.equals(parsedLabel.toLowerCase)) match {
-        case Some(found: Label) => issue.setLabels(List[Label](found))
+        case Some(found: Label) => issue.setLabels(List[Label](found).asJava)
         case None => {
           m.reply("Label \"" + parsedLabel + "\" is not a valid, and was ignored.  " + {
             if (labels.isEmpty) "There are no valid labels at present."
@@ -282,10 +282,10 @@ class Github extends Module {
 
   private def bugStatsReport:String = {
     val bunkLabels = Set[String]("Shite","Tailings")
-    val openIssues: List[Issue] = issueService.getIssues(goatRepo, null).toList
-    val closedIssues: List[Issue] = issueService.getIssues(goatRepo, Map(IssueService.FILTER_STATE -> IssueService.STATE_CLOSED)).toList
-    val nonShiteClosed = closedIssues.filter(! _.getLabels.exists((l) => bunkLabels.contains(l.getName)))
-    val shite = (openIssues ::: closedIssues).filter(_.getLabels.exists(_.getName == "Shite"))
+    val openIssues: List[Issue] = issueService.getIssues(goatRepo, null).asScala.toList
+    val closedIssues: List[Issue] = issueService.getIssues(goatRepo, Map(IssueService.FILTER_STATE -> IssueService.STATE_CLOSED).asJava).asScala.toList
+    val nonShiteClosed = closedIssues.filter(! _.getLabels.asScala.exists((l) => bunkLabels.contains(l.getName)))
+    val shite = (openIssues ::: closedIssues).filter(_.getLabels.asScala.exists(_.getName == "Shite"))
     val oldest = openIssues.sortWith(_.getCreatedAt.getTime < _.getCreatedAt.getTime).head
     val lastClosed = nonShiteClosed.sortWith(_.getClosedAt.getTime > _.getClosedAt.getTime).head
     val longestOutstandingClosed = nonShiteClosed.sortWith(fixDays(_) > fixDays(_)).head
@@ -337,7 +337,7 @@ class Github extends Module {
 
   private val goatbugUsage = "You're supposed to say: " +
                              DARK_BLUE + "goatbug [title=\"my complaint\"] " +
-                             "[label=" + labelService.getLabels(goatRepo).map(_.getName).reduce(_ + "|" + _) + "] " +
+                             "[label=" + labelService.getLabels(goatRepo).asScala.map(_.getName).reduce(_ + "|" + _) + "] " +
                              "moan whinge bellyache  " + NORMAL +
                              "Or to view an existing bug: " +
                              DARK_BLUE + "goatbug [number]  " + NORMAL +
@@ -389,7 +389,7 @@ class Github extends Module {
         // create a new auth token if we don't have any
         val auth = new Authorization
         auth.setNote("goat!")
-        auth.setScopes(List("user", "public_repo", "repo"))
+        auth.setScopes(List("user", "public_repo", "repo").asJava)
         authService.createAuthorization(auth)
       }
       // just grab the first available auth token; might want to be smarter about this some day
@@ -417,7 +417,7 @@ class Github extends Module {
     if(lastCommitUpdate.getTime + cacheTimeout < (new Date).getTime) {
       val (commits, startKey) =
         if (commitStore.isEmpty)
-          (commitService.getCommits(goatRepo).toList, 0)
+          (commitService.getCommits(goatRepo).asScala, 0)
         else
           (getNewCommits, commitStore.size)
       for((commit, i) <- commits.reverse.view.zipWithIndex)
@@ -443,10 +443,10 @@ class Github extends Module {
         getCommitsUntilSha(pager.next, pager, sha, newCommits)
       else
         List[RepositoryCommit]() // should probably throw an exception here; we've reached the end without finding sha
-    else if (page.head.getSha.equals(sha))
-      (page.head :: newCommits).reverse
+    else if (page.asScala.head.getSha.equals(sha))
+      (page.asScala.head :: newCommits).reverse
     else
-      getCommitsUntilSha(page.tail, pager, sha, page.head :: newCommits)
+      getCommitsUntilSha(page.asScala.tail.asJavaCollection, pager, sha, page.asScala.head :: newCommits)
 
   // this, too, is a method we shouldn't have to write...
   private def issueEvents: List[IssueEvent] = {
@@ -462,6 +462,6 @@ class Github extends Module {
       else
         events
     else
-      issueEvents_1(page.tail, pager, page.head :: events)
+      issueEvents_1(page.asScala.tail.asJavaCollection, pager, page.asScala.head :: events)
 
 }
