@@ -761,7 +761,7 @@ class TwitterModule extends Module {
           } else {
             m.reply("There doesn't seem to be a context for that, tw" + m.getSender)
           }
-        case None => Unit
+        case None => ()
       }
     } catch {
       case ex: TwitterException =>

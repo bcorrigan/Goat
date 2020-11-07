@@ -25,7 +25,7 @@ class RottenTomatoes extends Module {
   private val STAR_34="\u2730" // "✰"
   private val STAR_14="\u2606" // "☆"
 
-  var results:Buffer[RTMovie];
+  var results:List[RTMovie];
 
   def getCommands(): Array[String] = { Array("films","film") }
 
@@ -37,7 +37,7 @@ class RottenTomatoes extends Module {
     val parser = new CommandParser(m);
 
     if(parser.hasWord("boxoffice") || parser.hasWord("top")) {
-      results = api.getInTheaters().asScala
+      results = api.getInTheaters().asScala.toList
       showResults(m, "Top box office:")
     } else if(parser.hasOnlyNumber) {
         val num = sanitiseAndScoldForNum(m,parser)
@@ -46,24 +46,24 @@ class RottenTomatoes extends Module {
     } else if(parser.hasWord("dvd") || parser.hasWord("pirate")) {
       var lead=""
       if(parser.hasWord("new")) {
-    	  results = api.getNewReleaseDvds().asScala
+    	  results = api.getNewReleaseDvds().asScala.toList
     	  lead = "New to pirate"
       } else {
-    	  results = api.getCurrentReleaseDvds().asScala
+    	  results = api.getCurrentReleaseDvds().asScala.toList
     	  lead = "Best to pirate"
       }
       showResults(m, lead)
     } else if(parser.hasWord("upcoming")) {
-      results = api.getUpcomingMovies().asScala;
+      results = api.getUpcomingMovies().asScala.toList;
       showResults(m, "Upcoming")
     } else if(parser.hasWord("search")) {
-      results=api.getMoviesSearch(parser.remainingAfterWord("search")).asScala
+      results=api.getMoviesSearch(parser.remainingAfterWord("search")).asScala.toList
       showResults(m,"Results");
     } else if(parser.hasWord("similar")) {
       if(parser.hasNumber) {
         val num = sanitiseAndScoldForNum(m,parser)
         if(num != 0) {
-        	results = api.getMoviesSimilar(results(num - 1).getId()).asScala
+        	results = api.getMoviesSimilar(results(num - 1).getId()).asScala.toList
         	showResults(m, "Similar")
         }
       } else {
