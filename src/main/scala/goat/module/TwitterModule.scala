@@ -2,17 +2,15 @@ package goat.module
 
 import goat.core.Constants._
 import goat.util.StringUtil
-import goat.core.{KVStore, Module, Message, Users, User=>GoatUser}
+import goat.core.{KVStore, Message, Module, Users, User => GoatUser}
 import goat.util.CommandParser
 import goat.util.Passwords._
-
 import goat.util.TranslateWrapper
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.Map
 import scala.jdk.CollectionConverters._
 import scala.util.Random
-
 import java.util.Timer
 import java.util.TimerTask
 import java.lang.System
@@ -20,8 +18,9 @@ import java.lang.System
 import twitter4j.auth.AccessToken
 import twitter4j.conf._
 import twitter4j._
-
 import org.apache.commons.lang.StringEscapeUtils.unescapeHtml
+
+import scala.collection.convert.ImplicitConversions.{`list asScalaBuffer`, `map AsScala`}
 import scala.collection.mutable
 
 /*
@@ -98,7 +97,7 @@ class TwitterModule extends Module {
   //followIDs(followedIDs)
 
   private val trendsMap:Map[String,Int] = {
-    var tLocs = twitter.getAvailableTrends().toList
+    var tLocs = twitter.getAvailableTrends().asScala
     var tLocsMap:Map[String,Int] = Map()
     for(t <- tLocs) {
       tLocsMap += t.getName -> t.getWoeid
@@ -467,7 +466,7 @@ class TwitterModule extends Module {
     tweetAccounts.get(user.getName()).getOrElse(List()).length
   }
 
-  private def withinBudget(users:Seq[GoatUser]):Seq[GoatUser] = {
+  private def withinBudget(users:List[GoatUser]):List[GoatUser] = {
     users.filter { user =>
       tweetsInLastHour(user)<user.getTweetBudget()
     }
@@ -967,7 +966,7 @@ class TwitterModule extends Module {
     //this notes down the number of tiems a user has tweeted to channel. Will keep it just so we can see volumes
     val twid=getTwid(status)
 
-    val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR))
+    val users = withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR).toList)
     val userStr = users.foldLeft("") { (u1,u2) =>
       if(u1!="") {u1+","+u2.getName()} else u2.getName()
     }
@@ -1140,7 +1139,7 @@ class TwitterModule extends Module {
 
   private def isFollowed(status: Status): Boolean = {
     if(followedIDs.contains(status.getUser.getId)) {
-      withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR)).length>0
+      withinBudget(Users.getActiveUsersFollowing(status.getUser.getScreenName, HOUR).toList).length>0
     } else false
   }
 
