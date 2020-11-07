@@ -25,7 +25,7 @@ class RottenTomatoes extends Module {
   private val STAR_34="\u2730" // "✰"
   private val STAR_14="\u2606" // "☆"
 
-  var results:List[RTMovie];
+  var results:List[RTMovie] = List()
 
   def getCommands(): Array[String] = { Array("films","film") }
 
