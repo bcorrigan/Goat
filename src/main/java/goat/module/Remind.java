@@ -25,7 +25,7 @@ import goat.Goat;
 import goat.core.*;
 import goat.util.Reminder;
 
-public class Remind extends Module {
+public class Remind extends goat.core.Module {
 
     private static final String REMINDER_FILE = "resources/reminders";
     private static goat.core.Users users;	//all the users

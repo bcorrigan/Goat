@@ -1,12 +1,12 @@
 import scala.sys.process._
 
-name := "goat"
+ThisBuild / name := "goat"
 
-version := "4.0"
+ThisBuild / version := "4.1"
 
-mainClass in (Compile, run) := Some("goat.Goat")
+ThisBuild / mainClass in (Compile, run) := Some("goat.Goat")
 
-scalaVersion in ThisBuild := "2.13.3"
+ThisBuild / scalaVersion := "2.13.3"
 
 resolvers += Resolver.bintrayIvyRepo("com.eed3si9n", "sbt-plugins")
 
@@ -23,7 +23,7 @@ pyLibs map { pyLib =>
 fork := true
 
 // and we use a local trustStore because the one that ships with freebsd java is poop
-javaOptions += "-Djavax.net.ssl.trustStore=config/cacerts"
+ThisBuild / javaOptions += "-Djavax.net.ssl.trustStore=config/cacerts"
 
 
 // Dependency madness begins here
@@ -68,29 +68,36 @@ libraryDependencies +=
 // they will be available in class goat.Buildinfo (via .name(), .version(), etc)
 
 lazy val root = (project in file(".")).
-  enablePlugins(BuildInfoPlugin).
-  settings(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, BuildInfoKey.action("gitRevision") {
-      try {
-        ("git log --no-merges --oneline" lineStream_!).length.toString
-      } catch {
-        case ioe: java.io.IOException => "???"
-      }}),
-    buildInfoPackage := "goat"
-  )
-
-//EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
-
-// project root
-lazy val goatRoot = (project in file("."))
+  enablePlugins(BuildInfoPlugin)
+  .dependsOn(dice,goojax,uno,eliza,jcalc)
   .aggregate(dice)
   .aggregate(goojax)
   .aggregate(uno)
   .aggregate(eliza)
   .aggregate(jcalc)
   .settings(
-    name := "Goat"
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, BuildInfoKey.action("gitRevision") {
+      try {
+        ("git log --no-merges --oneline" lineStream_!).length.toString
+      } catch {
+        case ioe: java.io.IOException => "???"
+      }}),
+    buildInfoPackage := "goat",
+    name := "goat"
   )
+
+//EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
+
+// project root
+/*lazy val goatRoot = (project in file("."))
+  .aggregate(dice)
+  .aggregate(goojax)
+  .aggregate(uno)
+  .aggregate(eliza)
+  .aggregate(jcalc)
+  .settings(
+    name := "goat"
+  )*/
 
 // Our own subprojects; things we've (mostly) written ourselves
 lazy val dice = (project in file("subprojects/dice"))
