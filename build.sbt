@@ -1,10 +1,14 @@
-name := "goat"
+import scala.sys.process._
 
-version := "4.0"
+ThisBuild / name := "goat"
 
-mainClass in (Compile, run) := Some("goat.Goat")
+ThisBuild / version := "4.1"
 
-scalaVersion in ThisBuild := "2.11.4"
+ThisBuild / mainClass in (Compile, run) := Some("goat.Goat")
+
+ThisBuild / scalaVersion := "2.13.3"
+
+resolvers += Resolver.bintrayIvyRepo("com.eed3si9n", "sbt-plugins")
 
 
 // make pythons work plz
@@ -12,14 +16,14 @@ val pyLibs=List("vendor/libpy","src/main/python")
 
 pyLibs map { pyLib =>
   javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / pyLib) }).toString
-  unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / pyLib) }
+  Runtime / unmanagedClasspath += baseDirectory.value / "pylib"
 }
 
 // the trustStore javaOption is not picked up unless we fork
 fork := true
 
 // and we use a local trustStore because the one that ships with freebsd java is poop
-javaOptions += "-Djavax.net.ssl.trustStore=config/cacerts"
+ThisBuild / javaOptions += "-Djavax.net.ssl.trustStore=config/cacerts"
 
 
 // Dependency madness begins here
@@ -44,7 +48,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "latest.integration",
   "jivesoftware" % "smackx" % "latest.integration",
   "log4j" % "log4j" % "latest.integration",
-  "net.sourceforge.javacsv" % "javacsv" % "latest.integration",
+  "net.sourceforge.javacsv" % "javacsv" % "2.0",
   "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "latest.integration",
   "org.json" % "json" % "latest.integration",
   "org.reflections" % "reflections" % "latest.integration",
@@ -62,22 +66,64 @@ libraryDependencies +=
 
 // make version and name available at runtime via sbt-buildinfo plugin;
 // they will be available in class goat.Buildinfo (via .name(), .version(), etc)
-buildInfoSettings
 
-sourceGenerators in Compile <+= buildInfo
+lazy val root = (project in file(".")).
+  enablePlugins(BuildInfoPlugin)
+  .dependsOn(dice,goojax,uno,eliza,jcalc)
+  .aggregate(dice)
+  .aggregate(goojax)
+  .aggregate(uno)
+  .aggregate(eliza)
+  .aggregate(jcalc)
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion, BuildInfoKey.action("gitRevision") {
+      try {
+        ("git log --no-merges --oneline" lineStream_!).length.toString
+      } catch {
+        case ioe: java.io.IOException => "???"
+      }}),
+    buildInfoPackage := "goat",
+    name := "goat"
+  )
 
-buildInfoKeys := Seq[BuildInfoKey](
-  name,
-  version,
-  scalaVersion,
-  sbtVersion,
-  BuildInfoKey.action("gitRevision") {
-    try {
-      ("git log --no-merges --oneline" lines_!).length.toString
-    } catch {
-      case ioe: java.io.IOException => "???"
-    }})
+//EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
 
-buildInfoPackage := "goat"
+// project root
+/*lazy val goatRoot = (project in file("."))
+  .aggregate(dice)
+  .aggregate(goojax)
+  .aggregate(uno)
+  .aggregate(eliza)
+  .aggregate(jcalc)
+  .settings(
+    name := "goat"
+  )*/
 
-EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Managed
+// Our own subprojects; things we've (mostly) written ourselves
+lazy val dice = (project in file("subprojects/dice"))
+  .settings(
+    name := "dice"
+  )
+
+lazy val goojax = (project in file("subprojects/goojax"))
+  .settings(
+    name := "goojax"
+  )
+
+lazy val uno = (project in file("subprojects/uno"))
+  .settings(
+    name := "uno"
+  )
+
+// External subprojects; libraries which have neither maven repo nor jar,
+//   or to which we've made minor source alterations
+lazy val eliza = (project in file("vendor/eliza"))
+  .settings(
+    name := "eliza"
+  )
+
+lazy val jcalc = (project in file("vendor/jcalc"))
+  .settings(
+    name := "jcalc"
+  )
+

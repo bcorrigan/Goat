@@ -27,7 +27,7 @@ import java.util.ArrayList
 import java.util.Date
 import java.util.TimeZone
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class Bitcoin extends Module {
 
@@ -118,9 +118,9 @@ class Bitcoin extends Module {
   def fetchCurrencyVolumes:Map[String, Map[String, Double]] = {
     val driver = new HtmlUnitDriver
     driver.get("https://bitcoinwisdom.com/")
-    val currencyRows = driver.findElements(By.cssSelector(".overview .outer tbody.body tr")).filter{(we) => val id = we.getAttribute("id"); id.startsWith("o_btc") && id.length == 8}.toList
+    val currencyRows = driver.findElements(By.cssSelector(".overview .outer tbody.body tr")).asScala.filter{(we) => val id = we.getAttribute("id"); id.startsWith("o_btc") && id.length == 8}.toList
     currencyRows.foldLeft(Map[String, Map[String, Double]]()) { (m, we) =>
-      val tdata = we.findElements(By.cssSelector("td")).map(_.getText.replaceAll(",","")).toList
+      val tdata = we.findElements(By.cssSelector("td")).asScala.map(_.getText.replaceAll(",","")).toList
       m + (tdata.head -> List("24 hours", "week", "month").zip(List(5, 7, 9).map(tdata(_).toDouble)).toMap)
     }
   }

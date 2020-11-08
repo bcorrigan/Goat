@@ -14,7 +14,7 @@ import goat.core.User
 import goat.util.CommandParser
 
 import scala.math.round
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class DOGeCoin extends Module {
   override def messageType = Module.WANT_COMMAND_MESSAGES
@@ -63,7 +63,7 @@ class DOGeCoin extends Module {
   val chainFetcher = new goat.util.DOGeChain
 
   def blocks(m: Message): String = {
-    val lines: List[String] = chainFetcher.insecureApiCall("getblockcount").toList
+    val lines: List[String] = chainFetcher.insecureApiCall("getblockcount").asScala.toList
     if(lines.head.startsWith("error:"))
       lines.head.substring(6).trim
     else
@@ -71,7 +71,7 @@ class DOGeCoin extends Module {
   }
 
   def difficulty(m: Message): String = {
-    val lines: List[String] = chainFetcher.insecureApiCall("getdifficulty").toList
+    val lines: List[String] = chainFetcher.insecureApiCall("getdifficulty").asScala.toList
     if(lines.head.startsWith("error:"))
       lines.head.substring(6).trim
     else
@@ -79,7 +79,7 @@ class DOGeCoin extends Module {
   }
 
   def hashrate(m: Message): String = {
-    val lines: List[String] = chainFetcher.insecureApiCall("nethash/60/-60").toList
+    val lines: List[String] = chainFetcher.insecureApiCall("nethash/60/-60").asScala.toList
     if(lines.head.startsWith("error:"))
       lines.head.substring(6).trim
     else {

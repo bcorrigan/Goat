@@ -7,7 +7,7 @@ import goat.core.KVStore
 
 import java.io.IOException;
 
-import scala.collection.JavaConverters._;
+import scala.jdk.CollectionConverters._
 import scala.collection.TraversableOnce
 
 class DbUtils extends Module {
@@ -105,7 +105,9 @@ class DbUtils extends Module {
     if(store.has(key)) {
       val value = store.get(key)
       val valueStr = if(value.isInstanceOf[Array[Any]]) {
-        value.asInstanceOf[Array[Any]].deep.mkString(",")
+        //this used to be deep() so might now miss deeply nested keys
+        //probably need ot invent some kind of arbitrarily nested magical flattening function
+        value.asInstanceOf[Array[Any]].mkString(",")
       } else value.toString()
       
       m.reply(m.getSender+": " + key + "=>" + value.getClass().getName() + ": " + valueStr )

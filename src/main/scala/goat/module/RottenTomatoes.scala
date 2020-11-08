@@ -7,7 +7,10 @@ import goat.util.CommandParser
 import com.omertron.rottentomatoesapi._
 import com.omertron.rottentomatoesapi.model._
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
+import scala.jdk.javaapi.CollectionConverters._
+
+import scala.collection.mutable.Buffer;
 
 //todo let user save personal picks - films they want to watch etc
 
@@ -22,7 +25,7 @@ class RottenTomatoes extends Module {
   private val STAR_34="\u2730" // "✰"
   private val STAR_14="\u2606" // "☆"
 
-  var results:Seq[RTMovie] = Nil;
+  var results:List[RTMovie] = List()
 
   def getCommands(): Array[String] = { Array("films","film") }
 
@@ -34,7 +37,7 @@ class RottenTomatoes extends Module {
     val parser = new CommandParser(m);
 
     if(parser.hasWord("boxoffice") || parser.hasWord("top")) {
-      results = api.getInTheaters()
+      results = api.getInTheaters().asScala.toList
       showResults(m, "Top box office:")
     } else if(parser.hasOnlyNumber) {
         val num = sanitiseAndScoldForNum(m,parser)
@@ -43,24 +46,24 @@ class RottenTomatoes extends Module {
     } else if(parser.hasWord("dvd") || parser.hasWord("pirate")) {
       var lead=""
       if(parser.hasWord("new")) {
-    	  results = api.getNewReleaseDvds()
+    	  results = api.getNewReleaseDvds().asScala.toList
     	  lead = "New to pirate"
       } else {
-    	  results = api.getCurrentReleaseDvds()
+    	  results = api.getCurrentReleaseDvds().asScala.toList
     	  lead = "Best to pirate"
       }
       showResults(m, lead)
     } else if(parser.hasWord("upcoming")) {
-      results = api.getUpcomingMovies();
+      results = api.getUpcomingMovies().asScala.toList;
       showResults(m, "Upcoming")
     } else if(parser.hasWord("search")) {
-      results=api.getMoviesSearch(parser.remainingAfterWord("search"))
+      results=api.getMoviesSearch(parser.remainingAfterWord("search")).asScala.toList
       showResults(m,"Results");
     } else if(parser.hasWord("similar")) {
       if(parser.hasNumber) {
         val num = sanitiseAndScoldForNum(m,parser)
         if(num != 0) {
-        	results = api.getMoviesSimilar(results.get(num - 1).getId())
+        	results = api.getMoviesSimilar(results(num - 1).getId()).asScala.toList
         	showResults(m, "Similar")
         }
       } else {
@@ -109,12 +112,12 @@ class RottenTomatoes extends Module {
 
   private def showFilm(m:Message, num:Int):Unit = {
     if(results.length>0) {
-      var movie = results.get(num);
+      var movie = results(num);
       var reply = BOLD + movie.getTitle() + BOLD + "(" + movie.getYear() + ")"
       if(movie.getCertification!=null && !movie.getCertification.equals(""))
         reply+=", certified " + movie.getCertification()
       if(movie.getDirectors().size()>0)
-    	  reply += "Director(s):" + movie.getDirectors().map(_.getName()).mkString("&")
+    	  reply += "Director(s):" + movie.getDirectors().asScala.map(_.getName()).mkString("&")
       if(movie.getRuntime()>0)
     	  reply+= " Runtime:" + movie.getRuntime()
       if(movie.getStudio()!=null)
@@ -122,7 +125,7 @@ class RottenTomatoes extends Module {
       if(movie.getRatings().size()>0)
         reply+=getRating(movie)
       if(movie.getGenres().size()>0)
-    	  reply += movie.getGenres().mkString(",")
+    	  reply += movie.getGenres().asScala.mkString(",")
       if(movie.getCriticsConsensus()!=null && !movie.getCriticsConsensus().equals(""))
     	  reply+=" Critics say \"" + movie.getCriticsConsensus();
       if(movie.getSynopsis()!=null && !movie.getSynopsis().equals(""))
@@ -149,7 +152,7 @@ class RottenTomatoes extends Module {
   }
 
   private def getRatings(film:RTMovie):Ratings = {
-    val ratings=film.getRatings().toMap
+    val ratings=film.getRatings().asScala
 
     var cS,aS = 0
     var aR,cR = "";

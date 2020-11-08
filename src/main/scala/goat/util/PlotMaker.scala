@@ -6,11 +6,11 @@
 package goat.util;
 
 import scala.util.Random
-import scala.collection.MapProxy
+/*import scala.collection.immutable.Map
 
 
-class PlotMaker(val self: Map[String, Either[PlotMaker, List[Either[PlotMaker, String]]]])
-  extends MapProxy[String, Either[PlotMaker, List[Either[PlotMaker, String]]]] {
+class PlotMaker(val self: MapProxy[String, Either[PlotMaker, List[Either[PlotMaker, String]]]])
+  extends Map[String, Either[PlotMaker, List[Either[PlotMaker, String]]]] {
 
   import PlotMaker._
 
@@ -1092,3 +1092,4 @@ object PlotMaker {
           "bathrobe",
           "mattress"))))
 }
+*/

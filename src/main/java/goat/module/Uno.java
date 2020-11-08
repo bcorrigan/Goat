@@ -150,7 +150,7 @@ public class Uno extends Module implements Output {
                 i++;
                 if(i>20)
                     break;
-                Record record = (Record) it.next();
+                goat.uno.Record record = (goat.uno.Record) it.next();
                 if (record.getName().length() > lNick)
                     lNick = record.getName().length();
                 if (Integer.toString(record.getHiScore()).length() > lHScore)
@@ -174,7 +174,7 @@ public class Uno extends Module implements Output {
             int count = 0;
             while (it.hasNext()) {
                 if(count>19) break;
-                Record record = (Record) it.next();
+                goat.uno.Record record = (goat.uno.Record) it.next();
                 count++;
                 String ratio;
                 if (record.getGamesEntered() > 0) {
