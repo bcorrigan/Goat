@@ -54,7 +54,7 @@ public class KVStore<T> implements Map<String, T> {
 	if(db==null) {
 	    File file = new File("resources/goatdb").getAbsoluteFile();
 	    System.out.println("DBFILE:" + file.getAbsolutePath());
-	    db = DBMaker.newFileDB(file)
+	    db = DBMaker.fileDB(file)
 		//.deleteFilesAfterClose()
 		.closeOnJvmShutdown()
 		//.asyncWriteDisable()
@@ -63,12 +63,12 @@ public class KVStore<T> implements Map<String, T> {
 	    //db.clearCache();
 	    //db.defrag(true);
 
-	    globalMap=db.getTreeMap("globalMap");
+	    globalMap= (ConcurrentNavigableMap<String, Object>) db.treeMap("globalMap").createOrOpen();
 	}
     }
 
     public void compact() {
-	db.compact();
+	//db.compact(); --not needed as of mapdb 3
     }
 
     //dump the entire global map: keys, types, and values.
@@ -150,8 +150,8 @@ public class KVStore<T> implements Map<String, T> {
 
     public void save(String key, T value) {
         debugWrite(value, "save()");
-	mapSlice.put(ns+key,  value);
-	db.commit();
+	    mapSlice.put(ns+key,  value);
+	    db.commit();
     }
 
     public T get(String key) {
