@@ -11,14 +11,14 @@ ThisBuild / scalaVersion := "2.13.3"
 resolvers += Resolver.bintrayIvyRepo("com.eed3si9n", "sbt-plugins")
 
 
-// make pythons work plz
+/** make pythons work plz
 val pyLibs=List("vendor/libpy","src/main/python")
 
 pyLibs map { pyLib =>
   javaOptions += "-Dpython.path=" + ((baseDirectory) map { bd => Attributed.blank(bd / pyLib) }).toString
   Runtime / unmanagedClasspath += baseDirectory.value / "pylib"
 }
-
+*/
 // the trustStore javaOption is not picked up unless we fork
 fork := true
 
@@ -35,7 +35,7 @@ libraryDependencies ++= Seq(
   "commons-lang" % "commons-lang" % "2.+",
   "org.apache.lucene" % "lucene-core" % "2.+",
   "org.python" % "jython-standalone" % "2.5.+", // picks up 2.5 betas, but not 2.7
-  "org.mapdb" % "mapdb" % "0.9.7"
+  "org.mapdb" % "mapdb" % "3.0.8"
 )
 
 // normal libs, use version latest.integration

@@ -406,7 +406,7 @@ class Github extends Module {
 
   var lastCommitUpdate: Date = new Date(0)
   val cacheTimeout = 1 * 60 * 1000
-  val commitStore: ConcurrentNavigableMap[Integer, RepositoryCommit] = KVStore.getDB().getTreeMap("githubCommits")
+  val commitStore: ConcurrentNavigableMap[Integer, RepositoryCommit] = KVStore.getDB().treeMap("githubCommits").createOrOpen().asInstanceOf[ConcurrentNavigableMap[Integer, RepositoryCommit]]
 
   private def getCommit(num: Int): RepositoryCommit =
     commitService.getCommit(goatRepo, commitStore.get(commitStore.size - num - 1).getSha)
