@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import goat.Goat;
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.Message;
 import goat.jcalc.Calculator;
 import goat.jcalc.CalculatorException;
 
@@ -74,7 +74,7 @@ public class Calc extends Module {
 	 */
 	private class Cogitator implements Callable<String> {
 		
-        private Message target;
+        private IrcMessage target;
         
         public Cogitator(Message m) {
         	target = m;

@@ -1,19 +1,15 @@
 package goat.module;
 
-import goat.core.Constants;
-import goat.core.Message;
+import goat.core.*;
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.User;
-import goat.core.Users;
 import goat.util.StringUtil;
 import goat.util.Location;
 import static goat.util.CurrencyConverter.*;
 import static goat.util.StringUtil.*;
 
 import java.util.TimeZone;
-import java.util.GregorianCalendar;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Date;
 import java.util.Random;
 import java.io.IOException;
@@ -84,7 +80,7 @@ public class UserManagement extends Module {
 		location[1] = Users.getUser(m.getSender()).getLongitude();
 	    }
 	    m.reply(m.getSender() + ", your location is  http://maps.google.co.uk/maps?ll=" + location[0] + "," + location[1] + " - to change this, see instructions in /msg");
-	    Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
+	    IrcMessage.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
 	} else {
 	    try {
 		Location location = new Location(url);
@@ -99,7 +95,7 @@ public class UserManagement extends Module {
 		}
 	    } catch (NumberFormatException nfe) {
 		m.reply(m.getSender() + ": Don't be an arse, eh? Just give me a google maps link. See instructions in /msg");
-		Message.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
+		IrcMessage.createPagedPrivmsg(m.getSender(), LOCATION_HELP_MESSAGE).send();
 	    }
 	}
     }
@@ -126,7 +122,7 @@ public class UserManagement extends Module {
 	    } else {
 		m.reply(m.getSender() + ", your time zone is \"" + tzString + "\" (" + TimeZone.getTimeZone(tzString).getDisplayName() + ").  To change it, see instructions in /msg");
 	    }
-	    Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
+	    IrcMessage.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 	} else if (tz.equalsIgnoreCase("unset")) {
 	    if(Users.hasUser(m.getSender()))
 		Users.getUser(m.getSender()).setTimeZoneString(tz) ;
@@ -139,7 +135,7 @@ public class UserManagement extends Module {
 		m.reply(u.getName() + "'s time zone set to \"" + u.getTimeZoneString() + "\"  Current time is: " + StringUtil.timeString(u.getTimeZoneString()));
 	    } else if(matches.size() == 0) {
 		m.reply("I couldn't find any time zones matching \"" + tz + "\".  Sorry.");
-		Message.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
+		IrcMessage.createPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE).send();
 	    } else if(matches.size() > MAX_LISTINGS) {
 		m.reply("I found " + matches.size() + " time zones matching \"" + tz + "\".  Listing all of them would be boring.");
 	    } else {
@@ -158,7 +154,7 @@ public class UserManagement extends Module {
 		    m.reply(m.getSender() + ", your currency is " + Users.getUser(m.getSender()).getCurrency() + ".");
 		else
 		    m.reply(m.getSender() + ", your currency is not set.  Instructions in /msg");
-		Message.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE).send();
+		IrcMessage.createPagedPrivmsg(m.getSender(), CURRENCY_HELP_MESSAGE).send();
 	    } else if(newCurrency.equalsIgnoreCase("unset")) {
 		if(Users.hasUser(m.getSender()) && ! Users.getUser(m.getSender()).getCurrency().equals("")) {
 		    Users.getUser(m.getSender()).setCurrency(newCurrency);
@@ -195,10 +191,10 @@ public class UserManagement extends Module {
 	if (m.getSender().equalsIgnoreCase(uname) || uname.equals("")) {
 	    if(! Users.hasUser(m.getSender())) {
 		reply="I don't know anything about you, " + m.getSender() + ".";
-		Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
+		IrcMessage.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
 	    } else if(Users.getUser(m.getSender()).getTimeZoneString().equals("")) {
 		reply="I don't know your time zone, " + m.getSender() + ".";
-		Message.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
+		IrcMessage.createPrivmsg(m.getSender(), "Try setting your timezone with the command \"timezone [your time zone]\"");
 	    }
 	    else
 		reply="Your current time is " + StringUtil.timeString(Users.getUser(m.getSender()).getTimeZoneString());
@@ -300,7 +296,7 @@ public class UserManagement extends Module {
 		    else {
 			df.setTimeZone(TimeZone.getTimeZone("Zulu"));
 			// nag the user if they haven't got their time zone set
-			Message.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
+			IrcMessage.createPagedPrivmsg(m.getSender(), TIMEZONE_HELP_MESSAGE);
 		    }
 
 		    Long lastSeen = u.getLastMessageTimestamp();

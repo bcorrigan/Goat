@@ -1,7 +1,6 @@
 package goat.module;
 
 import goat.core.Module;
-import goat.core.Message;
 
 import java.io.* ;
 import java.util.Arrays ;

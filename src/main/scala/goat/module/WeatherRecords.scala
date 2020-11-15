@@ -1,13 +1,8 @@
 package goat.module
 
-import goat.core.Module
-import goat.core.Message
-import goat.core.Users
+import goat.core.{IrcMessage, KVStore, Module, User, Users}
 import goat.util.CommandParser
 import goat.util.WeatherStore
-import goat.core.KVStore
-import goat.core.User
-
 import java.io.IOException;
 
 class WeatherRecords extends Module {

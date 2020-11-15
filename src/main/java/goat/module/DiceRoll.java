@@ -6,7 +6,6 @@ import java.text.ParseException;
 
 import goat.core.Constants;
 import goat.core.Module;
-import goat.core.Message;
 
 import goat.dice.*;
 

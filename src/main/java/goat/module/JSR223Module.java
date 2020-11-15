@@ -1,6 +1,6 @@
 package goat.module;
 
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.core.Module;
 
 import javax.script.ScriptEngine;
@@ -8,7 +8,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.Invocable;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
@@ -78,7 +77,7 @@ public class JSR223Module extends Module {
 		smod.engine.eval(mod);
 		Invocable inv = (Invocable) smod.engine;
 		Object module = inv.invokeFunction("getInstance");
-		Message msg = new Message("","","","My goodness, we peeked into a message object from python!");
+		IrcMessage msg = new IrcMessage("","","","My goodness, we peeked into a message object from python!");
 		inv.invokeMethod(module, "processChannelMessage", msg);
 		Object commands = inv.invokeMethod(module, "getCommands");
 		System.out.println("Commands:" + commands);

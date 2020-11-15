@@ -9,8 +9,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import goat.core.Constants;
-import goat.core.Message;
 import goat.core.Module;
 import goat.util.StringUtil;
 

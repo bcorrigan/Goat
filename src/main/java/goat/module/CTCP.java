@@ -1,16 +1,12 @@
 package goat.module;
 
 import goat.core.Constants;
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.Message;
 import goat.core.BotStats;
 import goat.Goat;
 
 import java.util.Date;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 /**
  * @author <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
@@ -35,7 +31,7 @@ public class CTCP extends Module {
 	public void processOtherMessage(Message m) {
 		int i, j;
 		if (m.getCommand().equals("PING")) {
-			new Message("", "PONG", "", m.getTrailing()).send();
+			new IrcMessage("", "PONG", "", m.getTrailing()).send();
 			return;
 		}
 		//dig out the sender
@@ -48,26 +44,26 @@ public class CTCP extends Module {
 			//check the command
 			//sort ctcp bits
 			if (m.isCTCP() && m.getCTCPCommand().equals("VERSION")) {
-				Message.createCTCP(name, "NOTICE", "VERSION", getVersionString()).send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "VERSION", getVersionString()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("PING")) {
-				Message.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()).send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "PING", m.getCTCPMessage()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("TIME")) {
-				Message.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()).send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "TIME", (new Date()).toString()).send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("CLIENTINFO")) {
-				Message.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE").send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "CLIENTINFO", "ACTION VERSION PING TIME CLIENTINFO SOURCE").send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("SOURCE")) {
-				Message.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.").send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "SOURCE", "You're not getting my source, you dirty hippy.").send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("USERINFO")) {
-				Message.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.").send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "USERINFO", "I am goat. All things goat.").send() ;
 			} else if (m.isCTCP() && m.getCTCPCommand().equals("ERRMSG")) {
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error").send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPMessage() + " : No Error").send() ;
 			} else if (m.isCTCP() && !m.getCTCPCommand().equals("ACTION"))     //this one has to come last. This signifies an unknown CTCP command.
 			{
-				Message.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command").send() ;
+				IrcMessage.createCTCP(name, "NOTICE", "ERRMSG", m.getCTCPCommand() + " : Unsupported CTCP command").send() ;
 			}
 		} else if (m.getCommand().equals("KICK")) {
 			String[] words = m.getParams().split(" ");
-			new Message("", "JOIN", words[0], "").send();
+			new IrcMessage("", "JOIN", words[0], "").send();
 		} else if (m.getCommand().equals("NICK")) {
 			if (m.getSender().equals(BotStats.getInstance().getBotname())) {
 				BotStats.getInstance().setBotname( m.getTrailing() );
@@ -80,12 +76,12 @@ public class CTCP extends Module {
 			if (intcommand == Constants.RPL_ENDOFNAMES) {    //End of /NAMES list.
 				i = m.getParams().indexOf(' ');
 				if (i > -1) {
-					new Message("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!").send();
+					new IrcMessage("", "PRIVMSG", m.getParams().substring(i + 1), "Goat!").send();
 				}
 			} else if (intcommand == Constants.ERR_ERRONEUSNICKNAME) {
 				BotStats.getInstance().setBotname( "Goat" );
-				new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
-				new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion()).send();
+				new IrcMessage("", "NICK", BotStats.getInstance().getBotname(), "").send();
+				new IrcMessage("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " + BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() + " v." + BotStats.getInstance().getVersion()).send();
 			} else if (intcommand == Constants.RPL_ENDOFMOTD) {   //End of /MOTD command.
 				//new Message("", "JOIN", m.channame, "").send();
 				if (!Goat.sc.alreadySeenMOTD()) {

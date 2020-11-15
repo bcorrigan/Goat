@@ -1,7 +1,7 @@
 package goat.module;
 
 import goat.core.Module;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.core.ModuleController;
 import goat.core.BotStats;
 
@@ -17,7 +17,7 @@ import javax.script.ScriptException;
 public class ModuleCommands extends Module {
 
 	public ModuleController modControl;
-	Message m;
+	IrcMessage m;
 
 	public void processPrivateMessage(Message msg) {
 		m = msg;

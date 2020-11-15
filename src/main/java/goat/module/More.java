@@ -1,7 +1,6 @@
 package goat.module;
 
 import goat.core.Module;
-import goat.core.Message;
 
 
 /**

@@ -10,7 +10,6 @@ import java.util.Random;
 
 import goat.Goat;
 import goat.core.Constants;
-import goat.core.Message;
 import goat.core.Module;
 import goat.core.Users;
 import goat.util.CommandParser;

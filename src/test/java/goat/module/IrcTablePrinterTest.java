@@ -5,7 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 
 import goat.core.Constants;
-import goat.core.Message;
 import goat.core.Module;
 import goat.util.IrcTablePrinter;
 import goat.util.IrcTablePrinter.Decorator;

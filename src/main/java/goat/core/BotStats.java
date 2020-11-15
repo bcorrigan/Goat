@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -277,7 +276,7 @@ public class BotStats {
             String lineIn;
 
             while ((lineIn = in.readLine()) != null) {
-                Message m = new Message("", "", "", "");
+                IrcMessage m = new IrcMessage("", "", "", "");
                 m.setAuthorised(true);
                 m.setPrivate(true);
                 if (lineIn.startsWith("#")) {

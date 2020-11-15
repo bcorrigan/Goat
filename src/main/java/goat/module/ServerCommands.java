@@ -1,10 +1,8 @@
 package goat.module;
 
 import goat.Goat;
-import goat.core.Constants;
-import goat.core.BotStats;
-import goat.core.IrcUser;
-import goat.core.Message;
+import goat.core.*;
+import goat.core.IrcMessage;
 import goat.core.Module;
 
 import java.net.SocketTimeoutException;
@@ -64,16 +62,16 @@ public class ServerCommands extends Module {
     }
 
     private static boolean buildingWhoReply = false;
-    private static List<Message> whoReplies = Collections.synchronizedList(new ArrayList<Message>());
+    private static List<IrcMessage> whoReplies = Collections.synchronizedList(new ArrayList<IrcMessage>());
     private long whoWaitInterval = 20; //short
     private long whoMaxWait = 3000; // 3 seconds, no waiting around
     private Object lockWHO = new Object();
 
     public List<IrcUser> who(String channel) throws SocketTimeoutException {
-        List<Message> temp;
+        List<IrcMessage> temp;
         synchronized (lockWHO) {
             buildingWhoReply = true;
-            new Message("","WHO",channel,"").send();
+            new IrcMessage("","WHO",channel,"").send();
             int i = 0;
             while((true == buildingWhoReply) && (i*whoWaitInterval < whoMaxWait)) {
                 try {
@@ -82,16 +80,16 @@ public class ServerCommands extends Module {
                 i++;
             }
             if (i*whoWaitInterval >= whoMaxWait) {
-                whoReplies = Collections.synchronizedList(new ArrayList<Message>());
+                whoReplies = Collections.synchronizedList(new ArrayList<IrcMessage>());
                 buildingWhoReply = false;
                 throw new SocketTimeoutException();
             }
             temp = whoReplies;
-            whoReplies = Collections.synchronizedList(new ArrayList<Message>());
+            whoReplies = Collections.synchronizedList(new ArrayList<IrcMessage>());
             buildingWhoReply = false;
         }
         List<IrcUser> ret = new ArrayList<IrcUser>();
-        Iterator<Message> it = temp.iterator();
+        Iterator<IrcMessage> it = temp.iterator();
         while(it.hasNext())
             ret.add(IrcUser.getNewInstanceFromWHOReply(it.next()));
         return ret;
@@ -106,7 +104,7 @@ public class ServerCommands extends Module {
     }
 
     private class CommandExecutor implements Runnable {
-        Message m;
+        IrcMessage m;
         String command;
         public CommandExecutor(Message message, String serverCommand) {
             m = message;

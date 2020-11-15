@@ -17,7 +17,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 
-import goat.core.Message;
 import goat.core.Module;
 import goat.util.CommandParser;
 

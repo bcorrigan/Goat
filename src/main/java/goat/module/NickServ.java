@@ -1,11 +1,9 @@
 package goat.module;
 
-import goat.Goat;
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.Message;
-import static goat.util.Passwords.*;
 
-import java.io.*;
+import static goat.util.Passwords.*;
 
 /**
  * @author bc
@@ -17,7 +15,7 @@ public class NickServ extends Module {
 
     public NickServ() {
         inAllChannels = true;
-        new Message("", "PRIVMSG", "NickServ", "identify " + getPassword("irc.pass")).send();
+        new IrcMessage("", "PRIVMSG", "NickServ", "identify " + getPassword("irc.pass")).send();
     }
 
     public void processPrivateMessage(Message m) {
@@ -40,7 +38,7 @@ public class NickServ extends Module {
                 if (m.getTrailing().startsWith("This nickname is registered and protected."))
                     if(m.getPrefix().equals("NickServ!services@services.slashnet.org")) {
                         lastReAuth = System.currentTimeMillis();
-                        new Message("", "PRIVMSG", "NickServ", "identify " + getPassword("irc.pass")).send();
+                        new IrcMessage("", "PRIVMSG", "NickServ", "identify " + getPassword("irc.pass")).send();
                     }
     }
 

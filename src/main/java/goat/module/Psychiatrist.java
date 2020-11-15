@@ -2,7 +2,6 @@ package goat.module;
 
 import goat.eliza.ElizaMain;
 import goat.core.Module;
-import goat.core.Message;
 
 /**
  * @author bc

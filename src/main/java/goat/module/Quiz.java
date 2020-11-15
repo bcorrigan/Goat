@@ -2,14 +2,12 @@ package goat.module;
 
 import goat.Goat;
 import goat.core.Constants;
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.Message;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -24,7 +22,7 @@ public class Quiz extends Module {
     private boolean playing;
     private String answer;
     private ArrayList<Integer> hiddenTipChars;     //the current tip. List of indexes of letters (not spaces) in answers
-    private Message target;
+    private IrcMessage target;
     private boolean answered;
     private QuizRunner runner = null;
 

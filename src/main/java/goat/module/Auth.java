@@ -1,13 +1,9 @@
 package goat.module;
 
 import goat.core.Module;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.core.BotStats;
 import static goat.util.Passwords.*;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.io.*;
 
 /**
  * <p>Date: 18-Dec-2003</p>
@@ -27,7 +23,7 @@ public class Auth extends Module {
             BotStats.getInstance().setOwner( m.getPrefix() );
             m.reply("Authorisation successful.");
             m.reply("You (" + m.getPrefix() + ") are now my registered owner.");	//TODO: This still needs to watch the user to determine if they drop.
-            new Message("", "MODE", m.getChanname() + " +o " + BotStats.getInstance().getOwner(), "").send();
+            new IrcMessage("", "MODE", m.getChanname() + " +o " + BotStats.getInstance().getOwner(), "").send();
         } else
             m.reply("Invalid login.");
     }

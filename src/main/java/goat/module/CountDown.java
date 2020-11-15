@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 
 import goat.Goat;
 import goat.core.Constants;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.core.Module;
 import goat.util.CountdownSolver;
 import goat.jcalc.Calculator;
@@ -35,7 +35,7 @@ public class CountDown extends Module implements Runnable {
     //the timing thread
     private GameRunner runner;
     //target channel
-    private Message target;
+    private IrcMessage target;
     //we use this to evaluate user's attempts at an answer
     Calculator calc = new Calculator();
     private Answer bestAnswer;

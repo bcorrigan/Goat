@@ -1,15 +1,12 @@
 package goat.module
 
-import goat.core.Module
-import goat.core.Message
+import goat.core.{IrcMessage, KVStore, Module}
 import goat.core.Constants._
-import goat.core.KVStore
 import goat.util.CommandParser
 import goat.util.Passwords
 import goat.util.StringUtil.scrub
 import goat.util.TextFilters.scotchify
 import goat.util.TranslateWrapper
-
 import org.eclipse.egit.github.core.service.RepositoryService
 import org.eclipse.egit.github.core.service.CommitService
 import org.eclipse.egit.github.core.service.IssueService
@@ -25,7 +22,6 @@ import org.eclipse.egit.github.core.User
 import org.eclipse.egit.github.core.Authorization
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.client.PageIterator
-
 import java.util.Date
 import java.util.TimeZone
 import java.util.concurrent.ConcurrentNavigableMap

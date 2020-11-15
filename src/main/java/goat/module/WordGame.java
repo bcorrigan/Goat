@@ -3,8 +3,8 @@ package goat.module;
 //import static goat.util.Scores.NAME;
 import goat.Goat;
 import goat.core.Constants;
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.Message;
 import goat.util.Dict;
 import goat.util.Scores;
 import static goat.util.Scores.*;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 /**
  * @author Barry Corrigan
@@ -49,7 +48,7 @@ public class WordGame extends Module implements Runnable, Comparator<String> {
 	private int warningThreshold = 40;
 	private HashMap<String, Boolean> warningsGiven = new HashMap<String, Boolean>();
 	
-	private Message target;							//just the target channel for any given game
+	private IrcMessage target;							//just the target channel for any given game
 	
 	private Map<String, Long> top10times = new HashMap<String, Long>();			//how long since someone asked for the top10 table       <----\
 	private ScoresWithMatches scores;							// running game and match scores

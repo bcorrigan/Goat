@@ -172,7 +172,7 @@ public class Remind extends goat.core.Module {
 
     				if(replyName==null || replyName.equals(reminder.getNick()))
     					replyName = "You";
-    				Message.createPrivmsg(reminder.getChannel(), reminder.getNick() + ": " + replyName + " asked me to remind you " + reminder.getMessage());
+    				IrcMessage.createPrivmsg(reminder.getChannel(), reminder.getNick() + ": " + replyName + " asked me to remind you " + reminder.getMessage());
     				secretary.reminders.removeFirst();
     				secretary.saveReminders();
     			}

@@ -4,7 +4,6 @@ import org.jibble.jmegahal.*;
 import java.io.*;
 
 import goat.core.Module;
-import goat.core.Message;
 import goat.core.BotStats;
 
 /**

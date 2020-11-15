@@ -44,10 +44,7 @@ import java.text.NumberFormat;
 import java.io.IOException;
 import java.util.*;
 
-import goat.core.Constants;
-import goat.core.Message;
 import goat.core.Module;
-import goat.core.User;
 import goat.core.Users;
 import goat.util.StringUtil;
 

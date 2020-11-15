@@ -5,7 +5,6 @@ import goat.Goat;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -20,7 +19,7 @@ public class ServerConnection extends Thread {
 
     public boolean debug = false;
 
-    private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue; //Queue of messages FROM the server
+    private static LinkedBlockingQueue<IrcMessage> inqueue = Goat.inqueue; //Queue of messages FROM the server
     private static LinkedBlockingQueue<Message> outqueue = Goat.outqueue; //Queue of messages TO the server
     private Socket IrcServer;
     private InputHandler ih;
@@ -50,8 +49,8 @@ public class ServerConnection extends Thread {
         ih.start();
         oh.start();
 
-        new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
-        new Message("", "USER", "goat" + " nowhere.com " + serverName, BotStats.getInstance().getVersion()).send();
+        new IrcMessage("", "NICK", BotStats.getInstance().getBotname(), "").send();
+        new IrcMessage("", "USER", "goat" + " nowhere.com " + serverName, BotStats.getInstance().getVersion()).send();
         //we sleep until we are connected, don't want to send these next messages too soon
         while (!connected) {
             try {
@@ -117,7 +116,7 @@ public class ServerConnection extends Thread {
                         
                         if (messageString == null )
                             continue;
-                        Message m = new Message(messageString);
+                        IrcMessage m = new IrcMessage(messageString);
 
                         if(m.getCommand().matches("\\d+"))
                             try {
@@ -131,8 +130,8 @@ public class ServerConnection extends Thread {
                                     System.err.println("NICKNAMEINUSE");
                                     namecount++;
                                     BotStats.getInstance().setBotname( botdefaultname + namecount );
-                                    new Message("", "NICK", BotStats.getInstance().getBotname(), "").send();
-                                    new Message("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " +
+                                    new IrcMessage("", "NICK", BotStats.getInstance().getBotname(), "").send();
+                                    new IrcMessage("", "USER", BotStats.getInstance().getBotname() + " nowhere.com " +
                                             BotStats.getInstance().getServername(), BotStats.getInstance().getClientName() +
                                             " v." + BotStats.getInstance().getVersion()).send();
                                     System.err.println("Setting nick to:" + botdefaultname + namecount);
@@ -143,7 +142,7 @@ public class ServerConnection extends Thread {
                             }
 
                         if (m.getCommand().equals("PING")) {
-                            outqueue.add(new Message("", "PONG", "", m.getTrailing()));
+                            outqueue.add(new IrcMessage("", "PONG", "", m.getTrailing()));
                             if (debug)
                                 System.out.println("PUNG at " + new Date());
                         }
@@ -249,6 +248,6 @@ public class ServerConnection extends Thread {
 
     private void joinChannels() {
         String[] channels = BotStats.getInstance().getChannels();
-        for (String channel : channels) new Message("", "JOIN", channel, "").send();
+        for (String channel : channels) new IrcMessage("", "JOIN", channel, "").send();
     }
 }

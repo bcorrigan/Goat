@@ -2,7 +2,7 @@ package goat.module;
 
 import goat.Goat;
 import goat.core.Module;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.util.ZScreen;
 import goat.util.ZMachine;
 
@@ -32,7 +32,7 @@ public class Adventure extends Module implements ZScreen {
     
     private char nbuf[] = new char[16];
 
-    private Message target;
+    private IrcMessage target;
     private LinkedList<String> input;
    
     private int saveSlot;

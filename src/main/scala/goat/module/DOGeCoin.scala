@@ -1,16 +1,13 @@
 package goat.module
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
-
-import goat.core.Module
-import goat.core.Message
+import org.json.JSONArray
+import org.json.JSONObject
+import org.json.JSONException
+import goat.core.{IrcMessage, Module, User}
 import goat.core.Constants._
-import goat.util.StringUtil.{scrub, formatMoney, formatBigNumber, formatSmallNumber}
+import goat.util.StringUtil.{formatBigNumber, formatMoney, formatSmallNumber, scrub}
 import goat.core.Users.hasUser
 import goat.core.Users.getUser
-import goat.core.User
 import goat.util.CommandParser
 
 import scala.math.round

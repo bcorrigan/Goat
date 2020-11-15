@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  *
  */
 public class MessageDispatcher {
-    private static LinkedBlockingQueue<Message> inqueue = Goat.inqueue;
+    private static LinkedBlockingQueue<IrcMessage> inqueue = Goat.inqueue;
 
 	/**
 	 *
@@ -30,7 +30,7 @@ public class MessageDispatcher {
 	private void monitor() {
         while(true) {
             try {
-                Message msg = inqueue.take();
+                IrcMessage msg = inqueue.take();
                 dispatchMessage(msg);
             } catch (InterruptedException ie) {}
 		}

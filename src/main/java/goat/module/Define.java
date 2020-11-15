@@ -1,7 +1,7 @@
 package goat.module ;
 
 import goat.Goat;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.core.Module;
 import goat.util.CommandParser;
 import goat.util.DICTClient;
@@ -294,7 +294,7 @@ public class Define extends Module {
 
     public static void main(String[] arg) {
         Define define = new Define() ;
-        DICTClient dc = define.getDICTClient(new Message("","","","")) ;
+        DICTClient dc = define.getDICTClient(new IrcMessage("","","","")) ;
         System.out.println("Starting main()") ;
         String[][] dbList = dc.getDatabases() ;
         String line = "" ;

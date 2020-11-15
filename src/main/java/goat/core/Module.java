@@ -3,7 +3,6 @@ package goat.core;
 
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.lang.reflect.*;
 
 /**
  * The superclass of all Goat modules.
@@ -201,7 +200,7 @@ public abstract class Module implements Runnable {
 		
 	}
 	
-	protected LinkedBlockingQueue<Message> incomingQueue = new LinkedBlockingQueue<Message>();
+	protected LinkedBlockingQueue<IrcMessage> incomingQueue = new LinkedBlockingQueue<IrcMessage>();
 	
 	public void queueIncomingMessage(Message m) {
 		incomingQueue.add(m);
@@ -219,14 +218,14 @@ public abstract class Module implements Runnable {
 		
 		// send a dummy message through the queue to make sure run() doesn't get stuck
 		// waiting on a take() for a message that will never come
-		incomingQueue.add(new Message());
+		incomingQueue.add(new IrcMessage());
 	}
 	
 	public final void run() {
 		running = true;
 		while (!stop) {
 			try {
-				Message m = incomingQueue.take();
+				IrcMessage m = incomingQueue.take();
 				if(!stop)  // we do it this in addition to while(!stop) because we might have been stopped while take() was waiting for something new to enter the queue  
 					processMessage(m);
 			} catch (InterruptedException ie) {}

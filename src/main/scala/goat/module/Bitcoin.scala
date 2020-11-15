@@ -1,24 +1,18 @@
 package goat.module
 
-import goat.core.Module
-import goat.core.Message
-import goat.core.Users
-import goat.core.Constants
+import goat.core.{Constants, IrcMessage, Module, Users}
 import goat.util.CommandParser
 import goat.util.BitcoinCharts
 import goat.util.BitcoinAverage
-
 import java.io._
 import java.net._
 
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONException
-
 import org.openqa.selenium.By
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
-
 import java.text.NumberFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat

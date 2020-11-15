@@ -2,7 +2,7 @@ package goat.module
 
 import goat.core.Constants._
 import goat.util.StringUtil
-import goat.core.{KVStore, Message, Module, Users, User => GoatUser}
+import goat.core.{KVStore, IrcMessage, Module, Users, User => GoatUser}
 import goat.util.CommandParser
 import goat.util.Passwords._
 import goat.util.TranslateWrapper
@@ -592,7 +592,7 @@ class TwitterModule extends Module {
       } else Right(screenName)
     }
 
-    Message.createPrivmsg(chan, scold +
+    IrcMessage.createPrivmsg(chan, scold +
         (if(unfollowed.exists(_.isLeft)) {
           "Unfollowed from twitter: " + delimit(unfollowed.filter(_.isLeft).map(_.left.get))
         } else "None to unfollow on twitter.")
@@ -974,7 +974,7 @@ class TwitterModule extends Module {
     //bit of a quick fix, should really collate based on last seen chans
     val sendchan = if(users.length==1) users.head.getLastChannel() else chan
 
-    Message.createPrivmsg(sendchan, REVERSE + colour + "*"+twid+"* " + userStr + NORMAL + " " + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
+    IrcMessage.createPrivmsg(sendchan, REVERSE + colour + "*"+twid+"* " + userStr + NORMAL + " " + BOLD +  status.getUser().getName() + " [@" + status.getUser().getScreenName() + "]" + BOLD + ": " + unescapeHtml(status.getText).replaceAll("\n", "")).send()
 
     if(!isMention(status))
         users foreach { user =>
@@ -987,7 +987,7 @@ class TwitterModule extends Module {
   }
 
   private def sendInfoMessageToChan(msg:String, chan:String):Unit = {
-    Message.createPrivmsg(chan, REVERSE + PURPLE + "***" + NORMAL + " " + unescapeHtml(msg)).send()
+    IrcMessage.createPrivmsg(chan, REVERSE + PURPLE + "***" + NORMAL + " " + unescapeHtml(msg)).send()
   }
 
   private def sanitiseAndScold(m: Message): Boolean =
@@ -1194,7 +1194,7 @@ class TwitterModule extends Module {
         stalk(m)
       case ("tweetchannel", true) =>
         chan = m.getChanname
-        Message.createPrivmsg(m.getChanname, "This channel is now the main channel for twitter following.").send()
+        IrcMessage.createPrivmsg(m.getChanname, "This channel is now the main channel for twitter following.").send()
       case ("tweetchannel", false) =>
         m.reply("You can't tell me where to send my tweeters")
       case ("follow", _) =>

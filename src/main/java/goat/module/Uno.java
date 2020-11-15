@@ -4,11 +4,11 @@
 package goat.module;
 
 import goat.Goat;
+import goat.core.IrcMessage;
 import goat.uno.*;
 import goat.uno.cards.*;
 import goat.core.Constants;
 import goat.core.Module;
-import goat.core.Message;
 
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -25,7 +25,7 @@ public class Uno extends Module implements Output {
     boolean waiting; //true if a game has been started but only one player has joined it
     boolean hasJoined; //signifies whether it is safe to start the game
     Game game;
-    Message target;        //the target channel, effectively. The message that started the game
+    IrcMessage target;        //the target channel, effectively. The message that started the game
     String longReply;            //Reply string for multiple events
     private static final String[] SPACES = new String[20];    //spaces for formatting purposes
     private static final String BG = Constants.COLCODE + ",1";  //bg colour
@@ -376,15 +376,15 @@ public class Uno extends Module implements Output {
         while (it.hasNext()) {
             reply += ' ' + getStringForCard((Card) it.next());
         }
-        new Message("", "NOTICE", player.getName(), NORMAL + reply).send();
+        new IrcMessage("", "NOTICE", player.getName(), NORMAL + reply).send();
     }
 
     public void noSuchCard(Player player) {
-        new Message("", "NOTICE", player.getName(), "You don't have that card.").send();
+        new IrcMessage("", "NOTICE", player.getName(), "You don't have that card.").send();
     }
 
     public void playerCantPlay(Player player) {
-        new Message("", "NOTICE", player.getName(), "You can't play that card.").send();
+        new IrcMessage("", "NOTICE", player.getName(), "You can't play that card.").send();
     }
 
     public void playerWon(Player player, int score, Player[] players) {
@@ -406,7 +406,7 @@ public class Uno extends Module implements Output {
     }
 
     public void swapDrawAndDiscard() {
-        new Message("", "ACTION", target.getChanname(), "turns over the discard pile and makes it the draw pile.").send();
+        new IrcMessage("", "ACTION", target.getChanname(), "turns over the discard pile and makes it the draw pile.").send();
     }
 
     public void playerDrewCard(Player player, Card card) {
@@ -414,7 +414,7 @@ public class Uno extends Module implements Output {
             return;
         target.reply(Constants.BOLD + player.getName() + Constants.BOLD + " has drawn a card.");
         if (!player.isABot)
-            new Message("", "NOTICE", player.getName(), NORMAL + "You drew: " + getStringForCard(card)).send();
+            new IrcMessage("", "NOTICE", player.getName(), NORMAL + "You drew: " + getStringForCard(card)).send();
     }
 
     public void playerPassed(Player player) {
@@ -440,7 +440,7 @@ public class Uno extends Module implements Output {
         if (card.getType() == Card.WILD || card.getType() == Card.WDF) {
             card = game.colourCard;
         }
-        new Message("", "NOTICE", player.getName(), NORMAL + getStringForCard(card) + " is up.").send();
+        new IrcMessage("", "NOTICE", player.getName(), NORMAL + getStringForCard(card) + " is up.").send();
     }
 
     public void showTopDiscardCardEverybody(Card card) {
@@ -482,7 +482,7 @@ public class Uno extends Module implements Output {
         if(player.isABot)
             return;
         for (Card card : cards) reply += ' ' + getStringForCard(card);
-        new Message("", "NOTICE", player.getName(), NORMAL + "You drew:" + reply).send();
+        new IrcMessage("", "NOTICE", player.getName(), NORMAL + "You drew:" + reply).send();
     }
 
     public void chooseColour(Player player) {
@@ -491,7 +491,7 @@ public class Uno extends Module implements Output {
             longReply = null;
         }
         if (!player.isABot)
-            new Message("", "NOTICE", player.getName(), "Please choose a colour.").send();
+            new IrcMessage("", "NOTICE", player.getName(), "Please choose a colour.").send();
     }
 
     public void chosenColour(Colour colour) {

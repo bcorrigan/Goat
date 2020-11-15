@@ -1,7 +1,6 @@
 package goat.module
 
-import goat.core.Module
-import goat.core.Message
+import goat.core.{IrcMessage, Module}
 import goat.core.Constants._
 import goat.util.CommandParser
 import com.omertron.rottentomatoesapi._
@@ -9,7 +8,6 @@ import com.omertron.rottentomatoesapi.model._
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.javaapi.CollectionConverters._
-
 import scala.collection.mutable.Buffer;
 
 //todo let user save personal picks - films they want to watch etc

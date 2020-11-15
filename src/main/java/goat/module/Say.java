@@ -1,7 +1,7 @@
 package goat.module;
 
 import goat.core.Module;
-import goat.core.Message;
+import goat.core.IrcMessage;
 
 /**
  * <p><b>? Barry Corrigan</b> All Rights Reserved.</p>
@@ -13,7 +13,7 @@ public class Say extends Module {
 			String trailing="";
 			for(int i=1;i<words.length;i++)
 				trailing+=words[i] + ' ';
-			new Message("", "PRIVMSG", words[0], trailing).send();
+			new IrcMessage("", "PRIVMSG", words[0], trailing).send();
 		}
 	}
 

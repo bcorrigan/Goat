@@ -1,7 +1,7 @@
 package goat.module;
 
 import goat.core.Constants;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.core.Module;
 import goat.util.CommandParser;
 

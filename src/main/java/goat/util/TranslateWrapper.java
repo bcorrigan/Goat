@@ -1,7 +1,7 @@
 package goat.util;
 
 import static goat.util.TextFilters.scotchify;
-import goat.core.Message;
+
 import goat.core.Users;
 
 import java.util.Map;

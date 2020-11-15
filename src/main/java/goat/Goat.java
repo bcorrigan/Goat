@@ -1,18 +1,15 @@
 package goat;
 
 import goat.core.*;
-import goat.module.Core;
 import goat.module.ModuleCommands;
 import static goat.util.Passwords.*;
 
-import java.io.*;
-import java.net.URL;
 import java.util.Locale;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Goat {
     private static boolean showhelp;
-    public static LinkedBlockingQueue<Message> inqueue = new LinkedBlockingQueue<Message>();
+    public static LinkedBlockingQueue<IrcMessage> inqueue = new LinkedBlockingQueue<IrcMessage>();
     public static LinkedBlockingQueue<Message> outqueue = new LinkedBlockingQueue<Message>();
     public static ModuleController modController = new ModuleController() ;
     public static String[] argv = {""};

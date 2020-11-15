@@ -1,21 +1,19 @@
 package goat.module;
 
 import goat.core.Module;
-import goat.core.Message;
+import goat.core.IrcMessage;
 import goat.util.Dict;
 import goat.util.CommandParser;
 import static goat.core.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Random;
 
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptEngine;
 import java.io.FileReader;
 import javax.script.Invocable;
-import javax.script.ScriptException;
 
 /**
  * Title:
@@ -200,7 +198,7 @@ public class RandWords extends Module {
 }
 
 class ThreadedImageSearch extends Thread {
-    private Message m;
+    private IrcMessage m;
     private String result;
     private Invocable inv = null;
 

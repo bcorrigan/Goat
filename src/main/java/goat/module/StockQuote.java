@@ -3,7 +3,6 @@ package goat.module;
 import goat.Goat;
 import goat.core.Constants;
 import goat.core.Module;
-import goat.core.Message;
 import goat.util.YahooStockQuote;
 import goat.util.YahooStockQuoteException;
 

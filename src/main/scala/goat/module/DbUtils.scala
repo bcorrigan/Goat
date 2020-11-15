@@ -1,11 +1,8 @@
 package goat.module
 
-import goat.core.Module
-import goat.core.Message
+import goat.core.{IrcMessage, KVStore, Module}
 import goat.util.CommandParser
-import goat.core.KVStore
-
-import java.io.IOException;
+import java.io.IOException
 
 import scala.jdk.CollectionConverters._
 import scala.collection.TraversableOnce

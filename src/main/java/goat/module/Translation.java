@@ -3,7 +3,6 @@ package goat.module;
 import static goat.util.StringUtil.scrub;
 import static goat.util.TranslateWrapper.DEFAULT_GOAT_LANGUAGE;
 import goat.core.Constants;
-import goat.core.Message;
 import goat.core.Module;
 import goat.util.TranslateWrapper;
 

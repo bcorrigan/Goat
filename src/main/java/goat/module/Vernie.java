@@ -8,8 +8,8 @@ package goat.module;
  * @version 1.0
  */
 
+import goat.core.IrcMessage;
 import goat.core.Module;
-import goat.core.Message;
 import goat.core.BotStats;
 
 import java.net.*;
@@ -78,7 +78,7 @@ public class Vernie extends Module {
 
 			if (message.equals("post titles") || message.equals("show titles")) {
 				posttitles = !posttitles;
-				Message.createNotice(towho, "title posting " + (posttitles ? "On" : "Off"));
+				IrcMessage.createNotice(towho, "title posting " + (posttitles ? "On" : "Off"));
 			}
 		}
 
@@ -99,7 +99,7 @@ public class Vernie extends Module {
 			if (num.length() < 2)
 				num = ' ' + num;
 
-			Message.createNotice(towho, num + ". " + currentitem);
+			IrcMessage.createNotice(towho, num + ". " + currentitem);
 
 			i++;
 		}
@@ -157,7 +157,7 @@ public class Vernie extends Module {
 			return;
 		} catch (IOException e) {
 			if (posttitles)
-				Message.createNotice(owner, link + " appears to be broken: " + e.getMessage());
+				IrcMessage.createNotice(owner, link + " appears to be broken: " + e.getMessage());
 			return;
 		}
 
@@ -166,7 +166,7 @@ public class Vernie extends Module {
 			in = new BufferedReader(new InputStreamReader(file.getInputStream()));
 		} catch (IOException e) {
 			if (posttitles)
-				Message.createNotice(owner, link + " appears to be broken: " + e.getMessage());
+				IrcMessage.createNotice(owner, link + " appears to be broken: " + e.getMessage());
 			return;
 		}
 
@@ -174,7 +174,7 @@ public class Vernie extends Module {
 
 		if (file.getContentType() != null && (file.getContentType().length() < parseabletype.length() || !file.getContentType().substring(0, parseabletype.length()).equals(parseabletype))) {
 			if (posttitles)
-				Message.createNotice(towho, owner + "'s URL is of type " + file.getContentType() + " (" + file.getContentLength() / 1024 + "KB)");
+				IrcMessage.createNotice(towho, owner + "'s URL is of type " + file.getContentType() + " (" + file.getContentLength() / 1024 + "KB)");
 
 			if (towho.equals(channel))
 				addHistory(owner + " - " + link + " (" + file.getContentLength() / 1024 + "KB)");
@@ -189,7 +189,7 @@ public class Vernie extends Module {
 
 		if (file.getContentLength() > 500 * 1024) {
 			if (posttitles)
-				Message.createNotice(towho, owner + "'s URL was too large a file for me to bother parsing: " + file.getContentLength() / 1024 + "KB");
+				IrcMessage.createNotice(towho, owner + "'s URL was too large a file for me to bother parsing: " + file.getContentLength() / 1024 + "KB");
 
 			if (towho.equals(channel))
 				addHistory(owner + " - " + link + " (" + file.getContentLength() / 1024 + "KB)");
@@ -213,7 +213,7 @@ public class Vernie extends Module {
 			}
 
 			if (line == null) {
-				Message.createNotice(towho, owner + "'s URL: \"No Title\" (" + file.getContentLength() / 1024 + "KB)");
+				IrcMessage.createNotice(towho, owner + "'s URL: \"No Title\" (" + file.getContentLength() / 1024 + "KB)");
 				addHistory(owner + " - " + link + " : \"No Title\" (" + file.getContentLength() / 1024 + "KB)");
 				return;
 			}
@@ -236,7 +236,7 @@ public class Vernie extends Module {
 					thetitle = thetitle.substring(0, 100) + "...";
 
 				if (posttitles)
-					Message.createNotice(towho, owner + "'s URL: \"" + thetitle + "\" (" + file.getContentLength() / 1024 + "KB)");
+					IrcMessage.createNotice(towho, owner + "'s URL: \"" + thetitle + "\" (" + file.getContentLength() / 1024 + "KB)");
 
 				if (towho.equals(channel))
 					addHistory(owner + " - " + link + " : \"" + thetitle + "\" (" + file.getContentLength() / 1024 + "KB)");

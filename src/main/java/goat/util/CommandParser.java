@@ -1,6 +1,5 @@
 package goat.util;
 
-import goat.core.Message;
 import static goat.util.StringUtil.removeFormattingAndColors;
 
 import java.util.Collections;

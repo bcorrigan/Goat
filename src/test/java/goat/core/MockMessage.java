@@ -6,7 +6,7 @@ package goat.core;
  * Date: 12-Mar-2007
  * Time: 21:35:00
  */
-public class MockMessage extends Message {
+public class MockMessage extends IrcMessage {
 
     public String sentMessage;
 
